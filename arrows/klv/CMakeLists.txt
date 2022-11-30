@@ -3,12 +3,14 @@
 set(CMAKE_FOLDER "Arrows/KLV")
 
 set( sources
+  apply_child_klv.cxx
   klv_blob.cxx
   klv_checksum.cxx
   klv_convert_vital.cxx
   klv_data_format.cxx
   klv_demuxer.cxx
   klv_lengthy.cxx
+  klv_length_constraints.cxx
   klv_key.cxx
   klv_metadata.cxx
   klv_muxer.cxx
@@ -18,6 +20,8 @@ set( sources
   klv_tag_traits.cxx
   klv_timeline.cxx
   klv_unimplemented.cxx
+  klv_update_intervals.cxx
+  klv_update_tracker.cxx
   klv_uuid.cxx
   klv_value.cxx
   klv_0102.cxx
@@ -41,6 +45,7 @@ set( sources
   klv_0903_vtracker_set.cxx
   klv_1002.cxx
   klv_1010.cxx
+  klv_1107.cxx
   klv_1108.cxx
   klv_1108_metric_set.cxx
   klv_1202.cxx
@@ -54,10 +59,12 @@ set( sources
   )
 
 set( public_headers
+  apply_child_klv.h
   klv_all.h
   klv_blob.h
   klv_demuxer.h
   klv_lengthy.h
+  klv_length_constraints.h
   klv_list.h
   klv_list.hpp
   klv_key.h
@@ -67,7 +74,9 @@ set( public_headers
   klv_series.h
   klv_set.h
   klv_timeline.h
+  klv_types.h
   klv_unimplemented.h
+  klv_update_intervals.h
   klv_value.h
   klv_0102.h
   klv_0104.h
@@ -90,6 +99,7 @@ set( public_headers
   klv_0903_vtracker_set.h
   klv_1002.h
   klv_1010.h
+  klv_1107.h
   klv_1108.h
   klv_1108_metric_set.h
   klv_1202.h
@@ -106,7 +116,9 @@ set( public_headers
 set( private_headers
   klv_data_format.h
   klv_length_value.h
+  klv_key_traits.h
   klv_read_write.h
+  klv_update_tracker.h
   klv_util.h
 )
 
@@ -132,6 +144,12 @@ target_link_libraries( kwiver_algo_klv
   PRIVATE       vital
                 vital_logger
   )
+
+
+algorithms_create_plugin( kwiver_algo_klv
+  register_algorithms.cxx
+  )
+
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )

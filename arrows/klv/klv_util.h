@@ -10,6 +10,7 @@
 
 #include <vital/exceptions.h>
 #include <vital/optional.h>
+#include <vital/util/interval.h>
 
 #include <ostream>
 #include <set>
@@ -25,6 +26,14 @@ namespace klv {
 
 // ----------------------------------------------------------------------------
 #define ENUM_AND_NAME( X ) X, #X
+
+// ----------------------------------------------------------------------------
+template< class T >
+std::ostream&
+operator<<( std::ostream& os, vital::interval< T > const& value )
+{
+  return os << "( " << value.lower() << ", " << value.upper() << " )";
+}
 
 // ----------------------------------------------------------------------------
 template < class T >

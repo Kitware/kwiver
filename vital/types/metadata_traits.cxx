@@ -34,6 +34,14 @@ VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
       "Unix Timestamp (microseconds)",
       "Number of microseconds since the Unix epoch, not counting leap "
       "seconds." },
+    { TRAITS_OF( UNIX_NANO_TIMESTAMP ),
+      "Unix Timestamp (nanoseconds)",
+      "Number of nanoseconds since the Unix epoch, not counting leap "
+      "seconds." },
+    { TRAITS_OF( UNIX_TIMESTAMP_SOURCE ),
+      "Unix Timestamp Source",
+      "Detail about where the Unix timestamp was derived from. Currently "
+      "permitted values: 'klv', 'misp'." },
     { TRAITS_OF( MISSION_ID ),
       "Mission ID",
       "Descriptive mission identifier to distinguish event or sortie." },
@@ -166,9 +174,6 @@ VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
       "Corner Points (lon/lat)",
       "Four sided polygon representing the image bounds. The corners are "
       "ordered: upper left, upper right, lower right, lower left." },
-    { TRAITS_OF( ICING_DETECTED ),
-      "Icing Detected",
-      "Flag for icing detected at aircraft location." },
     { TRAITS_OF( WIND_DIRECTION ),
       "Wind Direction (degrees)",
       "Wind direction at aircraft location. This is the direction the wind is "

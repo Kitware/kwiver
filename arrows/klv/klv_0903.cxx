@@ -22,13 +22,6 @@ namespace arrows {
 
 namespace klv {
 
-namespace {
-
-constexpr size_t checksum_packet_length = 4;
-std::vector< uint8_t > const checksum_header = { KLV_0903_CHECKSUM, 2 };
-
-} // namespace <anonymous>
-
 // ----------------------------------------------------------------------------
 std::ostream&
 operator<<( std::ostream& os, klv_0903_tag tag )
@@ -117,13 +110,15 @@ klv_0903_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_HORIZONTAL_FOV ),
-      std::make_shared< klv_imap_format >( 0.0, 180.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ 0.0, 180.0 } ),
       "VMTI Horizontal FOV",
       "Horizonal field of view of sensor input to the VMTI process.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VERTICAL_FOV ),
-      std::make_shared< klv_imap_format >( 0.0, 180.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ 0.0, 180.0 } ),
       "VMTI Vertical FOV",
       "Vertical field of view of sensor input to the VMTI process.",
       { 0, 1 } },
@@ -163,7 +158,8 @@ klv_0903_traits_lookup()
 // ----------------------------------------------------------------------------
 klv_0903_local_set_format
 ::klv_0903_local_set_format()
-  : klv_local_set_format{ klv_0903_traits_lookup() }
+  : klv_local_set_format{ klv_0903_traits_lookup() },
+    m_checksum_format{ { KLV_0903_CHECKSUM, 2 } }
 {}
 
 // ----------------------------------------------------------------------------
@@ -171,62 +167,15 @@ std::string
 klv_0903_local_set_format
 ::description() const
 {
-  return "vmti local set of " + length_description();
+  return "vmti local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
-uint32_t
+klv_checksum_packet_format const*
 klv_0903_local_set_format
-::calculate_checksum( klv_read_iter_t data, size_t length ) const
+::checksum_format() const
 {
-  return klv_running_sum_16( checksum_header.begin(), checksum_header.end(),
-                             klv_running_sum_16( data, data + length ),
-                             length % 2 );
-}
-
-// ----------------------------------------------------------------------------
-uint32_t
-klv_0903_local_set_format
-::read_checksum( klv_read_iter_t data, size_t length ) const
-{
-  if( length < checksum_packet_length )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "packet too small; checksum is not present" );
-  }
-  data += length - checksum_packet_length;
-
-  if( !std::equal( checksum_header.cbegin(), checksum_header.cend(), data ) )
-  {
-    VITAL_THROW( kv::metadata_exception,
-                 "checksum header not present" );
-  }
-  data += checksum_header.size();
-
-  return klv_read_int< uint16_t >( data, 2 );
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_0903_local_set_format
-::write_checksum( uint32_t checksum,
-                  klv_write_iter_t& data, size_t max_length ) const
-{
-  if( max_length < checksum_packet_length )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "writing checksum packet overflows data buffer" );
-  }
-  data = std::copy( checksum_header.cbegin(), checksum_header.cend(), data );
-  klv_write_int( static_cast< uint16_t >( checksum ), data, 2 );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_0903_local_set_format
-::checksum_length() const
-{
-  return checksum_packet_length;
+  return &m_checksum_format;
 }
 
 } // namespace klv

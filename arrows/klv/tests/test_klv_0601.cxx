@@ -114,8 +114,7 @@ auto const expected_result = klv_local_set{
     kld{ 9.4453345540549662 } },
   { KLV_0601_OPERATIONAL_MODE,
     KLV_0601_OPERATIONAL_MODE_OPERATIONAL },
-  { KLV_0601_FRAME_CENTER_HEIGHT_ABOVE_ELLIPSOID,
-    kld{ 9.4453345540549662 } },
+  { KLV_0601_FRAME_CENTER_ELLIPSOID_HEIGHT,    kld{ 9.4453345540549662 } },
   { KLV_0601_SENSOR_NORTH_VELOCITY,            kld{  25.497756889553518 } },
   { KLV_0601_SENSOR_EAST_VELOCITY,             kld{  12.095217749565112 } },
   { KLV_0601_IMAGE_HORIZON_PIXEL_PACK,
@@ -161,7 +160,7 @@ auto const expected_result = klv_local_set{
   { KLV_0601_ALTITUDE_ABOVE_GROUND_LEVEL,      kld{ 2150.0000000000000 } },
   { KLV_0601_RADAR_ALTIMETER,                  kld{ 2154.5000000000000 } },
   { KLV_0601_CONTROL_COMMAND,
-    klv_0601_control_command{ 5, "Fly to Waypoint 1", 0 } },
+    klv_0601_control_command{ 5, "Fly to Waypoint 1", kv::nullopt } },
   { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
     std::vector< uint64_t >{ 3, 7 } },
   { KLV_0601_SENSOR_AZIMUTH_RATE,              kld{  1.0 } },
@@ -234,16 +233,22 @@ auto const expected_result = klv_local_set{
   },
   { KLV_0601_WAYPOINT_LIST,
     std::vector< klv_0601_waypoint_record >{
-      { 0, 1, 3,
+      { 0, 1,
+        std::set< klv_0601_waypoint_info_bit >{
+          KLV_0601_WAYPOINT_INFO_BIT_MODE, KLV_0601_WAYPOINT_INFO_BIT_SOURCE },
         klv_0601_location_dlp{ 38.8894219398498535, -77.0351622104644775,
                                200.000000000000000 } },
-      { 1, 2, 2,
+      { 1, 2,
+        std::set< klv_0601_waypoint_info_bit >{
+          KLV_0601_WAYPOINT_INFO_BIT_SOURCE },
         klv_0601_location_dlp{ 38.8892679214477539, -77.0499181747436523,
                                250.000000000000000 } },
-      { 2, 32767, 1,
+      { 2, 32767,
+        std::set< klv_0601_waypoint_info_bit >{
+          KLV_0601_WAYPOINT_INFO_BIT_MODE },
         klv_0601_location_dlp{ 38.8897409439086914, -77.0129330158233643,
                                100.000000000000000 } },
-      { 3, -2, 0,
+      { 3, -2, std::set< klv_0601_waypoint_info_bit >{},
         klv_0601_location_dlp{ 38.8898218870162964, -77.0100920200347900,
                                300.000000000000000 } }
     } },
@@ -403,7 +408,7 @@ auto const input_bytes = klv_bytes_t{
   0x0B, 0xB3,
   0x4D, 0x01, // KLV_0601_OPERATIONAL_MODE
   0x01,
-  0x4E, 0x02, // KLV_0601_FRAME_CENTER_HEIGHT_ABOVE_ELLIPSOID
+  0x4E, 0x02, // KLV_0601_FRAME_CENTER_ELLIPSOID_HEIGHT
   0x0B, 0xB3,
   0x4F, 0x02, // KLV_0601_SENSOR_NORTH_VELOCITY
   0x09, 0xFB,
@@ -557,38 +562,7 @@ TEST ( klv, read_write_0601 )
 // ----------------------------------------------------------------------------
 TEST ( klv, read_write_0601_packet )
 {
-  auto const packet_header = klv_bytes_t{
-    0x06, 0x0E, 0x2B, 0x34, 0x02, 0x0B, 0x01, 0x01,
-    0x0E, 0x01, 0x03, 0x01, 0x01, 0x00, 0x00, 0x00,
-    0x82, 0x03, 0xBB };
   auto const packet_footer = klv_bytes_t{ KLV_0601_CHECKSUM, 2, 0x58, 0x02 };
-
-  // Assemble the target packet's serialized form
-  auto packet_bytes =
-    klv_bytes_t( packet_header.size() +
-                 input_bytes.size() +
-                 packet_footer.size() );
-  auto bytes_it = packet_bytes.begin();
-  bytes_it = std::copy( packet_header.cbegin(), packet_header.cend(),
-                        bytes_it );
-  bytes_it = std::copy( input_bytes.cbegin(), input_bytes.cend(),
-                        bytes_it );
-  bytes_it = std::copy( packet_footer.cbegin(), packet_footer.cend(),
-                        bytes_it );
-
-  // Assemble the target packet's unserialized form
-  auto const test_packet = klv_packet{ klv_0601_key(), expected_result };
-
-  // Deserialize
-  auto read_it = packet_bytes.cbegin();
-  auto const read_packet = klv_read_packet( read_it, packet_bytes.size() );
-  EXPECT_EQ( packet_bytes.cend(), read_it );
-  EXPECT_EQ( test_packet, read_packet );
-
-  // Reserialize
-  klv_bytes_t written_bytes( klv_packet_length( read_packet ) );
-  auto write_it = written_bytes.begin();
-  klv_write_packet( read_packet, write_it, written_bytes.size() );
-  EXPECT_EQ( written_bytes.end(), write_it );
-  EXPECT_EQ( packet_bytes, written_bytes );
+  CALL_TEST( test_read_write_packet,
+             expected_result, input_bytes, packet_footer, klv_0601_key() );
 }

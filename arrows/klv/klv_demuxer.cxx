@@ -7,19 +7,7 @@
 
 #include "klv_demuxer.h"
 
-#include <arrows/klv/klv_0102.h>
-#include <arrows/klv/klv_0104.h>
-#include <arrows/klv/klv_0601.h>
-#include <arrows/klv/klv_0806.h>
-#include <arrows/klv/klv_0903.h>
-#include <arrows/klv/klv_1002.h>
-#include <arrows/klv/klv_1010.h>
-#include <arrows/klv/klv_1108.h>
-#include <arrows/klv/klv_1108_metric_set.h>
-#include <arrows/klv/klv_1202.h>
-#include <arrows/klv/klv_1204.h>
-#include <arrows/klv/klv_1206.h>
-#include <arrows/klv/klv_1601.h>
+#include <arrows/klv/klv_all.h>
 
 #include <vital/logger/logger.h>
 #include <vital/range/iota.h>
@@ -177,6 +165,8 @@ klv_demuxer
     case KLV_PACKET_MISB_1002_LOCAL_SET:
       timestamp_tag = KLV_1002_PRECISION_TIMESTAMP;
       break;
+    case KLV_PACKET_MISB_1107_LOCAL_SET:
+      timestamp_tag = KLV_1107_PRECISION_TIMESTAMP;
     default:
       break;
   }
@@ -198,6 +188,7 @@ klv_demuxer
     case KLV_PACKET_MISB_0806_LOCAL_SET:
     case KLV_PACKET_MISB_0903_LOCAL_SET:
     case KLV_PACKET_MISB_1002_LOCAL_SET:
+    case KLV_PACKET_MISB_1107_LOCAL_SET:
     case KLV_PACKET_MISB_1202_LOCAL_SET:
     case KLV_PACKET_MISB_1206_LOCAL_SET:
     case KLV_PACKET_MISB_1601_LOCAL_SET:
@@ -342,6 +333,12 @@ klv_demuxer
   {
     auto const tag = entry.first;
     auto const& value = entry.second;
+    if( !value.valid() )
+    {
+      demux_single_entry( standard, tag, {}, time_interval, value );
+      continue;
+    }
+
     switch( tag )
     {
       // Timestamp already implicitly encoded
@@ -407,8 +404,18 @@ klv_demuxer
   constexpr auto standard = KLV_PACKET_MISB_1108_LOCAL_SET;
 
   // Extract timestamp
-  auto const metric_period = value.at( KLV_1108_METRIC_PERIOD_PACK )
-    .get< klv_1108_metric_period_pack >();
+  auto const metric_period_range = value.all_at( KLV_1108_METRIC_PERIOD_PACK );
+  if( metric_period_range.size() != 1 ||
+      !metric_period_range.begin()->second.valid() )
+  {
+    LOG_ERROR(
+      kv::get_logger( "klv" ),
+      "demuxer: ST1108 packet has missing or invalid metric period pack "
+      "and will be dropped" );
+    return;
+  }
+  auto const metric_period =
+    metric_period_range.begin()->second.get< klv_1108_metric_period_pack >();
 
   // Valid for the period of time specified in METRIC_PERIOD_PACK field
   auto const time_interval =

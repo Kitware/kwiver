@@ -8,6 +8,7 @@
 #include "uv_unwrap_mesh.h"
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <numeric>
 #include <Eigen/Dense>
@@ -153,12 +154,20 @@ void uv_unwrap_mesh::unwrap(kwiver::vital::mesh_sptr mesh) const
     vector_2d a(0.0, 0.0);
     vector_2d b(AB.norm(), 0.0);
     double proj = AC.dot(AB) / AB.norm();
+    // If A == B == C, proj can be NaN
+    if (std::isnan(proj))
+      proj = 0;
     vector_2d c(proj, (AC - proj * AB.normalized()).norm());
     // scale B and C by the resolution
-    total_area += b(0) * c(1);
     double w = b(0);
     double h = c(1);
-    if (longest_edge == 0)
+    total_area += w * h;
+    // If the triangle has no area, set it to 0,0
+    if (w == 0 || h == 0)
+    {
+      triangles[f] = {{0, 0}, {0, 0}, {0, 0}, f, 0, 0};
+    }
+    else if (longest_edge == 0)
     {
       // pt1 is A, pt2 is B, pt3 is C
       triangles[f] = {a, b, c, f, h, w};
@@ -202,7 +211,10 @@ void uv_unwrap_mesh::unwrap(kwiver::vital::mesh_sptr mesh) const
   double max_u = 0.0, max_v = 0.0;
   for (unsigned int f : face_indices)
   {
-    if (current_u + triangles[f].width + margin> max_width)
+    if (triangles[f].width == 0 || triangles[f].height == 0 )
+      continue;
+
+    if (current_u + triangles[f].width + margin > max_width)
     {
       current_u = margin;
       current_v = next_v + margin;

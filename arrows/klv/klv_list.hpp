@@ -21,8 +21,7 @@ template < class Format >
 template < class... Args >
 klv_list_format< Format >
 ::klv_list_format( Args&&... args )
-  : klv_data_format_< std::vector< element_t > >{ 0 },
-    m_format{ std::forward< Args >( args )... }
+  : m_format{ std::forward< Args >( args )... }
 {}
 
 // ----------------------------------------------------------------------------

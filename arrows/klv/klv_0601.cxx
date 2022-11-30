@@ -34,13 +34,6 @@ namespace arrows {
 
 namespace klv {
 
-namespace {
-
-constexpr size_t checksum_packet_length = 4;
-std::vector< uint8_t > const checksum_header = { KLV_0601_CHECKSUM, 2 };
-
-} // namespace <anonymous>
-
 // ----------------------------------------------------------------------------
 klv_tag_traits_lookup const&
 klv_0601_traits_lookup()
@@ -76,19 +69,22 @@ klv_0601_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_0601_MISSION_ID ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >(
+        klv_length_constraints{ 1, 127 } ),
       "Mission ID",
       "Descriptive mission identifier to distinguish an event or sortie.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_TAIL_NUMBER ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >(
+        klv_length_constraints{ 1, 127 } ),
       "Platform Tail Number",
       "Identifier of platform as posted.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_HEADING_ANGLE ),
-      std::make_shared< klv_uflint_format >( 0.0, 360.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 360.0 }, 2 ),
       "Platform Heading Angle",
       "Angle between longitudinal axis and true north measured in the "
       "horizontal plane. Angles increase in a clockwise direction when "
@@ -96,181 +92,209 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_PITCH_ANGLE ),
-      std::make_shared< klv_sflint_format >( -20.0, 20.0, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -20.0, 20.0 }, 2 ),
       "Platform Pitch Angle",
       "Angle between longitudinal axis and horizonal plane. Positive angles "
       "above horizonal plane. Measured in degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_ROLL_ANGLE ),
-      std::make_shared< klv_sflint_format >( -50.0, 50.0, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -50.0, 50.0 }, 2 ),
       "Platform Roll Angle",
       "Angle between transverse axis and transverse-longitudinal plane. "
       "Measured in degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_TRUE_AIRSPEED ),
-      std::make_shared< klv_uflint_format >( 0.0, 255.0, 1 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 255.0 }, 1 ),
       "Platform True Airspeed",
       "True airspeed of the platform: indicated airspeed adjusted for "
       "temperature and altitude. Measured in meters per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_INDICATED_AIRSPEED ),
-      std::make_shared< klv_uflint_format >( 0.0, 255.0, 1 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 255.0 }, 1 ),
       "Platform Indicated Airspeed",
       "Indicated airspeed of the platform. Derived from Pitot tube and static "
       "pressure sensors. Measured in meters per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_DESIGNATION ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >(
+        klv_length_constraints{ 1, 127 } ),
       "Platform Designation",
       "Model name for the platform. Examples: 'Predator', 'Reaper'.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_IMAGE_SOURCE_SENSOR ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >(
+        klv_length_constraints{ 1, 127 } ),
       "Image Source Sensor",
       "Name of the currently active sensor. Examples: 'EO Nose', 'TESAR "
       "Imagery'.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_IMAGE_COORDINATE_SYSTEM ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >(
+        klv_length_constraints{ 1, 127 } ),
       "Image Coordinate System",
       "Name of the image coordinate system used.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_LATITUDE ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Sensor Latitude",
       "Latitude of the currently active sensor, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_LONGITUDE ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 4 ),
       "Sensor Longitude",
       "Longitude of the currently active sensor, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_TRUE_ALTITUDE ),
-      std::make_shared< klv_uflint_format >( -900.0, 19000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Sensor True Altitude",
       "Altitude of the currently active sensor, relative to Mean Sea Level. "
       "Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_HORIZONTAL_FOV ),
-      std::make_shared< klv_uflint_format >( 0.0, 180.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 180.0 }, 2 ),
       "Sensor Horizontal Field of View",
       "Horizonal field of view of the currently active sensor. Measured in "
       "degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_VERTICAL_FOV ),
-      std::make_shared< klv_uflint_format >( 0.0, 180.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 180.0 }, 2 ),
       "Sensor Vertical Field of View",
       "Vertical field of view of the currently active sensor. Measured in "
       "degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_RELATIVE_AZIMUTH_ANGLE ),
-      std::make_shared< klv_uflint_format >( 0.0, 360.0, 4 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 360.0 }, 4 ),
       "Sensor Relative Azimuth Angle",
       "Relative rotation angle of the currently active sensor to the platform "
       "longitudinal axis. Measured in degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_RELATIVE_ELEVATION_ANGLE ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 4 ),
       "Sensor Relative Elevation Angle",
       "Relative elevation angle of the currently active sensor to the "
       "platform longitudinal-transverse plane. Measured in degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_RELATIVE_ROLL_ANGLE ),
-      std::make_shared< klv_uflint_format >( 0.0, 360.0, 4 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 360.0 }, 4 ),
       "Sensor Relative Roll Angle",
       "Relative roll angle of the currently active sensor to the platform. "
       "Measured in degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SLANT_RANGE ),
-      std::make_shared< klv_uflint_format >( 0.0, 5.0e6, 4 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 5.0e6 }, 4 ),
       "Slant Range",
       "Distance between currently active sensor and the image center. "
       "Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_WIDTH ),
-      std::make_shared< klv_uflint_format >( 0.0, 1.0e4, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 1.0e4 }, 2 ),
       "Target Width",
       "Target width within sensor field of view. Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FRAME_CENTER_LATITUDE ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Frame Center Latitude",
       "Latitude of image center, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FRAME_CENTER_LONGITUDE ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 4 ),
       "Frame Center Longitude",
       "Longitude of image center, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FRAME_CENTER_ELEVATION ),
-      std::make_shared< klv_uflint_format >( -900.0, 19000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Frame Center Elevation",
       "Altitude of image center, relative to Mean Sea Level.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OFFSET_CORNER_LATITUDE_POINT_1 ),
-      std::make_shared< klv_sflint_format >( -0.075, 0.075, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -0.075, 0.075 }, 2 ),
       "Offset Corner Latitude Point 1",
       "Latitude offset for the upper left corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OFFSET_CORNER_LONGITUDE_POINT_1 ),
-      std::make_shared< klv_sflint_format >( -0.075, 0.075, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -0.075, 0.075 }, 2 ),
       "Offset Corner Longitude Point 1",
       "Longitude offset for the upper left corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OFFSET_CORNER_LATITUDE_POINT_2 ),
-      std::make_shared< klv_sflint_format >( -0.075, 0.075, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -0.075, 0.075 }, 2 ),
       "Offset Corner Latitude Point 2",
       "Latitude offset for the upper right corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OFFSET_CORNER_LONGITUDE_POINT_2 ),
-      std::make_shared< klv_sflint_format >( -0.075, 0.075, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -0.075, 0.075 }, 2 ),
       "Offset Corner Longitude Point 2",
       "Longitude offset for the upper right corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OFFSET_CORNER_LATITUDE_POINT_3 ),
-      std::make_shared< klv_sflint_format >( -0.075, 0.075, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -0.075, 0.075 }, 2 ),
       "Offset Corner Latitude Point 3",
       "Latitude offset for the lower right corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OFFSET_CORNER_LONGITUDE_POINT_3 ),
-      std::make_shared< klv_sflint_format >( -0.075, 0.075, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -0.075, 0.075 }, 2 ),
       "Offset Corner Longitude Point 3",
       "Longitude offset for the lower right corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OFFSET_CORNER_LATITUDE_POINT_4 ),
-      std::make_shared< klv_sflint_format >( -0.075, 0.075, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -0.075, 0.075 }, 2 ),
       "Offset Corner Latitude Point 4",
       "Latitude offset for the lower left corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OFFSET_CORNER_LONGITUDE_POINT_4 ),
-      std::make_shared< klv_sflint_format >( -0.075, 0.075, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -0.075, 0.075 }, 2 ),
       "Offset Corner Longitude Point 4",
       "Longitude offset for the lower left corner of the image.",
       { 0, 1 } },
@@ -282,7 +306,8 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_WIND_DIRECTION ),
-      std::make_shared< klv_uflint_format >( 0.0, 360.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 360.0 }, 2 ),
       "Wind Direction",
       "Wind direction at the aircraft's location relative to true north. "
       "Angle increases in a clockwise direction when looking from above the "
@@ -290,71 +315,82 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_WIND_SPEED ),
-      std::make_shared< klv_uflint_format >( 0.0, 100.0, 1 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 100.0 }, 1 ),
       "Wind Speed",
       "Wind speed at the aircraft's location. Measured in meters per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_STATIC_PRESSURE ),
-      std::make_shared< klv_uflint_format >( 0.0, 5000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 5000.0 }, 2 ),
       "Static Pressure",
       "Static pressure at the aircraft's location. Measured in millibar.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_DENSITY_ALTITUDE ),
-      std::make_shared< klv_uflint_format >( -900.0, 19000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Density Altitude",
       "Density altitude at the aircraft's location. Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OUTSIDE_AIR_TEMPERATURE ),
-      std::make_shared< klv_sflint_format >( -127.0, 127.0, 1 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -127.0, 127.0 }, 1 ),
       "Outside Air Temperature",
       "Temperature outside of the aircraft. Measured in degrees Celsius.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_LOCATION_LATITUDE ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Target Location Latitude",
       "Calculated target latitude, based on WGS84 ellipsoid. Tracks "
       "crosshair, not image center.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_LOCATION_LONGITUDE ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 4 ),
       "Target Location Longitude",
       "Calculated target longitude, based on WGS84 ellipsoid. Tracks "
       "crosshair, not image center.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_LOCATION_ELEVATION ),
-      std::make_shared< klv_uflint_format >( -900.0, 19000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Target Location Elevation",
       "Calculated target altitude, relative to Mean Sea Level. Tracks "
       "crosshair, not image center. Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_TRACK_GATE_WIDTH ),
-      std::make_shared< klv_uflint_format >( 0.0, 510.0, 1 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 510.0 }, 1 ),
       "Target Track Gate Width",
       "Width of box around tracked target. Measured in pixels.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_TRACK_GATE_HEIGHT ),
-      std::make_shared< klv_uflint_format >( 0.0, 510.0, 1 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 510.0 }, 1 ),
       "Target Track Gate Height",
       "Height of box around tracked target. Measured in pixels.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_ERROR_ESTIMATE_CE90 ),
-      std::make_shared< klv_uflint_format >( 0.0, 4095.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 4095.0 }, 2 ),
       "Target Error Estimate - CE90",
       "Radius of 90% confidence for the target location in the horizonal "
       "direction. Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_ERROR_ESTIMATE_LE90 ),
-      std::make_shared< klv_uflint_format >( 0.0, 4095.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 4095.0 }, 2 ),
       "Target Error Estimate - LE90",
       "Radius of 90% confidence for the target location in the vertical "
       "direction. Measured in meters.",
@@ -374,28 +410,32 @@ klv_0601_traits_lookup()
       &klv_0102_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0601_DIFFERENTIAL_PRESSURE ),
-      std::make_shared< klv_uflint_format >( 0.0, 5000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 5000.0 }, 2 ),
       "Differential Pressure",
       "Differential pressure at the aircraft's location. Equal to total "
       "pressure minus static pressure. Measured in millibar.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_ANGLE_OF_ATTACK ),
-      std::make_shared< klv_sflint_format >( -20.0, 20.0, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -20.0, 20.0 }, 2 ),
       "Platform Angle of Attack",
       "Vertical angle between the platform longitudinal axis and the relative "
       "wind. Measured in degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_VERTICAL_SPEED ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 2 ),
       "Platform Vertical Speed",
       "Vertical speed of aircraft in the zenith direction. Measured in meters "
       "per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_SIDESLIP_ANGLE ),
-      std::make_shared< klv_sflint_format >( -20.0, 20.0, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -20.0, 20.0 }, 2 ),
       "Platform Sideslip Angle",
       "Horizontal angle between the platform longitudinal axis and the "
       "relative wind. Angle increases in a clockwise direction when looking "
@@ -403,19 +443,23 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_AIRFIELD_BAROMETRIC_PRESSURE ),
-      std::make_shared< klv_uflint_format >( 0.0, 5000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 5000.0 }, 2 ),
       "Airfield Barometric Pressure",
       "Local pressure at the airfield. Measured in millibar.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_AIRFIELD_ELEVATION ),
-      std::make_shared< klv_uflint_format >( -900.0, 19000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Airfield Elevation",
-      "Altitude of the airfield, relative to Mean Sea Level. Measured in meters.",
+      "Altitude of the airfield, relative to Mean Sea Level. Measured in "
+      "meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_RELATIVE_HUMIDITY ),
-      std::make_shared< klv_uflint_format >( 0.0, 100.0, 1 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 100.0 }, 1 ),
       "Relative Humidity",
       "Relative humidity at the aircraft location. Ratio between the current "
       "water vapor density and the saturation point of water vapor density. "
@@ -423,25 +467,28 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_GROUND_SPEED ),
-      std::make_shared< klv_uflint_format >( 0.0, 255.0, 1 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 255.0 }, 1 ),
       "Platform Ground Speed",
       "Speed of the aircraft when projected onto the ground plane.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_GROUND_RANGE ),
-      std::make_shared< klv_uflint_format >( 0.0, 5.0e6, 4 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 5.0e6 }, 4 ),
       "Ground Range",
       "Horizontal distance between the aircraft and the target of interest.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_FUEL_REMAINING ),
-      std::make_shared< klv_uflint_format >( 0.0, 1.0e4, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 1.0e4 }, 2 ),
       "Platform Fuel Remaining",
       "Current weight of fuel present on the aircraft. Measured in kilograms.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_CALL_SIGN ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >( klv_length_constraints{ 1, 127 } ),
       "Platform Call Sign",
       "Call sign of the platform or operating unit.",
       { 0, 1 } },
@@ -467,13 +514,14 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_FOV_NAME ),
-      std::make_shared< klv_0601_sensor_fov_name_format >( 1  ),
+      std::make_shared< klv_0601_sensor_fov_name_format >( 1 ),
       "Sensor Field of View Name",
       "Current lens type.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_MAGNETIC_HEADING ),
-      std::make_shared< klv_uflint_format >( 0.0, 360.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 360.0 }, 2 ),
       "Platform Magnetic Heading",
       "Angle between longitudingal axis and Magnetic North measured in the "
       "horizontal plane. Measured in degrees.",
@@ -493,32 +541,36 @@ klv_0601_traits_lookup()
       0 },
     { {},
       ENUM_AND_NAME( KLV_0601_ALTERNATE_PLATFORM_LATITUDE ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Alternate Platform Latitude",
       "Latitude of the platform connected to the UAS via direct datalink.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ALTERNATE_PLATFORM_LONGITUDE ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 4 ),
       "Alternate Platform Longitude",
       "Longitude of the platform connected to the UAS via direct datalink.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ALTERNATE_PLATFORM_ALTITUDE ),
-      std::make_shared< klv_uflint_format >( -900.0, 19000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Alternate Platform Altitude",
       "Altitude of the platform connected to the UAS via direct datalink.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ALTERNATE_PLATFORM_NAME ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >( klv_length_constraints{ 1, 127 } ),
       "Alternate Platform Name",
       "Name of the platform connected to the UAS via direct datalink. "
       "Examples: 'Apache', 'Rover'.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ALTERNATE_PLATFORM_HEADING ),
-      std::make_shared< klv_uflint_format >( 0.0, 360.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ 0.0, 360.0 }, 2 ),
       "Alternate Platform Heading",
       "Heading angle of the platform connected to the UAS via direct datalink.",
       { 0, 1 } },
@@ -546,14 +598,16 @@ klv_0601_traits_lookup()
       &klv_0903_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_ELLIPSOID_HEIGHT ),
-      std::make_shared< klv_uflint_format >( -900.0, 19000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Sensor Ellipsoid Height",
       "Altitude of the currently active sensor, relative to the WGS84 "
       "ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ALTERNATE_PLATFORM_ELLIPSOID_HEIGHT ),
-      std::make_shared< klv_uflint_format >( -900.0, 19000.0, 2 ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Alternate Platform Ellipsoid Height",
       "Altitude of the platform connected to the UAS via direct datalink, "
       "relative to the WGS84 ellipsoid.",
@@ -565,20 +619,23 @@ klv_0601_traits_lookup()
       "Mode of operation of the event portrayed in the Motion Imagery.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0601_FRAME_CENTER_HEIGHT_ABOVE_ELLIPSOID ),
-      std::make_shared< klv_uflint_format >( -900.0, 19000.0, 2 ),
+      ENUM_AND_NAME( KLV_0601_FRAME_CENTER_ELLIPSOID_HEIGHT ),
+      std::make_shared< klv_uflint_format >(
+        kv::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Frame Center Height Above Ellipsoid",
       "Altitude of frame center, relative to the WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_NORTH_VELOCITY ),
-      std::make_shared< klv_sflint_format >( -327.0, 327.0, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -327.0, 327.0 }, 2 ),
       "Sensor North Velocity",
       "Northing velocity of the sensor or platform.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_EAST_VELOCITY ),
-      std::make_shared< klv_sflint_format >( -327.0, 327.0, 2 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -327.0, 327.0 }, 2 ),
       "Sensor East Velocity",
       "Easting velocity of the sensor or platform.",
       { 0, 1 } },
@@ -590,79 +647,92 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_CORNER_LATITUDE_POINT_1 ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Corner Latitude Point 1 (Full)",
       "Latitude for the upper left corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_CORNER_LONGITUDE_POINT_1 ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 4 ),
       "Corner Longitude Point 1 (Full)",
       "Longitude for the upper left corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_CORNER_LATITUDE_POINT_2 ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Corner Latitude Point 2 (Full)",
       "Latitude for the upper right corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_CORNER_LONGITUDE_POINT_2 ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 4 ),
       "Corner Longitude Point 2 (Full)",
       "Longitude for the upper right corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_CORNER_LATITUDE_POINT_3 ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Corner Latitude Point 3 (Full)",
       "Latitude for the lower right corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_CORNER_LONGITUDE_POINT_3 ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 4 ),
       "Corner Longitude Point 3 (Full)",
       "Longitude for the lower right corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_CORNER_LATITUDE_POINT_4 ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Corner Latitude Point 4 (Full)",
       "Latitude for the lower left corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_CORNER_LONGITUDE_POINT_4 ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 4 ),
       "Corner Longitude Point 4 (Full)",
       "Longitude for the lower left corner of the image.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_PLATFORM_PITCH_ANGLE ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Platform Pitch Angle (Full)",
       "Angle between longitudinal axis and horizonal plane. Positive angles "
       "above horizonal plane. Measured in degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_PLATFORM_ROLL_ANGLE ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Platform Roll Angle (Full)",
       "Angle between transverse axis and transverse-longitudinal plane. "
       "Measured in degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_PLATFORM_ANGLE_OF_ATTACK ),
-      std::make_shared< klv_sflint_format >( -90.0, 90.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -90.0, 90.0 }, 4 ),
       "Platform Angle of Attack (Full)",
       "Vertical angle between the platform longitudinal axis and the relative "
       "wind. Measured in degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_FULL_PLATFORM_SIDESLIP_ANGLE ),
-      std::make_shared< klv_sflint_format >( -180.0, 180.0, 4 ),
+      std::make_shared< klv_sflint_format >(
+        kv::interval< double >{ -180.0, 180.0 }, 4 ),
       "Platform Sideslip Angle (Full)",
       "Horizontal angle between the platform longitudinal axis and the "
-      "relative wind. Angle increases in a clockwise direction when looking from above the platform. Measured in degrees.",
+      "relative wind. Angle increases in a clockwise direction when looking "
+      "from above the platform. Measured in degrees.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_MIIS_CORE_IDENTIFIER ),
@@ -679,7 +749,9 @@ klv_0601_traits_lookup()
       &klv_1206_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_WIDTH_EXTENDED ),
-      std::make_shared< klv_imap_format >( 0.0, 1.5e6 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ 0.0, 1.5e6 },
+        klv_length_constraints{ 1, 8, 3 } ),
       "Target Width Extended",
       "Target width within sensor field of view. Measured in meters.",
       { 0, 1 } },
@@ -726,66 +798,79 @@ klv_0601_traits_lookup()
       { 0, SIZE_MAX } },
     { {},
       ENUM_AND_NAME( KLV_0601_DENSITY_ALTITUDE_EXTENDED ),
-      std::make_shared< klv_imap_format >( -900.0, 40000.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ -900.0, 40000.0 },
+        klv_length_constraints{ 1, 8, 3 } ),
       "Density Altitude Extended",
       "Density altitude at the aircraft's location. Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_ELLIPSOID_HEIGHT_EXTENDED ),
-      std::make_shared< klv_imap_format >( -900.0, 40000.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ -900.0, 40000.0 },
+        klv_length_constraints{ 1, 8, 3 } ),
       "Sensor Ellipsoid Height Extended",
       "Altitude of the currently active sensor, relative to the WGS84 "
       "ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ALTERNATE_PLATFORM_ELLIPSOID_HEIGHT_EXTENDED ),
-      std::make_shared< klv_imap_format >( -900.0, 40000.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ -900.0, 40000.0 },
+        klv_length_constraints{ 1, 8, 3 } ),
       "Alternate Platform Ellipsoid Height Extended",
       "Altitude of the platform connected to the UAS via direct datalink, "
       "relative to the WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_STREAM_DESIGNATOR ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >(
+        klv_length_constraints{ 1, 127 } ),
       "Stream Designator",
       "Shorthand descriptor for a particular Motion Imagery data stream, "
       "typically delivered over IP.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OPERATIONAL_BASE ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >(
+        klv_length_constraints{ 1, 127 } ),
       "Operational Base",
       "Indicates the location for the launch recovery equipment.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_BROADCAST_SOURCE ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >(
+        klv_length_constraints{ 1, 127 } ),
       "Broadcast Source",
       "Location where the Motion Imagery is first broadcast. Examples: "
       "'Creech', 'Cannon'.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_RANGE_TO_RECOVERY_LOCATION ),
-      std::make_shared< klv_imap_format >( 0.0, 21000.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ 0.0, 21000.0 },
+        klv_length_constraints{ 1, 4, 4 } ),
       "Range to Recovery Location",
       "Distance from current position to airframe recovery position. Measured "
       "in kilometers.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TIME_AIRBORNE ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 4 } ),
       "Time Airborne",
       "Number of seconds the aircraft has been airborne.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PROPULSION_UNIT_SPEED ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 4 } ),
       "Propulsion Unit Speed",
       "Speed at which the engine or motor is rotating.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_COURSE_ANGLE ),
-      std::make_shared< klv_imap_format >( 0.0, 360.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ 0.0, 360.0 },
+        klv_length_constraints{ 1, 8, 2 } ),
       "Platform Course Angle",
       "Angle between aircraft velocity vector and true north measured in the "
       "horizontal plane. Angles increase in a clockwise direction when "
@@ -793,14 +878,18 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ALTITUDE_ABOVE_GROUND_LEVEL ),
-      std::make_shared< klv_imap_format >( -900.0, 40000.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ -900.0, 40000.0 },
+        klv_length_constraints{ 1, 4, 3 } ),
       "Altitude Above Ground Level",
       "Vertical distance between the aircraft and the ground or water. "
       "Measured in meters.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_RADAR_ALTIMETER ),
-      std::make_shared< klv_imap_format >( -900.0, 40000.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ -900.0, 40000.0 },
+        klv_length_constraints{ 1, 4, 3 } ),
       "Radar Altimeter",
       "Vertical distance between the aircraft and the ground or water, as "
       "measured by a radar altimeter.",
@@ -820,14 +909,18 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_AZIMUTH_RATE ),
-      std::make_shared< klv_imap_format >( -1000.0, 1000.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ -1000.0, 1000.0 },
+        klv_length_constraints{ 1, 4, 3 } ),
       "Sensor Azimuth Rate",
       "Rate at which the sensor is rotating clockwise, when looking down from "
       "above the aircraft. Measured in degrees per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_ELEVATION_RATE ),
-      std::make_shared< klv_imap_format >( -1000.0, 1000.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ -1000.0, 1000.0 },
+        klv_length_constraints{ 1, 4, 3 } ),
       "Sensor Elevation Rate",
       "Rate at which the sensor is rotating clockwise, when looking at the "
       "aircraft from the side such that the aircraft is pointing left. "
@@ -835,14 +928,18 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_ROLL_RATE ),
-      std::make_shared< klv_imap_format >( -1000.0, 1000.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ -1000.0, 1000.0 },
+        klv_length_constraints{ 1, 4, 3 } ),
       "Sensor Roll Rate",
       "Rate at which the sensor is rotating clockwise, when looking from "
       "behind the sensor. Measured in degrees per second.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ONBOARD_MI_STORAGE_PERCENT_FULL ),
-      std::make_shared< klv_imap_format >( 0.0, 100.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ 0.0, 100.0 },
+        klv_length_constraints{ 1, 3, 2 } ),
       "On-board MI Storage Percent Full",
       "Amount of on-board Motion Imagery storage used as a percentage of "
       "total storage.",
@@ -873,13 +970,13 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_STATUS ),
-      std::make_shared< klv_0601_platform_status_format >(),
+      std::make_shared< klv_0601_platform_status_format >( 1 ),
       "Platform Status",
       "Operational mode of the platform.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_SENSOR_CONTROL_MODE ),
-      std::make_shared< klv_0601_sensor_control_mode_format >(),
+      std::make_shared< klv_0601_sensor_control_mode_format >( 1 ),
       "Sensor Control Mode",
       "Sensor control operational status.",
       { 0, 1 } },
@@ -897,7 +994,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_ID ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >( klv_length_constraints{ 1, 32 } ),
       "Target ID",
       "Alpha-numeric identification of the target.",
       { 0, 1 } },
@@ -909,45 +1006,50 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TAKEOFF_TIME ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 8 } ),
       "Take-off Time",
       "Time when aircraft became airborne.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TRANSMISSION_FREQUENCY ),
-      std::make_shared< klv_imap_format >( 1.0, 99999.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ 1.0, 99999.0 },
+        klv_length_constraints{ 1, 4, 3 } ),
       "Transmission Frequency",
       "Radio frequency used to transmit the Motion Imagery. Measured in "
       "megahertz.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ONBOARD_MI_STORAGE_CAPACITY ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 4 } ),
       "On-board MI Storage Capacity",
       "Total capacity of on-board Motion Imagery storage. Measured in "
       "gigabytes.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ZOOM_PERCENTAGE ),
-      std::make_shared< klv_imap_format >( 0.0, 100.0 ),
+      std::make_shared< klv_imap_format >(
+        kv::interval< double >{ 0.0, 100.0 },
+        klv_length_constraints{ 1, 4, 1 } ),
       "Zoom Percentage",
       "For a variable zoom system, the current percentage of zoom.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_COMMUNICATIONS_METHOD ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_string_format >(
+        klv_length_constraints{ 1, 127 } ),
       "Communications Method",
       "Type of communications used with platform",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_LEAP_SECONDS ),
-      std::make_shared< klv_sint_format >(),
+      std::make_shared< klv_sint_format >( klv_length_constraints{ 1, 4 } ),
       "Leap Seconds",
       "Number of leap seconds to adjust Precision Timestamp (Item 2) to UTC.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_CORRECTION_OFFSET ),
-      std::make_shared< klv_sint_format >(),
+      std::make_shared< klv_sint_format >( klv_length_constraints{ 1, 8 } ),
       "Correction Offset",
       "Post-flight time adjustment for Precision Timestamp (Item 2) as "
       "needed.",
@@ -1154,7 +1256,7 @@ std::string
 klv_0601_image_horizon_locations_format
 ::description() const
 {
-  return "image horizon locations of " + length_description();
+  return "image horizon locations of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1165,13 +1267,13 @@ klv_0601_image_horizon_locations_format
   auto const tracker = track_it( data, length );
   klv_0601_image_horizon_locations result;
   result.latitude0 =
-    klv_read_flint< uint32_t >( -90.0, 90.0, data, tracker.verify( 4 ) );
+    klv_read_flint< uint32_t >( { -90.0, 90.0 }, data, tracker.verify( 4 ) );
   result.longitude0 =
-    klv_read_flint< uint32_t >( -180.0, 180.0, data, tracker.verify( 4 ) );
+    klv_read_flint< uint32_t >( { -180.0, 180.0 }, data, tracker.verify( 4 ) );
   result.latitude1 =
-    klv_read_flint< uint32_t >( -90.0, 90.0, data, tracker.verify( 4 ) );
+    klv_read_flint< uint32_t >( { -90.0, 90.0 }, data, tracker.verify( 4 ) );
   result.longitude1 =
-    klv_read_flint< uint32_t >( -180.0, 180.0, data, tracker.verify( 4 ) );
+    klv_read_flint< uint32_t >( { -180.0, 180.0 }, data, tracker.verify( 4 ) );
   return result;
 }
 
@@ -1182,13 +1284,13 @@ klv_0601_image_horizon_locations_format
               klv_write_iter_t& data, size_t length ) const
 {
   auto const tracker = track_it( data, length );
-  klv_write_flint< uint32_t >( value.latitude0, -90.0, 90.0,
+  klv_write_flint< uint32_t >( value.latitude0, { -90.0, 90.0 },
                                data, tracker.verify( 4 ) );
-  klv_write_flint< uint32_t >( value.longitude0, -180.0, 180.0,
+  klv_write_flint< uint32_t >( value.longitude0, { -180.0, 180.0 },
                                data, tracker.verify( 4 ) );
-  klv_write_flint< uint32_t >( value.latitude1, -90.0, 90.0,
+  klv_write_flint< uint32_t >( value.latitude1, { -90.0, 90.0 },
                                data, tracker.verify( 4 ) );
-  klv_write_flint< uint32_t >( value.longitude1, -180.0, 180.0,
+  klv_write_flint< uint32_t >( value.longitude1, { -180.0, 180.0 },
                                data, tracker.verify( 4 ) );
 }
 
@@ -1228,7 +1330,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_image_horizon_pixel_pack_format
 ::klv_0601_image_horizon_pixel_pack_format()
-  : klv_data_format_< klv_0601_image_horizon_pixel_pack >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -1236,7 +1337,7 @@ std::string
 klv_0601_image_horizon_pixel_pack_format
 ::description() const
 {
-  return "image horizon pixel pack of " + length_description();
+  return "image horizon pixel pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1290,9 +1391,7 @@ operator<<( std::ostream& os, klv_0601_control_command const& value )
 {
   return os << "{ " << "ID: " << value.id
             << ", String: \"" << value.string
-            << "\", Timestamp: " << ( value.timestamp
-                                  ? std::to_string( value.timestamp )
-                                  : "(empty)" )
+            << "\", Timestamp: " << value.timestamp
             << " }";
 }
 
@@ -1306,7 +1405,7 @@ DEFINE_STRUCT_CMP(
 
 // ----------------------------------------------------------------------------
 klv_0601_control_command_format
-::klv_0601_control_command_format() : klv_data_format_< data_type >{ 0 }
+::klv_0601_control_command_format()
 {}
 
 // ----------------------------------------------------------------------------
@@ -1327,20 +1426,9 @@ klv_0601_control_command_format
   }
 
   result.string = klv_read_string( data, length_of_string );
-  switch( tracker.remaining() )
+  if( tracker.remaining() )
   {
-    case 0:
-      result.timestamp = 0;
-      break;
-    case 8:
-      result.timestamp = klv_read_int< uint64_t >( data, 8 );
-      break;
-    default:
-      VITAL_THROW( kwiver::vital::metadata_exception,
-                   std::to_string( tracker.remaining() ) +
-                   " bytes left over for timestamp while parsing "
-                   "command pack; expected 0 or 8" );
-      break;
+    result.timestamp = klv_read_int< uint64_t >( data, tracker.verify( 8 ) );
   }
   return result;
 }
@@ -1359,12 +1447,7 @@ klv_0601_control_command_format
   klv_write_string( value.string, data, tracker.remaining() );
   if( value.timestamp )
   {
-    if( tracker.remaining() < 8 )
-    {
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                   "writing control command timestamp overflows buffer" );
-    }
-    klv_write_int( value.timestamp, data, 8 );
+    klv_write_int( *value.timestamp, data, tracker.verify( 8 ) );
   }
 }
 
@@ -1384,7 +1467,7 @@ std::string
 klv_0601_control_command_format
 ::description() const
 {
-  return "control command of " + length_description();
+  return "control command of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1413,7 +1496,9 @@ DEFINE_STRUCT_CMP(
 
 // ----------------------------------------------------------------------------
 klv_0601_frame_rate_format
-::klv_0601_frame_rate_format() : klv_data_format_< data_type >{ 0 } {}
+::klv_0601_frame_rate_format()
+  : klv_data_format_< data_type >{ { 1, 16 } }
+{}
 
 // ----------------------------------------------------------------------------
 klv_0601_frame_rate
@@ -1458,7 +1543,7 @@ std::string
 klv_0601_frame_rate_format
 ::description() const
 {
-  return "frame rate of " + length_description();
+  return "frame rate of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1499,7 +1584,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_country_codes_format
 ::klv_0601_country_codes_format()
-  : klv_data_format_< klv_0601_country_codes >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -1507,7 +1591,7 @@ std::string
 klv_0601_country_codes_format
 ::description() const
 {
-  return "country codes pack of " + length_description();
+  return "country codes pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1702,7 +1786,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_location_dlp_format
 ::klv_0601_location_dlp_format()
-  : klv_data_format_< klv_0601_location_dlp >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -1710,7 +1793,7 @@ std::string
 klv_0601_location_dlp_format
 ::description() const
 {
-  return "location pack of " + length_description();
+  return "location pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1722,15 +1805,15 @@ klv_0601_location_dlp_format
   auto const tracker = track_it( data, length );
 
   result.latitude =
-    klv_read_imap( -90.0, 90.0, data, tracker.verify( 4 ) );
+    klv_read_imap( { -90.0, 90.0 }, data, tracker.verify( 4 ) );
   result.longitude =
-    klv_read_imap( -180.0, 180.0, data, tracker.verify( 4 ) );
+    klv_read_imap( { -180.0, 180.0 }, data, tracker.verify( 4 ) );
   // Altitude is not required
   if( tracker.remaining() )
   {
     // Altitude is set
     result.altitude =
-      klv_read_imap( -900.0, 9000.0, data, tracker.verify( 3 ) );
+      klv_read_imap( { -900.0, 9000.0 }, data, tracker.verify( 3 ) );
   }
 
   return result;
@@ -1745,15 +1828,15 @@ klv_0601_location_dlp_format
   auto const tracker = track_it( data, length );
 
   klv_write_imap( value.latitude,
-                  -90.0, 90.0,
+                  { -90.0, 90.0 },
                   data, tracker.verify( 4 ) );
   klv_write_imap( value.longitude,
-                  -180.0, 180.0,
+                  { -180.0, 180.0 },
                   data, tracker.verify( 4 ) );
   if( value.altitude )
   {
     klv_write_imap( *value.altitude,
-                    -900.0, 9000.0,
+                    { -900.0, 9000.0 },
                     data, tracker.verify( 3 ) );
   }
 }
@@ -1798,7 +1881,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_airbase_locations_format
 ::klv_0601_airbase_locations_format()
-  : klv_data_format_< klv_0601_airbase_locations >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -1806,7 +1888,7 @@ std::string
 klv_0601_airbase_locations_format
 ::description() const
 {
-  return "airbase locations pack of " + length_description();
+  return "airbase locations pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -1953,7 +2035,7 @@ klv_0601_airbase_locations_format
   return length_of_length_of_take_off_location +
          length_of_take_off_location +
          length_of_length_of_recovery_location +
-         length_of_take_off_location;
+         length_of_recovery_location;
 }
 
 // ----------------------------------------------------------------------------
@@ -1975,14 +2057,13 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_imap_format const
 klv_0601_view_domain_interval_format
-::range_format{ 0.0, 360.0 };
+::range_format{ vital::interval< double >{ 0.0, 360.0 } };
 
 // ----------------------------------------------------------------------------
 klv_0601_view_domain_interval_format
-::klv_0601_view_domain_interval_format( double start_minimum,
-                                        double start_maximum )
-  : klv_data_format_< klv_0601_view_domain_interval >{ 0 },
-    m_start_format{ start_minimum, start_maximum }
+::klv_0601_view_domain_interval_format(
+  vital::interval< double > const& start_interval )
+  : m_start_format{ start_interval }
 {}
 
 // ----------------------------------------------------------------------------
@@ -1990,7 +2071,7 @@ std::string
 klv_0601_view_domain_interval_format
 ::description() const
 {
-  return "view domain interval of " + length_description();
+  return "view domain interval of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2055,22 +2136,21 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_view_domain_interval_format const
 klv_0601_view_domain_format
-::azimuth_format{ 0.0, 360.0 };
+::azimuth_format{ vital::interval< double >{ 0.0, 360.0 } };
 
 // ----------------------------------------------------------------------------
 klv_0601_view_domain_interval_format const
 klv_0601_view_domain_format
-::elevation_format{ -180.0, 180.0 };
+::elevation_format{ vital::interval< double >{ -180.0, 180.0 } };
 
 // ----------------------------------------------------------------------------
 klv_0601_view_domain_interval_format const
 klv_0601_view_domain_format
-::roll_format{ 0.0, 360.0 };
+::roll_format{ vital::interval< double >{ 0.0, 360.0 } };
 
 // ----------------------------------------------------------------------------
 klv_0601_view_domain_format
 ::klv_0601_view_domain_format()
-  : klv_data_format_< klv_0601_view_domain >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2078,7 +2158,7 @@ std::string
 klv_0601_view_domain_format
 ::description() const
 {
-  return "view domain pack of " + length_description();
+  return "view domain pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2122,6 +2202,19 @@ klv_0601_view_domain_format
 
 // ----------------------------------------------------------------------------
 std::ostream&
+operator<<( std::ostream& os, klv_0601_waypoint_info_bit value )
+{
+  static std::string strings[ KLV_0601_WAYPOINT_INFO_BIT_ENUM_END + 1 ] = {
+    "Mode Bit",
+    "Source Bit",
+    "Unknown Waypoint Info Bit" };
+
+  os << strings[ std::min( value, KLV_0601_WAYPOINT_INFO_BIT_ENUM_END ) ];
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+std::ostream&
 operator<<( std::ostream& os, klv_0601_waypoint_record const& value )
 {
   os << "{ "
@@ -2131,19 +2224,8 @@ operator<<( std::ostream& os, klv_0601_waypoint_record const& value )
      << "prosecution order: "
      << value.order
      << ", "
-     << "info: { "
-     << "mode: ";
-  auto const mode = *value.info & 1;
-  os << ( mode
-      ? "manual"
-      : "automated" )
-     << ", "
-     << "source: ";
-  auto const source = ( *value.info >> 1 ) & 1;
-  os << ( source
-      ? "ad hoc"
-      : "pre-planned" )
-     << " }"
+     << "info: "
+     << value.info
      << ", "
      << "location: "
      << value.location
@@ -2163,7 +2245,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_waypoint_record_format
 ::klv_0601_waypoint_record_format()
-  : klv_data_format_< klv_0601_waypoint_record >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2171,7 +2252,7 @@ std::string
 klv_0601_waypoint_record_format
 ::description() const
 {
-  return "waypoint pack of " + length_description();
+  return "waypoint pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2191,7 +2272,8 @@ klv_0601_waypoint_record_format
   if( tracker.remaining() )
   {
     // Read waypoint info value
-    result.info = klv_read_ber_oid< uint8_t >( data, tracker.verify( 1 ) );
+    result.info =
+      klv_0601_waypoint_info_format{}.read_( data, tracker.verify( 1 ) );
   }
 
   if( tracker.remaining() )
@@ -2221,7 +2303,8 @@ klv_0601_waypoint_record_format
   if( value.info )
   {
     // Write waypoint info value
-    klv_write_ber_oid( *value.info, data, tracker.verify( 1 ) );
+    klv_0601_waypoint_info_format{}
+      .write_( *value.info, data, tracker.verify( 1 ) );
   }
 
   if( value.location && value.info )
@@ -2337,7 +2420,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_weapons_store_format
 ::klv_0601_weapons_store_format()
-  : klv_data_format_< klv_0601_weapons_store >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2345,7 +2427,7 @@ std::string
 klv_0601_weapons_store_format
 ::description() const
 {
-  return "weapons store pack of " + length_description();
+  return "weapons store pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2496,7 +2578,6 @@ DEFINE_STRUCT_CMP(
 /// Interprets data as a payload record.
 klv_0601_payload_record_format
 ::klv_0601_payload_record_format()
-  : klv_data_format_< klv_0601_payload_record >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2504,7 +2585,7 @@ std::string
 klv_0601_payload_record_format
 ::description() const
 {
-  return "payload pack of " + length_description();
+  return "payload pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2580,7 +2661,6 @@ klv_0601_payload_record_format
 /// Interprets data as a payload list.
 klv_0601_payload_list_format
 ::klv_0601_payload_list_format()
-  : klv_data_format_< std::vector< klv_0601_payload_record > >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2588,7 +2668,7 @@ std::string
 klv_0601_payload_list_format
 ::description() const
 {
-  return "payload list pack of " + length_description();
+  return "payload list pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2642,16 +2722,6 @@ klv_0601_payload_list_format
 }
 
 // ----------------------------------------------------------------------------
-uint32_t
-klv_0601_local_set_format
-::calculate_checksum( klv_read_iter_t data, size_t length ) const
-{
-  return klv_running_sum_16( checksum_header.begin(), checksum_header.end(),
-                             klv_running_sum_16( data, data + length ),
-                             length % 2 );
-}
-
-// ----------------------------------------------------------------------------
 /// A sensor wavelength record.
 std::ostream&
 operator<<( std::ostream& os, klv_0601_wavelength_record const& value )
@@ -2683,7 +2753,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0601_wavelength_record_format
 ::klv_0601_wavelength_record_format()
-  : klv_data_format_< klv_0601_wavelength_record >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -2691,7 +2760,7 @@ std::string
 klv_0601_wavelength_record_format
 ::description() const
 {
-  return "wavelength pack of " + length_description();
+  return "wavelength pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2706,10 +2775,10 @@ klv_0601_wavelength_record_format
   result.id = klv_read_ber_oid< uint16_t >( data, tracker.remaining() );
 
   // Read min wavelength
-  result.min = klv_read_imap( 0.0, 1.0e9, data, 4 );
+  result.min = klv_read_imap( { 0.0, 1.0e9 }, data, 4 );
 
   // Read max wavelength
-  result.max = klv_read_imap( 0.0, 1.0e9, data, 4 );
+  result.max = klv_read_imap( { 0.0, 1.0e9 }, data, 4 );
 
   // Read wavelength name
   result.name = klv_read_string( data, tracker.remaining() );
@@ -2729,10 +2798,10 @@ klv_0601_wavelength_record_format
   klv_write_ber_oid( value.id, data, tracker.remaining() );
 
   // Write min wavelength
-  klv_write_imap( value.min, 0.0, 1.0e9, data, 4 );
+  klv_write_imap( value.min, { 0.0, 1.0e9 }, data, 4 );
 
   // Write max wavelength
-  klv_write_imap( value.max, 0.0, 1.0e9, data, 4 );
+  klv_write_imap( value.max, { 0.0, 1.0e9 }, data, 4 );
 
   // Write wavelength name
   klv_write_string( value.name, data, tracker.remaining() );
@@ -2753,48 +2822,11 @@ klv_0601_wavelength_record_format
 }
 
 // ----------------------------------------------------------------------------
-uint32_t
+klv_checksum_packet_format const*
 klv_0601_local_set_format
-::read_checksum( klv_read_iter_t data, size_t length ) const
+::checksum_format() const
 {
-  if( length < checksum_packet_length )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "packet too small; checksum is not present" );
-  }
-  data += length - checksum_packet_length;
-
-  if( !std::equal( checksum_header.cbegin(), checksum_header.cend(), data ) )
-  {
-    VITAL_THROW( kv::metadata_exception,
-                 "checksum header not present" );
-  }
-  data += checksum_header.size();
-
-  return klv_read_int< uint16_t >( data, 2 );
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_0601_local_set_format
-::write_checksum( uint32_t checksum,
-                  klv_write_iter_t& data, size_t max_length ) const
-{
-  if( max_length < checksum_packet_length )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "writing checksum packet overflows data buffer" );
-  }
-  data = std::copy( checksum_header.cbegin(), checksum_header.cend(), data );
-  klv_write_int( static_cast< uint16_t >( checksum ), data, 2 );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_0601_local_set_format
-::checksum_length() const
-{
-  return checksum_packet_length;
+  return &m_checksum_format;
 }
 
 // ----------------------------------------------------------------------------
@@ -2802,7 +2834,7 @@ std::string
 klv_0601_local_set_format
 ::description() const
 {
-  return "UAS datalink local set of " + length_description();
+  return "UAS datalink local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -2815,7 +2847,8 @@ operator<<( std::ostream& os, klv_0601_tag tag )
 // ----------------------------------------------------------------------------
 klv_0601_local_set_format
 ::klv_0601_local_set_format()
-  : klv_local_set_format{ klv_0601_traits_lookup() }
+  : klv_local_set_format{ klv_0601_traits_lookup() },
+    m_checksum_format{ { KLV_0601_CHECKSUM, 2 } }
 {}
 
 // ----------------------------------------------------------------------------

@@ -33,7 +33,7 @@ std::string
 klv_0903_vobject_local_set_format
 ::description() const
 {
-  return "vobject local set of " + length_description();
+  return "vobject local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -68,7 +68,8 @@ klv_0903_vobject_set_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VOBJECT_CONFIDENCE ),
-      std::make_shared< klv_imap_format >( 0.0, 100.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ 0.0, 100.0 } ),
       "Confidence",
       "Level of confidence in the classification of the object.",
       { 0, 1 } } };

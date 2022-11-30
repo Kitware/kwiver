@@ -52,24 +52,26 @@ geographic_sdcc_imap_params = {
 
 // ----------------------------------------------------------------------------
 uint64_t
-imap_to_int( double imap_value, double minimum, double maximum,
-             size_t length )
+imap_to_int(
+  double imap_value, vital::interval< double > const& interval, size_t length )
 {
   std::vector< uint8_t > bytes( length );
-  auto it = bytes.begin();
-  klv_write_imap( imap_value, minimum, maximum, it, length );
-  return klv_read_int< uint64_t >( it = bytes.begin(), length );
+  auto it = &*bytes.begin();
+  klv_write_imap( imap_value, interval, it, length );
+  auto cit = &*bytes.cbegin();
+  return klv_read_int< uint64_t >( cit, length );
 }
 
 // ----------------------------------------------------------------------------
 double
-int_to_imap( uint64_t int_value, double minimum, double maximum,
-             size_t length )
+int_to_imap(
+  uint64_t int_value, vital::interval< double > const& interval, size_t length )
 {
   std::vector< uint8_t > bytes( length );
-  auto it = bytes.begin();
+  auto it = &*bytes.begin();
   klv_write_int( int_value, it, length );
-  return klv_read_imap( minimum, maximum, it = bytes.begin(), length );
+  auto cit = &*bytes.cbegin();
+  return klv_read_imap( interval, cit, length );
 }
 
 } // namespace
@@ -84,7 +86,6 @@ operator<<( std::ostream& os, klv_1601_tag tag )
 // ----------------------------------------------------------------------------
 klv_1601_pixel_sdcc_format
 ::klv_1601_pixel_sdcc_format()
-  : klv_data_format_< klv_1303_mdap< double > >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -92,7 +93,7 @@ std::string
 klv_1601_pixel_sdcc_format
 ::description() const
 {
-  return "pixel sdcc mdarray of " + length_description();
+  return "pixel sdcc mdarray of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -126,8 +127,7 @@ klv_1601_pixel_sdcc_format
       auto const int_element = int_value.elements.at( i * count + j );
       auto const& imap_params = pixel_sdcc_imap_params[ i ];
       auto const imap_element =
-        int_to_imap( int_element, imap_params.lower(), imap_params.upper(),
-                     result.element_size );
+        int_to_imap( int_element, imap_params, result.element_size );
       result.elements.emplace_back( imap_element );
     }
   }
@@ -165,8 +165,7 @@ klv_1601_pixel_sdcc_format
       auto const imap_element = value.elements.at( i * count + j );
       auto const& imap_params = pixel_sdcc_imap_params[ i ];
       auto const int_element =
-        imap_to_int( imap_element, imap_params.lower(), imap_params.upper(),
-                     int_value.element_size );
+        imap_to_int( imap_element, imap_params, int_value.element_size );
       int_value.elements.emplace_back( int_element );
     }
   }
@@ -185,7 +184,6 @@ klv_1601_pixel_sdcc_format
 // ----------------------------------------------------------------------------
 klv_1601_geographic_sdcc_format
 ::klv_1601_geographic_sdcc_format()
-  : klv_data_format_< klv_1303_mdap< double > >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -193,7 +191,7 @@ std::string
 klv_1601_geographic_sdcc_format
 ::description() const
 {
-  return "geographic sdcc mdarray of " + length_description();
+  return "geographic sdcc mdarray of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -228,8 +226,7 @@ klv_1601_geographic_sdcc_format
       auto const int_element = int_value.elements.at( i * count + j );
       auto const& imap_params = geographic_sdcc_imap_params[ i ];
       auto const imap_element =
-        int_to_imap( int_element, imap_params.lower(), imap_params.upper(),
-                     result.element_size );
+        int_to_imap( int_element, imap_params, result.element_size );
       result.elements.emplace_back( imap_element );
     }
   }
@@ -268,8 +265,7 @@ klv_1601_geographic_sdcc_format
       auto const imap_element = value.elements.at( i * count + j );
       auto const& imap_params = geographic_sdcc_imap_params[ i ];
       auto const int_element =
-        imap_to_int( imap_element, imap_params.lower(), imap_params.upper(),
-                     int_value.element_size );
+        imap_to_int( imap_element, imap_params, int_value.element_size );
       int_value.elements.emplace_back( int_element );
     }
   }
@@ -388,7 +384,7 @@ std::string
 klv_1601_local_set_format
 ::description() const
 {
-  return "geo-registration local set of " + length_description();
+  return "geo-registration local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

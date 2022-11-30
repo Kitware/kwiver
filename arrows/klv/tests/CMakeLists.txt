@@ -10,6 +10,7 @@ set( test_libraries kwiver_algo_core kwiver_algo_klv vital )
 # KLV tests
 ##############################
 
+kwiver_discover_gtests( klv apply_child_klv     LIBRARIES ${test_libraries} )
 kwiver_discover_gtests( klv klv_blob            LIBRARIES ${test_libraries} )
 kwiver_discover_gtests( klv klv_checksum        LIBRARIES ${test_libraries} )
 kwiver_discover_gtests( klv klv_demuxer         LIBRARIES ${test_libraries} )
@@ -22,6 +23,7 @@ kwiver_discover_gtests( klv klv_0806            LIBRARIES ${test_libraries} )
 kwiver_discover_gtests( klv klv_0903            LIBRARIES ${test_libraries} )
 kwiver_discover_gtests( klv klv_1002            LIBRARIES ${test_libraries} )
 kwiver_discover_gtests( klv klv_1010            LIBRARIES ${test_libraries} )
+kwiver_discover_gtests( klv klv_1107            LIBRARIES ${test_libraries} )
 kwiver_discover_gtests( klv klv_1108            LIBRARIES ${test_libraries} )
 kwiver_discover_gtests( klv klv_1108_metric_set LIBRARIES ${test_libraries} )
 kwiver_discover_gtests( klv klv_1202            LIBRARIES ${test_libraries} )

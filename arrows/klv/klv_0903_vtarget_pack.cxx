@@ -78,7 +78,7 @@ std::string
 klv_0903_fpa_index_format
 ::description() const
 {
-  return "fpa index pack of " + length_description();
+  return "fpa index pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -124,14 +124,14 @@ klv_0903_fpa_index_format
 // ----------------------------------------------------------------------------
 klv_0903_vtarget_pack_format
 ::klv_0903_vtarget_pack_format()
-  : klv_data_format_< klv_0903_vtarget_pack >{ 0 } {}
+{}
 
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vtarget_pack_format
 ::description() const
 {
-  return "vtarget pack of " + length_description();
+  return "vtarget pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -243,48 +243,55 @@ klv_0903_vtarget_pack_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_LOCATION_OFFSET_LATITUDE ),
-      std::make_shared< klv_imap_format >( -19.2, 19.2 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -19.2, 19.2 } ),
       "Target Location Offset Latitude",
       "Latitude offset for target from Frame Center Latitude, based on WGS84 "
       "ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_LOCATION_OFFSET_LONGITUDE ),
-      std::make_shared< klv_imap_format >( -19.2, 19.2 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -19.2, 19.2 } ),
       "Target Location Offset Longitude",
       "Longitude offset for target from Frame Center Longitude, based on "
       "WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_LOCATION_ELLIPSOID_HEIGHT ),
-      std::make_shared< klv_imap_format >( -900.0, 19000.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -900.0, 19000.0 } ),
       "Target Height Above Ellipsoid",
       "Height of the target in meters above the WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_TOP_LEFT_LATITUDE_OFFSET ),
-      std::make_shared< klv_imap_format >( -19.2, 19.2 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -19.2, 19.2 } ),
       "Boundary Top Left Latitude Offset",
       "Latitude offset for the top left corner of the bounding box from Frame "
       "Center Latitude, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_TOP_LEFT_LONGITUDE_OFFSET ),
-      std::make_shared< klv_imap_format >( -19.2, 19.2 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -19.2, 19.2 } ),
       "Boundary Top Left Longitude Offset",
       "Longitude offset for the top left corner of the bounding box from Frame "
       "Center Longitude, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT_LATITUDE_OFFSET ),
-      std::make_shared< klv_imap_format >( -19.2, 19.2 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -19.2, 19.2 } ),
       "Boundary Bottom Right Latitude Offset",
       "Latitude offset for the bottom right corner of the bounding box from "
       "Frame Center Latitude, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT_LONGITUDE_OFFSET ),
-      std::make_shared< klv_imap_format >( -19.2, 19.2 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ -19.2, 19.2 } ),
       "Boundary Bottom Right Longitude Offset",
       "Longitude offset for the bottom right corner of the bounding box from "
       "Frame Center Longitude, based on WGS84 ellipsoid.",
@@ -391,7 +398,7 @@ std::string
 klv_0903_vtarget_local_set_format
 ::description() const
 {
-  return "vtarget local set of " + length_description();
+  return "vtarget local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

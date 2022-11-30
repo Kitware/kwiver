@@ -30,7 +30,8 @@ namespace {
 // ----------------------------------------------------------------------------
 // Indent JSON using tabs; save the full precision of all floating-point values
 auto const output_options = cereal::JSONOutputArchive::Options{
-  DBL_DIG + 1, cereal::JSONOutputArchive::Options::IndentChar::tab, 1 };
+  cereal::JSONOutputArchive::Options::MaxPrecision(),
+  cereal::JSONOutputArchive::Options::IndentChar::tab, 1 };
 }
 
 // ----------------------------------------------------------------------------

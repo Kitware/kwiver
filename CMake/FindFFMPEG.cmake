@@ -8,16 +8,9 @@
 
 set( FFMPEG_FOUND "NO" )
 
-find_path( FFMPEG_INCLUDE1_DIR ffmpeg/avcodec.h
-  /usr/include
-  /usr/local/include
-)
-find_path( FFMPEG_INCLUDE2_DIR libavcodec/avcodec.h
-  /usr/include
-  /usr/include/ffmpeg
-  /usr/local/include
-  /usr/local/include/ffmpeg
-)
+find_path( FFMPEG_INCLUDE1_DIR ffmpeg/avcodec.h )
+find_path( FFMPEG_INCLUDE2_DIR libavcodec/avcodec.h )
+
 if( FFMPEG_INCLUDE1_DIR)
   set(FFMPEG_INCLUDE_DIR ${FFMPEG_INCLUDE1_DIR} )
   set( FFMPEG_FOUND_SEVERAL "NO" )
@@ -31,9 +24,8 @@ endif()
 if( FFMPEG_INCLUDE_DIR )
 
 find_program( FFMPEG_CONFIG ffmpeg-config
-  /usr/bin
-  /usr/local/bin
-  ${HOME}/bin
+  HINTS
+  ${FFMPEG_INCLUDE_DIR}/../bin
 )
 
 if( FFMPEG_CONFIG )
@@ -44,45 +36,39 @@ if( FFMPEG_CONFIG )
 else()
 
   find_library( FFMPEG_avcodec_LIBRARY avcodec
-    /usr/lib
-    /usr/local/lib
-    /usr/lib64
-    /usr/local/lib64
+    HINTS
+    ${FFMPEG_INCLUDE_DIR}/../lib
+    ${FFMPEG_INCLUDE_DIR}/../bin
   )
 
   find_library( FFMPEG_avformat_LIBRARY avformat
-    /usr/lib
-    /usr/local/lib
-    /usr/lib64
-    /usr/local/lib64
+    HINTS
+    ${FFMPEG_INCLUDE_DIR}/../lib
+    ${FFMPEG_INCLUDE_DIR}/../bin
   )
 
   find_library( FFMPEG_avutil_LIBRARY avutil
-    /usr/lib
-    /usr/local/lib
-    /usr/lib64
-    /usr/local/lib64
+    HINTS
+    ${FFMPEG_INCLUDE_DIR}/../lib
+    ${FFMPEG_INCLUDE_DIR}/../bin
   )
 
   find_library( FFMPEG_avfilter_LIBRARY avfilter
-    /usr/lib
-    /usr/local/lib
-    /usr/lib64
-    /usr/local/lib64
+    HINTS
+    ${FFMPEG_INCLUDE_DIR}/../lib
+    ${FFMPEG_INCLUDE_DIR}/../bin
   )
 
   find_library( FFMPEG_swscale_LIBRARY swscale
-    /usr/lib
-    /usr/local/lib
-    /usr/lib64
-    /usr/local/lib64
+    HINTS
+    ${FFMPEG_INCLUDE_DIR}/../lib
+    ${FFMPEG_INCLUDE_DIR}/../bin
   )
 
-find_library( FFMPEG_swresample_LIBRARY swresample
-      /usr/lib
-      /usr/local/lib
-      /usr/lib64
-      /usr/local/lib64
+  find_library( FFMPEG_swresample_LIBRARY swresample
+    HINTS
+    ${FFMPEG_INCLUDE_DIR}/../lib
+    ${FFMPEG_INCLUDE_DIR}/../bin
   )
 
   if( FFMPEG_avcodec_LIBRARY )

@@ -20,13 +20,6 @@ namespace arrows {
 
 namespace klv {
 
-namespace {
-
-constexpr size_t checksum_packet_length = 6;
-std::vector< uint8_t > const checksum_header = { KLV_0806_CHECKSUM, 4 };
-
-} // namespace <anonymous>
-
 // ----------------------------------------------------------------------------
 klv_tag_traits_lookup const&
 klv_0806_traits_lookup()
@@ -188,70 +181,25 @@ operator<<( std::ostream& os, klv_0806_tag tag )
 
 // ----------------------------------------------------------------------------
 klv_0806_local_set_format
-::klv_0806_local_set_format() : klv_local_set_format{ klv_0806_traits_lookup() }
-{
-}
+::klv_0806_local_set_format()
+  : klv_local_set_format{ klv_0806_traits_lookup() },
+    m_checksum_format{ { KLV_0806_CHECKSUM, 4 } }
+{}
 
 // ----------------------------------------------------------------------------
 std::string
 klv_0806_local_set_format
 ::description() const
 {
-  return "ST 0806 local set of " + length_description();
+  return "ST 0806 local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
-uint32_t
+klv_checksum_packet_format const*
 klv_0806_local_set_format
-::calculate_checksum( klv_read_iter_t data, size_t length ) const
+::checksum_format() const
 {
-  return klv_crc_32_mpeg( checksum_header.begin(), checksum_header.end(),
-                          klv_crc_32_mpeg( data, data + length ) );
-}
-
-// ----------------------------------------------------------------------------
-uint32_t
-klv_0806_local_set_format
-::read_checksum( klv_read_iter_t data, size_t length ) const
-{
-  if( length < checksum_packet_length )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "packet too small; checksum is not present" );
-  }
-  data += length - checksum_packet_length;
-
-  if( !std::equal( checksum_header.cbegin(), checksum_header.cend(), data ) )
-  {
-    VITAL_THROW( kv::metadata_exception,
-                 "checksum header not present" );
-  }
-  data += checksum_header.size();
-
-  return klv_read_int< uint32_t >( data, 4 );
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_0806_local_set_format
-::write_checksum( uint32_t checksum,
-                  klv_write_iter_t& data, size_t max_length ) const
-{
-  if( max_length < checksum_packet_length )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "writing checksum packet overflows data buffer" );
-  }
-  data = std::copy( checksum_header.cbegin(), checksum_header.cend(), data );
-  klv_write_int( checksum, data, 4 );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_0806_local_set_format
-::checksum_length() const
-{
-  return checksum_packet_length;
+  return &m_checksum_format;
 }
 
 // ----------------------------------------------------------------------------

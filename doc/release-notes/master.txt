@@ -8,8 +8,30 @@ over the previous v1.7.0 release.
 Updates
 -------
 
+Vital
+
+Vital Algo
+
+* Added API for algorithms to find nearest neighbor to a set of point in 3D.
+
+* Expanded the pointcloud_io API to include the ability to load point cloud data
+
+Vital Types
+
+* Added new pointcloud type to hold point cloud data
+
 Arrows
 
 Arrows: FFmpeg
 
 * Added basic configuration options to ffmpeg_video_output.
+
+* Added CUVID video decoding support.
+
+Arrows: KLV
+
+* Implemented ST1107.
+
+Arrows: PDAL
+
+* Added implementation of the load API to pointcloud_io to load point data via the PDAL library

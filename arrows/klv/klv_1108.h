@@ -8,6 +8,7 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_1108_H_
 #define KWIVER_ARROWS_KLV_KLV_1108_H_
 
+#include <arrows/klv/klv_checksum.h>
 #include <arrows/klv/klv_set.h>
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
@@ -199,19 +200,11 @@ public:
   std::string
   description() const override;
 
+  klv_checksum_packet_format const*
+  checksum_format() const override;
+
 private:
-  uint32_t
-  calculate_checksum( klv_read_iter_t data, size_t length ) const override;
-
-  uint32_t
-  read_checksum( klv_read_iter_t data, size_t length ) const override;
-
-  void
-  write_checksum( uint32_t checksum,
-                  klv_write_iter_t& data, size_t max_length ) const override;
-
-  size_t
-  checksum_length() const override;
+  klv_crc_16_ccitt_packet_format m_checksum_format;
 };
 
 // ----------------------------------------------------------------------------
@@ -223,6 +216,28 @@ klv_1108_key();
 KWIVER_ALGO_KLV_EXPORT
 klv_tag_traits_lookup const&
 klv_1108_traits_lookup();
+
+// ----------------------------------------------------------------------------
+/// Creates a local set which can serve as a ST1108 index.
+///
+/// Two parent/metric pairs with the same index and different metric values
+/// are in contradiction. Two pairs with different indices can coherently have
+/// different metric values.
+KWIVER_ALGO_KLV_EXPORT
+klv_local_set
+klv_1108_create_index_set(
+  klv_local_set const& parent_set, klv_value const& metric_set_value );
+
+// ----------------------------------------------------------------------------
+/// Fills in any ST1108 metadata fields derivable from \p vital_data.
+///
+/// Any existing values in \p klv_data will not be overwritten.
+///
+/// \return \c true if all possible klv fields have been filled in.
+KWIVER_ALGO_KLV_EXPORT
+bool
+klv_1108_fill_in_metadata(
+  vital::metadata const& vital_data, klv_local_set& klv_data );
 
 } // namespace klv
 

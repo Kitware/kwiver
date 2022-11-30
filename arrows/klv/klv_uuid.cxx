@@ -7,6 +7,7 @@
 
 #include "klv_uuid.h"
 
+#include <algorithm>
 #include <iomanip>
 
 namespace kwiver {
@@ -58,6 +59,35 @@ DEFINE_STRUCT_CMP(
   klv_uuid,
   &klv_uuid::bytes
   )
+
+// ----------------------------------------------------------------------------
+klv_uuid
+klv_read_uuid( klv_read_iter_t& data, size_t max_length )
+{
+  if( max_length < 16 )
+  {
+    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                 "reading UUID overflows buffer" );
+  }
+
+  klv_uuid result;
+  std::copy_n( data, 16, result.bytes.begin() );
+  data += 16;
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_write_uuid( klv_uuid const& value, klv_write_iter_t& data,
+                size_t max_length )
+{
+  if( max_length < 16 )
+  {
+    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+                 "writing UUID overflows buffer" );
+  }
+  data = std::copy( value.bytes.begin(), value.bytes.end(), data );
+}
 
 // ----------------------------------------------------------------------------
 size_t

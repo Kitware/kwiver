@@ -47,8 +47,7 @@ template < class Format >
 template < class... Args >
 klv_1303_mdap_format< Format >
 ::klv_1303_mdap_format( Args&&... args )
-  : klv_data_format_< mdap_t >{ 0 },
-    m_format{ std::forward< Args >( args )... }
+  : m_format{ std::forward< Args >( args )... }
 {}
 
 // ----------------------------------------------------------------------------
@@ -57,7 +56,7 @@ std::string
 klv_1303_mdap_format< Format >
 ::description() const
 {
-  return "MDAP/MDARRAY of " + this->length_description();
+  return "MDAP/MDARRAY of " + this->m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -116,14 +115,14 @@ klv_1303_mdap_format< Format >
       result.imap_params = kv::interval< double >{ minimum, maximum };
 
       using format_t = klv_lengthless_format< klv_imap_format >;
-      format.reset( new format_t{ minimum, maximum, result.element_size } );
+      format.reset( new format_t{ *result.imap_params, result.element_size } );
 
       break;
     }
     case KLV_1303_APA_NATURAL:
       result.apa_params_length = 0;
       format.reset( new Format{ m_format } );
-      format->set_fixed_length( result.element_size );
+      format->set_length_constraints( result.element_size );
       break;
     case KLV_1303_APA_BOOLEAN:
     case KLV_1303_APA_UINT:
@@ -193,12 +192,12 @@ klv_1303_mdap_format< Format >
       klv_write_float( minimum, data, tracker.verify( param_length ) );
       klv_write_float( maximum, data, tracker.verify( param_length ) );
       using format_t = klv_lengthless_format< klv_imap_format >;
-      format.reset( new format_t{ minimum, maximum, value.element_size } );
+      format.reset( new format_t{ *value.imap_params, value.element_size } );
       break;
     }
     case KLV_1303_APA_NATURAL:
       format.reset( new Format{ m_format } );
-      format->set_fixed_length( value.element_size );
+      format->set_length_constraints( value.element_size );
       break;
     case KLV_1303_APA_BOOLEAN:
     case KLV_1303_APA_UINT:

@@ -8,6 +8,7 @@
 #include "klv_set.h"
 
 #include <arrows/klv/klv_1010.h>
+#include <arrows/klv/klv_key_traits.h>
 #include <arrows/klv/klv_util.h>
 
 namespace kv = kwiver::vital;
@@ -144,11 +145,11 @@ klv_set< Key >
 
 // ----------------------------------------------------------------------------
 template < class Key >
-void
+typename klv_set< Key >::iterator
 klv_set< Key >
 ::erase( const_iterator it )
 {
-  m_items.erase( it );
+  return m_items.erase( it );
 }
 
 // ----------------------------------------------------------------------------
@@ -359,96 +360,11 @@ klv_set< Key >
   return false;
 }
 
-namespace {
-
-// ----------------------------------------------------------------------------
-// Helper class for klv_set_format allowing compile-time lookup of functions
-// pertaining to a KLV key type.
-template < class Key > class key_traits;
-
-// ----------------------------------------------------------------------------
-template <>
-class key_traits< klv_lds_key >
-{
-public:
-  static klv_lds_key
-  read_key( klv_read_iter_t& data, size_t max_length )
-  {
-    return klv_read_lds_key( data, max_length );
-  }
-
-  static void
-  write_key( klv_lds_key const& key,
-             klv_write_iter_t& data, size_t max_length )
-  {
-    klv_write_lds_key( key, data, max_length );
-  }
-
-  static size_t
-  length_of_key( klv_lds_key const& key )
-  {
-    return klv_lds_key_length( key );
-  }
-
-  static klv_tag_traits const&
-  tag_traits_from_key( klv_tag_traits_lookup const& lookup,
-                       klv_lds_key const& key )
-  {
-    return lookup.by_tag( key );
-  }
-
-  static klv_lds_key
-  key_from_tag_traits( klv_tag_traits const& trait )
-  {
-    return trait.tag();
-  }
-};
-
-// ----------------------------------------------------------------------------
-template <>
-class key_traits< klv_uds_key >
-{
-public:
-  static klv_uds_key
-  read_key( klv_read_iter_t& data, size_t max_length )
-  {
-    return klv_read_uds_key( data, max_length );
-  }
-
-  static void
-  write_key( klv_uds_key const& key,
-             klv_write_iter_t& data, size_t max_length )
-  {
-    klv_write_uds_key( key, data, max_length );
-  }
-
-  static size_t
-  length_of_key( klv_uds_key const& key )
-  {
-    return klv_uds_key_length( key );
-  }
-
-  static klv_tag_traits const&
-  tag_traits_from_key( klv_tag_traits_lookup const& lookup,
-                       klv_uds_key const& key )
-  {
-    return lookup.by_uds_key( key );
-  }
-
-  static klv_uds_key
-  key_from_tag_traits( klv_tag_traits const& trait )
-  {
-    return trait.uds_key();
-  }
-};
-
-} // namespace
-
 // ----------------------------------------------------------------------------
 template < class Key >
 klv_set_format< Key >
 ::klv_set_format( klv_tag_traits_lookup const& traits )
-  : klv_data_format_< klv_set< Key > >{ 0 }, m_traits( traits )
+  : m_traits( traits )
 {}
 
 // ----------------------------------------------------------------------------
@@ -479,18 +395,21 @@ klv_set_format< Key >
       klv_read_ber< size_t >( data, tracker.remaining() );
 
     // Value
+    klv_value value;
     auto const& traits = kt::tag_traits_from_key( m_traits, key );
-    auto value =
-      traits.format().read( data, tracker.verify( length_of_value ) );
 
     // Record entries before this one in the SDCC-FLP
-    if( value.type() == typeid( klv_1010_sdcc_flp ) )
+    auto const sdcc_format =
+      dynamic_cast< klv_1010_sdcc_flp_format const* >( &traits.format() );
+    if( sdcc_format )
     {
-      auto& sdcc = value.template get< klv_1010_sdcc_flp >();
-      auto const matrix_size = std::min( history.size(), sdcc.members.size() );
-      std::copy( history.end() - matrix_size,
-                 history.end(),
-                 sdcc.members.begin() );
+      auto format = *sdcc_format;
+      format.set_preceding( history );
+      value = format.read( data, tracker.verify( length_of_value ) );
+    }
+    else
+    {
+      value = traits.format().read( data, tracker.verify( length_of_value ) );
     }
 
     result.add( key, std::move( value ) );
@@ -563,8 +482,10 @@ klv_set_format< Key >
   }
 
   // Actually write each entry
-  for( auto const& entry : entries )
+  std::vector< klv_lds_key > history;
+  for( auto it = entries.begin(); it != entries.end(); ++it )
   {
+    auto const& entry = *it;
     auto const& key = entry->first;
     auto const& value = entry->second;
     auto const& traits = kt::tag_traits_from_key( m_traits, key );
@@ -577,7 +498,19 @@ klv_set_format< Key >
     klv_write_ber( length_of_value, data, tracker.remaining() );
 
     // Value
-    traits.format().write( value, data, tracker.remaining() );
+    auto const sdcc_format =
+      dynamic_cast< klv_1010_sdcc_flp_format const* >( &traits.format() );
+    if( sdcc_format )
+    {
+      auto format = *sdcc_format;
+      format.set_preceding( history );
+      format.write( value, data, tracker.remaining() );
+    }
+    else
+    {
+      traits.format().write( value, data, tracker.remaining() );
+    }
+    history.emplace_back( traits.tag() );
   }
 }
 

@@ -11,6 +11,7 @@
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include "klv_0102.h"
+#include "klv_checksum.h"
 #include "klv_list.h"
 #include "klv_packet.h"
 #include "klv_set.h"
@@ -108,7 +109,7 @@ enum klv_0601_tag : klv_lds_key
   KLV_0601_SENSOR_ELLIPSOID_HEIGHT             = 75,
   KLV_0601_ALTERNATE_PLATFORM_ELLIPSOID_HEIGHT = 76,
   KLV_0601_OPERATIONAL_MODE                    = 77,
-  KLV_0601_FRAME_CENTER_HEIGHT_ABOVE_ELLIPSOID = 78,
+  KLV_0601_FRAME_CENTER_ELLIPSOID_HEIGHT       = 78,
   KLV_0601_SENSOR_NORTH_VELOCITY               = 79,
   KLV_0601_SENSOR_EAST_VELOCITY                = 80,
   KLV_0601_IMAGE_HORIZON_PIXEL_PACK            = 81,
@@ -444,7 +445,7 @@ struct KWIVER_ALGO_KLV_EXPORT klv_0601_control_command
 {
   uint16_t id;
   std::string string;
-  uint64_t timestamp;
+  vital::optional< uint64_t > timestamp;
 };
 
 // ----------------------------------------------------------------------------
@@ -663,8 +664,8 @@ class KWIVER_ALGO_KLV_EXPORT klv_0601_view_domain_interval_format
   : public klv_data_format_< klv_0601_view_domain_interval >
 {
 public:
-  klv_0601_view_domain_interval_format( double start_mininum,
-                                        double start_maximum );
+  klv_0601_view_domain_interval_format(
+    vital::interval< double > const& start_interval );
 
   std::string
   description() const override;
@@ -730,12 +731,32 @@ private:
 };
 
 // ----------------------------------------------------------------------------
+/// A set of bit values containing varied information about a waypoint.
+enum klv_0601_waypoint_info_bit : uint8_t
+{
+  // 0 = automated, 1 = manual
+  KLV_0601_WAYPOINT_INFO_BIT_MODE,
+  // 0 = pre-planned, 1 = ad-hoc
+  KLV_0601_WAYPOINT_INFO_BIT_SOURCE,
+  KLV_0601_WAYPOINT_INFO_BIT_ENUM_END,
+};
+
+// ----------------------------------------------------------------------------
+KWIVER_ALGO_KLV_EXPORT
+std::ostream&
+operator<<( std::ostream& os, klv_0601_waypoint_info_bit value );
+
+// ----------------------------------------------------------------------------
+using klv_0601_waypoint_info_format =
+  klv_enum_bitfield_format< klv_0601_waypoint_info_bit, klv_ber_oid_format >;
+
+// ----------------------------------------------------------------------------
 /// Aircraft destinations used to navigate the aircraft to certain locations.
 struct klv_0601_waypoint_record
 {
   uint16_t id;
   int16_t order;
-  kwiver::vital::optional< uint8_t > info;
+  kwiver::vital::optional< std::set< klv_0601_waypoint_info_bit > > info;
   kwiver::vital::optional< klv_0601_location_dlp > location;
 };
 
@@ -1021,19 +1042,11 @@ public:
   std::string
   description() const override;
 
+  klv_checksum_packet_format const*
+  checksum_format() const override;
+
 private:
-  uint32_t
-  calculate_checksum( klv_read_iter_t data, size_t length ) const override;
-
-  uint32_t
-  read_checksum( klv_read_iter_t data, size_t length ) const override;
-
-  void
-  write_checksum( uint32_t checksum,
-                  klv_write_iter_t& data, size_t max_length ) const override;
-
-  size_t
-  checksum_length() const override;
+  klv_running_sum_16_packet_format m_checksum_format;
 };
 
 // ----------------------------------------------------------------------------

@@ -54,7 +54,9 @@ std::string
 klv_1202_local_set_format
 ::description() const
 {
-  return "generalized transformation local set of " + length_description();
+  return
+    "generalized transformation local set of " +
+    m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

@@ -12,11 +12,13 @@
 #ifndef KWIVER_ARROWS_KLV_MISP_TIME_H
 #define KWIVER_ARROWS_KLV_MISP_TIME_H
 
+#include <arrows/klv/klv_types.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <vital/range/iota.h>
 
 #include <algorithm>
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -81,16 +83,31 @@ enum misp_timestamp_status_bit
 
 // ----------------------------------------------------------------------------
 /// Frame timestamp information embedded in the video stream.
-struct KWIVER_ALGO_KLV_EXPORT misp_timestamp
+class KWIVER_ALGO_KLV_EXPORT misp_timestamp
 {
+public:
+  static constexpr uint8_t default_status = 0x9F;
+
   misp_timestamp();
 
-  misp_timestamp( uint64_t timestamp );
+  misp_timestamp(
+    std::chrono::microseconds timestamp, uint8_t status = default_status );
 
-  misp_timestamp( uint64_t timestamp, uint8_t status );
+  misp_timestamp(
+    std::chrono::nanoseconds timestamp, uint8_t status = default_status );
 
-  uint64_t timestamp;
-  uint8_t status;
+  std::chrono::microseconds microseconds() const;
+  void set_microseconds( std::chrono::microseconds microseconds );
+
+  std::chrono::nanoseconds nanoseconds() const;
+  void set_nanoseconds( std::chrono::nanoseconds nanoseconds );
+
+  uint8_t status() const;
+  void set_status( uint8_t status );
+
+private:
+  std::chrono::nanoseconds m_timestamp;
+  uint8_t m_status;
 };
 
 // ----------------------------------------------------------------------------
@@ -100,31 +117,21 @@ struct KWIVER_ALGO_KLV_EXPORT misp_timestamp
 /// \param end Iterator to end of byte sequence.
 ///
 /// \return Iterator to beginning of MISP packet, or \p end on failure.
-template < class Iterator >
-Iterator
-find_misp_timestamp( Iterator begin, Iterator end,
-                     misp_timestamp_tag_type tag_type )
-{
-  auto it = end;
-  if( tag_type == MISP_TIMESTAMP_TAG_STRING )
-  {
-    auto const& tag = misp_detail::tag_string;
-    it = std::search( begin, end, tag, tag + misp_detail::tag_length );
-  }
-  else if( tag_type == MISP_TIMESTAMP_TAG_UUID )
-  {
-    for( auto const& tag : { misp_detail::tag_uuid,
-                             misp_detail::tag_uuid_nano } )
-    {
-      it = std::search( begin, end, tag, tag + misp_detail::tag_length );
-      if( it != end )
-      {
-        break;
-      }
-    }
-  }
-  return ( std::distance( it, end ) < misp_detail::packet_length ) ? end : it;
-}
+KWIVER_ALGO_KLV_EXPORT
+klv_read_iter_t
+find_misp_timestamp( klv_read_iter_t begin, klv_read_iter_t end,
+                     misp_timestamp_tag_type tag_type );
+
+// ----------------------------------------------------------------------------
+/// Determine whether the MISP timestamp at \p data is in nanoseconds.
+///
+/// \param data Iterator to beginning of MISP packet.
+///
+/// \return \c true if the timestamp uses nanoseconds, \c false if it uses
+///         microseconds.
+KWIVER_ALGO_KLV_EXPORT
+bool
+is_misp_timestamp_nano( klv_read_iter_t data );
 
 // ----------------------------------------------------------------------------
 /// Read a MISP timestamp from a sequence of bytes.
@@ -132,42 +139,10 @@ find_misp_timestamp( Iterator begin, Iterator end,
 /// \param data Iterator to beginning of MISP packet. Set to end of read bytes
 ///             on success.
 ///
-/// \return MISP microsecond timestamp.
-template < class Iterator >
+/// \return MISP timestamp.
+KWIVER_ALGO_KLV_EXPORT
 misp_timestamp
-read_misp_timestamp( Iterator& data )
-{
-  // Skip tag to get to status and timestamp
-  auto const is_nano =
-    std::equal( misp_detail::tag_uuid_nano,
-                misp_detail::tag_uuid_nano + misp_detail::tag_length,
-                data );
-  std::advance( data, misp_detail::tag_length );
-
-  auto const status = *data;
-  ++data;
-
-  uint64_t timestamp = 0;
-  for( auto const i :
-       kwiver::vital::range::iota( misp_detail::timestamp_length ) )
-  {
-    // Every third byte is set to 0xFF to avoid the timestamp being read as a
-    // start tag for some other sort of data
-    if( i % 3 != 2 )
-    {
-      timestamp <<= 8;
-      timestamp |= *data;
-    }
-    ++data;
-  }
-
-  if( is_nano )
-  {
-    timestamp = ( timestamp + 500 ) / 1000;
-  }
-
-  return { timestamp, status };
-}
+read_misp_timestamp( klv_read_iter_t& data );
 
 // ----------------------------------------------------------------------------
 /// Write a MISP timestamp to a sequence of bytes.
@@ -175,41 +150,10 @@ read_misp_timestamp( Iterator& data )
 /// \param value Timestamp value to write.
 /// \param data Iterator to sequence of \c uint8_t. Set to end of written bytes
 //              on success.
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 void
-write_misp_timestamp( misp_timestamp value, Iterator& data,
-                      misp_timestamp_tag_type tag_type )
-{
-  // Write tag
-  auto const& tag =
-    ( tag_type == MISP_TIMESTAMP_TAG_UUID )
-    ? misp_detail::tag_uuid
-    : misp_detail::tag_string;
-  data = std::copy( tag, tag + misp_detail::tag_length, data );
-
-  // Write status
-  *data = value.status;
-  ++data;
-
-  for( auto const i :
-       kwiver::vital::range::iota( misp_detail::timestamp_length ) )
-  {
-    if( i % 3 == 2 )
-    {
-      // Every third byte is set to 0xFF to avoid the timestamp being read as a
-      // start tag for some other sort of data
-      *data = 0xFF;
-    }
-    else
-    {
-      // Write the next most significant byte
-      constexpr uint64_t mask = 0xFF << 7;
-      *data = value.timestamp & mask;
-      value.timestamp <<= 8;
-    }
-    ++data;
-  }
-}
+write_misp_timestamp( misp_timestamp value, klv_write_iter_t& data,
+                      misp_timestamp_tag_type tag_type, bool is_nano );
 
 // ----------------------------------------------------------------------------
 /// Return the length of a MISP timestamp packet in bytes.
@@ -222,8 +166,16 @@ misp_timestamp_length();
 ///
 /// \warning Until C++20, we cannot guarantee the accuracy of the result.
 KWIVER_ALGO_KLV_EXPORT
-uint64_t
-misp_timestamp_now();
+std::chrono::microseconds
+misp_microseconds_now();
+
+// ----------------------------------------------------------------------------
+/// Returns the current time in nanoseconds according to the MISP system.
+///
+/// \warning Until C++20, we cannot guarantee the accuracy of the result.
+KWIVER_ALGO_KLV_EXPORT
+std::chrono::nanoseconds
+misp_nanoseconds_now();
 
 } // namespace klv
 

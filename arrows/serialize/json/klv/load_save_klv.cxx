@@ -69,6 +69,7 @@ using klv_type_list =
     klv_1002_enumerations,
     klv_1002_section_data_pack,
     klv_1010_sdcc_flp,
+    klv_1107_slant_range_pedigree,
     klv_1108_assessment_point,
     klv_1108_compression_profile,
     klv_1108_compression_type,
@@ -91,6 +92,7 @@ using klv_type_list =
     std::set< klv_0601_generic_flag_data_bit >,
     std::set< klv_0601_positioning_method_source_bit >,
     std::set< klv_0601_weapon_engagement_status_bit >,
+    std::set< uint16_t >,
     std::string,
     std::vector< klv_0601_payload_record >,
     std::vector< klv_0601_wavelength_record >,
@@ -286,7 +288,14 @@ protected:
   set_next_name( std::string const& name )
   {
     m_next_name = name;
-    m_archive.setNextName( m_next_name.c_str() );
+    if( name.empty() )
+    {
+      m_archive.setNextName( nullptr );
+    }
+    else
+    {
+      m_archive.setNextName( m_next_name.c_str() );
+    }
   }
 
 private:
@@ -528,35 +537,6 @@ public:
       {
         save( "value", entry.second );
       }
-    }
-  }
-
-  void save( klv_float_format const& )
-  {}
-
-  void save( klv_imap_format const& value )
-  {
-    save( "lower-bound", value.minimum() );
-    save( "upper-bound", value.maximum() );
-  }
-
-  void save( klv_data_format const& value )
-  {
-    auto const object_scope = push_object();
-    save( "type", find_format_name( typeid( value ) ) );
-    kv::visit_types<
-      klv_data_format_visitor,
-      klv_float_format,
-      klv_imap_format
-      >( { *this, value }, typeid( value ) );
-
-    if( value.fixed_length() )
-    {
-      save( "length", value.fixed_length() );
-    }
-    else
-    {
-      save( "length", nullptr );
     }
   }
 
@@ -825,8 +805,10 @@ public:
     SAVE_MEMBER( members );
     SAVE_MEMBER( sigma );
     SAVE_MEMBER( rho );
-    SAVE_MEMBER( sigma_format );
-    SAVE_MEMBER( rho_format );
+    SAVE_MEMBER( sigma_length );
+    SAVE_MEMBER( rho_length );
+    SAVE_MEMBER( sigma_uses_imap );
+    SAVE_MEMBER( rho_uses_imap );
     SAVE_MEMBER( long_parse_control );
     SAVE_MEMBER( sparse );
   }
@@ -975,6 +957,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
     }
     catch( std::runtime_error const& )
     {
+      set_next_name( "" );
       return false;
     }
   }
@@ -1051,24 +1034,6 @@ struct klv_json_loader : public klv_json_base< load_archive >
     return load< typename T::value_type >();
   }
 
-  LOAD_TEMPLATE( std::shared_ptr< klv_data_format > )
-  T load()
-  {
-    if( load_null() )
-    {
-      return nullptr;
-    }
-
-    auto const object_scope = push_object();
-    auto const& type = find_format_type( load< std::string >( "type" ) );
-    return kv::visit_types_return<
-      T,
-      klv_data_format_visitor,
-      klv_float_format,
-      klv_imap_format
-      >( { *this }, type );
-  }
-
   LOAD_CONTAINER_TEMPLATE( kv::interval )
   T load()
   {
@@ -1140,7 +1105,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
     {
       throw std::runtime_error( "uds key has incorrect number of bytes" );
     }
-    return klv_uds_key{ bytes.begin() };
+    return klv_uds_key{ bytes.data() };
   }
 
   klv_value load( std::type_info const& type )
@@ -1154,6 +1119,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
       }
       catch( std::runtime_error const& )
       {
+        set_next_name( "" );
         return {};
       }
     }
@@ -1241,23 +1207,6 @@ struct klv_json_loader : public klv_json_base< load_archive >
     return result;
   }
 
-  LOAD_TEMPLATE( klv_float_format )
-  T load()
-  {
-    LOAD_VALUE( length, kv::optional< size_t > );
-    return length ? T{ *length } : T{};
-  }
-
-  LOAD_TEMPLATE( klv_imap_format )
-  T load()
-  {
-    LOAD_VALUE( lower_bound, double );
-    LOAD_VALUE( upper_bound, double );
-    LOAD_VALUE( length, kv::optional< size_t > );
-    return length ? T{ lower_bound, upper_bound, *length }
-                  : T{ lower_bound, upper_bound };
-  }
-
   LOAD_TEMPLATE( klv_0601_airbase_locations )
   T load()
   {
@@ -1333,7 +1282,9 @@ struct klv_json_loader : public klv_json_base< load_archive >
       locations = load< klv_0601_image_horizon_locations >();
     }
     catch( std::runtime_error const& )
-    {}
+    {
+      set_next_name( "" );
+    }
 
     return { std::move( x0 ),
              std::move( y0 ),
@@ -1589,15 +1540,19 @@ struct klv_json_loader : public klv_json_base< load_archive >
     LOAD_MEMBER( members );
     LOAD_MEMBER( sigma );
     LOAD_MEMBER( rho );
-    LOAD_MEMBER( sigma_format );
-    LOAD_MEMBER( rho_format );
+    LOAD_MEMBER( sigma_length );
+    LOAD_MEMBER( rho_length );
+    LOAD_MEMBER( sigma_uses_imap );
+    LOAD_MEMBER( rho_uses_imap );
     LOAD_MEMBER( long_parse_control );
     LOAD_MEMBER( sparse );
     return { std::move( members ),
              std::move( sigma ),
              std::move( rho ),
-             std::move( sigma_format ),
-             std::move( rho_format ),
+             std::move( sigma_length ),
+             std::move( rho_length ),
+             std::move( sigma_uses_imap ),
+             std::move( rho_uses_imap ),
              std::move( long_parse_control ),
              std::move( sparse ) };
   }

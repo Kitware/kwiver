@@ -5,6 +5,9 @@
 /// \file
 /// Implementation of the templated basic KLV read/write functions.
 
+#ifndef KWIVER_ARROWS_KLV_KLV_READ_WRITE_TXX_
+#define KWIVER_ARROWS_KLV_KLV_READ_WRITE_TXX_
+
 #include "klv_read_write.h"
 
 #include <vital/exceptions.h>
@@ -37,11 +40,6 @@ namespace klv {
 #define KLV_ASSERT_SINT( T )                                           \
   KLV_ASSERT_INT( T );                                                 \
   static_assert( std::is_signed< T >::value, "must be a signed type" )
-
-#define KLV_ASSERT_UINT8_ITERATOR( ITER )                              \
-  static_assert(                                                       \
-    std::is_same< typename std::decay< decltype( *ITER ) >::type,      \
-                  uint8_t >::value, "iterator must point to uint8_t" )
 
 // ----------------------------------------------------------------------------
 // Return number of bits required to store the given signed or unsigned int.
@@ -96,28 +94,27 @@ struct KWIVER_ALGO_KLV_EXPORT _imap_terms
 // Calculates the derived terms needed for both IMAP reading and writing.
 KWIVER_ALGO_KLV_EXPORT
 _imap_terms
-_calculate_imap_terms( double minimum, double maximum, size_t length );
+_calculate_imap_terms( vital::interval< double > const& interval, size_t length );
 
 // ----------------------------------------------------------------------------
 // Throws invalid_value if arguments don't make sense
 KWIVER_ALGO_KLV_EXPORT
 void
-_check_range_precision( double minimum, double maximum, double precision );
+_check_range_precision( vital::interval< double > const& interval, double precision );
 
 // ----------------------------------------------------------------------------
 // Throws invalid_value if arguments don't make sense
 KWIVER_ALGO_KLV_EXPORT
 void
-_check_range_length( double minimum, double maximum, size_t length );
+_check_range_length( vital::interval< double > const& interval, size_t length );
 
 // ----------------------------------------------------------------------------
-template < class T, class Iterator >
+template < class T >
 T
-klv_read_int( Iterator& data, size_t length )
+klv_read_int( klv_read_iter_t& data, size_t length )
 {
   // Ensure types are compatible with our assumptions
   KLV_ASSERT_INT( T );
-  KLV_ASSERT_UINT8_ITERATOR( data );
 
   if( sizeof( T ) < length )
   {
@@ -158,13 +155,12 @@ klv_read_int( Iterator& data, size_t length )
 }
 
 // ----------------------------------------------------------------------------
-template < class T, class Iterator >
+template < class T >
 void
-klv_write_int( T value, Iterator& data, size_t length )
+klv_write_int( T value, klv_write_iter_t& data, size_t length )
 {
   // Ensure types are compatible with our assumptions
   KLV_ASSERT_INT( T );
-  KLV_ASSERT_UINT8_ITERATOR( data );
 
   auto const value_length = klv_int_length( value );
   if( value_length > length )
@@ -194,13 +190,12 @@ klv_int_length( T value )
 }
 
 // ----------------------------------------------------------------------------
-template < class T, class Iterator >
+template < class T >
 T
-klv_read_ber( Iterator& data, size_t max_length )
+klv_read_ber( klv_read_iter_t& data, size_t max_length )
 {
   // Ensure types are compatible with our assumptions
   KLV_ASSERT_UINT( T );
-  KLV_ASSERT_UINT8_ITERATOR( data );
 
   if( !max_length )
   {
@@ -240,12 +235,11 @@ klv_read_ber( Iterator& data, size_t max_length )
 }
 
 // ----------------------------------------------------------------------------
-template < class T, class Iterator >
+template < class T >
 void
-klv_write_ber( T value, Iterator& data, size_t max_length )
+klv_write_ber( T value, klv_write_iter_t& data, size_t max_length )
 {
   KLV_ASSERT_UINT( T );
-  KLV_ASSERT_UINT8_ITERATOR( data );
 
   auto const value_length = klv_ber_length( value );
   if( value_length > max_length )
@@ -276,12 +270,11 @@ klv_ber_length( T value )
 }
 
 // ----------------------------------------------------------------------------
-template < class T, class Iterator >
+template < class T >
 T
-klv_read_ber_oid( Iterator& data, size_t max_length )
+klv_read_ber_oid( klv_read_iter_t& data, size_t max_length )
 {
   KLV_ASSERT_UINT( T );
-  KLV_ASSERT_UINT8_ITERATOR( data );
 
   auto const rewind = data;
 
@@ -312,12 +305,11 @@ klv_read_ber_oid( Iterator& data, size_t max_length )
 }
 
 // ----------------------------------------------------------------------------
-template < class T, class Iterator >
+template < class T >
 void
-klv_write_ber_oid( T value, Iterator& data, size_t max_length )
+klv_write_ber_oid( T value, klv_write_iter_t& data, size_t max_length )
 {
   KLV_ASSERT_UINT( T );
-  KLV_ASSERT_UINT8_ITERATOR( data );
 
   auto value_length = klv_ber_oid_length( value );
   if( value_length > max_length )
@@ -354,17 +346,17 @@ klv_ber_oid_length( T value )
 }
 
 // ----------------------------------------------------------------------------
-template < class T, class Iterator >
+template < class T >
 double
-klv_read_flint( double minimum, double maximum, Iterator& data, size_t length )
+klv_read_flint(
+  vital::interval< double > const& interval, klv_read_iter_t& data, size_t length )
 {
   KLV_ASSERT_INT( T );
-  KLV_ASSERT_UINT8_ITERATOR( data );
 
-  _check_range_length( minimum, maximum, length );
+  _check_range_length( interval, length );
 
   // Before read to avoid moving iterator
-  if( std::is_signed< T >::value && minimum != -maximum )
+  if( std::is_signed< T >::value && interval.lower() != -interval.upper() )
   {
     throw std::logic_error( "range must be symmetrical around zero" );
   }
@@ -380,30 +372,29 @@ klv_read_flint( double minimum, double maximum, Iterator& data, size_t length )
       return std::numeric_limits< double >::quiet_NaN();
     }
 
-    auto const scale = maximum / _int_max< T >( length );
+    auto const scale = interval.upper() / _int_max< T >( length );
     return float_value * scale;
   }
   else
   {
-    auto const scale = ( maximum - minimum ) / _int_max< T >( length );
-    return float_value * scale + minimum;
+    auto const scale = interval.span() / _int_max< T >( length );
+    return float_value * scale + interval.lower();
   }
 }
 
 // ----------------------------------------------------------------------------
-template < class T, class Iterator >
+template < class T >
 void
-klv_write_flint( double value, double minimum, double maximum,
-                 Iterator& data, size_t length )
+klv_write_flint( double value, vital::interval< double > const& interval,
+                 klv_write_iter_t& data, size_t length )
 {
   // Ensure types are compatible with our assumptions
   KLV_ASSERT_INT( T );
-  KLV_ASSERT_UINT8_ITERATOR( data );
 
-  _check_range_length( minimum, maximum, length );
+  _check_range_length( interval, length );
 
   // Check before NaN
-  if( std::is_signed< T >::value && minimum != -maximum )
+  if( std::is_signed< T >::value && interval.lower() != -interval.upper() )
   {
     throw std::logic_error( "range must be symmetrical around zero" );
   }
@@ -421,11 +412,11 @@ klv_write_flint( double value, double minimum, double maximum,
   // C++17: if constexpr
   if( std::is_signed< T >::value )
   {
-    auto const scale = max_int / maximum;
+    auto const scale = max_int / interval.upper();
     auto const float_value = value * scale;
     auto int_value = static_cast< T >( std::round( float_value ) );
 
-    if( minimum > value || value > maximum )
+    if( !interval.contains( value, true, true ) )
     {
       // Special invalid / out-of-range value
       int_value = min_int;
@@ -444,8 +435,8 @@ klv_write_flint( double value, double minimum, double maximum,
   }
   else
   {
-    auto const scale = max_int / ( maximum - minimum );
-    auto const float_value = ( value - minimum ) * scale;
+    auto const scale = max_int / interval.span();
+    auto const float_value = ( value - interval.lower() ) * scale;
     auto int_value = static_cast< T >( std::round( float_value ) );
 
     // Clamp the value to max/min range. This tests float_value instead of
@@ -461,213 +452,6 @@ klv_write_flint( double value, double minimum, double maximum,
     }
     klv_write_int( int_value, data, length );
   }
-}
-
-// ----------------------------------------------------------------------------
-template < class Iterator >
-double
-klv_read_float( Iterator& data, size_t length )
-{
-  static_assert( std::numeric_limits< float  >::is_iec559 &&
-                 std::numeric_limits< double >::is_iec559,
-                 "non-IEEE-754 platform is not supported" );
-  if( length == sizeof( float ) )
-  {
-    static_assert( sizeof( float ) == sizeof( uint32_t ),
-                   "non-32-bit float not supported" );
-    auto const int_value = klv_read_int< uint32_t >( data, length );
-    float float_value;
-    std::memcpy( &float_value, &int_value, sizeof( float_value ) );
-    return float_value;
-  }
-  else if( length == sizeof( double ) )
-  {
-    static_assert( sizeof( double ) == sizeof( uint64_t ),
-                   "non-64-bit double not supported" );
-    auto const int_value = klv_read_int< uint64_t >( data, length );
-    double float_value;
-    std::memcpy( &float_value, &int_value, sizeof( float_value ) );
-    return float_value;
-  }
-  VITAL_THROW( kwiver::vital::invalid_value,
-               "length must be sizeof(float) or sizeof(double)" );
-}
-
-// ----------------------------------------------------------------------------
-template < class Iterator >
-void
-klv_write_float( double value, Iterator& data, size_t length )
-{
-  static_assert( std::numeric_limits< float  >::is_iec559 &&
-                 std::numeric_limits< double >::is_iec559,
-                 "non-IEEE-754 platform is not supported" );
-  if( length == sizeof( float ) )
-  {
-    static_assert( sizeof( float ) == sizeof( uint32_t ),
-                   "non-32-bit float not supported" );
-    auto const float_value = static_cast< float >( value );
-    uint32_t int_value;
-    std::memcpy( &int_value, &float_value, sizeof( int_value ) );
-    klv_write_int( int_value, data, length );
-  }
-  else if( length == sizeof( double ) )
-  {
-    static_assert( sizeof( double ) == sizeof( uint64_t ),
-                   "non-64-bit double not supported" );
-    auto const float_value = static_cast< double >( value );
-    uint64_t int_value;
-    std::memcpy( &int_value, &float_value, sizeof( int_value ) );
-    klv_write_int( int_value, data, length );
-  }
-  else
-  {
-    VITAL_THROW( kwiver::vital::invalid_value,
-                 "length must be sizeof(float) or sizeof(double)" );
-  }
-}
-
-// ----------------------------------------------------------------------------
-template < class Iterator >
-double
-klv_read_imap( double minimum, double maximum, Iterator& data, size_t length )
-{
-  KLV_ASSERT_UINT8_ITERATOR( data );
-
-  // Section 8.1.2
-  _check_range_length( minimum, maximum, length );
-
-  auto const int_value = klv_read_int< uint64_t >( data, length );
-  auto value = static_cast< double >( int_value );
-
-  // Section 8.2.2
-  // Left-shift required to shift a bit from the least significant place to the
-  // most significant place
-  auto const msb_shift = length * 8 - 1;
-
-  // Most significant bit and any other bit set means this is a special value
-  if( int_value & ( 1ull << msb_shift ) && int_value != ( 1ull << msb_shift ) )
-  {
-    // Third most significant bit = sign bit
-    bool const sign_bit = int_value & 1ull << ( msb_shift - 2 );
-
-    // Second, fourth, and fifth most significant bits = special value
-    // identifiers
-    constexpr uint64_t identifier_mask = 0xB; // 01011
-    auto const identifier =
-      ( int_value >> ( length * 8 - 5 ) ) & identifier_mask;
-
-    switch( identifier )
-    {
-      case 0x9: // 1001
-        value = std::numeric_limits< double >::infinity();
-        break;
-      case 0xA: // 1010
-        value = std::numeric_limits< double >::quiet_NaN();
-        break;
-      case 0xB: // 1011
-        value = std::numeric_limits< double >::signaling_NaN();
-        break;
-      default: // Reserved and user-defined values
-        return std::numeric_limits< double >::quiet_NaN();
-    }
-
-    return sign_bit ? -value : value;
-  }
-
-  // Normal value
-  auto const terms = _calculate_imap_terms( minimum, maximum, length );
-  value = terms.backward_scale * ( value - terms.zero_offset ) + minimum;
-
-  // Return exactly zero if applicable, overriding rounding errors. IMAP
-  // specification considers this important
-  auto const precision = klv_imap_precision( minimum, maximum, length );
-  return ( std::abs( value ) < precision / 2.0 ) ? 0.0 : value;
-}
-
-// ----------------------------------------------------------------------------
-template < class Iterator >
-void
-klv_write_imap( double value, double minimum, double maximum, Iterator& data,
-                size_t length )
-{
-  KLV_ASSERT_UINT8_ITERATOR( data );
-
-  // Section 8.1.2, 8.2.1
-  _check_range_length( minimum, maximum, length );
-
-  uint64_t int_value = 0;
-  if( std::isnan( value ) )
-  {
-    // We can't robustly tell the difference between quiet and signaling NaNs,
-    // so we just assume quiet. Therefore, we will never write signaling NaNs.
-    int_value = _imap_quiet_nan( std::signbit( value ), length );
-  }
-  // Out-of-range values set to infinity
-  else if( value < minimum )
-  {
-    int_value = _imap_infinity( true, length );
-  }
-  else if( value > maximum )
-  {
-    int_value = _imap_infinity( false, length );
-  }
-  // Normal values
-  else
-  {
-    auto const terms = _calculate_imap_terms( minimum, maximum, length );
-    int_value =
-      static_cast< uint64_t >( terms.forward_scale * ( value - minimum ) +
-                               terms.zero_offset );
-  }
-
-  klv_write_int( int_value, data, length );
-}
-
-// ----------------------------------------------------------------------------
-template < class Iterator >
-std::string
-klv_read_string( Iterator& data, size_t length )
-{
-  KLV_ASSERT_UINT8_ITERATOR( data );
-
-  auto const s = std::string( data, data + length );
-  data += length;
-
-  // "\0" means empty string
-  // We avoid constructing a temp string object to compare against
-  return ( s.size() == 1 && s[ 0 ] == '\0' ) ? "" : s;
-}
-
-// ----------------------------------------------------------------------------
-template < class Iterator >
-void
-klv_write_string( std::string const& value, Iterator& data, size_t max_length )
-{
-  KLV_ASSERT_UINT8_ITERATOR( data );
-
-  if( klv_string_length( value ) > max_length )
-  {
-    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                 "string will overrun end of data buffer" );
-  }
-
-  // Empty string represented as "\0"
-  if( value.empty() )
-  {
-    *data = '\0';
-    ++data;
-    return;
-  }
-
-  // "\0" is reserved for empty string
-  // We avoid constructing a temp string object to compare against
-  if( value.size() == 1 && value[ 0 ] == '\0' )
-  {
-    VITAL_THROW( kwiver::vital::metadata_type_overflow,
-                 "the string \"\\0\" cannot be written to KLV stream" );
-  }
-
-  data = std::copy( value.cbegin(), value.cend(), data );
 }
 
 // ----------------------------------------------------------------------------
@@ -767,3 +551,5 @@ _left_shift_overflow( T value )
 } // namespace arrows
 
 } // namespace kwiver
+
+#endif

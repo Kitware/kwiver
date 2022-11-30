@@ -21,6 +21,8 @@ set(ffmpeg_headers_public
   ffmpeg_init.h
   ffmpeg_video_input.h
   ffmpeg_video_output.h
+  ffmpeg_video_raw_image.cxx
+  ffmpeg_video_raw_metadata.cxx
   ffmpeg_video_settings.h
   )
 
@@ -35,11 +37,23 @@ kwiver_install_headers(
   )
 
 set(ffmpeg_sources
+  ffmpeg_cuda.cxx
   ffmpeg_init.cxx
+  ffmpeg_util.cxx
   ffmpeg_video_input.cxx
   ffmpeg_video_output.cxx
+  ffmpeg_video_raw_image.cxx
+  ffmpeg_video_raw_metadata.cxx
   ffmpeg_video_settings.cxx
   )
+
+if(KWIVER_ENABLE_CUDA)
+  set(KWIVER_ENABLE_FFMPEG_CUDA ON CACHE BOOL "Enable use of CUVID/NVENC codecs")
+  if(KWIVER_ENABLE_FFMPEG_CUDA)
+    add_compile_definitions(KWIVER_ENABLE_FFMPEG_CUDA)
+    set(FFMPEG_CUDA_LIBRARIES cuda)
+  endif()
+endif()
 
 kwiver_add_library( kwiver_algo_ffmpeg
   ${ffmpeg_headers_public}
@@ -63,6 +77,7 @@ endif()
 target_link_libraries( kwiver_algo_ffmpeg
   PUBLIC               vital_algo
   PRIVATE              kwiver_algo_klv kwiversys
+                       ${FFMPEG_CUDA_LIBRARIES}
                        ${FFMPEG_LIBRARIES}
                        ${ZLIB_LIBRARIES}
   )

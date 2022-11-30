@@ -5,7 +5,7 @@
 /// \file
 /// Test KLV blob functions.
 
-#include <arrows/klv/klv_blob.txx>
+#include <arrows/klv/klv_blob.h>
 
 #include <tests/test_gtest.h>
 
@@ -25,9 +25,9 @@ using namespace kwiver::arrows::klv;
 void
 test_blob_read( klv_bytes_t const& data )
 {
-  auto it = data.cbegin();
+  auto it = &*data.cbegin();
   EXPECT_EQ( data, *klv_read_blob( it, data.size() ) );
-  EXPECT_EQ( data.cend(), it );
+  EXPECT_EQ( &*data.cend(), it );
 }
 
 // ----------------------------------------------------------------------------
@@ -45,11 +45,11 @@ void
 test_blob_write( klv_bytes_t const& data )
 {
   klv_bytes_t buffer( data.size(), 0xba );
-  auto it = buffer.begin();
+  auto it = &*buffer.begin();
   klv_write_blob( data, it, buffer.size() );
-  EXPECT_EQ( buffer.end(), it );
-  it = buffer.begin();
-  EXPECT_EQ( data, *klv_read_blob( it, buffer.size() ) );
+  EXPECT_EQ( &*buffer.end(), it );
+  auto cit = &*buffer.cbegin();
+  EXPECT_EQ( data, *klv_read_blob( cit, buffer.size() ) );
 }
 
 // ----------------------------------------------------------------------------

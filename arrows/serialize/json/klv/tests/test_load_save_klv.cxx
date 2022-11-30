@@ -148,10 +148,11 @@ klv_local_set const test_1206_set = {
 klv_local_set const test_0601_set = {
   { KLV_0601_PRECISION_TIMESTAMP,
     uint64_t{ 1234 } },
+  { KLV_0601_PLATFORM_HEADING_ANGLE, {} },
   { KLV_0601_PLATFORM_TRUE_AIRSPEED,
     kld{ 2.345, 1 } },
   { KLV_0601_MISSION_ID,
-    std::string{ "TEST STRING" } },
+    std::string{ "TEST\0STRING", 11 } },
   { KLV_0601_IMAGE_HORIZON_PIXEL_PACK,
     klv_0601_image_horizon_pixel_pack{
       1, 2, 3, 4,
@@ -168,6 +169,7 @@ klv_local_set const test_0601_set = {
     KLV_0601_PLATFORM_STATUS_ACTIVE },
   { KLV_0601_SENSOR_CONTROL_MODE,
     KLV_0601_SENSOR_CONTROL_MODE_OFF },
+  { KLV_0601_ACTIVE_PAYLOADS, std::set< uint16_t >{ 0, 1, 3 } },
   { KLV_0601_WEAPONS_STORES,
     std::vector< klv_0601_weapons_store >{
       { 0, 1, 2, 3,
@@ -207,7 +209,9 @@ klv_local_set const test_0601_set = {
       { 7, 13.0, 14.0, "Wavelength" } } },
   { KLV_0601_WAYPOINT_LIST,
     std::vector< klv_0601_waypoint_record >{
-      { 1, -3, 1, kv::nullopt } } },
+      { 1, -3,
+        std::set< klv_0601_waypoint_info_bit >{ KLV_0601_WAYPOINT_INFO_BIT_MODE },
+        kv::nullopt } } },
   { KLV_0601_MIIS_CORE_IDENTIFIER,
     klv_1204_miis_id{
       2,
@@ -226,13 +230,19 @@ klv_local_set const test_0601_set = {
   { KLV_0601_SDCC_FLP,
     klv_1010_sdcc_flp{
       { KLV_0601_SENSOR_LATITUDE, KLV_0601_SENSOR_LONGITUDE },
-      { 4.0, 2.0 },
+      { 4.0, 2.1e-64 },
       { 0.5 },
-      std::make_shared< klv_float_format >( 4 ),
-      std::make_shared< klv_imap_format >( -1.0, 1.0, 3 ),
+      4, 3,
+      false, true,
       true,
       false } },
   { KLV_0601_MISSION_ID, klv_blob{ 0x00, 0xFF } } };
+
+// ---------------------------------------------------------------------------
+klv_local_set const test_1107_set = {
+  { KLV_1107_SLANT_RANGE_PEDIGREE,
+    KLV_1107_SLANT_RANGE_PEDIGREE_CALCULATED }
+};
 
 // ---------------------------------------------------------------------------
 klv_local_set const test_1108_metric_set = {
@@ -263,11 +273,13 @@ std::vector< klv_timed_packet > const test_packets = {
   { { klv_0102_key(), test_0102_set }, kv::timestamp{ 0, 0 } },
   { { klv_0104_key(), test_0104_set }, kv::timestamp{} },
   { { klv_0601_key(), test_0601_set }, kv::timestamp{ 1024, 7 } },
+  { { klv_1107_key(), test_1107_set }, kv::timestamp{} },
   { { klv_1108_key(), test_1108_set }, kv::timestamp{ 2048, 8 } } };
 
 // ----------------------------------------------------------------------------
 auto const options = cereal::JSONOutputArchive::Options{
-  DBL_DIG + 1, cereal::JSONOutputArchive::Options::IndentChar::tab, 1 };
+  cereal::JSONOutputArchive::Options::MaxPrecision(),
+  cereal::JSONOutputArchive::Options::IndentChar::tab, 1 };
 
 // ----------------------------------------------------------------------------
 TEST_F ( load_save_klv, round_trip )

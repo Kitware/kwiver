@@ -115,6 +115,8 @@ klv_muxer
                         KLV_0903_PRECISION_TIMESTAMP );
   send_frame_local_set( KLV_PACKET_MISB_1002_LOCAL_SET, timestamp,
                         KLV_1002_PRECISION_TIMESTAMP );
+  send_frame_local_set( KLV_PACKET_MISB_1107_LOCAL_SET, timestamp,
+                        KLV_1107_PRECISION_TIMESTAMP );
   send_frame_1108( timestamp );
   send_frame_local_set( KLV_PACKET_MISB_1202_LOCAL_SET, timestamp );
   send_frame_1204( timestamp );
@@ -183,6 +185,22 @@ klv_muxer
 }
 
 // ----------------------------------------------------------------------------
+klv_update_intervals const&
+klv_muxer
+::update_intervals() const
+{
+  return m_update_intervals;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_muxer
+::set_update_intervals( klv_update_intervals const& update_intervals )
+{
+  m_update_intervals = update_intervals;
+}
+
+// ----------------------------------------------------------------------------
 void
 klv_muxer
 ::flush_frame()
@@ -207,36 +225,6 @@ klv_muxer
         m_packets.emplace( timestamp, packet );
       }
     }
-  }
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_muxer
-::send_frame_0104( uint64_t timestamp )
-{
-  constexpr auto standard = KLV_PACKET_MISB_0104_UNIVERSAL_SET;
-  auto const& lookup = klv_0104_traits_lookup();
-
-  // Create a set of all tags present at timestamp
-  klv_universal_set set;
-  for( auto const& entry : m_timeline.find_all( standard ) )
-  {
-    auto const it = entry.second.find( timestamp );
-    if( it != entry.second.end() )
-    {
-      set.add( lookup.by_tag( entry.first.tag ).uds_key(), it->value );
-    }
-  }
-
-  // If any tags were present, put the set into a packet and ship it
-  if( !set.empty() )
-  {
-    set.add(
-        lookup.by_tag( KLV_0104_USER_DEFINED_TIMESTAMP ).uds_key(),
-        timestamp );
-    m_packets.emplace(
-        timestamp, klv_packet{ klv_0104_key(), std::move( set ) } );
   }
 }
 
@@ -270,11 +258,18 @@ klv_muxer
       {
         if( tag == KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST )
         {
-          auto const& typed_value =
-            subentry.value.get< std::vector< uint64_t > >();
-          control_command_verify_list.insert(
-            control_command_verify_list.end(),
-            typed_value.cbegin(), typed_value.cend() );
+          if( subentry.value.valid() )
+          {
+            auto const& typed_value =
+              subentry.value.get< std::vector< uint64_t > >();
+            control_command_verify_list.insert(
+              control_command_verify_list.end(),
+              typed_value.cbegin(), typed_value.cend() );
+          }
+          else
+          {
+            set.add( tag, subentry.value );
+          }
         }
         else
         {
@@ -293,28 +288,36 @@ klv_muxer
     auto const it = entry.second.find( timestamp );
     if( it != entry.second.end() )
     {
-      switch( tag )
+      if( it->value.valid() )
       {
-        // List tags
-        case KLV_0601_WAVELENGTHS_LIST:
-          wavelength_list.emplace_back(
-            it->value.get< klv_0601_wavelength_record >() );
-          break;
-        case KLV_0601_PAYLOAD_LIST:
-          payload_list.emplace_back(
-            it->value.get< klv_0601_payload_record >() );
-          break;
-        case KLV_0601_WAYPOINT_LIST:
-          waypoint_list.emplace_back(
-            it->value.get< klv_0601_waypoint_record >() );
-          break;
+        switch( tag )
+        {
+          // List tags
+          case KLV_0601_WAVELENGTHS_LIST:
+            wavelength_list.emplace_back(
+              it->value.get< klv_0601_wavelength_record >() );
+            break;
+          case KLV_0601_PAYLOAD_LIST:
+            payload_list.emplace_back(
+              it->value.get< klv_0601_payload_record >() );
+            break;
+          case KLV_0601_WAYPOINT_LIST:
+            waypoint_list.emplace_back(
+              it->value.get< klv_0601_waypoint_record >() );
+            break;
 
-        // Non-list tags
-        case KLV_0601_SDCC_FLP:
-        case KLV_0601_CONTROL_COMMAND:
-        default:
-          set.add( tag, it->value );
-          break;
+          // Non-list tags
+          case KLV_0601_SDCC_FLP:
+          case KLV_0601_CONTROL_COMMAND:
+          default:
+            set.add( tag, it->value );
+            break;
+        }
+      }
+      else
+      {
+        // Just add blob values as they are
+        set.add( tag, it->value );
       }
     }
     else if( lookup.by_tag( entry.first.tag ).tag_count_range().upper() == 1 )
@@ -354,6 +357,7 @@ klv_muxer
   if( !set.empty() )
   {
     set.add( KLV_0601_PRECISION_TIMESTAMP, timestamp );
+    m_lds_update_tracker.prune( set, m_update_intervals, standard, timestamp );
     m_packets.emplace( timestamp,
                        klv_packet{ klv_0601_key(), std::move( set ) } );
   }
@@ -365,6 +369,10 @@ klv_muxer
 ::send_frame_1108( uint64_t timestamp )
 {
   constexpr auto standard = KLV_PACKET_MISB_1108_LOCAL_SET;
+
+  auto const update_interval =
+    std::max( m_update_intervals.at( KLV_PACKET_MISB_1108_LOCAL_SET ),
+              timestamp - m_prev_frame );
 
   // Find each metric
   std::vector< klv_local_set > sets;
@@ -494,11 +502,12 @@ klv_muxer
         kt->at( KLV_1108_METRIC_PERIOD_PACK )
         .get< klv_1108_metric_period_pack >();
       cached_set.erase( KLV_1108_METRIC_PERIOD_PACK );
+      cached_period.offset =
+          period.timestamp + period.offset - cached_period.timestamp;
       if( period.timestamp <= cached_period.timestamp + cached_period.offset &&
+          cached_period.offset <= update_interval &&
           set == cached_set )
       {
-        cached_period.offset =
-          period.timestamp + period.offset - cached_period.timestamp;
         cached_set.add( KLV_1108_METRIC_PERIOD_PACK, cached_period );
         m_cached_1108.erase( kt );
         m_cached_1108.emplace( std::move( cached_set ) );
@@ -583,6 +592,7 @@ klv_muxer
     {
       set.add( timestamp_tag, timestamp );
     }
+    m_lds_update_tracker.prune( set, m_update_intervals, standard, timestamp );
     m_packets.emplace( timestamp, klv_packet{ key, std::move( set ) } );
   }
 }
@@ -620,6 +630,7 @@ klv_muxer
     {
       set.add( lookup->by_tag( timestamp_tag ).uds_key(), timestamp );
     }
+    m_uds_update_tracker.prune( set, m_update_intervals, standard, timestamp );
     m_packets.emplace( timestamp, klv_packet{ key, std::move( set ) } );
   }
 }

@@ -370,8 +370,11 @@ track_features_core
     return new_track_set;
   }
 
-  // get the last track id in the existing set of tracks and increment it
-  next_track_id = (*prev_tracks->all_track_ids().crbegin()) + 1;
+  if( !prev_tracks->empty() )
+  {
+    // get the last track id in the existing set of tracks and increment it
+    next_track_id = (*prev_tracks->all_track_ids().crbegin()) + 1;
+  }
 
   const vital::frame_id_t last_frame = prev_tracks->last_frame();
   vital::frame_id_t prev_frame = last_frame;

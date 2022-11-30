@@ -1,0 +1,16 @@
+ply
+format ascii 1.0
+element vertex 6
+property float64 x
+property float64 y
+property float64 z
+property uint8 red
+property uint8 green
+property uint8 blue
+end_header
+-1.0 1.0 0.0 255 0 0
+-1.0 -1.0 0.0 0 255 0
+1.0 -1.0 0.0 0 0 255
+1.0 1.0 0.0 255 0 255
+0.0 0.0 0.7 255 255 255
+0.0 0.0 -0.7 0 0 0

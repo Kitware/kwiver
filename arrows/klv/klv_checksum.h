@@ -9,6 +9,7 @@
 #define KWIVER_ARROWS_KLV_KLV_CHECKSUM_H_
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
+#include <arrows/klv/klv_data_format.h>
 
 #include <cstdint>
 
@@ -28,10 +29,9 @@ namespace klv {
 /// \param data_end Iterator to the end of a buffer of \c uint8_t.
 ///
 /// \return Running 16-bit sum of the data buffer.
-template < class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 uint16_t
-klv_running_sum_16( Iterator data_begin, Iterator data_end,
+klv_running_sum_16( klv_read_iter_t data_begin, klv_read_iter_t data_end,
                     uint16_t initial_value = 0x0000, bool parity = false );
 
 // ----------------------------------------------------------------------------
@@ -45,10 +45,9 @@ klv_running_sum_16( Iterator data_begin, Iterator data_end,
 /// \param data_end Iterator to the end of a buffer of \c uint8_t.
 ///
 /// \return Checksum of the data buffer.
-template < class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 uint16_t
-klv_crc_16_ccitt( Iterator data_begin, Iterator data_end,
+klv_crc_16_ccitt( klv_read_iter_t data_begin, klv_read_iter_t data_end,
                   uint16_t initial_value = 0xFFFF );
 
 // ----------------------------------------------------------------------------
@@ -62,11 +61,83 @@ klv_crc_16_ccitt( Iterator data_begin, Iterator data_end,
 /// \param data_end Iterator to the end of a buffer of \c uint8_t.
 ///
 /// \return Checksum of the data buffer.
-template < class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 uint32_t
-klv_crc_32_mpeg( Iterator data_begin, Iterator data_end,
-                  uint32_t initial_value = 0xFFFFFFFF );
+klv_crc_32_mpeg( klv_read_iter_t data_begin, klv_read_iter_t data_end,
+                 uint32_t initial_value = 0xFFFFFFFF );
+
+// ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_checksum_packet_format
+  : public klv_data_format_< uint64_t >
+{
+public:
+  klv_checksum_packet_format( klv_bytes_t const& header, size_t payload_size );
+
+  virtual uint64_t
+  evaluate( klv_read_iter_t data, size_t length ) const = 0;
+
+  klv_bytes_t header() const;
+
+protected:
+  uint64_t
+  read_typed( klv_read_iter_t& data, size_t length ) const override;
+
+  void
+  write_typed( uint64_t const& value,
+               klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( uint64_t const& value ) const override;
+
+  std::ostream&
+  print_typed( std::ostream& os, uint64_t const& value ) const override;
+
+private:
+  klv_bytes_t m_header;
+  size_t m_payload_size;
+};
+
+// ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_running_sum_16_packet_format
+  : public klv_checksum_packet_format
+{
+  public:
+  klv_running_sum_16_packet_format( klv_bytes_t const& header );
+
+  std::string
+  description() const override;
+
+  uint64_t
+  evaluate( klv_read_iter_t data, size_t length ) const override;
+};
+
+// ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_crc_16_ccitt_packet_format
+  : public klv_checksum_packet_format
+{
+  public:
+  klv_crc_16_ccitt_packet_format( klv_bytes_t const& header );
+
+  std::string
+  description() const override;
+
+  uint64_t
+  evaluate( klv_read_iter_t data, size_t length ) const override;
+};
+
+// ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_crc_32_mpeg_packet_format
+  : public klv_checksum_packet_format
+{
+  public:
+  klv_crc_32_mpeg_packet_format( klv_bytes_t const& header );
+
+  std::string
+  description() const override;
+
+  uint64_t
+  evaluate( klv_read_iter_t data, size_t length ) const override;
+};
 
 } // namespace klv
 

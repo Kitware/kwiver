@@ -83,7 +83,7 @@ public:
   void
   add( Key const& key, klv_value const& datum );
 
-  void
+  iterator
   erase( const_iterator it );
 
   void

@@ -121,30 +121,37 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
 
   // Verify checksum
   auto const& format = klv_lookup_packet_traits().by_uds_key( key ).format();
-
-  auto const packet_length = tracker.traversed() + length_of_value;
-  auto const checksum_length = format.checksum_length();
-
-  auto const expected_checksum =
-    format.read_checksum( tracker.begin(), packet_length );
-  auto const actual_checksum =
-    format.calculate_checksum( tracker.begin(),
-                               packet_length - checksum_length );
-  if( expected_checksum != actual_checksum )
+  auto const checksum_format = format.checksum_format();
+  size_t checksum_length = 0;
+  if( checksum_format )
   {
-    LOG_ERROR( kv::get_logger( "klv" ), std::hex << std::setfill( '0' )
-               << "calculated checksum "
-               << "(0x" << std::setw( 8 ) << actual_checksum << ") "
-               << "does not equal checksum contained in packet "
-               << "(0x" << std::setw( 8 ) << expected_checksum << ")" );
+    auto const packet_length = tracker.traversed() + length_of_value;
+    checksum_length = *checksum_format->length_constraints().fixed();
+
+    auto it = tracker.begin() + packet_length - checksum_length;
+    auto const expected_checksum =
+      checksum_format->read_( it, checksum_length );
+    auto const actual_checksum =
+      checksum_format->evaluate(
+        tracker.begin(),
+        packet_length - checksum_length + checksum_format->header().size() );
+    if( expected_checksum != actual_checksum )
+    {
+      LOG_ERROR(
+        kv::get_logger( "klv" ),
+        "calculated checksum "
+        << "(" << checksum_format->to_string( actual_checksum ) << ") "
+        << "does not equal checksum contained in packet "
+        << "(" << checksum_format->to_string( expected_checksum ) << ")" );
+    }
   }
 
   // Read value
   auto const value =
-    format.read( data, length_of_value - checksum_length );
+    format.read( data, tracker.verify( length_of_value - checksum_length ) );
 
   // Ensure iterator ends correctly
-  data += format.checksum_length();
+  data += checksum_length;
 
   return { key, value };
 }
@@ -158,9 +165,11 @@ klv_write_packet( klv_packet const& packet, klv_write_iter_t& data,
 
   auto const& format =
     klv_lookup_packet_traits().by_uds_key( packet.key ).format();
+  auto const checksum_format = format.checksum_format();
   auto const length = format.length_of( packet.value );
   auto const packet_length = klv_packet_length( packet );
-  auto const checksum_length = format.checksum_length();
+  auto const checksum_length =
+    checksum_format ? *checksum_format->length_constraints().fixed() : 0;
   if( max_length < length + checksum_length )
   {
     VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
@@ -171,10 +180,17 @@ klv_write_packet( klv_packet const& packet, klv_write_iter_t& data,
   klv_write_ber( length + checksum_length, data, tracker.remaining() );
   format.write( packet.value, data, length );
 
-  auto const checksum =
-    format.calculate_checksum( tracker.begin(),
-                               packet_length - checksum_length );
-  format.write_checksum( checksum, data, checksum_length );
+  if( checksum_format )
+  {
+    tracker.verify( checksum_length );
+    auto const header = checksum_format->header();
+    std::copy( header.begin(), header.end(), data );
+    auto const checksum =
+      checksum_format->evaluate(
+        tracker.begin(),
+        packet_length - checksum_length + header.size() );
+    checksum_format->write_( checksum, data, checksum_length );
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -183,10 +199,13 @@ klv_packet_length( klv_packet const& packet )
 {
   auto const& format =
     klv_lookup_packet_traits().by_uds_key( packet.key ).format();
+  auto const checksum_format = format.checksum_format();
   auto const length_of_key = packet.key.length;
   auto const length_of_value = format.length_of( packet.value );
-  auto const length_of_length = klv_ber_length( length_of_value );
-  auto const length_of_checksum = format.checksum_length();
+  auto const length_of_checksum =
+    checksum_format ? *checksum_format->length_constraints().fixed() : 0;
+  auto const length_of_length =
+    klv_ber_length( length_of_value + length_of_checksum );
   return length_of_key + length_of_length + length_of_value +
          length_of_checksum;
 }
@@ -328,12 +347,12 @@ klv_lookup_packet_traits()
       &klv_1002_traits_lookup() },
     { klv_1107_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_1107_LOCAL_SET ),
-      std::make_shared< klv_blob_format >(),
+      std::make_shared< klv_1107_local_set_format >(),
       "MISB ST1107 Local Set",
       "Metric Geopositioning Metadata Local Set. Contains metadata relevant "
       "for photogrammetric applications.",
       0,
-      nullptr },
+      &klv_1107_traits_lookup() },
     { klv_1108_key(),
       ENUM_AND_NAME( KLV_PACKET_MISB_1108_LOCAL_SET ),
       std::make_shared< klv_1108_local_set_format >(),

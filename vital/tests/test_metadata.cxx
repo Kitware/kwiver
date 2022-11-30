@@ -50,6 +50,50 @@ TEST( metadata, typed_metadata )
 }
 
 // ----------------------------------------------------------------------------
+TEST( metadata, item_equality )
+{
+  {
+    metadata_item const item1{
+      VITAL_META_METADATA_ORIGIN, std::string{ "origin1" } };
+    metadata_item const item2{
+      VITAL_META_METADATA_ORIGIN, std::string{ "origin1" } };
+    metadata_item const item3{
+      VITAL_META_METADATA_ORIGIN, std::string{ "origin2" } };
+
+    EXPECT_TRUE( item1 == item1 );
+    EXPECT_FALSE( item1 != item1 );
+    EXPECT_TRUE( item1 == item2 );
+    EXPECT_FALSE( item1 != item2 );
+    EXPECT_FALSE( item2 == item3 );
+    EXPECT_TRUE( item2 != item3 );
+  }
+
+  {
+    metadata_item const item1{ VITAL_META_PLATFORM_HEADING_ANGLE, 3.14159 };
+    metadata_item const item2{
+      VITAL_META_PLATFORM_HEADING_ANGLE,
+      std::numeric_limits< double >::quiet_NaN() };
+    metadata_item const item3{
+      VITAL_META_PLATFORM_HEADING_ANGLE,
+      -std::numeric_limits< double >::quiet_NaN() };
+
+    EXPECT_TRUE( item1 == item1 );
+    EXPECT_FALSE( item1 != item1 );
+    EXPECT_TRUE( item2 == item2 );
+    EXPECT_FALSE( item2 != item2 );
+    EXPECT_TRUE( item3 == item3 );
+    EXPECT_FALSE( item3 != item3 );
+
+    EXPECT_TRUE( item1 != item2 );
+    EXPECT_FALSE( item1 == item2 );
+    EXPECT_TRUE( item1 != item3 );
+    EXPECT_FALSE( item1 == item3 );
+    EXPECT_TRUE( item2 != item3 );
+    EXPECT_FALSE( item2 == item3 );
+  }
+}
+
+// ----------------------------------------------------------------------------
 TEST( metadata, add_metadata )
 {
   // create item

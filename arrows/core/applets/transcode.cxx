@@ -156,23 +156,6 @@ transcode_applet
        !input->end_of_video();
        input->next_frame( timestamp ) )
   {
-    // Transcode image
-    if( cmd_args.count( "copy-video" ) )
-    {
-      auto const image = input->raw_frame_image();
-      if( !image )
-      {
-        std::cerr << "No raw image found for frame " << timestamp.get_frame()
-                  << "." << std::endl;
-        exit(-1);
-      }
-      output->add_image( *image );
-    }
-    else
-    {
-      output->add_image( input->frame_image(), timestamp );
-    }
-
     // Transcode metadata
     if( cmd_args.count( "copy-metadata" ) )
     {
@@ -191,6 +174,23 @@ transcode_applet
       {
         output->add_metadata( *metadata );
       }
+    }
+
+    // Transcode image
+    if( cmd_args.count( "copy-video" ) )
+    {
+      auto const image = input->raw_frame_image();
+      if( !image )
+      {
+        std::cerr << "No raw image found for frame " << timestamp.get_frame()
+                  << "." << std::endl;
+        exit(-1);
+      }
+      output->add_image( *image );
+    }
+    else
+    {
+      output->add_image( input->frame_image(), timestamp );
     }
   }
 

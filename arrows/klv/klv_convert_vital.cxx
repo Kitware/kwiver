@@ -169,9 +169,6 @@ klv_0102_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 {
   constexpr auto standard = KLV_PACKET_MISB_0102_LOCAL_SET;
 
-  // Add the timestamp
-  vital_data.add< kv::VITAL_META_UNIX_TIMESTAMP >( timestamp );
-
   // Check if there is a ST0102 embedded in ST0601
   auto const st0601 =
     klv_data.at( KLV_PACKET_MISB_0601_LOCAL_SET,
@@ -211,9 +208,6 @@ klv_0104_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
                             kv::metadata& vital_data )
 {
   constexpr auto standard = KLV_PACKET_MISB_0104_UNIVERSAL_SET;
-
-  // Add the timestamp
-  vital_data.add< kv::VITAL_META_UNIX_TIMESTAMP >( timestamp );
 
   static std::map< klv_lds_key, kv::vital_metadata_tag > const direct_map = {
     { KLV_0104_PLATFORM_HEADING_ANGLE,
@@ -332,9 +326,6 @@ klv_0601_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 {
   constexpr auto standard = KLV_PACKET_MISB_0601_LOCAL_SET;
 
-  // Add the timestamp
-  vital_data.add< kv::VITAL_META_UNIX_TIMESTAMP >( timestamp );
-
   static std::map< klv_lds_key, kv::vital_metadata_tag > const direct_map = {
     { KLV_0601_MISSION_ID,
       kv::VITAL_META_MISSION_ID },
@@ -433,19 +424,6 @@ klv_0601_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
   }
 
   // Convert enum to integer
-  auto const icing_detected =
-    klv_data.at( standard, KLV_0601_ICING_DETECTED, timestamp );
-  if( icing_detected.valid() )
-  {
-    using value_t = kv::type_of_tag< kv::VITAL_META_ICING_DETECTED >;
-
-    auto const value =
-      static_cast< value_t >(
-        icing_detected.get< klv_0601_icing_detected >() );
-    vital_data.add< kv::VITAL_META_ICING_DETECTED >( value );
-  }
-
-  // Convert enum to integer
   auto const sensor_fov_name =
     klv_data.at( standard, KLV_0601_SENSOR_FOV_NAME, timestamp );
   if( sensor_fov_name.valid() )
@@ -479,7 +457,7 @@ klv_0601_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
     parse_geo_point( klv_data, standard, timestamp,
                      { KLV_0601_FRAME_CENTER_LATITUDE },
                      { KLV_0601_FRAME_CENTER_LONGITUDE },
-                     { KLV_0601_FRAME_CENTER_HEIGHT_ABOVE_ELLIPSOID,
+                     { KLV_0601_FRAME_CENTER_ELLIPSOID_HEIGHT,
                        KLV_0601_FRAME_CENTER_ELEVATION } );
   if( frame_center_location )
   {
@@ -578,9 +556,6 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 {
   constexpr auto standard = KLV_PACKET_MISB_1108_LOCAL_SET;
 
-  // Add the timestamp
-  vital_data.add< kv::VITAL_META_UNIX_TIMESTAMP >( timestamp );
-
   static std::map< std::string, kv::vital_metadata_tag > const metrics = {
     { "GSD", kv::VITAL_META_AVERAGE_GSD },
     { "VNIIRS", kv::VITAL_META_VNIIRS }, };
@@ -621,9 +596,11 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 
     if( best_metric_set )
     {
-      auto const value =
-        best_metric_set->at( KLV_1108_METRIC_SET_VALUE ).get< double >();
-      vital_data.add( metric.second, value );
+      auto const value = best_metric_set->at( KLV_1108_METRIC_SET_VALUE );
+      if( value.valid() )
+      {
+        vital_data.add( metric.second, value.get< double >() );
+      }
     }
   }
 }
@@ -635,6 +612,7 @@ kv::metadata_sptr
 klv_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp )
 {
   auto const result = std::make_shared< klv_metadata >();
+  result->add< kv::VITAL_META_UNIX_TIMESTAMP >( timestamp );
   klv_0102_to_vital_metadata( klv_data, timestamp, *result );
   klv_0104_to_vital_metadata( klv_data, timestamp, *result );
   klv_0601_to_vital_metadata( klv_data, timestamp, *result );

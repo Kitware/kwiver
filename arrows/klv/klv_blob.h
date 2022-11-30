@@ -8,6 +8,7 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_BLOB_H_
 #define KWIVER_ARROWS_KLV_KLV_BLOB_H_
 
+#include <arrows/klv/klv_types.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <initializer_list>
@@ -22,8 +23,6 @@ namespace kwiver {
 namespace arrows {
 
 namespace klv {
-
-using klv_bytes_t = std::vector< uint8_t >;
 
 // ----------------------------------------------------------------------------
 /// Structure to hold explicitly uninterpreted bytes.
@@ -79,10 +78,9 @@ operator<( klv_blob const& lhs, klv_blob const& rhs );
 /// \param max_length Maximum number of bytes to read.
 ///
 /// \returns A blob of \p length bytes from \p data.
-template < class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 klv_blob
-klv_read_blob( Iterator& data, size_t length );
+klv_read_blob( klv_read_iter_t& data, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Write a \c klv_blob structure to sequence of bytes.
@@ -93,10 +91,10 @@ klv_read_blob( Iterator& data, size_t length );
 ///
 /// \throws metadata_buffer_overflow When encoding would require writing more
 /// than \p max_length bytes.
-template < class Iterator >
 KWIVER_ALGO_KLV_EXPORT
 void
-klv_write_blob( klv_blob const& value, Iterator& data, size_t max_length );
+klv_write_blob(
+  klv_blob const& value, klv_write_iter_t& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
 /// Return the number of bytes required to write the given blob.

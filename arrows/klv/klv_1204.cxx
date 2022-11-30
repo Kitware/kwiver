@@ -74,7 +74,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_1204_miis_id_format
 ::klv_1204_miis_id_format()
-  : klv_data_format_< klv_1204_miis_id >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -82,7 +81,7 @@ std::string
 klv_1204_miis_id_format
 ::description() const
 {
-  return "MIIS ID of " + length_description();
+  return "MIIS ID of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------

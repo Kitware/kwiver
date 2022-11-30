@@ -8,6 +8,7 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_UUID_H_
 #define KWIVER_ARROWS_KLV_KLV_UUID_H_
 
+#include <arrows/klv/klv_types.h>
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
@@ -41,14 +42,14 @@ operator<<( std::ostream& os, klv_uuid const& value );
 DECLARE_CMP( klv_uuid )
 
 // ----------------------------------------------------------------------------
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 klv_uuid
-klv_read_uuid( Iterator& data, size_t max_length );
+klv_read_uuid( klv_read_iter_t& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 void
-klv_write_uuid( klv_uuid const& value, Iterator& data,
+klv_write_uuid( klv_uuid const& value, klv_write_iter_t& data,
                 size_t max_length );
 
 // ----------------------------------------------------------------------------

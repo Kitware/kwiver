@@ -42,7 +42,10 @@
 #ifndef KWIVER_ARROWS_KLV_KLV_READ_WRITE_H_
 #define KWIVER_ARROWS_KLV_KLV_READ_WRITE_H_
 
+#include <arrows/klv/klv_types.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
+
+#include <vital/util/interval.h>
 
 #include <string>
 
@@ -69,9 +72,9 @@ namespace klv {
 ///
 /// \throws metadata_type_overflow When \p length is greater than the number of
 ///         bytes in the return type \c T.
-template < class T, class Iterator >
+template < class T >
 T
-klv_read_int( Iterator& data, size_t length );
+klv_read_int( klv_read_iter_t& data, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Write an integer to a sequence of bytes (big-endian).
@@ -89,9 +92,9 @@ klv_read_int( Iterator& data, size_t length );
 ///
 /// \throws metadata_type_overflow When \p value is too large to fit in \p
 /// length bytes.
-template < class T, class Iterator >
+template < class T >
 void
-klv_write_int( T value, Iterator& data, size_t length );
+klv_write_int( T value, klv_write_iter_t& data, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Return the number of bytes required to store the given signed or unsigned
@@ -122,9 +125,9 @@ klv_int_length( T value );
 /// than \p max_length bytes.
 /// \throws metadata_type_overflow When the decoded value is too large to fit
 /// in the return type \c T.
-template < class T, class Iterator >
+template < class T >
 T
-klv_read_ber( Iterator& data, size_t max_length );
+klv_read_ber( klv_read_iter_t& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
 /// Write an integer to a sequence of bytes, encoding it into BER format.
@@ -140,9 +143,9 @@ klv_read_ber( Iterator& data, size_t max_length );
 ///
 /// \throws metadata_buffer_overflow When encoding would require writing more
 /// than \p max_length bytes.
-template < class T, class Iterator >
+template < class T >
 void
-klv_write_ber( T value, Iterator& data, size_t max_length );
+klv_write_ber( T value, klv_write_iter_t& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
 /// Return the number of bytes required to store the given integer in BER
@@ -173,9 +176,9 @@ klv_ber_length( T value );
 /// than \p max_length bytes.
 /// \throws metadata_type_overflow When the decoded value is too large to fit
 /// in the return type \c T.
-template < class T, class Iterator >
+template < class T >
 T
-klv_read_ber_oid( Iterator& data, size_t max_length );
+klv_read_ber_oid( klv_read_iter_t& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
 /// Write an integer to a sequence of bytes, encoding it into BER-OID format.
@@ -191,9 +194,9 @@ klv_read_ber_oid( Iterator& data, size_t max_length );
 ///
 /// \throws metadata_buffer_overflow When encoding would require writing more
 /// than \p max_length bytes.
-template < class T, class Iterator >
+template < class T >
 void
-klv_write_ber_oid( T value, Iterator& data, size_t max_length );
+klv_write_ber_oid( T value, klv_write_iter_t& data, size_t max_length );
 
 // ----------------------------------------------------------------------------
 /// Return the number of bytes required to store the given integer in BER-OID
@@ -220,20 +223,18 @@ klv_ber_oid_length( T value );
 /// integer type is used, unless the integer is signed, in which case the
 /// lowest representable value is mapped to quiet NaN.
 ///
-/// \param minimum Lower end of mapped range.
-/// \param maximum Upper end of mapped range.
+/// \param interval Mapped range.
 /// \param[in,out] data Iterator to sequence of \c uint8_t. Set to end of
 /// read bytes on success, left as is on error.
 /// \param length Number of bytes to read.
 ///
 /// \returns Floating-point number mapped from read integer.
 ///
-/// \throws invalid_value When \p minimum is not less than \p maximum.
 /// \throws metadata_type_overflow When the read value is too large for \c T.
-template < class T, class Iterator >
+template < class T >
 double
-klv_read_flint( double minimum, double maximum,
-                Iterator& data, size_t length );
+klv_read_flint( vital::interval< double > const& interval,
+                klv_read_iter_t& data, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Map a floating-point number within a range to an integer and write it to a
@@ -247,56 +248,46 @@ klv_read_flint( double minimum, double maximum,
 /// and NaN \p value is changed to \p minimum.
 ///
 /// \param value Floating-point number to map to an integer.
-/// \param minimum Lower end of mapped range.
-/// \param maximum Upper end of mapped range.
+/// \param interval Mapped range.
 /// \param[in,out] data Writeable iterator to sequence of \c uint8_t. Set to
 /// end of written bytes on success, left as is on error.
 /// \param length Number of bytes to read.
 ///
 /// \throws invalid_value When \p minimum is not less than \p maximum, or if
 /// \c T is signed and the range is not symmetrical around zero.
-template < class T, class Iterator >
+template < class T >
 void
-klv_write_flint( double value, double minimum, double maximum,
-                 Iterator& data, size_t length );
+klv_write_flint( double value, vital::interval< double > const& interval,
+                 klv_write_iter_t& data, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Return the number of bytes required for the given flint specification.
 ///
 /// Precision here is the distance between successive discrete mapped values.
 ///
-/// \param minimum Lower end of mapped range.
-/// \param maximum Upper end of mapped range.
+/// \param interval Mapped range.
 /// \param precision Desired precision of flint value.
 ///
 /// \returns Byte length of a flint value meeting the provided parameters.
 ///
-/// \throws logic_error When \p minimum is not less than \p maximum, \p
-/// precision is greater than their span, or any of the three is nonfinite.
 /// \throws metadata_type_overflow When the difference between \p minimum and
 /// \p maximum is to large for a \c double to hold.
 KWIVER_ALGO_KLV_EXPORT
 size_t
-klv_flint_length( double minimum, double maximum, double precision );
+klv_flint_length( vital::interval< double > const& interval, double precision );
 
 // ----------------------------------------------------------------------------
 /// Return the precision offered by the given flint specification.
 ///
 /// Precision here is the distance between successive discrete mapped values.
 ///
-/// \param minimum Lower end of mapped range.
-/// \param maximum Upper end of mapped range.
+/// \param interval Mapped range.
 /// \param length Desired byte length of flint value.
 ///
 /// \returns Precision of a flint value meeting the provided parameters.
-///
-/// \throws logic_error When \p minimum is not less than \p maximum, either is
-/// nonfinite, or \p length is zero.
-/// \throws metadata_type_overflow When the difference between \p minimum and
-/// \p maximum is to large for a \c double to hold.
 KWIVER_ALGO_KLV_EXPORT
 double
-klv_flint_precision( double minimum, double maximum, size_t length );
+klv_flint_precision( vital::interval< double > const& interval, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Read an IEEE-754 floating-point number from a sequence of bytes
@@ -311,9 +302,9 @@ klv_flint_precision( double minimum, double maximum, size_t length );
 ///
 /// \throws invalid_value When \p length is not \c sizeof(float) or \c
 /// sizeof(double).
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 double
-klv_read_float( Iterator& data, size_t length );
+klv_read_float( klv_read_iter_t& data, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Write an IEEE-754 floating-point number to a sequence of bytes
@@ -326,9 +317,9 @@ klv_read_float( Iterator& data, size_t length );
 ///
 /// \throws invalid_value When \p length is not \c sizeof(float) or \c
 /// sizeof(double).
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 void
-klv_write_float( double value, Iterator& data, size_t length );
+klv_write_float( double value, klv_write_iter_t& data, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Read an IMAP-encoded floating-point value from a sequence of bytes.
@@ -336,22 +327,20 @@ klv_write_float( double value, Iterator& data, size_t length );
 /// For an explanation of IMAP, see the MISB ST1201 document.
 /// \see https://gwg.nga.mil/misb/docs/standards/ST1201.4.pdf
 ///
-/// \param minimum Lower end of mapped range.
-/// \param maximum Upper end of mapped range.
+/// \param interval Mapped range.
 /// \param[in,out] data Iterator to sequence of \c uint8_t. Set to end of read
 /// bytes on success, left as is on error.
 /// \param length Number of bytes to read.
 ///
 /// \returns Floating-point number decoded from \p data buffer.
 ///
-/// \throws logic_error When \p minimum is not less than \p maximum, either is
-/// nonfinite, or \p length is zero.
 /// \throws metadata_type_overflow When \p length is greater than the size of a
-/// \c uint64_t or the difference between \p minimum and \p maximum is to large
-/// for a \c double to hold.
-template < class Iterator >
+/// \c uint64_t or the span of \p interval is too large for a \c double to hold.
+KWIVER_ALGO_KLV_EXPORT
 double
-klv_read_imap( double minimum, double maximum, Iterator& data, size_t length );
+klv_read_imap(
+  vital::interval< double > const& interval,
+  klv_read_iter_t& data, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Write a floating-point value into the IMAP format.
@@ -360,21 +349,19 @@ klv_read_imap( double minimum, double maximum, Iterator& data, size_t length );
 /// \see https://gwg.nga.mil/misb/docs/standards/ST1201.4.pdf
 ///
 /// \param value Floating-point number to encode into IMAP.
-/// \param minimum Lower end of mapped range.
-/// \param maximum Upper end of mapped range.
+/// \param interval Mapped range.
 /// \param[in,out] data Writeable iterator to sequence of \c uint8_t. Set to
 /// end of written bytes on success, left as is on error.
 /// \param length Number of bytes to write. This determines the precision of
 /// the encoded value.
 ///
-/// \throws logic_error When \p minimum is not less than \p maximum, either is
-/// nonfinite, or \p length is zero.
-/// \throws metadata_type_overflow When the difference between \p minimum and
-/// \p maximum is to large for a \c double to hold.
-template < class Iterator >
+/// \throws logic_error When \p length is zero.
+/// \throws metadata_type_overflow When the span of \p interval is too large
+/// for a \c double to hold.
+KWIVER_ALGO_KLV_EXPORT
 void
-klv_write_imap( double value, double minimum, double maximum, Iterator& data,
-                size_t length );
+klv_write_imap( double value, vital::interval< double > const& interval,
+                klv_write_iter_t& data, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Return the number of bytes required for the given IMAP specification.
@@ -383,20 +370,18 @@ klv_write_imap( double value, double minimum, double maximum, Iterator& data,
 /// For an explanation of IMAP, see the MISB ST1201 document.
 /// \see https://gwg.nga.mil/misb/docs/standards/ST1201.4.pdf
 ///
-/// \param minimum Lower end of mapped range.
-/// \param maximum Upper end of mapped range.
+/// \param interval Mapped range.
 /// \param precision Desired precision of IMAP value.
 ///
 /// \returns Byte length of an IMAP value meeting the provided parameters.
 ///
-/// \throws logic_error When \p minimum is not less than \p maximum, \p
-/// precision is greater than their span, or any of the three is nonfinite.
+/// \throws logic_error When \p precision is greater than the span of \p
+/// interval, or is nonfinite.
 /// \throws metadata_type_overflow When \p length is greater than the size of a
-/// \c uint64_t or the difference between \p minimum and \p maximum is to large
-/// for a \c double to hold.
+/// \c uint64_t or the span of \p interval is too large for a \c double to hold.
 KWIVER_ALGO_KLV_EXPORT
 size_t
-klv_imap_length( double minimum, double maximum, double precision );
+klv_imap_length( vital::interval< double > const& interval, double precision );
 
 // ----------------------------------------------------------------------------
 /// Return the precision offered by the given IMAP specification.
@@ -405,19 +390,17 @@ klv_imap_length( double minimum, double maximum, double precision );
 /// For an explanation of IMAP, see the MISB ST1201 document.
 /// \see https://gwg.nga.mil/misb/docs/standards/ST1201.4.pdf
 ///
-/// \param minimum Lower end of mapped range.
-/// \param maximum Upper end of mapped range.
+/// \param interval Mapped range.
 /// \param length Desired byte length of IMAP value.
 ///
 /// \returns Precision of an IMAP value meeting the provided parameters.
 ///
-/// \throws logic_error When \p minimum is not less than \p maximum, either is
-/// nonfinite, or \p length is zero.
-/// \throws metadata_type_overflow When the difference between \p minimum and
-/// \p maximum is to large for a \c double to hold.
+/// \throws logic_error When \p length is zero.
+/// \throws metadata_type_overflow When the span of \p interval is too large
+/// for a \c double to hold.
 KWIVER_ALGO_KLV_EXPORT
 double
-klv_imap_precision( double minimum, double maximum, size_t length );
+klv_imap_precision( vital::interval< double > const& interval, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Read a string from a sequence of bytes.
@@ -427,9 +410,9 @@ klv_imap_precision( double minimum, double maximum, size_t length );
 /// special meaning.
 ///
 /// \returns String read from \p data.
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 std::string
-klv_read_string( Iterator& data, size_t length );
+klv_read_string( klv_read_iter_t& data, size_t length );
 
 // ----------------------------------------------------------------------------
 /// Write a string to a sequence of bytes.
@@ -446,9 +429,9 @@ klv_read_string( Iterator& data, size_t length );
 /// \throws metadata_buffer_overflow When required to write more than \p
 /// max_length bytes.
 /// \throws metadata_type_overflow When \p value is a single null character.
-template < class Iterator >
+KWIVER_ALGO_KLV_EXPORT
 void
-klv_write_string( std::string const& value, Iterator& data,
+klv_write_string( std::string const& value, klv_write_iter_t& data,
                   size_t max_length );
 
 // ----------------------------------------------------------------------------

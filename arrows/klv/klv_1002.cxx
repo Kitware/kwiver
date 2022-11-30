@@ -21,13 +21,6 @@ namespace arrows {
 
 namespace klv {
 
-namespace {
-
-constexpr size_t checksum_packet_length = 4;
-std::vector< uint8_t > const checksum_header = { KLV_1002_CHECKSUM, 2 };
-
-} // namespace <anonymous>
-
 // ----------------------------------------------------------------------------
 std::ostream&
 operator<<( std::ostream& os, klv_1002_tag tag )
@@ -97,7 +90,6 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_1002_enumerations_format
 ::klv_1002_enumerations_format()
-  : klv_data_format_< klv_1002_enumerations >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -105,7 +97,7 @@ std::string
 klv_1002_enumerations_format
 ::description() const
 {
-  return "range image enumerations of " + length_description();
+  return "range image enumerations of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -180,7 +172,6 @@ auto const plane_format = klv_float_format{};
 // ----------------------------------------------------------------------------
 klv_1002_section_data_pack_format
 ::klv_1002_section_data_pack_format()
-  : klv_data_format_< klv_1002_section_data_pack >{ 0 }
 {}
 
 // ----------------------------------------------------------------------------
@@ -188,7 +179,7 @@ std::string
 klv_1002_section_data_pack_format
 ::description() const
 {
-  return "section data pack of " + length_description();
+  return "section data pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -261,7 +252,8 @@ klv_1002_section_data_pack_format
 // ----------------------------------------------------------------------------
 klv_1002_local_set_format
 ::klv_1002_local_set_format()
-  : klv_local_set_format{ klv_1002_traits_lookup() }
+  : klv_local_set_format{ klv_1002_traits_lookup() },
+    m_checksum_format{ { KLV_1002_CHECKSUM, 2 } }
 {}
 
 // ----------------------------------------------------------------------------
@@ -269,61 +261,15 @@ std::string
 klv_1002_local_set_format
 ::description() const
 {
-  return "range image local set of " + length_description();
+  return "range image local set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
-uint32_t
+klv_checksum_packet_format const*
 klv_1002_local_set_format
-::calculate_checksum( klv_read_iter_t data, size_t length ) const
+::checksum_format() const
 {
-  return klv_crc_16_ccitt( checksum_header.begin(), checksum_header.end(),
-                           klv_crc_16_ccitt( data, data + length ) );
-}
-
-// ----------------------------------------------------------------------------
-uint32_t
-klv_1002_local_set_format
-::read_checksum( klv_read_iter_t data, size_t length ) const
-{
-  if( length < checksum_packet_length )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "packet too small; checksum is not present" );
-  }
-  data += length - checksum_packet_length;
-
-  if( !std::equal( checksum_header.cbegin(), checksum_header.cend(), data ) )
-  {
-    VITAL_THROW( kv::metadata_exception,
-                 "checksum header not present" );
-  }
-  data += checksum_header.size();
-
-  return klv_read_int< uint16_t >( data, 2 );
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_1002_local_set_format
-::write_checksum( uint32_t checksum,
-                  klv_write_iter_t& data, size_t max_length ) const
-{
-  if( max_length < checksum_packet_length )
-  {
-    VITAL_THROW( kv::metadata_buffer_overflow,
-                 "writing checksum packet overflows data buffer" );
-  }
-  data = std::copy( checksum_header.cbegin(), checksum_header.cend(), data );
-  klv_write_int( static_cast< uint16_t >( checksum ), data, 2 );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_1002_local_set_format
-::checksum_length() const
-{
-  return checksum_packet_length;
+  return &m_checksum_format;
 }
 
 // ----------------------------------------------------------------------------

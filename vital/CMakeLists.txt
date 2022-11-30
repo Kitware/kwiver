@@ -145,6 +145,7 @@ set( vital_public_headers
   types/metadata_traits.h
   types/object_track_set.h
   types/point.h
+  types/pointcloud.h
   types/polygon.h
   types/query_result.h
   types/query_result_set.h
@@ -219,6 +220,7 @@ set( vital_sources
   types/metadata_traits.cxx
   types/object_track_set.cxx
   types/point.cxx
+  types/pointcloud.cxx
   types/polygon.cxx
   types/query_result.cxx
   types/rotation.cxx

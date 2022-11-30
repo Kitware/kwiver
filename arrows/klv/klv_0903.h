@@ -10,6 +10,7 @@
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
+#include <arrows/klv/klv_checksum.h>
 #include <arrows/klv/klv_packet.h>
 #include <arrows/klv/klv_set.h>
 
@@ -71,19 +72,11 @@ public:
   std::string
   description() const override;
 
+  klv_checksum_packet_format const*
+  checksum_format() const override;
+
 private:
-  uint32_t
-  calculate_checksum( klv_read_iter_t data, size_t length ) const override;
-
-  uint32_t
-  read_checksum( klv_read_iter_t data, size_t length ) const override;
-
-  void
-  write_checksum( uint32_t checksum,
-                  klv_write_iter_t& data, size_t max_length ) const override;
-
-  size_t
-  checksum_length() const override;
+  klv_running_sum_16_packet_format m_checksum_format;
 };
 
 } // namespace klv

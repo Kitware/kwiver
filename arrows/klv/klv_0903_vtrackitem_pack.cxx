@@ -51,14 +51,14 @@ DEFINE_STRUCT_CMP(
 // ----------------------------------------------------------------------------
 klv_0903_vtrackitem_pack_format
 ::klv_0903_vtrackitem_pack_format()
-  : klv_data_format_< klv_0903_vtrackitem_pack >{ 0 } {}
+{}
 
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vtrackitem_pack_format
 ::description() const
 {
-  return "vtrackitem pack of " + length_description();
+  return "vtrackitem pack of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -245,13 +245,15 @@ klv_0903_vtrackitem_pack_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACKITEM_HORIZONTAL_FOV ),
-      std::make_shared< klv_imap_format >( 0.0, 180.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ 0.0, 180.0 } ),
       "VMTI Horizontal FOV",
       "Horizonal field of view of sensor input to the VMTI process.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACKITEM_VERTICAL_FOV ),
-      std::make_shared< klv_imap_format >( 0.0, 180.0 ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ 0.0, 180.0 } ),
       "VMTI Vertical FOV",
       "Vertical field of view of sensor input to the VMTI process.",
       { 0, 1 } },
@@ -319,7 +321,7 @@ std::string
 klv_0903_vtrackitem_local_set_format
 ::description() const
 {
-  return "vtrackitem local set of " + length_description();
+  return "vtrackitem local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

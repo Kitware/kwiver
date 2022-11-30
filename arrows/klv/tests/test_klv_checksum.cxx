@@ -27,7 +27,7 @@ using vec_t = std::vector< uint8_t >;
 void
 test_running_sum_16( uint16_t checksum, vec_t const& data )
 {
-  EXPECT_EQ( checksum, klv_running_sum_16( data.cbegin(), data.cend() ) );
+  EXPECT_EQ( checksum, klv_running_sum_16( &*data.cbegin(), &*data.cend() ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ TEST ( klv, running_sum_16 )
 void
 test_crc_16_ccitt( uint16_t checksum, vec_t const& data )
 {
-  EXPECT_EQ( checksum, klv_crc_16_ccitt( data.cbegin(), data.cend() ) );
+  EXPECT_EQ( checksum, klv_crc_16_ccitt( &*data.cbegin(), &*data.cend() ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ TEST ( klv, klv_crc_16_ccitt )
 void
 test_crc_32_mpeg( uint32_t checksum, vec_t const& data )
 {
-  EXPECT_EQ( checksum, klv_crc_32_mpeg( data.cbegin(), data.cend() ) );
+  EXPECT_EQ( checksum, klv_crc_32_mpeg( &*data.cbegin(), &*data.cend() ) );
 }
 
 // ----------------------------------------------------------------------------

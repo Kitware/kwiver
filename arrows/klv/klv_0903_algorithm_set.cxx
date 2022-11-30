@@ -77,7 +77,7 @@ std::string
 klv_0903_algorithm_local_set_format
 ::description() const
 {
-  return "algorithm local set of " + length_description();
+  return "algorithm local set of " + m_length_constraints.description();
 }
 
 } // namespace klv

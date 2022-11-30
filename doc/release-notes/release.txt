@@ -1,0 +1,29 @@
+KWIVER (unreleased) Release Notes
+=================================
+
+Updates
+-------
+
+Bug Fixes
+---------
+
+Arrows: Core
+
+* Fixed race condition in close_loops_exhaustive that could result in a crash
+  when matching and merging feature tracks.
+
+* Fixed undefined behavior leading to a crash in track_features_core when the
+  track set remained empty after the first frame.
+
+Arrows: KLV
+
+* Fixed possible out-of-bounds memory read leading to crash when KLV parsing
+  fails.
+
+* Fixed bug in KLV packet reader which failed to check if the packet's length
+  was larger than the available number of input bytes.
+
+* Fixed bug in ST0601 view domain writer which would not write the length of
+  the final field.
+
+* Added a missing type to the ST0601 KLV JSON exporter.

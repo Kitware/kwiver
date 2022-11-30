@@ -47,6 +47,7 @@ set( public_headers
   initialize_object_tracks.h
   integrate_depth_maps.h
   interpolate_track.h
+  nearest_neighbors.h
   keyframe_selection.h
   metadata_filter.h
   metadata_map_io.h
@@ -115,6 +116,7 @@ set( sources
   initialize_object_tracks.cxx
   integrate_depth_maps.cxx
   interpolate_track.cxx
+  nearest_neighbors.cxx
   keyframe_selection.cxx
   metadata_filter.cxx
   metadata_map_io.cxx

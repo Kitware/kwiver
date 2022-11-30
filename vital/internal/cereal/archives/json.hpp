@@ -114,6 +114,9 @@ namespace cereal
           //! Default options with no indentation
           static Options NoIndent(){ return Options( JSONWriter::kDefaultMaxDecimalPlaces, IndentChar::space, 0 ); }
 
+          //! Maximum floating-point precision
+          static int MaxPrecision(){ return JSONWriter::kDefaultMaxDecimalPlaces; }
+
           //! The character to use for indenting
           enum class IndentChar : char
           {
@@ -637,7 +640,7 @@ namespace cereal
       //! Loads a value from the current node - double overload
       void loadValue(double & val)      { search(); val = itsIteratorStack.back().value().GetDouble(); ++itsIteratorStack.back(); }
       //! Loads a value from the current node - string overload
-      void loadValue(std::string & val) { search(); val = itsIteratorStack.back().value().GetString(); ++itsIteratorStack.back(); }
+      void loadValue(std::string & val) { search(); val = std::string{ itsIteratorStack.back().value().GetString(), itsIteratorStack.back().value().GetStringLength() }; ++itsIteratorStack.back(); }
       //! Loads a nullptr from the current node
       void loadValue(std::nullptr_t&)   { search(); CEREAL_RAPIDJSON_ASSERT(itsIteratorStack.back().value().IsNull()); ++itsIteratorStack.back(); }
 

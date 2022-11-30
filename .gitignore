@@ -7,3 +7,4 @@ _build
 *.swo
 *.swn
 compile_commands.json
+.vscode

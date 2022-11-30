@@ -90,9 +90,10 @@ TEST(estimate_homography, ideal_points)
 
   // create random points that perfectly correspond via true_H
   std::vector<vector_2d> pts1, pts2;
+  kwiver::testing::rng_t rng( 1 );
   for(unsigned i=0; i<100; ++i)
   {
-    vector_2d v2 = random_point2d(1000.0) + vector_2d(500.0,500.0);
+    vector_2d v2 = random_point2d( 1000.0, rng ) + vector_2d( 500.0, 500.0 );
     pts1.push_back(v2);
     vector_3d v3 = true_H * vector_3d(v2.x(), v2.y(), 1.0);
     pts2.push_back(vector_2d(v3.x()/v3.z(), v3.y()/v3.z()));
@@ -120,13 +121,14 @@ TEST(estimate_homography, noisy_points)
 
   // create random points + noise that approximately correspond via true_H
   std::vector<vector_2d> pts1, pts2;
+  kwiver::testing::rng_t rng( 1 );
   for(unsigned i=0; i<100; ++i)
   {
-    vector_2d v2 = random_point2d(1000.0) + vector_2d(500.0,500.0);
-    pts1.push_back(v2 + random_point2d(0.1));
-    vector_3d v3 = true_H * vector_3d(v2.x(), v2.y(), 1.0);
-    pts2.push_back(vector_2d(v3.x()/v3.z(), v3.y()/v3.z())
-                   + random_point2d(0.1));
+    vector_2d v2 = random_point2d( 1000.0, rng ) + vector_2d( 500.0, 500.0 );
+    pts1.push_back( v2 + random_point2d( 0.1, rng ) );
+    vector_3d v3 = true_H * vector_3d( v2.x(), v2.y(), 1.0 );
+    pts2.push_back( vector_2d( v3.x() / v3.z(), v3.y() / v3.z() ) +
+                    random_point2d( 0.1, rng ) );
   }
 
   std::vector<bool> inliers;
@@ -153,16 +155,17 @@ TEST(estimate_homography, outlier_points)
   // create random points + noise that approximately correspond via true_H
   std::vector<vector_2d> pts1, pts2;
   std::vector<bool> true_inliers;
+  kwiver::testing::rng_t rng( 1 );
   for(unsigned i=0; i<100; ++i)
   {
-    vector_2d v2 = random_point2d(1000.0) + vector_2d(500.0,500.0);
+    vector_2d v2 = random_point2d( 1000.0, rng ) + vector_2d( 500.0, 500.0 );
     pts1.push_back(v2);
     vector_3d v3 = true_H * vector_3d(v2.x(), v2.y(), 1.0);
     pts2.push_back(vector_2d(v3.x()/v3.z(), v3.y()/v3.z()));
     true_inliers.push_back(true);
     if (i%3 == 0)
     {
-      pts2.back() = random_point2d(1000.0) + vector_2d(500.0,500.0);
+      pts2.back() = random_point2d( 1000.0, rng ) + vector_2d( 500.0, 500.0 );
       true_inliers.back() = false;
     }
   }

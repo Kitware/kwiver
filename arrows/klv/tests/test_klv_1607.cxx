@@ -56,7 +56,8 @@ TEST ( klv, apply_derive_1607 )
     { 6, 9.0 },
     { 6, 0.0 }, };
 
-  auto const result = klv_1607_apply_child( parent, child );
+  auto result = parent;
+  klv_1607_apply_child( result, child );
   ASSERT_EQ( expected_result, result );
 
   auto const rederived_child = klv_1607_derive_child( parent, result );

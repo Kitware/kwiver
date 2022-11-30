@@ -26,7 +26,7 @@ std::string
 klv_1607_child_set_format
 ::description() const
 {
-  return "child set of " + length_description();
+  return "child set of " + m_length_constraints.description();
 }
 
 // ----------------------------------------------------------------------------
@@ -39,31 +39,40 @@ klv_1607_child_set_format
 }
 
 // ----------------------------------------------------------------------------
-klv_local_set
-klv_1607_apply_child( klv_local_set const& parent,
-                      klv_local_set const& child )
+void
+klv_1607_apply_child(
+  klv_local_set& parent, klv_local_set const& child,
+  std::function< klv_1607_child_policy( klv_lds_key ) > const& policy_fn )
 {
-  auto result = parent;
-
   // Two loops so that all entries are deleted from parent set before adding
   // any from the child set, in the unlikely case of multiple values per tag
   // in the child set
   for( auto const& entry : child )
   {
-    if( result.count( entry.first ) > 1 )
+    auto const policy =
+      policy_fn ? policy_fn( entry.first ) : KLV_1607_CHILD_POLICY_KEEP_CHILD;
+    if( policy & KLV_1607_CHILD_POLICY_KEEP_PARENT )
+    {
+      continue;
+    }
+
+    if( parent.count( entry.first ) > 1 )
     {
       LOG_WARN( kv::get_logger( "klv" ), "apply_child: "
                 "modifying tag which has multiple values in parent set" );
     }
-    result.erase( entry.first );
+    parent.erase( entry.first );
   }
 
   for( auto const& entry : child )
   {
-    result.add( entry.first, entry.second );
+    auto const policy =
+      policy_fn ? policy_fn( entry.first ) : KLV_1607_CHILD_POLICY_KEEP_CHILD;
+    if( policy & KLV_1607_CHILD_POLICY_KEEP_CHILD )
+    {
+      parent.add( entry.first, entry.second );
+    }
   }
-
-  return result;
 }
 
 // ----------------------------------------------------------------------------
