@@ -158,13 +158,13 @@ public:
 
     m_prev_misp_timestamp = m_curr_misp_timestamp;
 
-    auto it = md_buffer.cbegin();
-    while( it != md_buffer.cend() )
+    auto it = &*md_buffer.cbegin();
+    while( it != &*md_buffer.cend() )
     {
       klv::klv_packet packet;
       try
       {
-        packet = klv::klv_read_packet( it, std::distance( it, md_buffer.cend() ) );
+        packet = klv::klv_read_packet( it, std::distance( it, &*md_buffer.cend() ) );
       }
       catch( kwiver::vital::metadata_buffer_overflow const& e )
       {
@@ -194,7 +194,8 @@ public:
                      std::next( md_buffer.begin(),
                                 std::distance( md_buffer.cbegin(), it ) ) );
 #else
-    md_buffer.erase( md_buffer.cbegin(), it );
+    md_buffer.erase( md_buffer.begin(),
+                     md_buffer.begin() + std::distance( &*md_buffer.cbegin(), it ) );
 #endif
 
     // Get the vital metadata structure for the current frame
@@ -301,12 +302,12 @@ public:
     do
     {
       auto const packet_data = d_video_stream.current_packet_data();
-      auto it = kwiver::arrows::klv::find_misp_timestamp( packet_data.cbegin(),
-                                                          packet_data.cend(),
+      auto it = kwiver::arrows::klv::find_misp_timestamp( &*packet_data.cbegin(),
+                                                          &*packet_data.cend(),
                                                           klv::MISP_TIMESTAMP_TAG_STRING );
-      if ( it != packet_data.cend() )
+      if ( it != &*packet_data.cend() )
       {
-        meta_ts = kwiver::arrows::klv::read_misp_timestamp( it ).timestamp;
+        meta_ts = kwiver::arrows::klv::read_misp_timestamp( it ).microseconds().count();
         LOG_DEBUG( this->d_logger, "Found MISP frame time:" << meta_ts );
 
         d_have_abs_frame_time = true;
