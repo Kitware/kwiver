@@ -8,6 +8,10 @@ over the previous v1.7.0 release.
 Updates
 -------
 
+KWIVER
+
+ * Adopted C++17.
+
 Vital
 
 Vital Algo
