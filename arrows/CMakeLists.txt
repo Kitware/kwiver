@@ -120,3 +120,8 @@ add_subdirectory( serialize )
 if( KWIVER_ENABLE_COLMAP )
   add_subdirectory( colmap )
 endif()
+
+# If Zlib is enabled
+if( KWIVER_ENABLE_ZLIB )
+  add_subdirectory( zlib )
+endif()
