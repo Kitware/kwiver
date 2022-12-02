@@ -35,6 +35,9 @@ public:
   save_( std::ostream& fout, vital::metadata_map_sptr data,
          std::string const& filename ) const override;
 
+  vital::config_block_sptr get_configuration() const override;
+  void set_configuration( vital::config_block_sptr config ) override;
+
 private:
   class priv;
 
