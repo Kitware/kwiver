@@ -43,6 +43,8 @@ private:
 
 public:
   constexpr static size_t data_size = 1 << 16; // 64 KB
+  constexpr static size_t expected_binary_size = 343;
+  constexpr static size_t expected_text_size = 175;
   std::vector< uint8_t > text_data;
   std::vector< uint8_t > binary_data;
 };
@@ -59,7 +61,7 @@ TEST_F ( test_bytestream_compressor, round_trip_deflate_text )
   compressor.flush();
   auto const compressed_data = compressor.read();
 
-  EXPECT_EQ( 175, compressed_data.size() );
+  EXPECT_EQ( expected_text_size, compressed_data.size() );
 
   bytestream_compressor decompressor(
     bytestream_compressor::MODE_DECOMPRESS,
@@ -85,7 +87,7 @@ TEST_F ( test_bytestream_compressor, round_trip_deflate_binary )
   compressor.flush();
   auto const compressed_data = compressor.read();
 
-  EXPECT_EQ( 343, compressed_data.size() );
+  EXPECT_EQ( expected_binary_size, compressed_data.size() );
 
   bytestream_compressor decompressor(
     bytestream_compressor::MODE_DECOMPRESS,
@@ -119,7 +121,7 @@ TEST_F ( test_bytestream_compressor, round_trip_iostream_wrapper )
   std::string text( text_data.begin(), text_data.end() );
   compress_os << text << std::flush;
 
-  EXPECT_EQ( 175, ss.str().size() );
+  EXPECT_EQ( expected_text_size, ss.str().size() );
 
   std::string out_text;
   compress_is >> out_text;
@@ -149,7 +151,7 @@ TEST_F ( test_bytestream_compressor, round_trip_deflate_piecemeal )
   compressor.flush();
   auto const compressed_data = compressor.read();
 
-  EXPECT_EQ( 175, compressed_data.size() );
+  EXPECT_EQ( expected_text_size, compressed_data.size() );
 
   bytestream_compressor decompressor(
     bytestream_compressor::MODE_DECOMPRESS,
@@ -198,7 +200,7 @@ TEST_F ( test_bytestream_compressor, round_trip_iostream_wrapper_piecemeal )
   }
   compress_os << std::flush;
 
-  EXPECT_EQ( 175, ss.str().size() );
+  EXPECT_EQ( expected_text_size, ss.str().size() );
 
   std::string out_text;
   for( size_t i = 0; i < text.size(); i += step )
