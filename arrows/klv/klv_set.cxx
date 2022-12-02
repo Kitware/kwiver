@@ -416,7 +416,7 @@ klv_set_format< Key >
 
     history.push_back( traits.tag() );
   }
-  check_tag_counts( result );
+  check_set( result );
 
   return result;
 }
@@ -432,7 +432,7 @@ klv_set_format< Key >
 
   auto const tracker = track_it( data, length );
 
-  check_tag_counts( klv );
+  check_set( klv );
 
   // Identify which entries need to be before other entries
   std::set< klv_lds_key > held_keys;
