@@ -27,13 +27,6 @@ void
 check_input( kva::video_input_sptr const& input,
              cxxopts::ParseResult const& cmd_args )
 {
-  // Check initialization
-  if( !input )
-  {
-    std::cerr << "Failed to initialize video input." << std::endl;
-    exit( EXIT_FAILURE );
-  }
-
   // Check capabilities
   auto const& capabilities = input->get_implementation_capabilities();
   if( cmd_args.count( "copy-video" ) &&
@@ -136,8 +129,15 @@ transcode_applet
   ::set_nested_algo_configuration( "video_reader", config, input );
   kva::video_input
   ::get_nested_algo_configuration( "video_reader", config, input );
-  check_input( input, cmd_args );
+
+  // Check initialization
+  if( !input )
+  {
+    std::cerr << "Failed to initialize video input." << std::endl;
+    exit( EXIT_FAILURE );
+  }
   input->open( input_filename );
+  check_input( input, cmd_args );
 
   auto const video_settings = input->implementation_settings();
 
