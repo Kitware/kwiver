@@ -10,10 +10,6 @@
 namespace kwiver {
 
 namespace arrows {
-  
-namespace vxl {
-  class vidl_ffmpeg_video_input;
-} //end namespace vxl
 
 namespace klv {
 
@@ -81,8 +77,6 @@ private:
   uint64_t m_prev_frame_timestamp;
   std::multimap< klv_timeline::key_t, uint64_t > m_cancel_points;
   klv_timeline& m_timeline;
-
-  friend kwiver::arrows::vxl::vidl_ffmpeg_video_input;
 };
 
 } // namespace klv

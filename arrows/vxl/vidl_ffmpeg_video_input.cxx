@@ -158,13 +158,15 @@ public:
 
     m_prev_misp_timestamp = m_curr_misp_timestamp;
 
+    std::vector< klv::klv_packet > packets;
     auto it = &*md_buffer.cbegin();
     while( it != &*md_buffer.cend() )
     {
-      klv::klv_packet packet;
       try
       {
-        packet = klv::klv_read_packet( it, std::distance( it, &*md_buffer.cend() ) );
+        auto packet =
+          klv::klv_read_packet( it, std::distance( it, &*md_buffer.cend() ) );
+        packets.emplace_back( std::move( packet ) );
       }
       catch( kwiver::vital::metadata_buffer_overflow const& e )
       {
@@ -176,6 +178,7 @@ public:
         LOG_ERROR( d_logger, "error while parsing KLV packet: " << e.what() );
       }
 
+      auto const& packet = packets.back();
       if( klv::klv_lookup_packet_traits().by_uds_key( packet.key ).tag() !=
           klv::KLV_PACKET_MISB_1108_LOCAL_SET )
       {
@@ -183,7 +186,7 @@ public:
         m_curr_misp_timestamp = std::max( m_curr_misp_timestamp, timestamp.value() );
       }
 
-      m_klv_demuxer.demux_packet( packet );
+      m_klv_demuxer.send_frame( packets, m_curr_misp_timestamp );
     }
 
     // Erase the bytes we just used
