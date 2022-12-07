@@ -162,6 +162,8 @@ video_input_metadata_filter
   copy_capability( vi::HAS_ABSOLUTE_FRAME_TIME );
   copy_capability( vi::HAS_TIMEOUT );
   copy_capability( vi::IS_SEEKABLE );
+  copy_capability( vi::HAS_RAW_IMAGE );
+  copy_capability( vi::HAS_RAW_METADATA );
 }
 
 // ----------------------------------------------------------------------------
