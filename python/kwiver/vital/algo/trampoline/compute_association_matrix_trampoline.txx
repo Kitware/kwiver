@@ -31,7 +31,7 @@ class algorithm_def_cam_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
           kwiver::vital::algo::compute_association_matrix>,
@@ -56,7 +56,7 @@ class compute_association_matrix_trampoline :
                   kwiver::vital::matrix_d& matrix,
                   kwiver::vital::detected_object_set_sptr& considered ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         kwiver::vital::algo::compute_association_matrix,
         compute,

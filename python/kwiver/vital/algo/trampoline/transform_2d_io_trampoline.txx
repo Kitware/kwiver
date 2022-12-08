@@ -31,7 +31,7 @@ class algorithm_def_t2dio_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::transform_2d_io>,
         type_name,
@@ -51,7 +51,7 @@ class transform_2d_io_trampoline :
     kwiver::vital::transform_2d_sptr
     load_( std::string const& filename )  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::transform_2d_sptr,
         kwiver::vital::algo::transform_2d_io,
         load_,
@@ -63,7 +63,7 @@ class transform_2d_io_trampoline :
     save_( std::string const& filename,
            kwiver::vital::transform_2d_sptr data ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::transform_2d_io,
         save_,

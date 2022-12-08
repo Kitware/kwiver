@@ -56,7 +56,7 @@ size_t
 camera_perspective_map_trampoline
 ::size() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     size_t,
     kv::camera_map_of_< kv::camera_perspective >,
     size,
@@ -67,7 +67,7 @@ map_camera_t
 camera_perspective_map_trampoline
 ::cameras() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     map_camera_t,
     kv::camera_map_of_< kv::camera_perspective >,
     cameras,
@@ -78,7 +78,7 @@ std::set<kv::frame_id_t>
 camera_perspective_map_trampoline
 ::get_frame_ids() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     std::set<kv::frame_id_t>,
     kv::camera_map_of_< kv::camera_perspective >,
     get_frame_ids,

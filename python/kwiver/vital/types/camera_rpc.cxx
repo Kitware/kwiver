@@ -116,7 +116,7 @@ kv::rpc_matrix
 camera_rpc_trampoline
 ::rpc_coeffs() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::rpc_matrix,
     kv::camera_rpc,
     rpc_coeffs,
@@ -127,7 +127,7 @@ kv::vector_3d
 camera_rpc_trampoline
 ::world_scale() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::vector_3d,
     kv::camera_rpc,
     world_scale,
@@ -138,7 +138,7 @@ kv::vector_3d
 camera_rpc_trampoline
 ::world_offset() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::vector_3d,
     kv::camera_rpc,
     world_offset,
@@ -149,7 +149,7 @@ kv::vector_2d
 camera_rpc_trampoline
 ::image_scale() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::vector_2d,
     kv::camera_rpc,
     image_scale,
@@ -160,7 +160,7 @@ kv::vector_2d
 camera_rpc_trampoline
 ::image_offset() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::vector_2d,
     kv::camera_rpc,
     image_offset,
@@ -171,7 +171,7 @@ unsigned int
 camera_rpc_trampoline
 ::image_width() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     unsigned int,
     kv::camera_rpc,
     image_width,
@@ -182,7 +182,7 @@ unsigned int
 camera_rpc_trampoline
 ::image_height() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     unsigned int,
     kv::camera_rpc,
     image_height,
@@ -193,7 +193,7 @@ kv::vector_2d
 camera_rpc_trampoline
 ::project( const kv::vector_3d& pt ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::vector_2d,
     kv::camera_rpc,
     project,
@@ -205,7 +205,7 @@ kv::vector_3d
 camera_rpc_trampoline
 ::back_project( const kv::vector_2d& image_pt, double elev ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::vector_3d,
     kv::camera_rpc,
     back_project,
@@ -220,7 +220,7 @@ camera_rpc_trampoline
                kv::matrix_2x2d& J,
                kv::vector_2d& norm_pt ) const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     void,
     kv::camera_rpc,
     jacobian,

@@ -31,7 +31,7 @@ class algorithm_def_wtds_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::write_track_descriptor_set>,
         type_name,
@@ -50,7 +50,7 @@ class write_track_descriptor_set_trampoline :
 
     void open( std::string const& filename ) override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::write_track_descriptor_set,
         open,
@@ -60,7 +60,7 @@ class write_track_descriptor_set_trampoline :
 
     void close() override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::write_track_descriptor_set,
         close,
@@ -70,7 +70,7 @@ class write_track_descriptor_set_trampoline :
     void
     write_set( const kwiver::vital::track_descriptor_set_sptr set ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::write_track_descriptor_set,
         write_set,

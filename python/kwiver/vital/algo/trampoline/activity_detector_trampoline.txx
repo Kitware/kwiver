@@ -29,7 +29,7 @@ class algorithm_def_ad_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::activity_detector>,
         type_name,
@@ -46,7 +46,7 @@ class activity_detector_trampoline :
               algorithm_def_ad_trampoline;
     std::vector<kwiver::vital::activity> detect(kwiver::vital::image_container_sptr image_data) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         std::vector<kwiver::vital::activity>,
         kwiver::vital::algo::activity_detector,
         detect,

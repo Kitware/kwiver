@@ -31,7 +31,7 @@ class algorithm_def_tl_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::triangulate_landmarks>,
         type_name,
@@ -53,7 +53,7 @@ class triangulate_landmarks_trampoline :
                  kwiver::vital::feature_track_set_sptr tracks,
                  kwiver::vital::landmark_map_sptr& landmarks )  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::triangulate_landmarks,
         triangulate,
@@ -68,7 +68,7 @@ class triangulate_landmarks_trampoline :
                  kwiver::vital::track_map_t tracks,
                  kwiver::vital::landmark_map_sptr& landmarks )  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::triangulate_landmarks,
         triangulate,

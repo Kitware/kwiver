@@ -30,7 +30,7 @@ class algorithm_def_df_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::detect_features>,
         type_name,
@@ -50,7 +50,7 @@ class detect_features_trampoline :
     detect( kwiver::vital::image_container_sptr image_data,
             kwiver::vital::image_container_sptr mask ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::feature_set_sptr,
         kwiver::vital::algo::detect_features,
         detect,

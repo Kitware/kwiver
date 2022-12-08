@@ -70,7 +70,7 @@ kv::vector_2d
 camera_trampoline
 ::project( const kv::vector_3d& pt ) const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::vector_2d,
     kv::camera,
     project,
@@ -82,7 +82,7 @@ unsigned int
 camera_trampoline
 ::image_width() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     unsigned int,
     kv::camera,
     image_width,
@@ -93,7 +93,7 @@ unsigned int
 camera_trampoline
 ::image_height() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     unsigned int,
     kv::camera,
     image_height,

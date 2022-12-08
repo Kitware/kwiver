@@ -31,7 +31,7 @@ class algorithm_def_ed_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def< kwiver::vital::algo::extract_descriptors >,
         type_name,
@@ -53,7 +53,7 @@ class extract_descriptors_trampoline :
              kwiver::vital::feature_set_sptr& features,
              kwiver::vital::image_container_sptr image_mask ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::descriptor_set_sptr,
         kwiver::vital::algo::extract_descriptors,
         extract,

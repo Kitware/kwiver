@@ -30,7 +30,7 @@ class algorithm_def_ba_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::bundle_adjust>,
         type_name,
@@ -51,7 +51,7 @@ class bundle_adjust_trampoline :
                    kwiver::vital::feature_track_set_sptr tracks,
                    kwiver::vital::sfm_constraints_sptr constraints=nullptr) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::bundle_adjust,
         optimize,
@@ -69,7 +69,7 @@ class bundle_adjust_trampoline :
                    const std::set<kwiver::vital::landmark_id_t>& fixed_landmarks,
                    kwiver::vital::sfm_constraints_sptr constraints=nullptr) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::bundle_adjust,
         optimize,

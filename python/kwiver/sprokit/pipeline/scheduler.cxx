@@ -103,7 +103,7 @@ void
 scheduler_trampoline
 ::_start()
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     void,
     scheduler,
     _start,
@@ -114,7 +114,7 @@ void
 scheduler_trampoline
 ::_wait()
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     void,
     scheduler,
     _wait,
@@ -125,7 +125,7 @@ void
 scheduler_trampoline
 ::_pause()
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     void,
     scheduler,
     _pause,
@@ -136,7 +136,7 @@ void
 scheduler_trampoline
 ::_resume()
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     void,
     scheduler,
     _resume,
@@ -147,7 +147,7 @@ void
 scheduler_trampoline
 ::_stop()
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     void,
     scheduler,
     _stop,

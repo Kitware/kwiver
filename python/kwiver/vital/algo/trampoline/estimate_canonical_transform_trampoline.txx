@@ -31,7 +31,7 @@ class algorithm_def_ect_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
               kwiver::vital::algo::estimate_canonical_transform >,
@@ -54,7 +54,7 @@ class estimate_canonical_transform_trampoline :
                         kwiver::vital::landmark_map_sptr const landmarks )
                       const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::similarity_d,
         kwiver::vital::algo::estimate_canonical_transform,
         estimate_transform,

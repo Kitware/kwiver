@@ -29,7 +29,7 @@ class algorithm_def_dm_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::detect_motion>,
         type_name,
@@ -50,7 +50,7 @@ class detect_motion_trampoline :
                     kwiver::vital::image_container_sptr const image,
                     bool reset_model ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::detect_motion,
         process_image,

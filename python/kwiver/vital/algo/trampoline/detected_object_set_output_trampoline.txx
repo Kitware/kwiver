@@ -31,7 +31,7 @@ class algorithm_def_doso_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::detected_object_set_output>,
         type_name,
@@ -50,7 +50,7 @@ class detected_object_set_output_trampoline :
     void
     open( std::string const& filename ) override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::detected_object_set_output,
         open,
@@ -61,7 +61,7 @@ class detected_object_set_output_trampoline :
     void
     close() override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::detected_object_set_output,
         close,
@@ -70,7 +70,7 @@ class detected_object_set_output_trampoline :
 
     void complete() override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
           void,
           kwiver::vital::algo::detected_object_set_output,
           complete,
@@ -81,7 +81,7 @@ class detected_object_set_output_trampoline :
     write_set( kwiver::vital::detected_object_set_sptr const set,
                std::string const& image_name ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::detected_object_set_output,
         write_set,

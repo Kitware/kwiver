@@ -31,7 +31,7 @@ class algorithm_def_si_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::split_image>,
         type_name,
@@ -51,7 +51,7 @@ class split_image_trampoline :
     std::vector< kwiver::vital::image_container_sptr >
     split( kwiver::vital::image_container_sptr image_data ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         std::vector< kwiver::vital::image_container_sptr >,
         kwiver::vital::algo::split_image,
         split,

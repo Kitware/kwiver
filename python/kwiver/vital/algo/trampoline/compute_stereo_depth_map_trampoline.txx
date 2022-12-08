@@ -31,7 +31,7 @@ class algorithm_def_csdm_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
           kwiver::vital::algo::compute_stereo_depth_map>,
@@ -54,7 +54,7 @@ class compute_stereo_depth_map_trampoline :
              kwiver::vital::image_container_sptr right_image )
          const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::compute_stereo_depth_map,
         compute,

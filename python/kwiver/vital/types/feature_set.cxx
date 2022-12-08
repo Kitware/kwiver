@@ -47,7 +47,7 @@ size_t
 feature_set_trampoline
 ::size() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     size_t,
     kv::feature_set,
     size,
@@ -58,7 +58,7 @@ std::vector< kv::feature_sptr >
 feature_set_trampoline
 ::features() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     std::vector< kv::feature_sptr >,
     kv::feature_set,
     features,

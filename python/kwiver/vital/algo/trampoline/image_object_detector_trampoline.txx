@@ -30,7 +30,7 @@ class algorithm_def_iod_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::image_object_detector>,
         type_name,
@@ -47,7 +47,7 @@ class image_object_detector_trampoline :
               algorithm_def_iod_trampoline;
     kwiver::vital::detected_object_set_sptr detect(kwiver::vital::image_container_sptr image_data) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::detected_object_set_sptr,
         kwiver::vital::algo::image_object_detector,
         detect,

@@ -33,7 +33,7 @@ public:
   std::string
   type_name() const override
   {
-    VITAL_PYBIND11_OVERLOAD(
+    PYBIND11_OVERLOAD(
       std::string,
       kwiver::vital::algorithm_def< kwiver::vital::algo::metadata_map_io >,
       type_name, );
@@ -51,7 +51,7 @@ public:
   kwiver::vital::metadata_map_sptr
   load_( std::istream& fin, std::string const& filename ) const override
   {
-    VITAL_PYBIND11_OVERLOAD_PURE(
+    PYBIND11_OVERLOAD_PURE(
       kwiver::vital::metadata_map_sptr,
       kwiver::vital::algo::metadata_map_io,
       load_,
@@ -63,7 +63,7 @@ public:
   save_( std::ostream& fout, kwiver::vital::metadata_map_sptr data,
          std::string const& filename ) const override
   {
-    VITAL_PYBIND11_OVERLOAD_PURE(
+    PYBIND11_OVERLOAD_PURE(
       void,
       kwiver::vital::algo::metadata_map_io,
       save_,

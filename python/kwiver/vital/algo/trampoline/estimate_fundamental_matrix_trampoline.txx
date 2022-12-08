@@ -31,7 +31,7 @@ class algorithm_def_efm_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
          kwiver::vital::algo::estimate_fundamental_matrix >,
@@ -56,7 +56,7 @@ class estimate_fundamental_matrix_trampoline :
                std::vector<bool>& inliers,
                double inlier_scale)  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::fundamental_matrix_sptr,
         kwiver::vital::algo::estimate_fundamental_matrix,
         estimate,
@@ -74,7 +74,7 @@ class estimate_fundamental_matrix_trampoline :
                std::vector<bool>& inliers,
                double inlier_scale)  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::fundamental_matrix_sptr,
         kwiver::vital::algo::estimate_fundamental_matrix,
         estimate,

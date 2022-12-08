@@ -30,7 +30,7 @@ class algorithm_def_adtt_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
           kwiver::vital::algo::associate_detections_to_tracks>,
@@ -56,7 +56,7 @@ class associate_detections_to_tracks_trampoline :
                     kwiver::vital::object_track_set_sptr& output,
                     kwiver::vital::detected_object_set_sptr& unused ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         kwiver::vital::algo::associate_detections_to_tracks,
         associate,

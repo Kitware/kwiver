@@ -29,7 +29,7 @@ class algorithm_def_dof_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::detected_object_filter>,
         type_name,
@@ -48,7 +48,7 @@ class detected_object_filter_trampoline :
     kwiver::vital::detected_object_set_sptr
     filter( kwiver::vital::detected_object_set_sptr input_set ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::detected_object_set_sptr,
         kwiver::vital::algo::detected_object_filter,
         filter,

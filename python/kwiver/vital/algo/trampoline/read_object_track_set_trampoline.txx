@@ -31,7 +31,7 @@ class algorithm_def_rots_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::read_object_track_set>,
         type_name,
@@ -50,7 +50,7 @@ class read_object_track_set_trampoline :
     void
     open( std::string const& filename ) override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::read_object_track_set,
         open,
@@ -61,7 +61,7 @@ class read_object_track_set_trampoline :
     void
     close() override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::read_object_track_set,
         close,
@@ -71,7 +71,7 @@ class read_object_track_set_trampoline :
     bool
     read_set( kwiver::vital::object_track_set_sptr& track_set ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         kwiver::vital::algo::read_object_track_set,
         read_set,

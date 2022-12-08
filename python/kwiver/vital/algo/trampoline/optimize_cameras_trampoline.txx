@@ -31,7 +31,7 @@ class algorithm_def_oc_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::optimize_cameras>,
         type_name,
@@ -54,7 +54,7 @@ class optimize_cameras_trampoline :
               kwiver::vital::landmark_map_sptr landmarks,
               kwiver::vital::sfm_constraints_sptr constraints ) const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::optimize_cameras,
         optimize,
@@ -71,7 +71,7 @@ class optimize_cameras_trampoline :
               std::vector< kwiver::vital::landmark_sptr > const& landmarks,
               kwiver::vital::sfm_constraints_sptr constraints ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::optimize_cameras,
         optimize,

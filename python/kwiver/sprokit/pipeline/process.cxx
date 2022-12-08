@@ -528,7 +528,7 @@ void
 process_trampoline
 ::_configure()
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     void,
     process,
     _configure,
@@ -539,7 +539,7 @@ void
 process_trampoline
 ::_init()
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     void,
     process,
     _init,
@@ -550,7 +550,7 @@ void
 process_trampoline
 ::_reset()
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     void,
     process,
     _reset,
@@ -561,7 +561,7 @@ void
 process_trampoline
 ::_flush()
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     void,
     process,
     _flush,
@@ -572,7 +572,7 @@ void
 process_trampoline
 ::_step()
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     void,
     process,
     _step,
@@ -583,7 +583,7 @@ void
 process_trampoline
 ::_finalize()
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     void,
     process,
     _finalize,
@@ -594,7 +594,7 @@ void
 process_trampoline
 ::_reconfigure(kwiver::vital::config_block_sptr const& config)
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     void,
     process,
     _reconfigure,
@@ -606,7 +606,7 @@ process_trampoline
 process_trampoline
 ::_properties_over() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     ::sprokit::process::properties_t,
     process,
     _properties,
@@ -626,7 +626,7 @@ process_trampoline
 process_trampoline
 ::_input_ports() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     ::sprokit::process::ports_t,
     process,
     _input_ports,
@@ -637,7 +637,7 @@ process_trampoline
 process_trampoline
 ::_output_ports() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     ::sprokit::process::ports_t,
     process,
     _output_ports,
@@ -648,7 +648,7 @@ process_trampoline
 process_trampoline
 ::_input_port_info(port_t const& port)
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     ::sprokit::process::port_info_t,
     process,
     _input_port_info,
@@ -660,7 +660,7 @@ process_trampoline
 process_trampoline
 ::_output_port_info(port_t const& port)
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     ::sprokit::process::port_info_t,
     process,
     _output_port_info,
@@ -672,7 +672,7 @@ bool
 process_trampoline
 ::_set_input_port_type(port_t const& port, port_type_t const& new_type)
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     bool,
     process,
     _set_input_port_type,
@@ -684,7 +684,7 @@ bool
 process_trampoline
 ::_set_output_port_type(port_t const& port, port_type_t const& new_type)
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     bool,
     process,
     _set_output_port_type,
@@ -696,7 +696,7 @@ kwiver::vital::config_block_keys_t
 process_trampoline
 ::_available_config() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kwiver::vital::config_block_keys_t,
     process,
     _available_config,
@@ -707,7 +707,7 @@ process_trampoline
 process_trampoline
 ::_config_info(kwiver::vital::config_block_key_t const& key)
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     ::sprokit::process::conf_info_t,
     process,
     _config_info,

@@ -34,7 +34,7 @@ class algorithm_def_dosi_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<dosi>,
         type_name,
@@ -69,7 +69,7 @@ class detected_object_set_input_trampoline :
 
     void open(std::string const& filename) override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         dosi,
         open,
@@ -79,7 +79,7 @@ class detected_object_set_input_trampoline :
 
     void close() override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         dosi,
         close,

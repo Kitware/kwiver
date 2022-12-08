@@ -73,7 +73,7 @@ kv::vector_2d
 transform_2d_trampoline
 ::map( kv::vector_2d const& p ) const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::vector_2d,
     kv::transform_2d,
     map,

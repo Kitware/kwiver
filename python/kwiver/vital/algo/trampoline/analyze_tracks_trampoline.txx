@@ -32,7 +32,7 @@ class algorithm_def_at_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::analyze_tracks>,
         type_name,
@@ -51,7 +51,7 @@ class analyze_tracks_trampoline :
     void print_info( kwiver::vital::track_set_sptr track_set,
                      std::ostream& stream = std::cout ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::analyze_tracks,
         print_info,

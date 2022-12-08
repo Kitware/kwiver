@@ -31,7 +31,7 @@ class algorithm_def_vi_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::video_input>,
         type_name,
@@ -51,7 +51,7 @@ class video_input_trampoline :
     void
     open( std::string video_name ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::video_input,
         open,
@@ -62,7 +62,7 @@ class video_input_trampoline :
     void
     close() override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::video_input,
         close,
@@ -72,7 +72,7 @@ class video_input_trampoline :
     bool
     end_of_video() const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         kwiver::vital::algo::video_input,
         end_of_video,
@@ -82,7 +82,7 @@ class video_input_trampoline :
     bool
     good() const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         kwiver::vital::algo::video_input,
         good,
@@ -92,7 +92,7 @@ class video_input_trampoline :
     bool
     seekable() const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         kwiver::vital::algo::video_input,
         seekable,
@@ -102,7 +102,7 @@ class video_input_trampoline :
     size_t
     num_frames() const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         size_t,
         kwiver::vital::algo::video_input,
         num_frames,
@@ -113,7 +113,7 @@ class video_input_trampoline :
     next_frame( kwiver::vital::timestamp& ts,
                 uint32_t timeout = 0) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         kwiver::vital::algo::video_input,
         next_frame,
@@ -127,7 +127,7 @@ class video_input_trampoline :
                kwiver::vital::timestamp::frame_t frame_number,
                uint32_t timeout = 0) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         kwiver::vital::algo::video_input,
         seek_frame,
@@ -140,7 +140,7 @@ class video_input_trampoline :
     kwiver::vital::timestamp
     frame_timestamp() const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::timestamp,
         kwiver::vital::algo::video_input,
         frame_timestamp,
@@ -150,7 +150,7 @@ class video_input_trampoline :
     kwiver::vital::image_container_sptr
     frame_image() override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::video_input,
         frame_image,
@@ -160,7 +160,7 @@ class video_input_trampoline :
     kwiver::vital::metadata_vector
     frame_metadata() override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::metadata_vector,
         kwiver::vital::algo::video_input,
         frame_metadata,
@@ -170,7 +170,7 @@ class video_input_trampoline :
     kwiver::vital::metadata_map_sptr
     metadata_map() override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::metadata_map_sptr,
         kwiver::vital::algo::video_input,
         metadata_map,
@@ -180,7 +180,7 @@ class video_input_trampoline :
     double
     frame_rate() override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         double,
         kwiver::vital::algo::video_input,
         frame_rate,

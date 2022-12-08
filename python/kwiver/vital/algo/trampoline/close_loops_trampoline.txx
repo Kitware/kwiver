@@ -32,7 +32,7 @@ class algorithm_def_cl_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::close_loops>,
         type_name,
@@ -54,7 +54,7 @@ class close_loops_trampoline :
            kwiver::vital::image_container_sptr image,
            kwiver::vital::image_container_sptr mask ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::feature_track_set_sptr,
         kwiver::vital::algo::close_loops,
         stitch,

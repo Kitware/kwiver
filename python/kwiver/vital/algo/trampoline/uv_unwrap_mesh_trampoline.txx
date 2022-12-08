@@ -31,7 +31,7 @@ class algorithm_def_uvum_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::uv_unwrap_mesh>,
         type_name,
@@ -51,7 +51,7 @@ class uv_unwrap_mesh_trampoline :
     void
     unwrap( kwiver::vital::mesh_sptr mesh ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::uv_unwrap_mesh,
         unwrap,

@@ -31,7 +31,7 @@ class algorithm_def_idm_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::integrate_depth_maps>,
         type_name,
@@ -56,7 +56,7 @@ class integrate_depth_maps_trampoline :
                kwiver::vital::image_container_sptr& volume,
                kwiver::vital::vector_3d& spacing ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::integrate_depth_maps,
         integrate,
@@ -78,7 +78,7 @@ class integrate_depth_maps_trampoline :
                kwiver::vital::image_container_sptr& volume,
                kwiver::vital::vector_3d& spacing ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::integrate_depth_maps,
         integrate,

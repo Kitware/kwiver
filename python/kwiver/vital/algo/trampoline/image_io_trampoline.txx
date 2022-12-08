@@ -33,7 +33,7 @@ class algorithm_def_iio_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::image_io>,
         type_name,
@@ -52,7 +52,7 @@ class image_io_trampoline :
     kwiver::vital::image_container_sptr
       load_( std::string const& filename ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::image_io,
         load_,
@@ -63,7 +63,7 @@ class image_io_trampoline :
     kwiver::vital::metadata_sptr
       load_metadata_( std::string const& filename ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::metadata_sptr,
         kwiver::vital::algo::image_io,
         load_metadata_,
@@ -75,7 +75,7 @@ class image_io_trampoline :
       save_( std::string const& filename,
              kwiver::vital::image_container_sptr data ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::image_io,
         save_,

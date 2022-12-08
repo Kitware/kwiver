@@ -31,7 +31,7 @@ class algorithm_def_iot_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::initialize_object_tracks>,
         type_name,
@@ -53,7 +53,7 @@ class initialize_object_tracks_trampoline :
                 kwiver::vital::image_container_sptr image,
                 kwiver::vital::detected_object_set_sptr detections ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::object_track_set_sptr,
         kwiver::vital::algo::initialize_object_tracks,
         initialize,
