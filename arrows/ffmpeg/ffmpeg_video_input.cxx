@@ -89,6 +89,9 @@ struct ffmpeg_klv_stream
   klv::klv_timeline timeline;
   klv::klv_demuxer demuxer;
   klv::klv_muxer muxer;
+  uint64_t timeline_retention;
+
+  constexpr static uint64_t default_timeline_retention = 5000000; // 5 seconds
 };
 
 // ----------------------------------------------------------------------------
@@ -100,7 +103,8 @@ ffmpeg_klv_stream
   packets{},
   timeline{},
   demuxer( timeline ),
-  muxer( timeline )
+  muxer( timeline ),
+  timeline_retention{ default_timeline_retention }
 {
   if( !stream )
   {
@@ -180,6 +184,15 @@ ffmpeg_klv_stream
   }
 
   demuxer.send_frame( packets, backup_timestamp );
+
+  // Remove old data
+  auto const timestamp = demuxer.frame_time();
+  for( auto& entry : timeline )
+  {
+    entry.second.erase( {
+      timestamp - std::min( timeline_retention, timestamp ),
+      timestamp } );
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -310,6 +323,7 @@ public:
   bool smooth_klv_packets;
   std::string unknown_stream_behavior;
   std::string filter_description;
+  uint64_t retain_klv_duration;
   bool cuda_enabled;
   int cuda_device_index;
 
@@ -345,6 +359,7 @@ ffmpeg_video_input::priv
     smooth_klv_packets{ false },
     unknown_stream_behavior{ "klv" },
     filter_description{ "yadif=deint=1" },
+    retain_klv_duration{ ffmpeg_klv_stream::default_timeline_retention },
 #ifdef KWIVER_ENABLE_FFMPEG_CUDA
     cuda_enabled{ true },
 #else
@@ -760,6 +775,10 @@ ffmpeg_video_input::priv::open_video_state
   if( parent.klv_enabled )
   {
     LOG_INFO( logger, "Found " << klv_streams.size() << " KLV stream(s)" );
+    for( auto& klv_stream : klv_streams )
+    {
+      klv_stream.timeline_retention = parent.retain_klv_duration;
+    }
   }
 
   if( parent.imagery_enabled )
@@ -1572,6 +1591,11 @@ ffmpeg_video_input
     "Set to 'ignore' to ignore unknown streams (default)." );
 
   config->set_value(
+    "retain_klv_duration", d->retain_klv_duration,
+    "Number of microseconds of past KLV to retain in case of backwards "
+    "timestamp jumps. Defaults to 5000000." );
+
+  config->set_value(
     "cuda_enabled", d->cuda_enabled,
     "When set to true, uses CUDA/CUVID to accelerate video decoding." );
 
@@ -1625,6 +1649,10 @@ ffmpeg_video_input
   d->unknown_stream_behavior =
     config->get_value< std::string >(
       "unknown_stream_behavior", d->unknown_stream_behavior );
+
+  d->retain_klv_duration =
+    config->get_value< uint64_t >(
+      "retain_klv_duration", d->retain_klv_duration );
 
   d->cuda_enabled =
     config->get_value< bool >(
