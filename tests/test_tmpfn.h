@@ -11,6 +11,7 @@
 #ifndef KWIVER_TEST_TEST_TMPFN_H_
 #define KWIVER_TEST_TEST_TMPFN_H_
 
+#include <mutex>
 #include <string>
 
 #include <cstdio>
@@ -32,6 +33,10 @@ namespace testing {
 std::string
 temp_file_name( char const* prefix, char const* suffix )
 {
+  // tempnam() is not necessarily thread-safe
+  static std::mutex mut;
+  std::lock_guard< std::mutex > lock( mut );
+
   auto const n = tempnam(".", prefix);
   auto const s = std::string(n);
   free(n);
