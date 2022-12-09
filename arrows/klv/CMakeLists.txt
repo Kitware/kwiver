@@ -56,6 +56,7 @@ set( sources
   klv_1602.cxx
   klv_1607.cxx
   misp_time.cxx
+  update_klv.cxx
   )
 
 set( public_headers
@@ -111,6 +112,7 @@ set( public_headers
   klv_1602.h
   klv_1607.h
   misp_time.h
+  update_klv.h
   )
 
 set( private_headers

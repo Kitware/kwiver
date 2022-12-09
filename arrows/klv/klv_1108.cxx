@@ -404,7 +404,18 @@ compression_profile_pairs()
     { "Main 4:4:4 12", KLV_1108_COMPRESSION_PROFILE_MAIN_4_4_4_12 },
     { "High 4:2:2", KLV_1108_COMPRESSION_PROFILE_HIGH_4_2_2 },
     { "High 4:4:4 Predictive",
-      KLV_1108_COMPRESSION_PROFILE_HIGH_4_4_4_PREDICTIVE } };
+      KLV_1108_COMPRESSION_PROFILE_HIGH_4_4_4_PREDICTIVE },
+
+    // Not technically correct, but these vital values have no ST1108 direct
+    // equivalent
+    { "Baseline", KLV_1108_COMPRESSION_PROFILE_CONSTRAINED_BASELINE },
+    { "Extended", KLV_1108_COMPRESSION_PROFILE_HIGH },
+    { "High 10", KLV_1108_COMPRESSION_PROFILE_HIGH },
+    { "High 10 Intra", KLV_1108_COMPRESSION_PROFILE_HIGH },
+    { "High 4:2:2 Intra", KLV_1108_COMPRESSION_PROFILE_HIGH_4_2_2 },
+    { "High 4:4:4", KLV_1108_COMPRESSION_PROFILE_HIGH_4_4_4_PREDICTIVE },
+    { "High 4:4:4 Intra", KLV_1108_COMPRESSION_PROFILE_HIGH_4_4_4_PREDICTIVE },
+  };
 
   return pairs;
 }
@@ -418,7 +429,7 @@ struct klv_compression_level_pair
 
 // ----------------------------------------------------------------------------
 std::vector< klv_compression_level_pair > const&
-compression_level_pairs()
+compression_level_pairs_mpeg2()
 {
   static std::vector< klv_compression_level_pair > const pairs = {
     { "Low", "LL" },
@@ -469,7 +480,7 @@ klv_1108_fill_in_metadata(
   if( bitrate_vital && !klv_data.has( KLV_1108_STREAM_BITRATE ) )
   {
     // Convert from bps to kbps
-    auto const bitrate_klv = bitrate_vital.as_uint64() + 500 / 1000;
+    auto const bitrate_klv = ( bitrate_vital.as_uint64() + 500 ) / 1000;
     klv_data.add( KLV_1108_STREAM_BITRATE, bitrate_klv );
   }
 
@@ -484,9 +495,27 @@ klv_1108_fill_in_metadata(
     KLV_1108_COMPRESSION_PROFILE, compression_profile_pairs() );
 
   // Compression level
-  convert_vital_to_klv_via_pairs(
-    vital_data, klv_data, kv::VITAL_META_VIDEO_COMPRESSION_LEVEL,
-    KLV_1108_COMPRESSION_LEVEL, compression_level_pairs() );
+  if( klv_data.has( KLV_1108_COMPRESSION_TYPE ) )
+  {
+    if( klv_data.at( KLV_1108_COMPRESSION_TYPE ) ==
+        KLV_1108_COMPRESSION_TYPE_H262 )
+    {
+      convert_vital_to_klv_via_pairs(
+          vital_data, klv_data, kv::VITAL_META_VIDEO_COMPRESSION_LEVEL,
+          KLV_1108_COMPRESSION_LEVEL, compression_level_pairs_mpeg2() );
+    }
+    else
+    {
+      auto const compression_level_vital =
+        vital_data.find( kv::VITAL_META_VIDEO_COMPRESSION_LEVEL );
+      if( compression_level_vital &&
+          !klv_data.has( KLV_1108_COMPRESSION_LEVEL ) )
+      {
+        klv_data.add(
+          KLV_1108_COMPRESSION_LEVEL, compression_level_vital.as_string() );
+      }
+    }
+  }
 
   // Compression ratio
   auto const& frame_rate_vital =
@@ -499,9 +528,11 @@ klv_1108_fill_in_metadata(
       bitrate_vital && !klv_data.has( KLV_1108_COMPRESSION_RATIO ) )
   {
     auto const compression_ratio_klv =
-      24.0 * frame_width_vital.as_double() * frame_height_vital.as_double() *
-      frame_rate_vital.as_double() / bitrate_vital.as_double();
-    klv_data.add( KLV_1108_COMPRESSION_RATIO, compression_ratio_klv );
+      24.0 * frame_width_vital.as_uint64() * frame_height_vital.as_uint64() *
+      frame_rate_vital.as_double() / bitrate_vital.as_uint64();
+    klv_data.add(
+      KLV_1108_COMPRESSION_RATIO,
+      klv::klv_lengthy< double >{ compression_ratio_klv, 4 } );
   }
 
   // Standard version
