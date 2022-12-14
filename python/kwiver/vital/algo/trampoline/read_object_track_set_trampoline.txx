@@ -12,7 +12,7 @@
 #ifndef READ_OBJECT_TRACK_SET_TRAMPOLINE_TXX
 #define READ_OBJECT_TRACK_SET_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/read_object_track_set.h>
 

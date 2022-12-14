@@ -11,7 +11,7 @@
 #define METADATA_MAP_IO_TRAMPOLINE_TXX
 
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <vital/algo/metadata_map_io.h>
 #include <vital/types/vector.h>
 

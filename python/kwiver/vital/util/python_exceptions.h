@@ -5,7 +5,7 @@
 #ifndef VITAL_PYTHON_UTIL_PYTHON_EXCEPTIONS_H
 #define VITAL_PYTHON_UTIL_PYTHON_EXCEPTIONS_H
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/util/vital_python_util_export.h>
 
 namespace kwiver {

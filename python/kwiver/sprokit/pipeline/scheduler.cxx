@@ -5,7 +5,6 @@
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/scheduler.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
 #include <python/kwiver/vital/util/python_exceptions.h>
 
 #include "python_wrappers.cxx"

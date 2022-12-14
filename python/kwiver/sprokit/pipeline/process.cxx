@@ -6,9 +6,9 @@
 typedef std::set<std::string> string_set; // This has to be done first thing, or the macro breaks
 PYBIND11_MAKE_OPAQUE(string_set)
 
-#include <python/kwiver/vital/util/pybind11.h>
 #include <python/kwiver/vital/util/python_exceptions.h>
 
+#include <pybind11/pybind11.h>
 #include <pybind11/stl_bind.h>
 #include <pybind11/operators.h>
 

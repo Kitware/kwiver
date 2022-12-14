@@ -12,7 +12,7 @@
 #ifndef WRITE_TRACK_DESCRIPTOR_SET_TRAMPOLINE_TXX
 #define WRITE_TRACK_DESCRIPTOR_SET_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/write_track_descriptor_set.h>
 

@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <vital/types/feature_track_set.h>
-#include <python/kwiver/vital/util/pybind11.h>
+
 #include <typeinfo>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>

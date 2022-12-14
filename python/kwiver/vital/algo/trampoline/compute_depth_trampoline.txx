@@ -12,7 +12,7 @@
 #ifndef COMPUTE_DEPTH_TXX
 #define COMPUTE_DEPTH_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/compute_depth.h>
 

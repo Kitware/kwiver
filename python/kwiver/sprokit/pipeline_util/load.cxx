@@ -8,9 +8,9 @@
 
 #include <sprokit/pipeline/process.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
 #include <python/kwiver/sprokit/util/pystream.h>
 
+#include <pybind11/pybind11.h>
 #include <pybind11/stl_bind.h>
 
 #include <python/kwiver/sprokit/pipeline/python_wrappers.cxx>

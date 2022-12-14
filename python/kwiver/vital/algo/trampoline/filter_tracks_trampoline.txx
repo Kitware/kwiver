@@ -15,7 +15,7 @@
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/filter_tracks.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 
 namespace kwiver {
 namespace vital  {

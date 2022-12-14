@@ -4,8 +4,6 @@
 
 #include <vital/types/metadata_map.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <memory>

@@ -12,7 +12,7 @@
 #ifndef DETECT_MOTION_TRAMPOLINE_TXX
 #define DETECT_MOTION_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/detect_motion.h>
 

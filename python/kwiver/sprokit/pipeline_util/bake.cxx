@@ -9,7 +9,6 @@
 #include <sprokit/pipeline/pipeline.h>
 #include <sprokit/pipeline/process_factory.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
 #include <python/kwiver/sprokit/util/pystream.h>
 
 #include <pybind11/pybind11.h>

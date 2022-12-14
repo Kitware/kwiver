@@ -13,7 +13,7 @@
 
 #include <vital/algo/algorithm.h>
 #include <vital/config/config_block.h>
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 
 namespace kwiver {
 namespace vital  {

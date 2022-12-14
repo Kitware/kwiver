@@ -6,7 +6,7 @@
 #include <sprokit/pipeline_util/load_pipe_exception.h>
 
 #include <pybind11/stl.h>
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 
 #include <memory>
 #include <fstream>

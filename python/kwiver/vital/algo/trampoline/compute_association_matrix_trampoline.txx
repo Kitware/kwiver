@@ -12,7 +12,7 @@
 #ifndef COMPUTE_ASSOCAITION_MATRIX_TXX
 #define COMPUTE_ASSOCIATION_MATRIX_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/compute_association_matrix.h>
 

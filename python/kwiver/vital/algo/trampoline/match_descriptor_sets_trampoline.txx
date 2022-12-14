@@ -12,7 +12,7 @@
 #ifndef MATCH_DESCRIPTOR_SETS_TRAMPOLINE_TXX
 #define MATCH_DESCRIPTOR_SETS_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/match_descriptor_sets.h>
 
