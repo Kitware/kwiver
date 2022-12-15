@@ -98,7 +98,7 @@ class PyDescriptorD
       {
         ret_vec.push_back(data[idx]);
       }
-      return py::cast<std::vector<double>> (ret_vec);
+      return py::cast(ret_vec);
     }
 
 };
@@ -169,7 +169,7 @@ class PyDescriptorF
       {
         ret_vec.push_back(data[idx]);
       }
-      return py::cast<std::vector<float>> (ret_vec);
+      return py::cast(ret_vec);
     }
 };
 
