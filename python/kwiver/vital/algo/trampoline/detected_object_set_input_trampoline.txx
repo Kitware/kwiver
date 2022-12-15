@@ -53,7 +53,7 @@ class detected_object_set_input_trampoline :
 
     bool read_set(kwiver::vital::detected_object_set_sptr& set, std::string& image_path) override
     {
-      kwiver::vital::python::gil_scoped_acquire gil;
+      pybind11::gil_scoped_acquire gil;
       pybind11::function overload = pybind11::get_overload(static_cast<dosi const*>(this), "read_set");
       if (overload) {
 	auto o = overload();

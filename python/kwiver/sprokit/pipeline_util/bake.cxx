@@ -43,38 +43,38 @@ PYBIND11_MODULE(bake, m)
 {
   class_<sprokit::cluster_info, ::sprokit::cluster_info_t>(m, "ClusterInfo"
     , "Information loaded from a cluster file.")
-    .def("type", &cluster_info_type, call_guard<kwiver::vital::python::gil_scoped_release>())
-    .def("description", &cluster_info_description, call_guard<kwiver::vital::python::gil_scoped_release>())
-    .def("create", &cluster_info_create, call_guard<kwiver::vital::python::gil_scoped_release>()
+    .def("type", &cluster_info_type, call_guard<pybind11::gil_scoped_release>())
+    .def("description", &cluster_info_description, call_guard<pybind11::gil_scoped_release>())
+    .def("create", &cluster_info_create, call_guard<pybind11::gil_scoped_release>()
       , (arg("config"))
       , "Create an instance of the cluster.")
-    .def("create", &cluster_info_create_default, call_guard<kwiver::vital::python::gil_scoped_release>()
+    .def("create", &cluster_info_create_default, call_guard<pybind11::gil_scoped_release>()
       , "Create an instance of the cluster.")
   ;
 
-  m.def("register_cluster", &register_cluster, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("register_cluster", &register_cluster, call_guard<pybind11::gil_scoped_release>()
     , (arg("cluster_info"))
     , "Register a cluster with the registry.");
 
-  m.def("bake_pipe_file", &bake_pipe_file, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("bake_pipe_file", &bake_pipe_file, call_guard<pybind11::gil_scoped_release>()
     , (arg("path"))
     , "Build a pipeline from a file.");
-  m.def("bake_pipe", &bake_pipe, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("bake_pipe", &bake_pipe, call_guard<pybind11::gil_scoped_release>()
     , (arg("stream"))
     , "Build a pipeline from a stream.");
-  m.def("bake_pipe_blocks", &sprokit::bake_pipe_blocks, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("bake_pipe_blocks", &sprokit::bake_pipe_blocks, call_guard<pybind11::gil_scoped_release>()
     , (arg("blocks"))
     , "Build a pipeline from pipe blocks.");
-  m.def("bake_cluster_file", &bake_cluster_file, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("bake_cluster_file", &bake_cluster_file, call_guard<pybind11::gil_scoped_release>()
     , (arg("path"))
     , "Build a cluster from a file.");
-  m.def("bake_cluster", &bake_cluster, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("bake_cluster", &bake_cluster, call_guard<pybind11::gil_scoped_release>()
     , (arg("stream"))
     , "Build a cluster from a stream.");
-  m.def("bake_cluster_blocks", &sprokit::bake_cluster_blocks, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("bake_cluster_blocks", &sprokit::bake_cluster_blocks, call_guard<pybind11::gil_scoped_release>()
     , (arg("blocks"))
     , "Build a cluster from cluster blocks.");
-  m.def("extract_configuration", &sprokit::extract_configuration, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("extract_configuration", &sprokit::extract_configuration, call_guard<pybind11::gil_scoped_release>()
     , (arg("blocks"))
     , "Extract the configuration from pipe blocks.");
 }

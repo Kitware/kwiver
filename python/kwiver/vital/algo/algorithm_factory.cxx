@@ -47,24 +47,24 @@ using namespace kwiver::vital::python;
 PYBIND11_MODULE(algorithm_factory, m)
 {
   m.def("has_algorithm_impl_name", &kwiver::vital::has_algorithm_impl_name,
-        py::call_guard<kwiver::vital::python::gil_scoped_release>(),
+        py::call_guard<pybind11::gil_scoped_release>(),
         py::arg("type_name"), py::arg("impl_name"),
         "Returns True if the algorithm implementation has been registered");
 
   m.def("add_algorithm", &add_algorithm,
-      py::call_guard<kwiver::vital::python::gil_scoped_release>(),
+      py::call_guard<pybind11::gil_scoped_release>(),
       "Registers an algorithm");
 
   m.def("mark_algorithm_as_loaded", &mark_algorithm_as_loaded,
-      py::call_guard<kwiver::vital::python::gil_scoped_release>(),
+      py::call_guard<pybind11::gil_scoped_release>(),
       "Marks the algorithm as loaded");
 
   m.def("implementations", &implementation_names,
-      py::call_guard<kwiver::vital::python::gil_scoped_release>(),
+      py::call_guard<pybind11::gil_scoped_release>(),
       "Returns all the implementations of an algorithm");
 
   m.def("create_algorithm", &kwiver::vital::create_algorithm,
-      py::call_guard<kwiver::vital::python::gil_scoped_release>(),
+      py::call_guard<pybind11::gil_scoped_release>(),
       py::arg("algo_name"), py::arg("impl_name"),
       "Creates a concrete instance of algo specified by impl_name");
 }
@@ -83,7 +83,7 @@ python_algorithm_factory::python_algorithm_factory( const std::string& algo,
 
 kwiver::vital::algorithm_sptr python_algorithm_factory::create_object_a()
 {
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
 
   py::object obj = m_conc_f();
@@ -97,7 +97,7 @@ static void add_algorithm( std::string const& impl_name, std::string const& desc
 {
   using kvpf = kwiver::vital::plugin_factory;
 
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
   std::string type_name = py::str( conc_f.attr("static_type_name")() );

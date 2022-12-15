@@ -33,7 +33,7 @@ std::streamsize
 pyistream_device
 ::read(char_type* s, std::streamsize n)
 {
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
 
   pybind11::str const bytes = pybind11::str(m_obj.attr("read")(n));
@@ -70,7 +70,7 @@ std::streamsize
 pyostream_device
 ::write(char_type const* s, std::streamsize n)
 {
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
 
   pybind11::str const bytes(s, static_cast<size_t>(n));

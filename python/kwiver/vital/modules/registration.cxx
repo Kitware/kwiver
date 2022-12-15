@@ -71,7 +71,7 @@ register_factories(kwiver::vital::plugin_loader& vpm)
   {
     std::string python_library_path = "";
     {
-      kwiver::vital::python::gil_scoped_acquire acquire;
+      pybind11::gil_scoped_acquire acquire;
       (void)acquire;
       python_library_path = find_python_library();
     }
@@ -86,13 +86,13 @@ register_factories(kwiver::vital::plugin_loader& vpm)
   }
   // Load python modules
   {
-    kwiver::vital::python::gil_scoped_acquire acquire;
+    pybind11::gil_scoped_acquire acquire;
     (void)acquire;
     VITAL_PYTHON_IGNORE_EXCEPTION(load_python_modules())
   }
 
   {
-    kwiver::vital::python::gil_scoped_acquire acquire;
+    pybind11::gil_scoped_acquire acquire;
     (void)acquire;
     VITAL_PYTHON_IGNORE_EXCEPTION(load_additional_cpp_modules(vpm))
   }

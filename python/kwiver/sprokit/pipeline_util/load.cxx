@@ -173,16 +173,16 @@ PYBIND11_MODULE(load, m)
     , "A collection of port addresses.")
   ;
 
-  m.def("load_pipe_file", &load_pipe_file, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("load_pipe_file", &load_pipe_file, call_guard<pybind11::gil_scoped_release>()
     , (arg("path"))
     , "Load pipe blocks from a file.");
-  m.def("load_pipe", &load_pipe, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("load_pipe", &load_pipe, call_guard<pybind11::gil_scoped_release>()
     , (arg("stream"))
     , "Load pipe blocks from a stream.");
-  m.def("load_cluster_file", &load_cluster_file, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("load_cluster_file", &load_cluster_file, call_guard<pybind11::gil_scoped_release>()
     , (arg("path"))
     , "Load cluster blocks from a file.");
-  m.def("load_cluster", &load_cluster, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("load_cluster", &load_cluster, call_guard<pybind11::gil_scoped_release>()
     , (arg("stream"))
     , "Load cluster blocks from a stream.");
 
@@ -431,7 +431,7 @@ object
 pipe_block_visitor
 ::operator () (::sprokit::config_pipe_block const& config_block) const
 {
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
 
   object obj = none();
@@ -449,7 +449,7 @@ object
 pipe_block_visitor
 ::operator () (::sprokit::process_pipe_block const& process_block) const
 {
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
 
   object obj = none();
@@ -467,7 +467,7 @@ object
 pipe_block_visitor
 ::operator () (::sprokit::connect_pipe_block const& connect_block) const
 {
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
 
   object obj = none();
@@ -485,7 +485,7 @@ object
 pipe_block_visitor
 ::operator () (::sprokit::cluster_pipe_block const& cluster_block) const
 {
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
 
   object obj = none();
@@ -516,7 +516,7 @@ object
 cluster_subblock_visitor
 ::operator () (::sprokit::cluster_config_t const& config) const
 {
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
 
   if (block_type == BLOCK_CONFIG)
@@ -532,7 +532,7 @@ object
 cluster_subblock_visitor
 ::operator () (::sprokit::cluster_input_t const& input) const
 {
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
 
   if (block_type == BLOCK_INPUT)
@@ -548,7 +548,7 @@ object
 cluster_subblock_visitor
 ::operator () (::sprokit::cluster_output_t const& output) const
 {
-  kwiver::vital::python::gil_scoped_acquire acquire;
+  pybind11::gil_scoped_acquire acquire;
   (void)acquire;
 
   if (block_type == BLOCK_OUTPUT)
