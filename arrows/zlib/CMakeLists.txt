@@ -29,8 +29,6 @@ kwiver_add_library( kwiver_algo_zlib
   ${private_headers}
   )
 
-find_package( ZLIB )
-
 target_link_libraries( kwiver_algo_zlib
   PRIVATE
     vital
