@@ -36,6 +36,8 @@ Arrows: KLV
 
 * Implemented ST1107.
 
+* Adjusted tag number requirements of ST0806.
+
 Arrows: PDAL
 
 * Added implementation of the load API to pointcloud_io to load point data via the PDAL library
