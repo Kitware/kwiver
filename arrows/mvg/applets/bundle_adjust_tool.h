@@ -28,7 +28,7 @@ public:
   virtual void add_command_options() override;
 
 private:
-  class priv;
+  struct priv;
   std::unique_ptr<priv> d;
 
 }; // bundle_adjust_tool
