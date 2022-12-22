@@ -10,6 +10,7 @@
 
 #include <arrows/stanag/kwiver_algo_stanag_export.h>
 
+#include <arrows/klv/klv_data_format.h>
 #include <arrows/klv/klv_read_write.txx>
 #include <arrows/klv/klv_util.h>
 
@@ -17,6 +18,7 @@
 #include <set>
 #include <string>
 #include <tuple>
+#include <variant>
 
 #include <cstddef>
 

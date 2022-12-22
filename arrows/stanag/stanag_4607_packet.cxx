@@ -5,6 +5,7 @@
 #include "stanag_4607_packet.h"
 
 #include <iostream>
+#include <sstream>
 
 namespace kwiver {
 
@@ -189,10 +190,20 @@ operator<<( std::ostream& os, stanag_4607_packet const& value )
     }
     for ( size_t i=0; i<num_segments; i++ )
     {
-        os  << ", " << "Segment Header: " << value.segment_headers[i] << ", "
+      auto segment_header = value.segment_headers[i];
+
+      os  << ", " << "Segment Header: " << segment_header << ", "
           << stanag_4607_segment_type_traits_lookup_table()
-              .by_type( value.segment_headers[i].segment_type ).name()
-          << ": " << value.segments[i];
+              .by_type( segment_header.segment_type ).name()
+          << ": ";
+
+      os << std::visit([](auto s)
+      {
+        std::ostringstream stream;
+        stream << s;
+
+        return stream.str();
+      }, value.segments[i]);
     }
 
     os << " }";
@@ -209,7 +220,7 @@ operator<<( std::ostream& os, std::vector< stanag_4607_packet > const& value )
     }
     for( auto v : value )
     {
-        os << v;
+        os << v << std::endl;
         os << std::endl;
     }
     return os;
@@ -245,8 +256,8 @@ stanag_4607_packet_format
     auto packet_size = packet_header_data.packet_size;
 
     std::vector< stanag_4607_segment_header > segment_headers;
-    // TODO: make this any segment type
-    std::vector< stanag_4607_mission_segment > segments;
+    std::vector< stanag_4607_segments > segments;
+    auto it = segments.begin();
 
     while( bytes_read_in_packet < packet_size )
     {
@@ -262,8 +273,21 @@ stanag_4607_packet_format
         size_t segment_size = segment_header_data.segment_size;
 
         // Read message segment
-        auto message = format.read( ptr );
-        segments.push_back( message );
+        stanag_4607_segments message;
+        if( typeid(format) == typeid(stanag_4607_mission_segment_format) )
+        {
+          message = stanag_4607_mission_segment_format{}.read( ptr );
+        }
+        else if( typeid(format) == typeid(stanag_4607_dwell_segment_format) )
+        {
+          message = stanag_4607_dwell_segment_format{}.read( ptr );
+        }
+
+        //std::visit([](const auto &x)
+        //{ std::cout << x << std::endl; }, message);
+
+        segments.insert(it, message);
+        it = segments.end();
 
         bytes_read_in_packet += segment_size;
     }
@@ -278,21 +302,20 @@ stanag_4607_packet_format
 
 // ----------------------------------------------------------------------------
 std::vector< stanag_4607_packet >
-read_stanag_4607_data( ptr_t& ptr )
+read_stanag_4607_data( std::vector< uint8_t > input_bytes )
 {
+  auto ptr = &*input_bytes.cbegin();
 
   std::vector< stanag_4607_packet > result;
+  auto it = result.begin();
 
-  // TODO loop over all packets
-  //while(ptr != &*input_bytes.cend() )
-  //{
-  stanag_4607_packet_format packet;
-  stanag_4607_packet packet_data = packet.read( ptr );
-  result.push_back( packet_data );
-
-  //}
-
-  //std::vector< stanag_4607_packet > result{ packet_data };
+  while( ptr != &*input_bytes.cend() )
+  {
+    stanag_4607_packet_format packet;
+    stanag_4607_packet packet_data = packet.read( ptr );
+    result.insert( it, packet_data );
+    it = result.end();
+  }
 
   return result;
 }

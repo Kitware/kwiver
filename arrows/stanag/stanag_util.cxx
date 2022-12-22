@@ -3,6 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "stanag_util.h"
+#include <iostream>
 
 namespace klv = kwiver::arrows::klv;
 
@@ -23,6 +24,7 @@ trim_whitespace( std::string input )
 
   return input.substr( str_begin, ( str_end - str_begin ) + 1 );
 }
+
 
 } // namespace stanag
 
