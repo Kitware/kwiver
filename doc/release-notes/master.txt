@@ -39,3 +39,10 @@ Arrows: KLV
 Arrows: PDAL
 
 * Added implementation of the load API to pointcloud_io to load point data via the PDAL library
+
+Applets
+
+Applets: bundle adjustment tool
+
+* Added an implementation bundle adjustment (BA) applet that optimizes a set of
+cameras given multiple 3D-2D point correspondences.

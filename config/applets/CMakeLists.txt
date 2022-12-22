@@ -3,6 +3,7 @@ set(config_files
   dump_klv.conf
   estimate_depth.conf
   fuse_depth.conf
+  bundle_adjust_tool.conf
   init_cameras_landmarks.conf
   track_features.conf
   transcode.conf
