@@ -1,5 +1,9 @@
 # Build / Install plugin for KLV serialization
 
+if(NOT KWIVER_ENABLE_ZLIB)
+  message(FATAL_ERROR "JSON KLV serialization requires the ZLib arrow (KWIVER_ENABLE_ZLIB)")
+endif()
+
 set( public_headers
   metadata_map_io.h
  )
@@ -30,7 +34,10 @@ kwiver_add_library( kwiver_serialize_json_klv
 
 target_link_libraries( kwiver_serialize_json_klv
   PUBLIC vital_algo
-  PRIVATE kwiver_algo_klv kwiver_serialize_json
+  PRIVATE
+    kwiver_algo_klv
+    kwiver_algo_zlib
+    kwiver_serialize_json
   )
 
 algorithms_create_plugin( kwiver_serialize_json_klv

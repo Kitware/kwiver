@@ -77,6 +77,7 @@ add_command_options()
     ( "multithread",
       "Use multithreading to accelerate encoding of frame images. "
       "Number of worker threads is not configurable at this time." )
+    ( "compress", "Compress output file. Only available for klv-json." )
 
     // positional parameters
     ( "video-file", "Video input file", cxxopts::value< std::string >() )
@@ -157,6 +158,11 @@ dump_klv
   {
     auto const serializer_type = cmd_args[ "exporter" ].as< std::string >();
     config->set_value( "metadata_serializer:type", serializer_type );
+  }
+
+  if( cmd_args.count( "compress" ) )
+  {
+    config->set_value( "metadata_serializer:klv-json:compress", true );
   }
 
   kva::video_input::set_nested_algo_configuration(
