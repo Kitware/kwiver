@@ -43,7 +43,7 @@ def _load_python_module(mod):
     for registrar in MAGIC_REGISTRARS:
         if hasattr(mod, registrar):
             import collections
-            if isinstance(getattr(mod, registrar), collections.Callable):
+            if isinstance(getattr(mod, registrar), collections.abc.Callable):
                 getattr(mod, registrar)()
                 return
             else:
