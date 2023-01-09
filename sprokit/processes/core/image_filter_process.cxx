@@ -87,12 +87,19 @@ _step()
     should_process = grab_from_port_using_trait( process_flag );
   }
 
-  if( input && should_process )
+  if( input )
   {
     scoped_step_instrumentation();
 
     // Get detections from filter on image
-    result = d->m_filter->filter( input );
+    if( should_process )
+    {
+      result = d->m_filter->filter( input );
+    }
+    else
+    {
+      result = input;
+    }
   }
 
   push_to_port_using_trait( image, result );
