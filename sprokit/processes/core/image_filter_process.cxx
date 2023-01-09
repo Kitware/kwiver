@@ -78,10 +78,16 @@ image_filter_process::
 _step()
 {
   vital::image_container_sptr input = grab_from_port_using_trait( image );
-
   vital::image_container_sptr result;
 
-  if( input )
+  bool should_process = true;
+
+  if( process::has_input_port_edge( "process_flag" ) )
+  {
+    should_process = grab_from_port_using_trait( process_flag );
+  }
+
+  if( input && should_process )
   {
     scoped_step_instrumentation();
 
@@ -90,6 +96,7 @@ _step()
   }
 
   push_to_port_using_trait( image, result );
+  push_to_port_using_trait( success_flag, ( input != result ) );
 }
 
 // ------------------------------------------------------------------
@@ -98,6 +105,7 @@ image_filter_process::
 make_ports()
 {
   // Set up for required ports
+  sprokit::process::port_flags_t optional;
   sprokit::process::port_flags_t required;
   required.insert( flag_required );
 
@@ -108,9 +116,11 @@ make_ports()
 
   // -- input --
   declare_input_port_using_trait( image, required );
+  declare_input_port_using_trait( process_flag, optional );
 
   // -- output --
   declare_output_port_using_trait( image, output );
+  declare_output_port_using_trait( success_flag, output );
 }
 
 // ------------------------------------------------------------------
