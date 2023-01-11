@@ -1277,6 +1277,11 @@ bundle_adjust_tool
   : d( new priv( this ) )
 {}
 
+// ----------------------------------------------------------------------------
+bundle_adjust_tool
+::~bundle_adjust_tool()
+{}
+
 } // mvg
 
 } // arrows
