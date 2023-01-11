@@ -6,6 +6,6 @@ option( KWIVER_ENABLE_CERES
   )
 
 if( KWIVER_ENABLE_CERES )
-  find_package( Ceres 1.10.0 REQUIRED )
+  find_package( Ceres 2.1.0 REQUIRED )
   include_directories( SYSTEM ${CERES_INCLUDE_DIRS} )
 endif()

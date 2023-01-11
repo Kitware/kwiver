@@ -10,7 +10,7 @@ set(test_libraries    kwiver_algo_ceres kwiver_algo_core)
 # use GLog.  If Ceres was built with MiniGlog, link to ceres instead to get
 # MiniGlog symbols.
 if(CERES_USES_MINIGLOG)
-  list(APPEND test_libraries ceres)
+  list(APPEND test_libraries Ceres::ceres)
 else()
   list(APPEND test_libraries glog)
 endif()
