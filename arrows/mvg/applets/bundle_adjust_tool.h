@@ -17,7 +17,7 @@ class KWIVER_ALGO_MVG_APPLETS_EXPORT bundle_adjust_tool
 {
 public:
   bundle_adjust_tool();
-  virtual ~bundle_adjust_tool() override = default;
+  virtual ~bundle_adjust_tool() override;
 
   PLUGIN_INFO(
     "bundle-adjust-tool",
