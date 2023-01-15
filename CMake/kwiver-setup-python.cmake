@@ -99,6 +99,8 @@ endif()
 set(KWIVER_PYTHON_MAJOR_VERSION "${DEFAULT_PYTHON_MAJOR}" CACHE STRING "Python version to use: 3 or 2")
 set_property(CACHE KWIVER_PYTHON_MAJOR_VERSION PROPERTY STRINGS "3" "2")
 
+option(KWIVER_PYTHON_USE_SYS_PATH "Use installed python version specific path formatting" ON)
+mark_as_advanced(KWIVER_PYTHON_USE_SYS_PATH)
 
 ###
 # Detect major version change (part1)
@@ -170,7 +172,14 @@ get_filename_component(python_sitename ${python_site_packages} NAME)
 
 ###
 # Python install path
-set(kwiver_python_install_path "${CMAKE_INSTALL_PREFIX}/${python_site_packages}")
+if(NOT KWIVER_PYTHON_USE_SYS_PATH)
+  set(kwiver_sitename "site-packages")
+  set(kwiver_python_version "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+  set(kwiver_site_packages "lib/python${kwiver_python_version}/${kwiver_sitename}")
+  set(kwiver_python_install_path "${CMAKE_INSTALL_PREFIX}/${kwiver_site_packages}")
+else()
+  set(kwiver_python_install_path "${CMAKE_INSTALL_PREFIX}/${python_site_packages}")
+endif()
 message(STATUS "kwiver_python_install_path = ${kwiver_python_install_path}")
 
 ###
@@ -265,14 +274,16 @@ string(REPLACE ";" "\n" PYTHON_REQS "${PYTHON_REQS}")
 # defines paths used to determine where the kwiver/sprokit/vital python
 # packages will be generated in the build tree. (TODO: python modules should
 # use a setup.py file to install themselves to the right location)
-#
-#set(kwiver_python_subdir "python${PYTHON_VERSION}${PYTHON_ABIFLAGS}")
+if(NOT KWIVER_PYTHON_USE_SYS_PATH)
+  set(kwiver_lib_subdir "lib/python${kwiver_python_version}")
+else()
+  # Instead of contructing the directory with ABIFLAGS just use what python gives
+  get_filename_component(python_lib_subdir ${python_site_packages} DIRECTORY)
+  get_filename_component(python_subdir ${python_lib_subdir} NAME)
 
-# Instead of contructing the directory with ABIFLAGS just use what python gives us
-get_filename_component(python_lib_subdir ${python_site_packages} DIRECTORY)
-get_filename_component(python_subdir ${python_lib_subdir} NAME)
-set(kwiver_python_subdir ${python_subdir})
-set(kwiver_python_output_path "${KWIVER_BINARY_DIR}/${python_lib_subdir}")
+  set(kwiver_lib_subdir ${python_subdir})
+endif()
+set(kwiver_python_output_path "${KWIVER_BINARY_DIR}/${kwiver_lib_subdir}")
 
 # Currently needs to be separate because sprokit may have CONFIGURATIONS that
 # are placed between lib and `kwiver_python_subdir`
