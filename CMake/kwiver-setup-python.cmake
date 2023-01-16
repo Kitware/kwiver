@@ -275,7 +275,7 @@ string(REPLACE ";" "\n" PYTHON_REQS "${PYTHON_REQS}")
 # packages will be generated in the build tree. (TODO: python modules should
 # use a setup.py file to install themselves to the right location)
 if(NOT KWIVER_PYTHON_USE_SYS_PATH)
-  set(kwiver_lib_subdir "lib/python${kwiver_python_version}")
+  set(kwiver_lib_subdir "python${kwiver_python_version}")
 else()
   # Instead of contructing the directory with ABIFLAGS just use what python gives
   get_filename_component(python_lib_subdir ${python_site_packages} DIRECTORY)
