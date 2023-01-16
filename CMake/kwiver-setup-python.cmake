@@ -276,15 +276,15 @@ string(REPLACE ";" "\n" PYTHON_REQS "${PYTHON_REQS}")
 # packages will be generated in the build tree. (TODO: python modules should
 # use a setup.py file to install themselves to the right location)
 if(NOT KWIVER_PYTHON_USE_SYS_PATH)
-  set(kwiver_output_subdir "python${kwiver_python_version}")
+  set(kwiver_python_subdir "python${kwiver_python_version}")
 else()
   # Instead of contructing the directory with ABIFLAGS just use what python gives
   get_filename_component(python_lib_subdir ${python_site_packages} DIRECTORY)
   get_filename_component(python_subdir ${python_lib_subdir} NAME)
 
-  set(kwiver_output_subdir ${python_subdir})
+  set(kwiver_python_subdir "${python_subdir}")
 endif()
-set(kwiver_python_output_path "${KWIVER_BINARY_DIR}/${kwiver_output_subdir}")
+set(kwiver_python_output_path "${KWIVER_BINARY_DIR}/${kwiver_python_subdir}")
 
 # Currently needs to be separate because sprokit may have CONFIGURATIONS that
 # are placed between lib and `kwiver_python_subdir`
