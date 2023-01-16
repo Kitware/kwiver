@@ -130,6 +130,16 @@ metadata_map_io_klv
 }
 
 // ----------------------------------------------------------------------------
+std::ios_base::openmode
+metadata_map_io_klv
+::load_open_mode( VITAL_UNUSED std::string const& filename ) const
+{
+  return d->compress
+    ? ( std::ios_base::in | std::ios_base::binary )
+    : ( std::ios_base::in );
+}
+
+// ----------------------------------------------------------------------------
 void
 metadata_map_io_klv
 ::save_( std::ostream& fout, vital::metadata_map_sptr data,
@@ -185,6 +195,16 @@ metadata_map_io_klv
     cereal::JSONOutputArchive archive( fout, output_options );
     cereal::save( archive, packets );
   }
+}
+
+// ----------------------------------------------------------------------------
+std::ios_base::openmode
+metadata_map_io_klv
+::save_open_mode( VITAL_UNUSED std::string const& filename ) const
+{
+  return d->compress
+    ? ( std::ios_base::out | std::ios_base::binary )
+    : ( std::ios_base::out );
 }
 
 // ----------------------------------------------------------------------------

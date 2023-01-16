@@ -48,7 +48,7 @@ metadata_map_io
     VITAL_THROW( path_not_a_file, filename );
   }
 
-  std::ifstream fin{ filename };
+  std::ifstream fin{ filename, load_open_mode( filename ) };
 
   return load( fin );
 }
@@ -83,7 +83,7 @@ metadata_map_io
 
   /// \brief Default plugin algorithm registration interface implementation.
 
-  std::ofstream fout{ filename };
+  std::ofstream fout{ filename, save_open_mode( filename ) };
 
   save( fout, data, filename );
 }
@@ -127,6 +127,22 @@ metadata_map_io
 ::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
 {
   return true;
+}
+
+// ----------------------------------------------------------------------------
+std::ios_base::openmode
+metadata_map_io
+::load_open_mode( VITAL_UNUSED std::string const& filename ) const
+{
+  return std::ios_base::in;
+}
+
+// ----------------------------------------------------------------------------
+std::ios_base::openmode
+metadata_map_io
+::save_open_mode( VITAL_UNUSED std::string const& filename ) const
+{
+  return std::ios_base::out;
 }
 
 } // namespace algo
