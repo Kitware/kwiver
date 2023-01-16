@@ -65,7 +65,7 @@ function (kwiver_add_python_library    name    modpath)
     set(library_dir "")
     set(library_subdir "${modpath}")
   else()
-    set(library_subdir "/${kwiver_python_subdir}/${python_sitename}/${project_name}/${modpath}")
+    set(library_subdir "/${kwiver_python_subdir}/${kwiver_sitename}/${project_name}/${modpath}")
   endif()
   set(component runtime)
 

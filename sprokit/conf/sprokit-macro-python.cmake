@@ -72,7 +72,7 @@ function (sprokit_add_python_module    path     modpath    module)
     set(sprokit_configure_cmake_args
       "\"-Dconfig=${CMAKE_CFG_INTDIR}/\"")
     set(sprokit_configure_extra_dests
-      "${sprokit_python_output_path}/\${config}/${kwiver_python_subdir}${python_noarchdir}/${python_sitename}/${modpath}/${module}.py")
+      "${sprokit_python_output_path}/\${config}/${kwiver_python_subdir}${python_noarchdir}/${kwiver_sitename}/${modpath}/${module}.py")
   endif ()
 
   if( WIN32 )
@@ -85,8 +85,8 @@ function (sprokit_add_python_module    path     modpath    module)
   endif()
 
   set(pyfile_src "${path}")
-  set(pyfile_dst "${sprokit_python_output_path}/${kwiver_python_subdir}${python_noarchdir}/${python_sitename}/${modpath}/${module}.py")
-  set(pypkg_install_path "${python_install_path}/${kwiver_python_subdir}/${python_sitename}/${modpath}")
+  set(pyfile_dst "${sprokit_python_output_path}/${kwiver_python_subdir}${python_noarchdir}/${kwiver_sitename}/${modpath}/${module}.py")
+  set(pypkg_install_path "${python_install_path}/${kwiver_python_subdir}/${kwiver_sitename}/${modpath}")
 
   if (KWIVER_SYMLINK_PYTHON)
       sprokit_symlink_file_w_uid("${python_configure_id}"
