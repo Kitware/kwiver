@@ -54,9 +54,17 @@ protected:
     tricky_stream_klv_path =
       st::JoinPath( { "", data_dir, "video_stream_tricky_klv.json.zz" } );
 
-    auto config = input.get_configuration();
-    config->set_value< bool >( "use_misp_timestamps", true );
-    input.set_configuration( config );
+    {
+      auto config = input.get_configuration();
+      config->set_value< bool >( "use_misp_timestamps", true );
+      input.set_configuration( config );
+    }
+
+    {
+      auto config = serializer.get_configuration();
+      config->set_value< bool >( "compress", true );
+      serializer.set_configuration( config );
+    }
   }
 
   // Loads expected KLV for standard videos from JSON
@@ -66,11 +74,6 @@ protected:
     {
       return;
     }
-
-    serialize::json::metadata_map_io_klv serializer;
-    auto config = serializer.get_configuration();
-    config->set_value< bool >( "compress", true );
-    serializer.set_configuration( config );
 
     auto const map = serializer.load( stream_klv_path )->metadata();
     for( auto& entry : map )
@@ -90,12 +93,8 @@ protected:
       return;
     }
 
-    serialize::json::metadata_map_io_klv serializer;
-    auto config = serializer.get_configuration();
-    config->set_value< bool >( "compress", true );
-    serializer.set_configuration( config );
-
-    auto const map = serializer.load( tricky_stream_klv_path )->metadata();
+    auto const map =
+      serializer.load( tricky_stream_klv_path )->metadata();
     for( auto& entry : map )
     {
       for( auto& md : entry.second )
@@ -110,49 +109,47 @@ protected:
   // Corners of each frame are set to specific colors
   void
   verify_rgb_sentinel(kv::image const &image) {
-    constexpr size_t epsilon = 32;
     auto const x = image.width() - 1;
     auto const y = image.height() - 1;
 
-    EXPECT_NEAR( 255, image.at< uint8_t >( 0, 0, 0 ), epsilon );
-    EXPECT_NEAR( 0,   image.at< uint8_t >( 0, 0, 1 ), epsilon );
-    EXPECT_NEAR( 0,   image.at< uint8_t >( 0, 0, 2 ), epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( 0, 0, 0 ), pixel_epsilon );
+    EXPECT_NEAR( 0,   image.at< uint8_t >( 0, 0, 1 ), pixel_epsilon );
+    EXPECT_NEAR( 0,   image.at< uint8_t >( 0, 0, 2 ), pixel_epsilon );
 
-    EXPECT_NEAR( 0,   image.at< uint8_t >( 0, y, 0 ), epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 1 ), epsilon );
-    EXPECT_NEAR( 0,   image.at< uint8_t >( 0, y, 2 ), epsilon );
+    EXPECT_NEAR( 0,   image.at< uint8_t >( 0, y, 0 ), pixel_epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 1 ), pixel_epsilon );
+    EXPECT_NEAR( 0,   image.at< uint8_t >( 0, y, 2 ), pixel_epsilon );
 
-    EXPECT_NEAR( 0,   image.at< uint8_t >( x, y, 0 ), epsilon );
-    EXPECT_NEAR( 0,   image.at< uint8_t >( x, y, 1 ), epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( x, y, 2 ), epsilon );
+    EXPECT_NEAR( 0,   image.at< uint8_t >( x, y, 0 ), pixel_epsilon );
+    EXPECT_NEAR( 0,   image.at< uint8_t >( x, y, 1 ), pixel_epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( x, y, 2 ), pixel_epsilon );
 
-    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 0 ), epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 1 ), epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 2 ), epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 0 ), pixel_epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 1 ), pixel_epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 2 ), pixel_epsilon );
   }
 
   // Corners of each frame are set to specific values
   void
   verify_gray_sentinel(kv::image const &image) {
-    constexpr size_t epsilon = 32;
     auto const x = image.width() - 1;
     auto const y = image.height() - 1;
 
-    EXPECT_NEAR( 0, image.at< uint8_t >( 0, 0, 0 ), epsilon );
-    EXPECT_NEAR( 0, image.at< uint8_t >( 0, 0, 1 ), epsilon );
-    EXPECT_NEAR( 0, image.at< uint8_t >( 0, 0, 2 ), epsilon );
+    EXPECT_NEAR( 0, image.at< uint8_t >( 0, 0, 0 ), pixel_epsilon );
+    EXPECT_NEAR( 0, image.at< uint8_t >( 0, 0, 1 ), pixel_epsilon );
+    EXPECT_NEAR( 0, image.at< uint8_t >( 0, 0, 2 ), pixel_epsilon );
 
-    EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 0 ), epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 1 ), epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 2 ), epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 0 ), pixel_epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 1 ), pixel_epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 2 ), pixel_epsilon );
 
-    EXPECT_NEAR( 0, image.at< uint8_t >( x, y, 0 ), epsilon );
-    EXPECT_NEAR( 0, image.at< uint8_t >( x, y, 1 ), epsilon );
-    EXPECT_NEAR( 0, image.at< uint8_t >( x, y, 2 ), epsilon );
+    EXPECT_NEAR( 0, image.at< uint8_t >( x, y, 0 ), pixel_epsilon );
+    EXPECT_NEAR( 0, image.at< uint8_t >( x, y, 1 ), pixel_epsilon );
+    EXPECT_NEAR( 0, image.at< uint8_t >( x, y, 2 ), pixel_epsilon );
 
-    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 0 ), epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 1 ), epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 2 ), epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 0 ), pixel_epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 1 ), pixel_epsilon );
+    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 2 ), pixel_epsilon );
   }
 
   // Frame number encoded as 32-bit binary number in top row of pixels.
@@ -230,6 +227,9 @@ protected:
     EXPECT_TRUE( input.end_of_video() );
   }
 
+  constexpr static size_t pixel_epsilon = 32;
+  constexpr static size_t expected_frame_count = 30;
+
   ffmpeg::ffmpeg_video_input input;
   std::string mpeg2_path;
   std::string h264_path;
@@ -240,6 +240,7 @@ protected:
   std::string tricky_stream_klv_path;
   std::map< kv::frame_id_t, klv::klv_metadata > expected_stream_klv;
   std::multimap< kv::frame_id_t, klv::klv_metadata > expected_tricky_stream_klv;
+  serialize::json::metadata_map_io_klv serializer;
   TEST_ARG( data_dir );
 };
 
@@ -270,7 +271,7 @@ TEST_F ( ffmpeg_video_input_klv, h264_no_klv_verify )
   input.open( no_streams_path );
 
   kv::timestamp ts;
-  for( size_t i = 0; i < 30; ++i )
+  for( size_t i = 0; i < expected_frame_count; ++i )
   {
     auto const frame_number = i + 1;
     SCOPED_TRACE( std::string{ "Frame: " } + std::to_string( frame_number ) );
@@ -313,7 +314,7 @@ TEST_F ( ffmpeg_video_input_klv, h265_tricky_klv_verify )
 
   input.open( tricky_streams_path );
   kv::timestamp ts;
-  for( size_t i = 0; i < 30; ++i )
+  for( size_t i = 0; i < expected_frame_count; ++i )
   {
     auto const frame_number = i + 1;
     SCOPED_TRACE( std::string{ "Frame: " } + std::to_string( frame_number ) );

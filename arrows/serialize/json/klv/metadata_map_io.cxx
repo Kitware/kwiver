@@ -73,7 +73,7 @@ metadata_map_io_klv
   {
     vital::bytestream_compressor decompressor(
       vital::bytestream_compressor::MODE_DECOMPRESS,
-      vital::bytestream_compressor::COMPRESSION_TYPE_DEFLATE,
+      d->compress_type,
       vital::bytestream_compressor::DATA_TYPE_TEXT );
     vital::compress_istream compress_is( fin, decompressor );
 
@@ -173,7 +173,7 @@ metadata_map_io_klv
   {
     vital::bytestream_compressor compressor(
       vital::bytestream_compressor::MODE_COMPRESS,
-      vital::bytestream_compressor::COMPRESSION_TYPE_DEFLATE,
+      d->compress_type,
       vital::bytestream_compressor::DATA_TYPE_TEXT );
     vital::compress_ostream compress_os( fout, compressor );
 
