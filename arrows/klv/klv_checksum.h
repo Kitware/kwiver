@@ -20,6 +20,22 @@ namespace arrows {
 namespace klv {
 
 // ----------------------------------------------------------------------------
+/// Calculate the CRC-8-CCITT checksum of the given bytes.
+///
+/// The CRC-8-CCITT specification is an 8-bit CRC with the polynomial \c 0x07
+/// and an initial value of \c 0x00. No special modification is made to the
+/// input data or output CRC.
+///
+/// \param data_begin Iterator to the beginning of a buffer of \c uint8_t.
+/// \param data_end Iterator to the end of a buffer of \c uint8_t.
+///
+/// \return Checksum of the data buffer.
+KWIVER_ALGO_KLV_EXPORT
+uint8_t
+klv_crc_8_ccitt( klv_read_iter_t data_begin, klv_read_iter_t data_end,
+                 uint8_t initial_value = 0x00 );
+
+// ----------------------------------------------------------------------------
 /// Calculate a running sum of each 16-byte word in the given bytes.
 ///
 /// If there are an odd number of bytes, the result will be the same as if an
@@ -95,6 +111,20 @@ protected:
 private:
   klv_bytes_t m_header;
   size_t m_payload_size;
+};
+
+// ----------------------------------------------------------------------------
+class KWIVER_ALGO_KLV_EXPORT klv_crc_8_ccitt_packet_format
+  : public klv_checksum_packet_format
+{
+  public:
+  klv_crc_8_ccitt_packet_format( klv_bytes_t const& header );
+
+  std::string
+  description() const override;
+
+  uint64_t
+  evaluate( klv_read_iter_t data, size_t length ) const override;
 };
 
 // ----------------------------------------------------------------------------
