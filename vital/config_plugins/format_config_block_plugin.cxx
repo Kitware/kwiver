@@ -29,7 +29,7 @@ public:
   void print( std::ostream& str ) override;
 
   // Plugin support
-  static pluggable_sptr from_config( config_block const& cb );
+  static pluggable_sptr from_config( config_block_sptr const cb );
   static void get_default_config( config_block& cb );
 }; // end class format_config_block_markdown
 
@@ -85,7 +85,7 @@ format_config_block_markdown
 
 pluggable_sptr
 format_config_block_markdown
-::from_config( config_block const& /* cb */ )
+::from_config( config_block_sptr const /* cb */ )
 {
   // No parameter constructor, just return new instance
   return std::make_shared< format_config_block_markdown >();
@@ -114,7 +114,7 @@ public:
   void print( std::ostream& str ) override;
 
   // Plugin support
-  static pluggable_sptr from_config( config_block const& cb );
+  static pluggable_sptr from_config( config_block_sptr const cb );
   static void get_default_config( config_block& cb );
 
 protected:
@@ -222,7 +222,7 @@ format_config_block_tree
 
 pluggable_sptr
 format_config_block_tree
-::from_config( config_block const& /* cb */ )
+::from_config( config_block_sptr const /* cb */ )
 {
   // No parameter constructor, just return new instance
   return std::make_shared< format_config_block_tree >();

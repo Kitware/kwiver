@@ -31,7 +31,7 @@ public:
   // Plugin things
   // =============================================================
   static vital::pluggable_sptr
-  from_config( vital::config_block const& /*cb*/ )
+  from_config( vital::config_block_sptr const /*cb*/ )
   {
     return std::make_shared< config_explorer >();
   }

@@ -124,7 +124,7 @@ public:
    * @return Object instance of the registered type.
    * @throws kwiver::vital::plugin_factory_type_creation_error
    */
-  virtual pluggable_sptr from_config( config_block const& cb ) const = 0;
+  virtual pluggable_sptr from_config( config_block_sptr const cb ) const = 0;
 
   /**
    * @brief Populate a config block instance with the default configuration for
@@ -246,7 +246,7 @@ public:
   }
 
   pluggable_sptr
-  from_config( config_block const& cb ) const override
+  from_config( config_block_sptr const cb ) const override
   {
     static_assert( has_from_config< CONCRETE >::value,
                    "The given concrete type does not implement the "

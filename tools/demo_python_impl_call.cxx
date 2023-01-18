@@ -39,7 +39,7 @@ main_config_formatter_load_example()
   auto impl_name = "markdown"; // "tree"
   auto fact =
     ::kv::implementation_factory_by_name< kv::format_config_block >();
-  auto inst = fact.create( impl_name, *cb_empty );
+  auto inst = fact.create( impl_name, cb_empty );
 
   LOG_INFO( LOG, kv::type_name( inst ) );
   LOG_INFO( LOG, "Inst is nullptr? " << inst );
@@ -83,7 +83,7 @@ main_say_example()
   // Create an implementation instance in the plugin-way -- via configuration.
   // Implementation handles currying config block into its own constructor.
   kv::say_sptr inst = kv::implementation_factory_by_name< kv::say >().create(
-                        impl_name, *cb );
+                        impl_name, cb );
 
   std::cout << "The implementation says:" << std::endl;
   std::cout << inst->says() << std::endl;
@@ -104,7 +104,7 @@ main_macro_magic()
 
   kv::test_interface_sptr i =
     std::dynamic_pointer_cast< kv::test_interface >(
-      kv::test_impl_parameterized::from_config( *cb )
+      kv::test_impl_parameterized::from_config( cb )
       );
 
   std::cout << i->test() << std::endl;

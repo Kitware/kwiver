@@ -22,7 +22,7 @@ public:
   }
 
   static pluggable_sptr
-  from_config( config_block const& /* cb */ )
+  from_config( config_block_sptr const /* cb */ )
   {
     // No parameter constructor, just return new instance
     return std::make_shared< cpp_say_impl >();
