@@ -55,7 +55,8 @@ file_md5( const string& fn )
   {
     for ( size_t i = 0; i < digest_size; ++i )
     {
-      oss << std::hex << static_cast<unsigned int>(digest[ i ]);
+      oss << std::hex << std::setw( 2 ) << std::setfill( '0' )
+          << static_cast< unsigned int >( digest[ i ] );
     }
   }
   return oss.str();
