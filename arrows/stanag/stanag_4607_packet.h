@@ -125,11 +125,6 @@ std::ostream&
 operator<<( std::ostream& os, stanag_4607_exercise_indicator const& value );
 
 // ----------------------------------------------------------------------------
-KWIVER_ALGO_STANAG_EXPORT
-std::ostream&
-operator<<( std::ostream& os, stanag_4607_packet_security const& value );
-
-// ----------------------------------------------------------------------------
 /// Provides basic information concerning the platform, the job, the mission,
 /// nationality, security, and the length of the packet.
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_packet_header
@@ -154,12 +149,11 @@ DECLARE_STANAG_CMP( stanag_4607_packet_header )
 
 // ----------------------------------------------------------------------------
 class KWIVER_ALGO_STANAG_EXPORT stanag_4607_packet_header_format
-  : public stanag_4607_packet_header
 {
 public:
   stanag_4607_packet_header_format();
 
-  const size_t size = 32; // Number of  bytes in packet header
+  static const size_t size = 32; // Number of  bytes in packet header
 
   stanag_4607_packet_header
   read( ptr_t& ptr ) const;
@@ -189,7 +183,6 @@ DECLARE_STANAG_CMP( stanag_4607_packet )
 
 // ----------------------------------------------------------------------------
 class KWIVER_ALGO_STANAG_EXPORT stanag_4607_packet_format
-  : public stanag_4607_packet
 {
 public:
   stanag_4607_packet_format();
@@ -203,6 +196,12 @@ public:
 KWIVER_ALGO_STANAG_EXPORT
 std::vector< stanag_4607_packet >
 read_stanag_4607_data( std::vector< uint8_t > input_bytes );
+
+// ----------------------------------------------------------------------------
+/// Read the file as a list of packets
+KWIVER_ALGO_STANAG_EXPORT
+std::vector< stanag_4607_packet >
+read_stanag_4607_file( std::string fn );
 
 } // Namespace stanag
 

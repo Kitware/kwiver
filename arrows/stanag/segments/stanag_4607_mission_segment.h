@@ -125,8 +125,6 @@ class KWIVER_ALGO_STANAG_EXPORT stanag_4607_mission_segment_format
 public:
   stanag_4607_mission_segment_format();
 
-  using data_type = stanag_4607_mission_segment;
-
   stanag_4607_mission_segment
   read( ptr_t& ptr ) const;
 };

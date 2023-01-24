@@ -5,6 +5,7 @@
 #include "stanag_4607_packet.h"
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 
 namespace kwiver {
@@ -318,6 +319,20 @@ read_stanag_4607_data( std::vector< uint8_t > input_bytes )
   }
 
   return result;
+}
+
+// ----------------------------------------------------------------------------
+std::vector< stanag_4607_packet >
+read_stanag_4607_file( std::string fn )
+{
+    std::ifstream rf (fn, std::ios::binary);
+    if( !rf ) std::cerr << "DID NOT OPEN FILE " << fn << std::endl;
+
+    std::vector<uint8_t> input_bytes((std::istreambuf_iterator<char>(rf)),
+                                      std::istreambuf_iterator<char>());
+
+    auto result = read_stanag_4607_data( input_bytes );
+    return result;
 }
 
 

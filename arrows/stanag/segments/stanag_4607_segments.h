@@ -69,12 +69,11 @@ DECLARE_STANAG_CMP( stanag_4607_segment_header )
 
 // ----------------------------------------------------------------------------
 class KWIVER_ALGO_STANAG_EXPORT stanag_4607_segment_header_format
-  : public stanag_4607_segment_header
 {
 public:
   stanag_4607_segment_header_format();
 
-  const size_t size = 5; // Number of bytes in the segment header
+  static const size_t size = 5; // Number of bytes in the segment header
 
   stanag_4607_segment_header
   read( ptr_t& ptr ) const;
