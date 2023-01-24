@@ -58,7 +58,7 @@ main_config_formatter_load_example()
 // ----------------------------------------------------------------------------
 
 void
-main_say_example()
+main_say_example(std::string impl_name)
 {
   auto& vpm = kv::plugin_manager::instance();
   vpm.load_all_plugins();
@@ -74,8 +74,6 @@ main_say_example()
   {
     LOG_INFO( LOG, "  - " << name );
   }
-
-  std::string impl_name{ "cpp" };
 
   // simulation configuration -- known to be empty for test interface impls.
   kv::config_block_sptr cb = kv::config_block::empty_config();
@@ -123,9 +121,14 @@ main()
 
   std::cout << std::endl;
 
-  main_say_example();
+  std::vector< std::string > impl_names = {"cpp", "PythonImpl"};
 
-  std::cout << std::endl;
+  for ( auto name: impl_names )
+  {
+    std::cout << "Testing say implementation: " << name << std::endl;
+    main_say_example(name);
+    std::cout << std::endl;
+  }
 
   main_macro_magic();
 
