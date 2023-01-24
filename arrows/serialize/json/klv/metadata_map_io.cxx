@@ -73,7 +73,7 @@ metadata_map_io_klv
   {
     vital::bytestream_compressor decompressor(
       vital::bytestream_compressor::MODE_DECOMPRESS,
-      vital::bytestream_compressor::COMPRESSION_TYPE_DEFLATE,
+      d->compress_type,
       vital::bytestream_compressor::DATA_TYPE_TEXT );
     vital::compress_istream compress_is( fin, decompressor );
 
@@ -86,45 +86,57 @@ metadata_map_io_klv
     cereal::load( archive, packets );
   }
 
-  // Group KLV by frame
-  std::map< vital::frame_id_t, std::vector< klv::klv_packet > > packet_map;
-  for( auto& packet : packets )
-  {
-    if( packet.timestamp.has_valid_frame() )
-    {
-      auto const it = packet_map.emplace(
-        packet.timestamp.get_frame(),
-        std::vector< klv::klv_packet >{} ).first;
-      it->second.emplace_back( std::move( packet.packet ) );
-    }
-    else
-    {
-      LOG_DEBUG( vital::get_logger( "json" ),
-                 "load_(): dropping KLV packet with no associated frame" );
-    }
-  }
-
   // Add KLV for each frame to vital::metadata structures
   vital::metadata_map::map_metadata_t result;
-  for( auto& entry : packet_map )
+  for( auto& packet : packets )
   {
-    // Put KLV into vital::metadata
-    auto const metadata_klv = new klv::klv_metadata;
-    metadata_klv->set_klv( std::move( entry.second ) );
-    vital::metadata_sptr metadata_vital{ metadata_klv };
+    // Find entry for this frame
+    auto const it =
+      result.emplace(
+        packet.timestamp.get_frame(),
+        std::vector< vital::metadata_sptr >{} ).first;
 
-    // Record the frame number
-    vital::timestamp ts;
-    ts.set_frame( entry.first );
-    metadata_vital->set_timestamp( ts );
+    // Try to find vital::metadata with this packet's stream index
+    klv::klv_metadata* klv_md = nullptr;
+    for( auto const& md : it->second )
+    {
+      auto const index_entry =
+        md->find( vital::VITAL_META_VIDEO_DATA_STREAM_INDEX );
+      if( index_entry &&
+          index_entry.template get< int >() == packet.stream_index )
+      {
+        klv_md = dynamic_cast< klv::klv_metadata* >( md.get() );
+      }
+    }
 
-    // Package it up
-    vital::metadata_vector metadata_vector{ std::move( metadata_vital ) };
-    result.emplace( entry.first, std::move( metadata_vector ) );
+    // Otherwise, create new vital::metadata with this packet's stream index
+    if( !klv_md )
+    {
+      klv_md = new klv::klv_metadata;
+      klv_md->add< vital::VITAL_META_VIDEO_DATA_STREAM_INDEX >(
+        static_cast< int >( packet.stream_index ) );
+      klv_md->set_timestamp( packet.timestamp );
+      it->second.emplace_back( klv_md );
+    }
+
+    // Add the KLV packet data
+    auto klv_packets = klv_md->klv();
+    klv_packets.emplace_back( std::move( packet.packet ) );
+    klv_md->set_klv( std::move( klv_packets ) );
   }
 
   // Convert to vital::metadata_map_sptr
   return std::make_shared< vital::simple_metadata_map >( std::move( result ) );
+}
+
+// ----------------------------------------------------------------------------
+std::ios_base::openmode
+metadata_map_io_klv
+::load_open_mode( VITAL_UNUSED std::string const& filename ) const
+{
+  return d->compress
+    ? ( std::ios_base::in | std::ios_base::binary )
+    : ( std::ios_base::in );
 }
 
 // ----------------------------------------------------------------------------
@@ -171,7 +183,7 @@ metadata_map_io_klv
   {
     vital::bytestream_compressor compressor(
       vital::bytestream_compressor::MODE_COMPRESS,
-      vital::bytestream_compressor::COMPRESSION_TYPE_DEFLATE,
+      d->compress_type,
       vital::bytestream_compressor::DATA_TYPE_TEXT );
     vital::compress_ostream compress_os( fout, compressor );
 
@@ -183,6 +195,16 @@ metadata_map_io_klv
     cereal::JSONOutputArchive archive( fout, output_options );
     cereal::save( archive, packets );
   }
+}
+
+// ----------------------------------------------------------------------------
+std::ios_base::openmode
+metadata_map_io_klv
+::save_open_mode( VITAL_UNUSED std::string const& filename ) const
+{
+  return d->compress
+    ? ( std::ios_base::out | std::ios_base::binary )
+    : ( std::ios_base::out );
 }
 
 // ----------------------------------------------------------------------------
