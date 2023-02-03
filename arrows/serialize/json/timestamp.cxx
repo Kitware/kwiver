@@ -27,10 +27,10 @@ timestamp::~timestamp()
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 timestamp
-::serialize( const vital::any& element )
+::serialize( const std::any& element )
 {
   kwiver::vital::timestamp tstamp =
-    kwiver::vital::any_cast< kwiver::vital::timestamp > ( element );
+    std::std::any_cast< kwiver::vital::timestamp > ( element );
   std::stringstream msg;
   msg << "timestamp ";
   {
@@ -41,7 +41,7 @@ timestamp
 }
 
 // ----------------------------------------------------------------------------
-vital::any
+std::any
 timestamp
 ::deserialize( const std::string& message )
 {
@@ -61,7 +61,7 @@ timestamp
     load( ar, tstamp );
   }
 
-  return kwiver::vital::any( tstamp );
+  return std::any( tstamp );
 }
 
 } } } }

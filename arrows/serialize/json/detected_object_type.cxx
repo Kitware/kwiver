@@ -28,10 +28,10 @@ detected_object_type::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 detected_object_type::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::detected_object_type dot =
-    kwiver::vital::any_cast< kwiver::vital::detected_object_type > ( element );
+    std::std::any_cast< kwiver::vital::detected_object_type > ( element );
 
   std::stringstream msg;
   msg << "detected_object_type ";
@@ -44,7 +44,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any detected_object_type::
+std::any detected_object_type::
 deserialize( const std::string& message )
 {
   std::stringstream msg(message);
@@ -63,7 +63,7 @@ deserialize( const std::string& message )
     load( ar, dot );
   }
 
-  return kwiver::vital::any(dot);
+  return std::any(dot);
 }
 
 } } } }       // end namespace kwiver

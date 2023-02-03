@@ -7,7 +7,7 @@
 
 #include <arrows/serialize/json/detected_object_type.h>
 #include <vital/types/detected_object_type.h>
-#include <vital/any.h>
+
 namespace kwiver {
 namespace arrows {
 namespace python {

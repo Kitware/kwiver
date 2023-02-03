@@ -71,12 +71,12 @@ TEST( serialize_metadata, metadata )
   mvec.push_back( meta_sptr );
   mvec.push_back( meta_sptr ); // just so there is more than one
 
-  kwiver::vital::any meta_any( mvec );
+  std::any meta_any( mvec );
   auto mes = meta_ser.serialize( meta_any );
   auto meta_dser_any = meta_ser.deserialize( *mes );
 
   kwiver::vital::metadata_vector meta_dser =
-    kwiver::vital::any_cast< kwiver::vital::metadata_vector >( meta_dser_any );
+    std::std::any_cast< kwiver::vital::metadata_vector >( meta_dser_any );
 
   // test for equality
   EXPECT_TRUE( test_equal_content( *meta_sptr, *meta_dser[0] ));

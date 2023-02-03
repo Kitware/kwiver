@@ -53,11 +53,11 @@ TEST( serialize, activity_default )
   auto const act = kwiver::vital::activity{};
   auto act_ser = kasp::activity{};
 
-  auto const mes = act_ser.serialize( kwiver::vital::any( act ) );
+  auto const mes = act_ser.serialize( std::any( act ) );
 
   auto const dser = act_ser.deserialize( *mes );
   auto const act_dser =
-    kwiver::vital::any_cast< kwiver::vital::activity >( dser );
+    std::std::any_cast< kwiver::vital::activity >( dser );
 
   // Check members
   EXPECT_EQ( act.id(), act_dser.id() );
@@ -124,11 +124,11 @@ TEST( serialize, activity )
 
   auto act_ser = kasp::activity{};
 
-  auto const mes = act_ser.serialize( kwiver::vital::any( act ) );
+  auto const mes = act_ser.serialize( std::any( act ) );
 
   auto const dser = act_ser.deserialize( *mes );
   auto const act_dser =
-    kwiver::vital::any_cast< kwiver::vital::activity >( dser );
+    std::std::any_cast< kwiver::vital::activity >( dser );
 
   // Now check equality
   EXPECT_EQ( act.id(), act_dser.id() );
@@ -192,13 +192,13 @@ TEST( serialize, bounding_box )
   kasp::bounding_box bbox_ser;
   kwiver::vital::bounding_box_d bbox { 1, 2, 3, 4 };
 
-  kwiver::vital::any bb_any( bbox );
+  std::any bb_any( bbox );
   auto mes = bbox_ser.serialize( bb_any );
 
   // std::cout << "Serialized bbox: \"" << *mes << "\"\n";
 
   auto dser = bbox_ser.deserialize( *mes );
-  kwiver::vital::bounding_box_d bbox_dser = kwiver::vital::any_cast< kwiver::vital::bounding_box_d >( dser );
+  kwiver::vital::bounding_box_d bbox_dser = std::std::any_cast< kwiver::vital::bounding_box_d >( dser );
 
   /*
   std::cout << "bbox_dser { " << bbox_dser.min_x() << ", "
@@ -220,12 +220,12 @@ TEST( serialize, activity_type )
   at.set_score( "third", 101 );
   at.set_score( "last", 121 );
 
-  kwiver::vital::any at_any( at );
+  std::any at_any( at );
   auto mes = at_ser.serialize( at_any );
 
   auto dser = at_ser.deserialize( *mes );
   kwiver::vital::activity_type at_dser =
-    kwiver::vital::any_cast< kwiver::vital::activity_type >( dser );
+    std::std::any_cast< kwiver::vital::activity_type >( dser );
 
   EXPECT_EQ( at.size(), at_dser.size() );
 
@@ -252,12 +252,12 @@ TEST( serialize, detected_object_type )
   dot.set_score( "third", 101 );
   dot.set_score( "last", 121 );
 
-  kwiver::vital::any dot_any( dot );
+  std::any dot_any( dot );
   auto mes = dot_ser.serialize( dot_any );
 
   auto dser = dot_ser.deserialize( *mes );
   kwiver::vital::detected_object_type dot_dser =
-    kwiver::vital::any_cast< kwiver::vital::detected_object_type >( dser );
+    std::std::any_cast< kwiver::vital::detected_object_type >( dser );
 
   EXPECT_EQ( dot.size(), dot_dser.size() );
 
@@ -296,11 +296,11 @@ TEST( serialize, detected_object )
   obj->add_keypoint( "point-1", ::kwiver::vital::point_2d( 123,234 ) );
   obj->add_keypoint( "point-2", ::kwiver::vital::point_2d( 234,123 ) );
 
-  kwiver::vital::any obj_any( *obj );
+  std::any obj_any( *obj );
   auto mes = obj_ser.serialize( obj_any );
 
   auto dser = obj_ser.deserialize( *mes );
-  auto obj_dser = kwiver::vital::any_cast< kwiver::vital::detected_object_sptr >( dser );
+  auto obj_dser = std::std::any_cast< kwiver::vital::detected_object_sptr >( dser );
 
   EXPECT_EQ( obj->bounding_box(), obj_dser->bounding_box() );
   EXPECT_EQ( obj->index(), obj_dser->index() );
@@ -370,11 +370,11 @@ TEST( serialize, detected_object_set )
     ser_dos_sptr->add( det_object_sptr );
   }
 
-  kwiver::vital::any obj_any( ser_dos_sptr );
+  std::any obj_any( ser_dos_sptr );
   auto mes = obj_ser.serialize( obj_any );
 
   auto dser = obj_ser.deserialize( *mes );
-  auto deser_dos_sptr = kwiver::vital::any_cast< kwiver::vital::detected_object_set_sptr >( dser );
+  auto deser_dos_sptr = std::std::any_cast< kwiver::vital::detected_object_set_sptr >( dser );
 
   for ( int i = 0; i < 10; i++ )
   {
@@ -411,13 +411,13 @@ TEST (serialize, timestamp)
   kasp::timestamp tstamp_ser;
   kwiver::vital::timestamp tstamp{1, 1};
 
-  kwiver::vital::any tstamp_any(tstamp);
+  std::any tstamp_any(tstamp);
 
   auto mes = tstamp_ser.serialize( tstamp_any );
   auto dser = tstamp_ser.deserialize( *mes );
 
   kwiver::vital::timestamp tstamp_dser =
-    kwiver::vital::any_cast< kwiver::vital::timestamp > ( dser );
+    std::std::any_cast< kwiver::vital::timestamp > ( dser );
 
   EXPECT_EQ (tstamp, tstamp_dser);
 }
@@ -437,12 +437,12 @@ TEST( serialize, image )
   {
     kwiver::vital::image_container_sptr img_container =
       std::make_shared< kwiver::vital::simple_image_container >( img );
-    kwiver::vital::any img_any(img_container);
+    std::any img_any(img_container);
 
     auto mes = image_ser.serialize( img_any );
     auto dser = image_ser.deserialize( *mes );
 
-    auto img_dser = kwiver::vital::any_cast< kwiver::vital::image_container_sptr > ( dser );
+    auto img_dser = std::std::any_cast< kwiver::vital::image_container_sptr > ( dser );
 
     // Check the content of images
     EXPECT_TRUE ( kwiver::vital::equal_content( img_container->get_image(), img_dser->get_image()) );
@@ -457,12 +457,12 @@ TEST( serialize, image )
 
     kwiver::vital::image_container_sptr img_container =
       std::make_shared< kwiver::vital::simple_image_container >( other );
-    kwiver::vital::any img_any(img_container);
+    std::any img_any(img_container);
 
     auto mes = image_ser.serialize( img_any );
     auto dser = image_ser.deserialize( *mes );
 
-    auto img_dser = kwiver::vital::any_cast< kwiver::vital::image_container_sptr > ( dser );
+    auto img_dser = std::std::any_cast< kwiver::vital::image_container_sptr > ( dser );
 
     // Check the content of images
     EXPECT_TRUE( kwiver::vital::equal_content( img_container->get_image(), img_dser->get_image()) );
@@ -477,12 +477,12 @@ TEST( serialize, image )
 
     kwiver::vital::image_container_sptr img_container =
       std::make_shared< kwiver::vital::simple_image_container >( other );
-    kwiver::vital::any img_any(img_container);
+    std::any img_any(img_container);
 
     auto mes = image_ser.serialize( img_any );
     auto dser = image_ser.deserialize( *mes );
 
-    auto img_dser = kwiver::vital::any_cast< kwiver::vital::image_container_sptr > ( dser );
+    auto img_dser = std::std::any_cast< kwiver::vital::image_container_sptr > ( dser );
 
     // Check the content of images
     EXPECT_TRUE( kwiver::vital::equal_content( img_container->get_image(), img_dser->get_image()) );
@@ -495,13 +495,13 @@ TEST ( serialize, string )
   kasp::string str_ser;
   std::string str("Test string");
 
-  kwiver::vital::any str_any(str);
+  std::any str_any(str);
 
   auto mes = str_ser.serialize( str_any );
   auto dser = str_ser.deserialize( *mes );
 
   std::string str_dser =
-    kwiver::vital::any_cast< std::string > ( dser );
+    std::std::any_cast< std::string > ( dser );
 
   EXPECT_EQ (str, str_dser);
 }
@@ -512,13 +512,13 @@ TEST (serialize, track_state)
   kasp::track_state trk_state_ser;
   kwiver::vital::track_state trk_state( 1 );
 
-  kwiver::vital::any trk_state_any( trk_state );
+  std::any trk_state_any( trk_state );
 
   auto mes = trk_state_ser.serialize( trk_state_any );
   auto dser = trk_state_ser.deserialize( *mes );
 
   kwiver::vital::track_state trk_state_dser =
-    kwiver::vital::any_cast< kwiver::vital::track_state >( dser );
+    std::std::any_cast< kwiver::vital::track_state >( dser );
 
   EXPECT_EQ( trk_state, trk_state_dser );
 }
@@ -541,13 +541,13 @@ TEST (serialize, object_track_state)
   kwiver::vital::object_track_state obj_trk_state( 1, 1, dobj_sptr );
 
   kasp::object_track_state obj_trk_state_ser;
-  kwiver::vital::any obj_trk_state_any(obj_trk_state);
+  std::any obj_trk_state_any(obj_trk_state);
 
   auto mes = obj_trk_state_ser.serialize( obj_trk_state_any );
   auto dser = obj_trk_state_ser.deserialize( *mes );
 
   kwiver::vital::object_track_state obj_trk_state_dser =
-    kwiver::vital::any_cast< kwiver::vital::object_track_state > ( dser );
+    std::std::any_cast< kwiver::vital::object_track_state > ( dser );
 
   auto ser_do_sptr = obj_trk_state.detection();
   auto deser_do_sptr = obj_trk_state_dser.detection();
@@ -607,12 +607,12 @@ TEST( serialize, track )
   }
 
   kasp::track obj_trk_ser;
-  kwiver::vital::any obj_trk_any( obj_trk );
+  std::any obj_trk_any( obj_trk );
 
   auto mes = obj_trk_ser.serialize( obj_trk_any );
   auto dser = obj_trk_ser.deserialize( *mes );
 
-  auto obj_trk_dser_sptr = kwiver::vital::any_cast< kwiver::vital::track_sptr >( dser );
+  auto obj_trk_dser_sptr = std::std::any_cast< kwiver::vital::track_sptr >( dser );
 
   // Check track id
   EXPECT_EQ( obj_trk->id(), obj_trk_dser_sptr->id() );
@@ -669,13 +669,13 @@ TEST( serialize, track )
   }
 
   kasp::track trk_ser;
-  kwiver::vital::any trk_any( trk );
+  std::any trk_any( trk );
 
   auto trk_mes = trk_ser.serialize( trk_any );
   auto trk_dser = trk_ser.deserialize( *trk_mes );
 
   auto trk_dser_sptr =
-    kwiver::vital::any_cast< kwiver::vital::track_sptr > ( trk_dser );
+    std::std::any_cast< kwiver::vital::track_sptr > ( trk_dser );
 
   EXPECT_EQ( trk->id(), trk_dser_sptr->id() );
 
@@ -711,12 +711,12 @@ TEST( serialize, track_set )
   }
 
   kasp::track_set trk_set_ser;
-  kwiver::vital::any trk_set_any( trk_set_sptr );
+  std::any trk_set_any( trk_set_sptr );
   auto trk_set_mes = trk_set_ser.serialize( trk_set_any );
   auto trk_set_dser = trk_set_ser.deserialize( *trk_set_mes );
 
   auto trk_set_sptr_dser =
-    kwiver::vital::any_cast< kwiver::vital::track_set_sptr > ( trk_set_dser );
+    std::std::any_cast< kwiver::vital::track_set_sptr > ( trk_set_dser );
 
   for ( kwiver::vital::track_id_t trk_id=1; trk_id<5; ++trk_id )
   {
@@ -768,12 +768,12 @@ TEST( serialize, object_track_set )
   }
 
   kasp::object_track_set obj_trk_set_ser;
-  kwiver::vital::any obj_trk_set_any( obj_trk_set_sptr );
+  std::any obj_trk_set_any( obj_trk_set_sptr );
   auto trk_set_mes = obj_trk_set_ser.serialize( obj_trk_set_any );
   auto trk_set_dser = obj_trk_set_ser.deserialize( *trk_set_mes );
 
   auto obj_trk_set_sptr_dser =
-    kwiver::vital::any_cast< kwiver::vital::object_track_set_sptr > ( trk_set_dser );
+    std::std::any_cast< kwiver::vital::object_track_set_sptr > ( trk_set_dser );
 
   for ( kwiver::vital::track_id_t trk_id=1; trk_id<5; ++trk_id )
   {

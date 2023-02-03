@@ -31,11 +31,11 @@ detected_object::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 detected_object::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   // Get native data type from any
   kwiver::vital::detected_object_sptr obj =
-    kwiver::vital::any_cast< kwiver::vital::detected_object_sptr > ( element );
+    std::std::any_cast< kwiver::vital::detected_object_sptr > ( element );
 
   std::stringstream msg;
   msg << "detected_object ";
@@ -48,7 +48,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any detected_object::
+std::any detected_object::
 deserialize( const std::string& message )
 {
   std::stringstream msg(message);
@@ -68,7 +68,7 @@ deserialize( const std::string& message )
     load( ar, *obj );
   }
 
-  return kwiver::vital::any(obj);
+  return std::any(obj);
 }
 
 } } } }       // end namespace kwiver

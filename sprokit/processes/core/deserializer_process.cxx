@@ -205,7 +205,7 @@ deserializer_process
         auto deser_data = msg_elem.m_serializer->deserialize( elem_buffer );
 
         // test for empty any()
-        if ( deser_data.empty() )
+        if ( !deser_data.has_value() )
         {
           LOG_ERROR( logger(), "Deserializer for type \"" << msg_elem.m_port_type
                      << "\" from message \"" << msg_type
@@ -228,7 +228,7 @@ deserializer_process
     }
     catch ( const kwiver::vital::vital_exception& e )
     {
-      // can be kwiver::vital::serialization_exception or kwiver::vital::bad_any_cast
+      // can be kwiver::vital::serialization_exception or kwiver::vital::bad_std::any_cast
       LOG_ERROR( logger(), "Error deserializing data element: " << e.what() );
     }
   } // end for

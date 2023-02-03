@@ -29,10 +29,10 @@ namespace protobuf {
   // --------------------------------------------------------------------------
   std::shared_ptr< std::string >
   track_state::
-  serialize( const vital::any& element )
+  serialize( const std::any& element )
   {
     kwiver::vital::track_state trk_state =
-      kwiver::vital::any_cast< kwiver::vital::track_state > ( element );
+      std::std::any_cast< kwiver::vital::track_state > ( element );
 
     std::ostringstream msg;
     msg << "track_state "; // add type tag
@@ -50,7 +50,7 @@ namespace protobuf {
   }
 
   // --------------------------------------------------------------------------
-  vital::any track_state::
+  std::any track_state::
   deserialize( const std::string& message )
   {
     std::istringstream msg( message );
@@ -77,7 +77,7 @@ namespace protobuf {
       convert_protobuf( proto_trk_state,  trk_state );
     }
 
-    return kwiver::vital::any( trk_state );
+    return std::any( trk_state );
   }
 
 } } } } // end namespace

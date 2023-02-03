@@ -28,10 +28,10 @@ object_track_set::~object_track_set()
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 object_track_set::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::object_track_set_sptr obj_trk_set_sptr =
-    kwiver::vital::any_cast< kwiver::vital::object_track_set_sptr > ( element );
+    std::std::any_cast< kwiver::vital::object_track_set_sptr > ( element );
 
   std::ostringstream msg;
   msg << "object_track_set "; // add type tag
@@ -49,7 +49,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any object_track_set::
+std::any object_track_set::
 deserialize( const std::string& message )
 {
   auto obj_trk_set_sptr = std::make_shared< kwiver::vital::object_track_set >();
@@ -77,7 +77,7 @@ deserialize( const std::string& message )
     convert_protobuf( proto_obj_trk_set, obj_trk_set_sptr );
   }
 
-  return kwiver::vital::any( obj_trk_set_sptr );
+  return std::any( obj_trk_set_sptr );
 }
 
 } } } } // end namespace

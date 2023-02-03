@@ -31,10 +31,10 @@ metadata::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 metadata::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::metadata_vector mvec =
-    kwiver::vital::any_cast< kwiver::vital::metadata_vector > ( element );
+    std::std::any_cast< kwiver::vital::metadata_vector > ( element );
 
   std::ostringstream msg;
   msg << "metadata "; // add type tag
@@ -51,7 +51,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any metadata::
+std::any metadata::
 deserialize( const std::string& message )
 {
   kwiver::vital::metadata_vector mvec;
@@ -77,7 +77,7 @@ deserialize( const std::string& message )
     convert_protobuf( proto_mvec, mvec );
   }
 
-  return kwiver::vital::any(mvec);
+  return std::any(mvec);
 }
 
 } } } } // end namespace

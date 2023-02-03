@@ -29,10 +29,10 @@ bounding_box::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 bounding_box::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::bounding_box_d bbox =
-    kwiver::vital::any_cast< kwiver::vital::bounding_box_d > ( element );
+    std::std::any_cast< kwiver::vital::bounding_box_d > ( element );
 
   std::ostringstream msg;
   msg << "bounding_box "; // add type tag
@@ -49,7 +49,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any bounding_box::
+std::any bounding_box::
 deserialize( const std::string& message )
 {
   kwiver::vital::bounding_box_d bbox{ 0, 0, 0, 0 };
@@ -76,7 +76,7 @@ deserialize( const std::string& message )
     convert_protobuf( proto_bbox, bbox );
   }
 
-  return kwiver::vital::any(bbox);
+  return std::any(bbox);
 }
 
 } } } } // end namespace

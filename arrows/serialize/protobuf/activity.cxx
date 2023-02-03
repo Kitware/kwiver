@@ -30,10 +30,10 @@ activity::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 activity::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::activity act =
-    kwiver::vital::any_cast< kwiver::vital::activity > ( element );
+    std::std::any_cast< kwiver::vital::activity > ( element );
 
   std::ostringstream msg;
   msg << "activity "; // add type tag
@@ -51,7 +51,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any activity::
+std::any activity::
 deserialize( const std::string& message )
 {
   kwiver::vital::activity act;
@@ -79,7 +79,7 @@ deserialize( const std::string& message )
     convert_protobuf( proto_act, act );
   }
 
-  return kwiver::vital::any(act);
+  return std::any(act);
 }
 
 } } } } // end namespace

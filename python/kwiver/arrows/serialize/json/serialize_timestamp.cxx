@@ -7,7 +7,6 @@
 
 #include <arrows/serialize/json/timestamp.h>
 #include <vital/types/timestamp.h>
-#include <vital/any.h>
 
 namespace kwiver {
 namespace arrows {

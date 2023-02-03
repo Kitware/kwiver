@@ -8,7 +8,6 @@
 #endif
 #include <pybind11/pybind11.h>
 #include <pybind11/stl_bind.h>
-#include <vital/any.h>
 #if WIN32
 #pragma warning (pop)
 #endif
@@ -296,12 +295,12 @@ datum_get_datum_correct_type(::sprokit::datum const& self)
     return none();
   }
 
-  kwiver::vital::any const any = self.get_datum<kwiver::vital::any>();
+  std::any const any = self.get_datum<std::any>();
 
   #define DATUM_GET_OBJECT(TYPE) \
   if (any.is_type<TYPE>()) \
   { \
-    return cast(kwiver::vital::any_cast<TYPE>(any)); \
+    return cast(std::std::any_cast<TYPE>(any)); \
   }
 
   DATUM_GET_OBJECT(int)
@@ -331,7 +330,7 @@ datum_get_datum_correct_type(::sprokit::datum const& self)
 std::string
 datum_datum_type(::sprokit::datum const& self)
 {
-  kwiver::vital::any const any = self.get_datum<kwiver::vital::any>();
+  std::any const any = self.get_datum<std::any>();
 
   return any.type().name();
 }
@@ -398,8 +397,8 @@ template<class T>
 T
 datum_get_object(::sprokit::datum &self)
 {
-  kwiver::vital::any const any = self.get_datum<kwiver::vital::any>();
-  return kwiver::vital::any_cast<T>(any);
+  std::any const any = self.get_datum<std::any>();
+  return std::std::any_cast<T>(any);
 }
 }
 }

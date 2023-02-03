@@ -30,10 +30,10 @@ activity::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 activity::
-serialize( const kwiver::vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::activity l_activity =
-    kwiver::vital::any_cast< kwiver::vital::activity > ( element );
+    std::std::any_cast< kwiver::vital::activity > ( element );
 
   std::stringstream msg;
   msg << "activity ";
@@ -46,7 +46,7 @@ serialize( const kwiver::vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::any activity::
+std::any activity::
 deserialize( const std::string& message )
 {
   std::stringstream msg(message);
@@ -65,7 +65,7 @@ deserialize( const std::string& message )
     load( ar, l_activity );
   }
 
-  return kwiver::vital::any( l_activity );
+  return std::any( l_activity );
 }
 
 } } } }

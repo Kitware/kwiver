@@ -9,9 +9,9 @@
 #define VITAL_ALGO_SERIALIZE_H
 
 #include <vital/algo/algorithm.h>
-#include <vital/any.h>
 #include <vital/vital_config.h>
 
+#include <any>
 #include <map>
 #include <memory>
 #include <set>
@@ -70,9 +70,9 @@ public:
   ///
   /// @return Byte string of serialized data item.
   ///
-  /// @throws kwiver::vital::bad_any_cast
+  /// @throws kwiver::vital::bad_std::any_cast
   /// @throws kwiver::vital::serialization - for unexpected element name
-  virtual std::shared_ptr< std::string > serialize( const vital::any& element ) = 0;
+  virtual std::shared_ptr< std::string > serialize( const std::any& element ) = 0;
 
   /// Deserialize byte string into data type.
   ///
@@ -98,9 +98,9 @@ public:
   /// @return Concrete data type, represented as an any, created from
   /// the input.
   ///
-  /// @throws kwiver::vital::bad_any_cast
+  /// @throws kwiver::vital::bad_std::any_cast
   /// @throws kwiver::vital::serialization - for unexpected element name
-  virtual vital::any deserialize( const std::string& message ) = 0;
+  virtual std::any deserialize( const std::string& message ) = 0;
 
   virtual void set_configuration( kwiver::vital::config_block_sptr config ) {}
   virtual bool

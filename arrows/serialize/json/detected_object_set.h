@@ -29,8 +29,8 @@ public:
   detected_object_set();
   virtual ~detected_object_set();
 
-  std::shared_ptr< std::string > serialize( const vital::any& element ) override;
-  vital::any deserialize( const std::string& message ) override;
+  std::shared_ptr< std::string > serialize( const std::any& element ) override;
+  std::any deserialize( const std::string& message ) override;
 };
 
 } } } }       // end namespace kwiver

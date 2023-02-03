@@ -31,10 +31,10 @@ track::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 track::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::track_sptr trk_sptr =
-    kwiver::vital::any_cast< kwiver::vital::track_sptr > ( element );
+    std::std::any_cast< kwiver::vital::track_sptr > ( element );
   kwiver::arrows::serialize::json::track_item trk_item(trk_sptr);
   std::stringstream msg;
   msg << "track "; // add type tag
@@ -46,7 +46,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any track::
+std::any track::
 deserialize( const std::string& message )
 {
   std::stringstream msg(message);
@@ -64,7 +64,7 @@ deserialize( const std::string& message )
     cereal::JSONInputArchive ar( msg );
     ar( trk_item );
   }
-  return kwiver::vital::any( trk_item.get_track() );
+  return std::any( trk_item.get_track() );
 }
 
 } } } }       // end namespace kwiver

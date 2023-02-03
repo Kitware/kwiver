@@ -198,7 +198,7 @@ INSTANTIATE_ADS_ALL( float );
 INSTANTIATE_ADS_ALL( double );
 INSTANTIATE_ADS_ALL( bool );
 
-INSTANTIATE_ADS_ALL( kwiver::vital::any );
+INSTANTIATE_ADS_ALL( std::any );
 INSTANTIATE_ADS_ALL( kwiver::vital::bounding_box_d );
 INSTANTIATE_ADS_ALL( kwiver::vital::timestamp );
 INSTANTIATE_ADS_ALL( kwiver::vital::geo_polygon );

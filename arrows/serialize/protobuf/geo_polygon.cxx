@@ -29,10 +29,10 @@ geo_polygon::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 geo_polygon::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::geo_polygon_d bbox =
-    kwiver::vital::any_cast< kwiver::vital::geo_polygon_d > ( element );
+    std::std::any_cast< kwiver::vital::geo_polygon_d > ( element );
 
   std::ostringstream msg;
   msg << "geo_polygon "; // add type tag
@@ -49,7 +49,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any geo_polygon::
+std::any geo_polygon::
 deserialize( const std::string& message )
 {
   kwiver::vital::geo_polygon_d bbox{ 0, 0, 0, 0 };
@@ -76,7 +76,7 @@ deserialize( const std::string& message )
     convert_protobuf( proto_bbox, bbox );
   }
 
-  return kwiver::vital::any(bbox);
+  return std::any(bbox);
 }
 
 } } } } // end namespace
