@@ -16,9 +16,9 @@
 #include <vital/util/token_expander.h>
 #include <vital/util/token_type_symtab.h>
 #include <vital/logger/logger.h>
-#include <vital/util/variant/variant.hpp>
 
 #include <map>
+#include <variant>
 
 namespace sprokit {
 

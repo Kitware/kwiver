@@ -228,7 +228,7 @@ subvalue_visitor
 kv::metadata_value
 get_subvalue( kv::metadata_value const& value, size_t index )
 {
-  return kv::visit( subvalue_visitor{ index }, value );
+  return std::visit( subvalue_visitor{ index }, value );
 }
 
 // ----------------------------------------------------------------------------
@@ -288,7 +288,7 @@ metadata_map_io_csv::priv
   if( tag == kv::VITAL_META_VIDEO_MICROSECONDS )
   {
     // Print as hh:mm:ss.ssssss
-    auto const microseconds = kv::get< uint64_t >( value );
+    auto const microseconds = std::get< uint64_t >( value );
     auto const seconds = ( microseconds / 1000000 );
     auto const minutes = ( seconds / 60 );
     auto const hours = ( minutes / 60 );
@@ -302,7 +302,7 @@ metadata_map_io_csv::priv
   }
   else
   {
-    kv::visit( write_visitor{ fout }, value );
+    std::visit( write_visitor{ fout }, value );
   }
 }
 

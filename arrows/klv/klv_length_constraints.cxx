@@ -102,7 +102,7 @@ klv_length_constraints
   struct visitor
   {
     bool
-    operator()( vital::monostate ) const
+    operator()( std::monostate ) const
     {
       return true;
     }
@@ -128,7 +128,7 @@ klv_length_constraints
     size_t length;
   };
 
-  return vital::visit( visitor{ length }, m_impl );
+  return std::visit( visitor{ length }, m_impl );
 }
 
 // ----------------------------------------------------------------------------
@@ -136,7 +136,7 @@ bool
 klv_length_constraints
 ::is_free() const
 {
-  return vital::holds_alternative< vital::monostate >( m_impl );
+  return std::holds_alternative< std::monostate >( m_impl );
 }
 
 // ----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ vital::optional< size_t >
 klv_length_constraints
 ::fixed() const
 {
-  auto const result = vital::get_if< size_t >( &m_impl );
+  auto const result = std::get_if< size_t >( &m_impl );
   if( result )
   {
     return *result;
@@ -160,7 +160,7 @@ size_t
 klv_length_constraints
 ::fixed_or( size_t backup ) const
 {
-  auto const result = vital::get_if< size_t >( &m_impl );
+  auto const result = std::get_if< size_t >( &m_impl );
   if( result )
   {
     return *result;
@@ -176,7 +176,7 @@ vital::optional< vital::interval< size_t > >
 klv_length_constraints
 ::interval() const
 {
-  auto const result = vital::get_if< vital::interval< size_t > >( &m_impl );
+  auto const result = std::get_if< vital::interval< size_t > >( &m_impl );
   if( result )
   {
     return *result;
@@ -192,7 +192,7 @@ vital::optional< std::set< size_t > >
 klv_length_constraints
 ::set() const
 {
-  auto const result = vital::get_if< std::set< size_t > >( &m_impl );
+  auto const result = std::get_if< std::set< size_t > >( &m_impl );
   if( result )
   {
     return *result;
@@ -216,7 +216,7 @@ klv_length_constraints
   struct visitor
   {
     size_t
-    operator()( vital::monostate ) const
+    operator()( std::monostate ) const
     {
       return 1;
     }
@@ -240,7 +240,7 @@ klv_length_constraints
     }
   };
 
-  return vital::visit( visitor{}, m_impl );
+  return std::visit( visitor{}, m_impl );
 }
 
 // ----------------------------------------------------------------------------
@@ -264,7 +264,7 @@ klv_length_constraints
   struct visitor
   {
     void
-    operator()( vital::monostate ) const
+    operator()( std::monostate ) const
     {
       os << "unconstrained length";
     }
@@ -300,7 +300,7 @@ klv_length_constraints
   };
 
   std::stringstream ss;
-  vital::visit( visitor{ ss }, m_impl );
+  std::visit( visitor{ ss }, m_impl );
   return ss.str();
 }
 

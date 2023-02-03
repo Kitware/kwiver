@@ -12,9 +12,9 @@
 
 #include <vital/optional.h>
 #include <vital/util/interval.h>
-#include <vital/util/variant/variant.hpp>
 
 #include <set>
+#include <variant>
 
 namespace kwiver {
 
@@ -79,8 +79,8 @@ public:
   description() const;
 
 private:
-  vital::variant<
-    vital::monostate, size_t, vital::interval< size_t >, std::set< size_t >
+  std::variant<
+    std::monostate, size_t, vital::interval< size_t >, std::set< size_t >
     > m_impl;
   vital::optional< size_t > m_suggested;
 };

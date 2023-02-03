@@ -143,7 +143,7 @@ double
 metadata_item
 ::as_double() const
 {
-  return kwiver::vital::get< double >( this->m_data );
+  return std::get< double >( this->m_data );
 }
 
 // ----------------------------------------------------------------------------
@@ -159,7 +159,7 @@ uint64_t
 metadata_item
 ::as_uint64() const
 {
-  return kwiver::vital::get< uint64_t >( this->m_data );
+  return std::get< uint64_t >( this->m_data );
 }
 
 // ----------------------------------------------------------------------------
@@ -177,7 +177,7 @@ metadata_item
 {
   if( this->has_string() )
   {
-    return kwiver::vital::get< std::string >( m_data );
+    return std::get< std::string >( m_data );
   }
 
   std::stringstream ss;

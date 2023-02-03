@@ -35,10 +35,6 @@ set( public_headers
   token_type_sysenv.h
   tokenize.h
   transform_image.h
-  variant/config.hpp
-  variant/in_place.hpp
-  variant/lib.hpp
-  variant/variant.hpp
   visit.h
   wrap_text_block.h
   file_md5.h

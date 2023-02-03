@@ -10,7 +10,7 @@
 
 #include <arrows/klv/klv_timeline.h>
 
-#include <vital/util/variant/variant.hpp>
+#include <variant>
 
 namespace kwiver {
 

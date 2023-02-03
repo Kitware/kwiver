@@ -98,7 +98,7 @@ IMPLEMENT_TEST(empty)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 0);
 }
@@ -110,7 +110,7 @@ IMPLEMENT_TEST(comments)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 0);
 }
@@ -122,7 +122,7 @@ IMPLEMENT_TEST(empty_config)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(1, 0, 0, 0);
 }
@@ -134,7 +134,7 @@ IMPLEMENT_TEST(config_block)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(1, 0, 0, 0);
 }
@@ -146,7 +146,7 @@ IMPLEMENT_TEST(config_block_block)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(1, 0, 0, 0);
 }
@@ -158,7 +158,7 @@ IMPLEMENT_TEST(config_block_relativepath)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(1, 0, 0, 0);
 }
@@ -170,7 +170,7 @@ IMPLEMENT_TEST(config_block_long_block)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(1, 0, 0, 0);
 }
@@ -182,7 +182,7 @@ IMPLEMENT_TEST(config_block_nested_block)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(1, 0, 0, 0);
 }
@@ -210,7 +210,7 @@ IMPLEMENT_TEST(config_block_notalnum)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(2, 0, 0, 0);
 }
@@ -222,7 +222,7 @@ IMPLEMENT_TEST(config_value_spaces)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(1, 0, 0, 0);
 }
@@ -234,7 +234,7 @@ IMPLEMENT_TEST(one_process)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 1, 0, 0);
 }
@@ -246,7 +246,7 @@ IMPLEMENT_TEST(connected_processes)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 2, 1, 0);
 }
@@ -258,7 +258,7 @@ IMPLEMENT_TEST(connected_processes_notalnum)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 2, 3, 0);
 }
@@ -270,7 +270,7 @@ IMPLEMENT_TEST(include)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(1, 0, 0, 0);
 }
@@ -285,7 +285,7 @@ IMPLEMENT_TEST(include_env)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(1, 0, 0, 0);
 }
@@ -338,7 +338,7 @@ IMPLEMENT_TEST(envvar)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 0);
 }
@@ -350,7 +350,7 @@ IMPLEMENT_TEST(cluster_declare)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 1);
 }
@@ -362,7 +362,7 @@ IMPLEMENT_TEST(cluster_config)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 1);
 }
@@ -374,7 +374,7 @@ IMPLEMENT_TEST(cluster_input_map)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 1);
 }
@@ -386,7 +386,7 @@ IMPLEMENT_TEST(cluster_input_multi_map)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 1);
 }
@@ -398,7 +398,7 @@ IMPLEMENT_TEST(cluster_output_map)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 1);
 }
@@ -410,7 +410,7 @@ IMPLEMENT_TEST(cluster_mappings)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 1);
 }
@@ -422,7 +422,7 @@ IMPLEMENT_TEST(cluster_all)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 1);
 }
@@ -498,7 +498,7 @@ IMPLEMENT_TEST(cluster_input_map_with_slash)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 1);
 }
@@ -510,7 +510,7 @@ IMPLEMENT_TEST(cluster_output_map_with_slash)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 0, 1);
 }
@@ -530,7 +530,7 @@ IMPLEMENT_TEST(connect_input_with_slash)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 1, 0);
 }
@@ -542,7 +542,7 @@ IMPLEMENT_TEST(connect_output_with_slash)
 
   test_visitor v;
 
-  for ( auto b : blocks ) { kwiver::vital::visit( v, b ); }
+  for ( auto b : blocks ) { std::visit( v, b ); }
 
   v.expect(0, 0, 1, 0);
 }

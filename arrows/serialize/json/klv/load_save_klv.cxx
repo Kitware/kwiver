@@ -15,6 +15,7 @@
 #include <vital/util/visit.h>
 
 #include <stdexcept>
+#include <variant>
 
 using namespace kwiver::arrows::klv;
 namespace kv = kwiver::vital;
@@ -29,7 +30,7 @@ namespace {
 // ----------------------------------------------------------------------------
 // List of types supported by this JSON exporter/importer.
 using klv_type_list =
-  kv::variant<
+  std::variant<
     double,
     int64_t,
     klv_0102_country_coding_method,
