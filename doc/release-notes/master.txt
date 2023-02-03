@@ -48,3 +48,9 @@ Applets: bundle adjustment tool
 
 * Added an implementation bundle adjustment (BA) applet that optimizes a set of
 cameras given multiple 3D-2D point correspondences.
+
+Python:
+
+* Removed the custom pybind11.h header file since the current version of
+  pybind11 now handles cases where the GIL is acquired via the
+  PyGILState_* API.
