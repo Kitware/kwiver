@@ -25,6 +25,7 @@ set( public_headers
   interval_map.h
   string.h
   string_editor.h
+  string_encoding.h
   simple_stats.h
   thread_pool.h
   token_expander.h
@@ -61,6 +62,7 @@ set( sources
   hex_dump.cxx
   string.cxx
   string_editor.cxx
+  string_encoding.cxx
   thread_pool.cxx
   token_expander.cxx
   token_expand_editor.cxx
