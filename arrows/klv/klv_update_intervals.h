@@ -12,6 +12,8 @@
 
 #include <vital/util/variant/variant.hpp>
 
+#include <optional>
+
 namespace kwiver {
 
 namespace arrows {
@@ -49,10 +51,10 @@ public:
   struct KWIVER_ALGO_KLV_EXPORT key_t
   {
     key_t( klv_top_level_tag standard );
-    key_t( klv_top_level_tag standard, vital::optional< klv_lds_key > tag );
+    key_t( klv_top_level_tag standard, std::optional< klv_lds_key > tag );
 
     klv_top_level_tag standard;
-    vital::optional< klv_lds_key > tag;
+    std::optional< klv_lds_key > tag;
   };
 
   using value_t = uint64_t;

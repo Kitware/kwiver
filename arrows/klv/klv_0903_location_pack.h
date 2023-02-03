@@ -14,7 +14,7 @@
 #include <arrows/klv/klv_series.h>
 #include <arrows/klv/klv_set.h>
 
-#include <vital/optional.h>
+#include <optional>
 
 namespace kwiver {
 
@@ -63,8 +63,8 @@ struct KWIVER_ALGO_KLV_EXPORT klv_0903_location_pack
   double latitude;
   double longitude;
   double altitude;
-  kwiver::vital::optional< klv_0903_sigma_pack > sigma;
-  kwiver::vital::optional< klv_0903_rho_pack > rho;
+  std::optional< klv_0903_sigma_pack > sigma;
+  std::optional< klv_0903_rho_pack > rho;
 };
 
 // ----------------------------------------------------------------------------
@@ -82,8 +82,8 @@ struct KWIVER_ALGO_KLV_EXPORT klv_0903_velocity_pack
   double east;
   double north;
   double up;
-  kwiver::vital::optional< klv_0903_sigma_pack > sigma;
-  kwiver::vital::optional< klv_0903_rho_pack > rho;
+  std::optional< klv_0903_sigma_pack > sigma;
+  std::optional< klv_0903_rho_pack > rho;
 };
 
 // ----------------------------------------------------------------------------

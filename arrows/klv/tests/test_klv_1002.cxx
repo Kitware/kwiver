@@ -10,6 +10,8 @@
 #include <arrows/klv/klv_1002.h>
 #include <arrows/klv/klv_1202.h>
 
+#include <optional>
+
 // ----------------------------------------------------------------------------
 int
 main( int argc, char** argv )
@@ -50,10 +52,10 @@ auto const expected_result = klv_local_set{
       2, 0,
       { { 2, 2 },
         { 100.0, 105.0, 95.0, 100.0 } },
-      kv::nullopt,
+      std::nullopt,
       kld{ 1.0 },
       kld{ 2.0 },
-      kv::nullopt } } };
+      std::nullopt } } };
 
 // ----------------------------------------------------------------------------
 auto const input_bytes = klv_bytes_t{

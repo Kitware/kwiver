@@ -15,6 +15,8 @@
 #include <arrows/klv/klv_1108_metric_set.h>
 #include <arrows/klv/misp_time.h>
 
+#include <optional>
+
 namespace kwiver {
 
 namespace arrows {
@@ -235,7 +237,7 @@ update_klv
     // Determine the timestamp for this frame
     auto const timestamp_entry =
       klv_md->find( vital::VITAL_META_UNIX_TIMESTAMP );
-    vital::optional< uint64_t > backup_timestamp;
+    std::optional< uint64_t > backup_timestamp;
     if( timestamp_entry )
     {
       backup_timestamp = timestamp_entry.as_uint64();

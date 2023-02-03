@@ -8,13 +8,13 @@
 #ifndef KWIVER_VITAL_UTIL_INTERVAL_MAP_H_
 #define KWIVER_VITAL_UTIL_INTERVAL_MAP_H_
 
-#include <vital/optional.h>
 #include <vital/range/iterator_range.h>
 #include <vital/util/interval.h>
 
 #include <initializer_list>
 #include <iterator>
 #include <map>
+#include <optional>
 #include <vector>
 
 namespace kwiver {
@@ -247,11 +247,11 @@ public:
   /// Return the value, if any, mapped to the given point in key.
   ///
   /// Execution time is O(log n).
-  optional< ValueT >
+  std::optional< ValueT >
   at( KeyT key ) const
   {
     auto const it = find( key );
-    return ( it != cend() ) ? optional< ValueT >{ it->value } : nullopt;
+    return ( it != cend() ) ? std::optional< ValueT >{ it->value } : std::nullopt;
   }
 
   /// Set the value of the given interval to the given value.
