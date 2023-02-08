@@ -57,7 +57,7 @@ bake_pipe_blocks( pipe_blocks const& blocks )
   // apply main visitor to collect
   for ( auto b : blocks )
   {
-    kwiver::vital::visit( bakery, b );
+    std::visit( bakery, b );
   }
 
   bakery_base::config_decls_t& configs = bakery.m_configs;
@@ -112,7 +112,7 @@ bake_cluster_blocks( cluster_blocks const& blocks )
 
   for ( auto b : blocks )
   {
-    kwiver::vital::visit( *bakery, b );
+    std::visit( *bakery, b );
   }
 
   if ( bakery->m_processes.empty() )
@@ -155,7 +155,7 @@ extract_configuration( pipe_blocks const& blocks )
 
   for (auto b : blocks )
   {
-    kwiver::vital::visit( bakery, b );
+    std::visit( bakery, b );
   }
 
   bakery_base::config_decls_t& configs = bakery.m_configs;

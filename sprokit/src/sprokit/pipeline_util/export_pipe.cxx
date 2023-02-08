@@ -393,7 +393,7 @@ generate( std::ostream& str )
 
   for ( auto b : blocks )
   {
-    kwiver::vital::visit( printer, b );
+    std::visit( printer, b );
   }
 
   printer.output_process_defaults();

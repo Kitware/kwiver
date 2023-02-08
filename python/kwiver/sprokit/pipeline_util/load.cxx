@@ -218,7 +218,7 @@ class pipe_block_visitor
 object
 pipe_block_config(::sprokit::pipe_block const& block)
 {
-  return kwiver::vital::visit( pipe_block_visitor(pipe_block_visitor::BLOCK_CONFIG), block);
+  return std::visit( pipe_block_visitor(pipe_block_visitor::BLOCK_CONFIG), block);
 }
 
 // ----------------------------------------------------------------------------
@@ -232,7 +232,7 @@ pipe_block_config_set(::sprokit::pipe_block& block, ::sprokit::config_pipe_block
 object
 pipe_block_process(::sprokit::pipe_block const& block)
 {
-  return kwiver::vital::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_PROCESS), block);
+  return std::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_PROCESS), block);
 }
 
 // ----------------------------------------------------------------------------
@@ -246,7 +246,7 @@ pipe_block_process_set(::sprokit::pipe_block& block, ::sprokit::process_pipe_blo
 object
 pipe_block_connect(::sprokit::pipe_block const& block)
 {
-  return kwiver::vital::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_CONNECT), block);
+  return std::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_CONNECT), block);
 }
 
 // ----------------------------------------------------------------------------
@@ -281,7 +281,7 @@ class cluster_subblock_visitor
 object
 cluster_subblock_config(::sprokit::cluster_subblock_t const& subblock)
 {
-  return kwiver::vital::visit(cluster_subblock_visitor(cluster_subblock_visitor::BLOCK_CONFIG), subblock);
+  return std::visit(cluster_subblock_visitor(cluster_subblock_visitor::BLOCK_CONFIG), subblock);
 }
 
 // ----------------------------------------------------------------------------
@@ -295,7 +295,7 @@ cluster_subblock_config_set(::sprokit::cluster_subblock_t& subblock, ::sprokit::
 object
 cluster_subblock_input(::sprokit::cluster_subblock_t const& subblock)
 {
-  return kwiver::vital::visit(cluster_subblock_visitor(cluster_subblock_visitor::BLOCK_INPUT), subblock);
+  return std::visit(cluster_subblock_visitor(cluster_subblock_visitor::BLOCK_INPUT), subblock);
 }
 
 // ----------------------------------------------------------------------------
@@ -309,7 +309,7 @@ cluster_subblock_input_set(::sprokit::cluster_subblock_t& subblock, ::sprokit::c
 object
 cluster_subblock_output(::sprokit::cluster_subblock_t const& subblock)
 {
-  return kwiver::vital::visit(cluster_subblock_visitor(cluster_subblock_visitor::BLOCK_OUTPUT), subblock);
+  return std::visit(cluster_subblock_visitor(cluster_subblock_visitor::BLOCK_OUTPUT), subblock);
 }
 
 // ----------------------------------------------------------------------------
@@ -323,7 +323,7 @@ cluster_subblock_output_set(::sprokit::cluster_subblock_t& subblock, ::sprokit::
 object
 cluster_block_config(::sprokit::cluster_block const& block)
 {
-  return kwiver::vital::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_CONFIG), block);
+  return std::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_CONFIG), block);
 }
 
 // ----------------------------------------------------------------------------
@@ -337,7 +337,7 @@ cluster_block_config_set(::sprokit::cluster_block& block, ::sprokit::config_pipe
 object
 cluster_block_process(::sprokit::cluster_block const& block)
 {
-  return kwiver::vital::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_PROCESS), block);
+  return std::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_PROCESS), block);
 }
 
 // ----------------------------------------------------------------------------
@@ -351,7 +351,7 @@ cluster_block_process_set(::sprokit::cluster_block& block, ::sprokit::process_pi
 object
 cluster_block_connect(::sprokit::cluster_block const& block)
 {
-  return kwiver::vital::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_CONNECT), block);
+  return std::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_CONNECT), block);
 }
 
 // ----------------------------------------------------------------------------
@@ -365,7 +365,7 @@ cluster_block_connect_set(::sprokit::cluster_block& block, ::sprokit::connect_pi
 object
 cluster_block_cluster(::sprokit::cluster_block const& block)
 {
-  return kwiver::vital::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_CLUSTER), block);
+  return std::visit(pipe_block_visitor(pipe_block_visitor::BLOCK_CLUSTER), block);
 }
 
 // ----------------------------------------------------------------------------

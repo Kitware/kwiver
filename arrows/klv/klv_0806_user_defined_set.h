@@ -11,9 +11,8 @@
 #include "klv_set.h"
 #include "klv_util.h"
 
-#include <vital/util/variant/variant.hpp>
-
 #include <ostream>
+#include <variant>
 
 namespace kwiver {
 
