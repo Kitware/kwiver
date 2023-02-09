@@ -4,8 +4,6 @@
 
 #include <vital/types/metadata_map.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <memory>
@@ -59,7 +57,7 @@ size_t
 metadata_map_trampoline
 ::size() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     size_t,
     kv::metadata_map,
     size,
@@ -69,7 +67,7 @@ kv::metadata_map::map_metadata_t
 metadata_map_trampoline
 ::metadata() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::metadata_map::map_metadata_t,
     kv::metadata_map,
     metadata,
@@ -80,7 +78,7 @@ bool
 metadata_map_trampoline
 ::has_item( kv::vital_metadata_tag tag, kv::frame_id_t fid ) const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     bool,
     kv::metadata_map,
     has_item,
@@ -92,7 +90,7 @@ kv::metadata_item const&
 metadata_map_trampoline
 ::get_item( kv::vital_metadata_tag tag, kv::frame_id_t fid ) const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::metadata_item const&,
     kv::metadata_map,
     get_item,
@@ -104,7 +102,7 @@ kv::metadata_vector
 metadata_map_trampoline
 ::get_vector( kv::frame_id_t fid ) const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::metadata_vector,
     kv::metadata_map,
     get_vector,
@@ -116,7 +114,7 @@ std::set< kv::frame_id_t >
 metadata_map_trampoline
 ::frames() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     std::set< kv::frame_id_t >,
     kv::metadata_map,
     frames,

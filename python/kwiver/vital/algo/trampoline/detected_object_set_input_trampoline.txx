@@ -13,7 +13,7 @@
 
 #include <tuple>
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <vital/algo/detected_object_set_input.h>
 #include <vital/types/detected_object_set.h>
 #include <vital/types/image_container.h>
@@ -34,7 +34,7 @@ class algorithm_def_dosi_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<dosi>,
         type_name,
@@ -53,7 +53,7 @@ class detected_object_set_input_trampoline :
 
     bool read_set(kwiver::vital::detected_object_set_sptr& set, std::string& image_path) override
     {
-      kwiver::vital::python::gil_scoped_acquire gil;
+      pybind11::gil_scoped_acquire gil;
       pybind11::function overload = pybind11::get_overload(static_cast<dosi const*>(this), "read_set");
       if (overload) {
 	auto o = overload();
@@ -69,7 +69,7 @@ class detected_object_set_input_trampoline :
 
     void open(std::string const& filename) override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         dosi,
         open,
@@ -79,7 +79,7 @@ class detected_object_set_input_trampoline :
 
     void close() override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         dosi,
         close,

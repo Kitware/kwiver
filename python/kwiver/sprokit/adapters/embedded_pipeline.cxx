@@ -6,7 +6,7 @@
 #include <sprokit/pipeline_util/load_pipe_exception.h>
 
 #include <pybind11/stl.h>
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 
 #include <memory>
 #include <fstream>
@@ -125,7 +125,7 @@ bool
 embedded_pipeline_trampoline
 ::connect_input_adapter()
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     bool,
     embedded_pipeline,
     connect_input_adapter,
@@ -136,7 +136,7 @@ bool
 embedded_pipeline_trampoline
 ::connect_output_adapter()
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     bool,
     embedded_pipeline,
     connect_output_adapter,
@@ -147,7 +147,7 @@ void
 embedded_pipeline_trampoline
 ::update_config(vital::config_block_sptr config)
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     void,
     embedded_pipeline,
     update_config,

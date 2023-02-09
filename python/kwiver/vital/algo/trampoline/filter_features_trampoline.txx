@@ -15,7 +15,7 @@
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/filter_features.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 namespace kwiver {
@@ -32,7 +32,7 @@ class algorithm_def_ff_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def< kwiver::vital::algo::filter_features >,
         type_name,
@@ -52,7 +52,7 @@ class filter_features_trampoline :
     kwiver::vital::feature_set_sptr
     filter( kwiver::vital::feature_set_sptr input ) const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         kwiver::vital::feature_set_sptr,
         kwiver::vital::algo::filter_features,
         filter,
@@ -67,7 +67,7 @@ class filter_features_trampoline :
     filter( kwiver::vital::feature_set_sptr feat,
             kwiver::vital::descriptor_set_sptr descr ) const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         kwiver::vital::feature_set_sptr,
         kwiver::vital::algo::filter_features,
         filter,
@@ -81,7 +81,7 @@ class filter_features_trampoline :
     filter( kwiver::vital::feature_set_sptr feat,
             std::vector<unsigned int>& indices ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::feature_set_sptr,
         kwiver::vital::algo::filter_features,
         filter,

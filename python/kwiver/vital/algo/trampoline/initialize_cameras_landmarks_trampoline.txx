@@ -12,7 +12,7 @@
 #ifndef INITIALIZE_CAMERAS_LANDMARKS_TRAMPOLINE_TXX
 #define INITIALIZE_CAMERAS_LANDMARKS_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/initialize_cameras_landmarks.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_icl_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::initialize_cameras_landmarks>,
         type_name,
@@ -54,7 +54,7 @@ class initialize_cameras_landmarks_trampoline :
                kwiver::vital::feature_track_set_sptr tracks,
                kwiver::vital::sfm_constraints_sptr constraints ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::initialize_cameras_landmarks,
         initialize,

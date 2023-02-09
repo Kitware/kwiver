@@ -12,7 +12,7 @@
 #ifndef TRAIN_DETECTOR_TRAMPOLINE_TXX
 #define TRAIN_DETECTOR_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/train_detector.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_td_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::train_detector>,
         type_name,
@@ -57,7 +57,7 @@ class train_detector_trampoline :
            std::vector< kwiver::vital::detected_object_set_sptr > test_groundtruth
          )  override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::train_detector,
         train_from_disk,
@@ -77,7 +77,7 @@ class train_detector_trampoline :
            std::vector< kwiver::vital::detected_object_set_sptr > test_groundtruth
          )  override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::train_detector,
         train_from_memory,
