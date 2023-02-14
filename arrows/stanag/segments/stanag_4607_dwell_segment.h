@@ -39,7 +39,7 @@ struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_sensor_position
 {
   double latitude;
   double longitude;
-  int altitude;
+  int32_t altitude;
 };
 
 // ----------------------------------------------------------------------------
@@ -84,9 +84,9 @@ public:
 ///  the time of the dwell. Expressed in centimeters.
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_sensor_pos_uncert
 {
-  int along_track;
-  int cross_track;
-  int altitude;
+  uint32_t along_track;
+  uint32_t cross_track;
+  uint16_t altitude;
 };
 
 // ----------------------------------------------------------------------------
@@ -207,10 +207,10 @@ operator<<( std::ostream& os,
 /// Standard deviation of the target measurements.
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_target_measure_uncert
 {
-  int slant_range;
-  int cross_range;
-  int height;
-  int radial_velocity;
+  uint16_t slant_range;
+  uint16_t cross_range;
+  uint8_t height;
+  uint16_t radial_velocity;
 };
 
 // ----------------------------------------------------------------------------
@@ -236,8 +236,8 @@ public:
 /// Information used to generate the MTI Target.
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_truth_tag
 {
-  int application;
-  int entity;
+  uint8_t application;
+  uint32_t entity;
 };
 
 // ----------------------------------------------------------------------------
@@ -326,9 +326,9 @@ struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_target_location
 {
   std::optional< double > hi_res_lat;
   std::optional< double > hi_res_long;
-  std::optional< int > delta_lat;
-  std::optional< int > delta_long;
-  std::optional< int > geodetic_height;
+  std::optional< int16_t > delta_lat;
+  std::optional< int16_t > delta_long;
+  std::optional< int16_t > geodetic_height;
 };
 
 // ----------------------------------------------------------------------------
@@ -355,16 +355,16 @@ public:
 /// Each target observed within the dwell.
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_target_report
 {
-  std::optional< int > mti_report_idx;
+  std::optional< uint16_t > mti_report_idx;
   std::optional< stanag_4607_target_location > location;
-  std::optional< int > velocity_los;
-  std::optional< int > wrap_velocity;
-  std::optional< int > snr;
+  std::optional< int16_t > velocity_los;
+  std::optional< uint16_t > wrap_velocity;
+  std::optional< int8_t > snr;
   std::optional< stanag_4607_target_classification > classification;
-  std::optional< int > class_probability;
+  std::optional< uint8_t > class_probability;
   std::optional< stanag_4607_target_measure_uncert > measurement_uncert;
   std::optional< stanag_4607_truth_tag > truth_tag;
-  std::optional< int > radar_cross_sect;
+  std::optional< int8_t > radar_cross_sect;
 };
 
 // ----------------------------------------------------------------------------
@@ -398,24 +398,24 @@ public:
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_dwell_segment
 {
   std::set< stanag_4607_dwell_existence_mask_bit > existence_mask;
-  int revisit_index;
-  int dwell_index;
+  uint16_t revisit_index;
+  uint16_t dwell_index;
   int last_dwell_of_revisit;
-  int target_report_count;
-  int dwell_time;
+  uint16_t target_report_count;
+  uint32_t dwell_time;
   stanag_4607_sensor_position sensor_position;
   std::optional< stanag_4607_scale_factor > scale_factor;
   std::optional< stanag_4607_sensor_pos_uncert > sensor_pos_uncert;
-  std::optional< double > sensor_track;
-  std::optional< int > sensor_speed;
-  std::optional< int > sensor_vertical_vel;
-  std::optional< int > sensor_track_uncert;
-  std::optional< int > sensor_speed_uncert;
-  std::optional< int > sensor_vertical_vel_uncert;
+  std::optional< uint16_t > sensor_track;
+  std::optional< uint32_t > sensor_speed;
+  std::optional< int8_t > sensor_vertical_vel;
+  std::optional< uint8_t > sensor_track_uncert;
+  std::optional< uint16_t > sensor_speed_uncert;
+  std::optional< uint16_t > sensor_vertical_vel_uncert;
   std::optional< stanag_4607_orientation > platform_orient;
   stanag_4607_dwell_area dwell_area;
   std::optional< stanag_4607_orientation > sensor_orientation;
-  std::optional< int > min_detectable_vel;
+  std::optional< uint8_t > min_detectable_vel;
   std::vector< stanag_4607_target_report > target_reports;
 };
 

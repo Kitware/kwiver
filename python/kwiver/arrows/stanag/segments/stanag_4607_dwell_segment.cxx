@@ -13,7 +13,7 @@ stanag_4607_dwell_segment( py::module& m )
 {
   py::class_< kas::stanag_4607_sensor_position >( m,
                                                   "stanag_4607_sensor_position" )
-    .def( py::init( []( double latitude, double longitude, int altitude){
+    .def( py::init( []( double latitude, double longitude, int32_t altitude){
                       return kas::stanag_4607_sensor_position{ latitude,
                                                                longitude,
                                                                altitude };
@@ -52,7 +52,7 @@ stanag_4607_dwell_segment( py::module& m )
 
   py::class_< kas::stanag_4607_sensor_pos_uncert >( m,
                                                     "stanag_4607_sensor_pos_uncert" )
-    .def( py::init( []( int along_track, int cross_track, int altitude ){
+    .def( py::init( []( uint32_t along_track, uint32_t cross_track, uint16_t altitude ){
                       return kas::stanag_4607_sensor_pos_uncert{ along_track,
                                                                  cross_track,
                                                                  altitude };
@@ -200,8 +200,8 @@ stanag_4607_dwell_segment( py::module& m )
 
   py::class_< kas::stanag_4607_target_measure_uncert >( m,
                                                         "stanag_4607_target_measure_uncert" )
-    .def( py::init( []( int slant_range, int cross_range, int height,
-                        int radial_velocity ){
+    .def( py::init( []( uint16_t slant_range, uint16_t cross_range, uint8_t height,
+                        uint16_t radial_velocity ){
                       return kas::stanag_4607_target_measure_uncert{
                         slant_range, cross_range, height, radial_velocity };
                     } ) )
@@ -228,7 +228,7 @@ stanag_4607_dwell_segment( py::module& m )
           } );
 
   py::class_< kas::stanag_4607_truth_tag >( m, "stanag_4607_truth_tag" )
-    .def( py::init( []( int application, int entity ){
+    .def( py::init( []( uint8_t application, uint32_t entity ){
                       return kas::stanag_4607_truth_tag{ application, entity };
                     } ) )
     .def_readwrite( "application", &kas::stanag_4607_truth_tag::application )
@@ -364,8 +364,8 @@ stanag_4607_dwell_segment( py::module& m )
 
   py::class_< kas::stanag_4607_target_location >( m,
                                                   "stanag_4607_target_location" )
-    .def( py::init( []( double hi_res_lat, double hi_res_long, int delta_lat,
-                        int delta_long, int geodetic_height ){
+    .def( py::init( []( double hi_res_lat, double hi_res_long, int16_t delta_lat,
+                        int16_t delta_long, int16_t geodetic_height ){
                       return kas::stanag_4607_target_location{ hi_res_lat,
                                                                hi_res_long,
                                                                delta_lat,
@@ -401,19 +401,19 @@ stanag_4607_dwell_segment( py::module& m )
 
   py::class_< kas::stanag_4607_target_report >( m,
                                                 "stanag_4607_target_report" )
-    .def( py::init( [](std::optional< int > mti_report_idx,
+    .def( py::init( [](std::optional< uint16_t > mti_report_idx,
                        std::optional< kas::stanag_4607_target_location >
                        location,
-                       std::optional< int > velocity_los,
-                       std::optional< int > wrap_velocity,
-                       std::optional< int > snr,
+                       std::optional< int16_t > velocity_los,
+                       std::optional< uint16_t > wrap_velocity,
+                       std::optional< int8_t > snr,
                        std::optional< kas::stanag_4607_target_classification >
                        classification,
-                       std::optional< int > class_probability,
+                       std::optional< uint8_t > class_probability,
                        std::optional< kas::stanag_4607_target_measure_uncert >
                        measurement_uncert,
                        std::optional< kas::stanag_4607_truth_tag > truth_tag,
-                       std::optional< int > radar_cross_sect ){
+                       std::optional< int8_t > radar_cross_sect ){
                       auto result = kas::stanag_4607_target_report{};
 
                       if( mti_report_idx.has_value() )
@@ -495,26 +495,26 @@ stanag_4607_dwell_segment( py::module& m )
                                                 "stanag_4607_dwell_segment" )
     .def( py::init( []( std::set< kas::stanag_4607_dwell_existence_mask_bit >
                         existence_mask,
-                        int revisit_index, int dwell_index,
+                        uint16_t revisit_index, uint16_t dwell_index,
                         int last_dwell_of_revisit,
-                        int target_report_count, int dwell_time,
+                        uint16_t target_report_count, uint32_t dwell_time,
                         kas::stanag_4607_sensor_position sensor_position,
                         std::optional< kas::stanag_4607_scale_factor >
                         scale_factor,
                         std::optional< kas::stanag_4607_sensor_pos_uncert >
                         sensor_pos_uncert,
-                        std::optional< double > sensor_track,
-                        std::optional< int > sensor_speed,
-                        std::optional< int > sensor_vertical_vel,
-                        std::optional< int > sensor_track_uncert,
-                        std::optional< int > sensor_speed_uncert,
-                        std::optional< int > sensor_vertical_vel_uncert,
+                        std::optional< uint16_t > sensor_track,
+                        std::optional< uint32_t > sensor_speed,
+                        std::optional< int8_t > sensor_vertical_vel,
+                        std::optional< uint8_t > sensor_track_uncert,
+                        std::optional< uint16_t > sensor_speed_uncert,
+                        std::optional< uint16_t > sensor_vertical_vel_uncert,
                         std::optional< kas::stanag_4607_orientation >
                         platform_orient,
                         kas::stanag_4607_dwell_area dwell_area,
                         std::optional< kas::stanag_4607_orientation >
                         sensor_orientation,
-                        std::optional< int > min_detectable_vel,
+                        std::optional< uint8_t > min_detectable_vel,
                         std::vector< kas::stanag_4607_target_report >
                         target_reports ){
                       auto result = kas::stanag_4607_dwell_segment{};

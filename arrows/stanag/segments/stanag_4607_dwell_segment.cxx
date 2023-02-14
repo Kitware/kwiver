@@ -99,9 +99,9 @@ stanag_4607_sensor_pos_uncert_format
 {
   stanag_4607_sensor_pos_uncert result;
 
-  result.along_track = klv::klv_read_int< int >( ptr, (size_t)4 );
-  result.cross_track = klv::klv_read_int< int >( ptr, (size_t)4 );
-  result.altitude = klv::klv_read_int< int >( ptr, (size_t)2 );
+  result.along_track = klv::klv_read_int< uint32_t >( ptr, (size_t)4 );
+  result.cross_track = klv::klv_read_int< uint32_t >( ptr, (size_t)4 );
+  result.altitude = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
 
   return result;
 }
@@ -132,7 +132,7 @@ stanag_4607_orientation_format
 {
   stanag_4607_orientation result;
 
-  result.heading = klv::klv_read_flint< uint16_t >({0, 369.9945}, ptr, 2);
+  result.heading = klv::klv_read_flint< uint16_t >({0, 359.9945}, ptr, 2);
   result.pitch = klv::klv_read_flint< int16_t >({-90, 90}, ptr, 2);
   result.roll = klv::klv_read_flint< int16_t >({-90, 90}, ptr, 2);
 
@@ -253,10 +253,10 @@ stanag_4607_target_measure_uncert_format
 {
   stanag_4607_target_measure_uncert result;
 
-  result.slant_range = klv::klv_read_int< int >( ptr, (size_t)2 );
-  result.cross_range = klv::klv_read_int< int >( ptr, (size_t)2 );
-  result.height = klv::klv_read_int< int >( ptr, (size_t)1 );
-  result.radial_velocity = klv::klv_read_int< int >( ptr, (size_t)2 );
+  result.slant_range = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
+  result.cross_range = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
+  result.height = klv::klv_read_int< uint8_t >( ptr, (size_t)1 );
+  result.radial_velocity = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
 
   return result;
 }
@@ -285,8 +285,8 @@ stanag_4607_truth_tag_format
 {
   stanag_4607_truth_tag result;
 
-  result.application = klv::klv_read_int< int >( ptr, (size_t)1 );
-  result.entity = klv::klv_read_int< int >( ptr, (size_t)4 );
+  result.application = klv::klv_read_int< uint8_t >( ptr, (size_t)1 );
+  result.entity = klv::klv_read_int< uint32_t >( ptr, (size_t)4 );
 
   return result;
 }
@@ -410,8 +410,8 @@ stanag_4607_target_location_format
   // Fields D32.4-D32.5 are conditional and always sent together
   // Condition: Sent if D32.2 and D32.3 are not sent
   else{
-    result.delta_lat = klv::klv_read_int< int >( ptr, (size_t)2 );
-    result.delta_long = klv::klv_read_int< int >( ptr, (size_t)2 );
+    result.delta_lat = klv::klv_read_int< int16_t >( ptr, (size_t)2 );
+    result.delta_long = klv::klv_read_int< int16_t >( ptr, (size_t)2 );
   }
 
   // Field D32.6 is optional
@@ -419,7 +419,7 @@ stanag_4607_target_location_format
       STANAG_4607_DWELL_EXIST_MASK_BIT_TARGET_REPORT_LOCATION_GEODETIC_HEIGHT)
     )
   {
-    result.geodetic_height = klv::klv_read_int< int >( ptr, (size_t)2 );
+    result.geodetic_height = klv::klv_read_int< int16_t >( ptr, (size_t)2 );
   }
 
   return result;
@@ -541,7 +541,7 @@ stanag_4607_target_report_format
   if( existence_mask.count(
       STANAG_4607_DWELL_EXIST_MASK_BIT_TARGET_REPORT_LOCATION_MTI_REPORT_IDX) )
   {
-    result.mti_report_idx = klv::klv_read_int< int >( ptr, (size_t)2 );
+    result.mti_report_idx = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
   }
 
   result.location = stanag_4607_target_location_format{}
@@ -551,15 +551,15 @@ stanag_4607_target_report_format
   if( existence_mask.count(
       STANAG_4607_DWELL_EXIST_MASK_BIT_TARGET_REPORT_VEL_LOS) )
   {
-    result.velocity_los = klv::klv_read_int< int >( ptr, (size_t)2 );
-    result.wrap_velocity = klv::klv_read_int< int >( ptr, (size_t)2 );
+    result.velocity_los = klv::klv_read_int< int16_t >( ptr, (size_t)2 );
+    result.wrap_velocity = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
   }
 
   // Field D32.9 is optional
   if( existence_mask.count(
       STANAG_4607_DWELL_EXIST_MASK_BIT_TARGET_REPORT_SNR) )
   {
-    result.snr = klv::klv_read_int< int >( ptr, (size_t)1 );
+    result.snr = klv::klv_read_int< int8_t >( ptr, (size_t)1 );
   }
 
   // Field D32.10 is optional
@@ -574,7 +574,7 @@ stanag_4607_target_report_format
   if( existence_mask.count(
       STANAG_4607_DWELL_EXIST_MASK_BIT_TARGET_REPORT_CLASS_PROB) )
   {
-    result.class_probability = klv::klv_read_int< int >( ptr, (size_t)1 );
+    result.class_probability = klv::klv_read_int< uint8_t >( ptr, (size_t)1 );
   }
 
   // Fields D32.12-D32.15 are conditional and always sent together
@@ -596,7 +596,7 @@ stanag_4607_target_report_format
   if( existence_mask.count(
       STANAG_4607_DWELL_EXIST_MASK_BIT_TARGET_REPORT_RADAR_CROSS_SECT) )
   {
-    result.radar_cross_sect = klv::klv_read_int< int >( ptr, (size_t)1 );
+    result.radar_cross_sect = klv::klv_read_int< int8_t >( ptr, (size_t)1 );
   }
 
   return result;
@@ -719,21 +719,21 @@ stanag_4607_dwell_segment_format
   result.existence_mask = klv::bitfield_to_enums<
       stanag_4607_dwell_existence_mask_bit, uint64_t >( mask );
 
-  result.revisit_index = klv::klv_read_int< int >( ptr, (size_t)2 );
+  result.revisit_index = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
 
-  result.dwell_index = klv::klv_read_int< int >( ptr, (size_t)2 );
+  result.dwell_index = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
 
   result.last_dwell_of_revisit = klv::klv_read_int< int >( ptr, (size_t)1 );
 
-  result.target_report_count = klv::klv_read_int< int >( ptr, (size_t)2 );
+  result.target_report_count = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
 
-  result.dwell_time = klv::klv_read_int< int >( ptr, (size_t)4 );
+  result.dwell_time = klv::klv_read_int< uint32_t >( ptr, (size_t)4 );
 
   result.sensor_position.latitude = klv::klv_read_flint< int32_t >({-90, 90},
                                                              ptr, (size_t)4);
   result.sensor_position.longitude =klv::klv_read_flint< uint32_t >(
                                            {0, 359.999999916}, ptr, (size_t)4);
-  result.sensor_position.altitude = klv::klv_read_int< int >( ptr, (size_t)4 );
+  result.sensor_position.altitude = klv::klv_read_int< int32_t >( ptr, (size_t)4 );
 
   // Fields D10-11 are conditional and always sent together
   // Condition: Sent if D32.4 and D32.5 are sent
@@ -758,17 +758,17 @@ stanag_4607_dwell_segment_format
   {
     result.sensor_track = klv::klv_read_flint< uint16_t >({0, 359.9945},
                                                           ptr, 2);
-    result.sensor_speed = klv::klv_read_int< int >( ptr, (size_t)4 );
-    result.sensor_vertical_vel = klv::klv_read_int< int >( ptr, (size_t)1 );
+    result.sensor_speed = klv::klv_read_int< uint32_t >( ptr, (size_t)4 );
+    result.sensor_vertical_vel = klv::klv_read_int< int8_t >( ptr, (size_t)1 );
   }
 
   // Fields D18-D20 are optional and always sent together
   if( result.existence_mask.count(
       STANAG_4607_DWELL_EXIST_MASK_BIT_SENSOR_TRACK_UNCERT) )
   {
-    result.sensor_track_uncert = klv::klv_read_int< int >( ptr, (size_t)1 );
-    result.sensor_speed_uncert = klv::klv_read_int< int >( ptr, (size_t)2 );
-    result.sensor_vertical_vel_uncert = klv::klv_read_int< int >( ptr,
+    result.sensor_track_uncert = klv::klv_read_int< uint8_t >( ptr, (size_t)1 );
+    result.sensor_speed_uncert = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
+    result.sensor_vertical_vel_uncert = klv::klv_read_int< uint16_t >( ptr,
                                                                   (size_t)2 );
   }
 
@@ -813,7 +813,7 @@ stanag_4607_dwell_segment_format
   if( result.existence_mask.count(
       STANAG_4607_DWELL_EXIST_MASK_BIT_MIN_DETECT_VEL) )
   {
-    result.min_detectable_vel = klv::klv_read_int< int >( ptr, (size_t)1 );
+    result.min_detectable_vel = klv::klv_read_int< uint8_t >( ptr, (size_t)1 );
   }
 
   // Target reports
