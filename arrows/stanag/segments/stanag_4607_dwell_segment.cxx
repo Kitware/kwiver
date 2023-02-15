@@ -66,8 +66,10 @@ stanag_4607_scale_factor_format
 {
   stanag_4607_scale_factor result;
 
-  result.lat_scale = klv::klv_read_int< int >( ptr, (size_t)4 );
-  result.long_scale = klv::klv_read_int< int >( ptr, (size_t)4 );
+  result.lat_scale = float_to_signed_binary_angle( float(
+                     klv::klv_read_int< int32_t >( ptr, (size_t)4 ) ), 32 );
+  result.long_scale = float_to_binary_angle( float(
+                      klv::klv_read_int< uint32_t >( ptr, (size_t)4 ) ), 32 );
 
   return result;
 
@@ -132,9 +134,12 @@ stanag_4607_orientation_format
 {
   stanag_4607_orientation result;
 
-  result.heading = klv::klv_read_flint< uint16_t >({0, 359.9945}, ptr, 2);
-  result.pitch = klv::klv_read_flint< int16_t >({-90, 90}, ptr, 2);
-  result.roll = klv::klv_read_flint< int16_t >({-90, 90}, ptr, 2);
+  result.heading = float_to_binary_angle( float(
+                   klv::klv_read_int< uint16_t >(ptr, 2) ), 16);
+  result.pitch = float_to_signed_binary_angle( float(
+                 klv::klv_read_int< int16_t >(ptr, 2) ), 16);
+  result.roll = float_to_signed_binary_angle( float(
+                klv::klv_read_int< int16_t >(ptr, 2) ), 16);
 
   return result;
 }
@@ -403,9 +408,10 @@ stanag_4607_target_location_format
   if( existence_mask.count(
           STANAG_4607_DWELL_EXIST_MASK_BIT_TARGET_REPORT_LOCATION_HI_RES_LAT) )
   {
-    result.hi_res_lat = klv::klv_read_flint< int32_t >({-90, 90}, ptr, 4);
-    result.hi_res_long = klv::klv_read_flint< uint32_t >({0, 359.999999916},
-                                                         ptr, 4);
+    result.hi_res_lat = float_to_signed_binary_angle( float(
+                        klv::klv_read_int< int32_t >(ptr, (size_t)4) ), 32);
+    result.hi_res_long = float_to_binary_angle( float(
+                         klv::klv_read_int< uint32_t >(ptr, (size_t)4) ), 32);
   }
   // Fields D32.4-D32.5 are conditional and always sent together
   // Condition: Sent if D32.2 and D32.3 are not sent
@@ -729,11 +735,12 @@ stanag_4607_dwell_segment_format
 
   result.dwell_time = klv::klv_read_int< uint32_t >( ptr, (size_t)4 );
 
-  result.sensor_position.latitude = klv::klv_read_flint< int32_t >({-90, 90},
-                                                             ptr, (size_t)4);
-  result.sensor_position.longitude =klv::klv_read_flint< uint32_t >(
-                                           {0, 359.999999916}, ptr, (size_t)4);
-  result.sensor_position.altitude = klv::klv_read_int< int32_t >( ptr, (size_t)4 );
+  result.sensor_position.latitude = float_to_signed_binary_angle( float(
+                          klv::klv_read_int< int32_t >(ptr, (size_t)4) ), 32 );
+  result.sensor_position.longitude = float_to_binary_angle( float(
+                         klv::klv_read_int< uint32_t >(ptr, (size_t)4)), 32 );
+  result.sensor_position.altitude = klv::klv_read_int< int32_t >( ptr,
+                                                                  (size_t)4 );
 
   // Fields D10-11 are conditional and always sent together
   // Condition: Sent if D32.4 and D32.5 are sent
@@ -756,8 +763,8 @@ stanag_4607_dwell_segment_format
   if( result.existence_mask.count(
       STANAG_4607_DWELL_EXIST_MASK_BIT_SENSOR_TRACK) )
   {
-    result.sensor_track = klv::klv_read_flint< uint16_t >({0, 359.9945},
-                                                          ptr, 2);
+    result.sensor_track = float_to_binary_angle( float(
+                        klv::klv_read_int< uint16_t >( ptr, (size_t)2) ), 16 );
     result.sensor_speed = klv::klv_read_int< uint32_t >( ptr, (size_t)4 );
     result.sensor_vertical_vel = klv::klv_read_int< int8_t >( ptr, (size_t)1 );
   }
@@ -766,8 +773,10 @@ stanag_4607_dwell_segment_format
   if( result.existence_mask.count(
       STANAG_4607_DWELL_EXIST_MASK_BIT_SENSOR_TRACK_UNCERT) )
   {
-    result.sensor_track_uncert = klv::klv_read_int< uint8_t >( ptr, (size_t)1 );
-    result.sensor_speed_uncert = klv::klv_read_int< uint16_t >( ptr, (size_t)2 );
+    result.sensor_track_uncert = klv::klv_read_int< uint8_t >( ptr,
+                                                               (size_t)1 );
+    result.sensor_speed_uncert = klv::klv_read_int< uint16_t >( ptr,
+                                                                (size_t)2 );
     result.sensor_vertical_vel_uncert = klv::klv_read_int< uint16_t >( ptr,
                                                                   (size_t)2 );
   }
@@ -781,10 +790,10 @@ stanag_4607_dwell_segment_format
   }
 
   // Fields D24-27 are mandatory
-  result.dwell_area.center_lat = klv::klv_read_flint< int32_t >({-90, 90},
-                                                                ptr, 4);
-  result.dwell_area.center_long = klv::klv_read_flint< uint32_t >(
-                                                  {0, 359.999979}, ptr, 4);
+  result.dwell_area.center_lat = float_to_signed_binary_angle( float(
+                          klv::klv_read_int< int32_t >(ptr, (size_t)4) ), 32);
+  result.dwell_area.center_long = float_to_binary_angle( float(
+                          klv::klv_read_int< uint32_t >(ptr, (size_t)4) ), 32);
 
   kwiver::vital::interval<double> interval = {0, 255.9928};
   size_t length = 2;
@@ -794,8 +803,9 @@ stanag_4607_dwell_segment_format
 
   result.dwell_area.range_half_ext = v * scale + interval.lower();
 
-  result.dwell_area.dwell_angle_half_ext = klv::klv_read_flint< uint16_t >(
-                                                        {0, 359.9945}, ptr, 2);
+  result.dwell_area.dwell_angle_half_ext = float_to_binary_angle( float(
+                            klv::klv_read_int< uint16_t >(ptr,
+                                                          (size_t)2) ), 16);
 
   // Fields D28-D30 are optional
   // If at least one is sent, any omitted fields are set to 0

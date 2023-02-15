@@ -131,6 +131,18 @@ KWIVER_ALGO_STANAG_EXPORT
 std::string
 trim_whitespace( std::string input );
 
+// ----------------------------------------------------------------------------
+/// Convert a floating point number to a binary angle
+KWIVER_ALGO_STANAG_EXPORT
+float
+float_to_binary_angle( float value, int n );
+
+// ----------------------------------------------------------------------------
+/// Convert a floating point number to a signed binary angle
+KWIVER_ALGO_STANAG_EXPORT
+float
+float_to_signed_binary_angle( float value, int n );
+
 } // namespace stanag
 
 } // namespace arrows

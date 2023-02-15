@@ -18,11 +18,11 @@
 #include <initializer_list>
 #include <map>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <set>
 #include <string>
 #include <vector>
-#include <optional>
 
 namespace kwiver {
 
@@ -32,13 +32,12 @@ namespace stanag {
 
 namespace kv = kwiver::vital;
 
-
 // ----------------------------------------------------------------------------
 /// Position of the sensor at the temporal center of the dwell
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_sensor_position
 {
-  double latitude;
-  double longitude;
+  float latitude;
+  float longitude;
   int32_t altitude;
 };
 
@@ -56,8 +55,8 @@ DECLARE_STANAG_CMP( stanag_4607_sensor_position )
 /// Report.
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_scale_factor
 {
-  int lat_scale;
-  int long_scale;
+  float lat_scale;
+  float long_scale;
 };
 
 // ----------------------------------------------------------------------------
@@ -77,7 +76,6 @@ public:
   stanag_4607_scale_factor
   read( ptr_t& ptr ) const;
 };
-
 
 // ----------------------------------------------------------------------------
 /// Estimate of the standard deviation in the estimated sensor location at
@@ -107,7 +105,6 @@ public:
   read( ptr_t& ptr ) const;
 };
 
-
 // ----------------------------------------------------------------------------
 /// The toll angle of the platform at the time of the dwell.
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_orientation
@@ -135,22 +132,20 @@ public:
   read( ptr_t& ptr ) const;
 };
 
-
 // ----------------------------------------------------------------------------
 /// The position of the center of the dwell area
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_dwell_area
 {
-  double center_lat;
-  double center_long;
-  double range_half_ext;
-  double dwell_angle_half_ext;
+  float center_lat;
+  float center_long;
+  float range_half_ext;
+  float dwell_angle_half_ext;
 };
 
 // ----------------------------------------------------------------------------
 KWIVER_ALGO_STANAG_EXPORT
 std::ostream&
 operator<<( std::ostream& os, stanag_4607_dwell_area const& value );
-
 
 // ----------------------------------------------------------------------------
 DECLARE_STANAG_CMP( stanag_4607_dwell_area )
@@ -231,7 +226,6 @@ public:
   read( ptr_t& ptr ) const;
 };
 
-
 // ----------------------------------------------------------------------------
 /// Information used to generate the MTI Target.
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_truth_tag
@@ -257,7 +251,6 @@ public:
   stanag_4607_truth_tag
   read( ptr_t& ptr ) const;
 };
-
 
 // ----------------------------------------------------------------------------
 /// Each bit of the Existence Mask indicates whether or not the corresponding
@@ -324,8 +317,8 @@ operator<<( std::ostream& os,
 /// The position of the reported detection.
 struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_target_location
 {
-  std::optional< double > hi_res_lat;
-  std::optional< double > hi_res_long;
+  std::optional< float > hi_res_lat;
+  std::optional< float > hi_res_long;
   std::optional< int16_t > delta_lat;
   std::optional< int16_t > delta_long;
   std::optional< int16_t > geodetic_height;
@@ -349,7 +342,6 @@ public:
   read( ptr_t& ptr,
         std::set< stanag_4607_dwell_existence_mask_bit > existence_mask ) const;
 };
-
 
 // ----------------------------------------------------------------------------
 /// Each target observed within the dwell.
@@ -389,9 +381,8 @@ public:
 
   stanag_4607_target_report
   read( ptr_t& ptr,
-      std::set< stanag_4607_dwell_existence_mask_bit > existence_mask ) const;
+        std::set< stanag_4607_dwell_existence_mask_bit > existence_mask ) const;
 };
-
 
 // ----------------------------------------------------------------------------
 /// A report on a grouping of zero or more target reports.
@@ -406,7 +397,7 @@ struct KWIVER_ALGO_STANAG_EXPORT stanag_4607_dwell_segment
   stanag_4607_sensor_position sensor_position;
   std::optional< stanag_4607_scale_factor > scale_factor;
   std::optional< stanag_4607_sensor_pos_uncert > sensor_pos_uncert;
-  std::optional< uint16_t > sensor_track;
+  std::optional< float > sensor_track;
   std::optional< uint32_t > sensor_speed;
   std::optional< int8_t > sensor_vertical_vel;
   std::optional< uint8_t > sensor_track_uncert;
@@ -433,7 +424,6 @@ class KWIVER_ALGO_STANAG_EXPORT stanag_4607_dwell_segment_format
 {
 public:
   stanag_4607_dwell_segment_format();
-
 
   size_t size;
 

@@ -25,6 +25,19 @@ trim_whitespace( std::string input )
   return input.substr( str_begin, ( str_end - str_begin ) + 1 );
 }
 
+// ----------------------------------------------------------------------------
+float
+float_to_binary_angle( float value, int n )
+{
+  return value * 1.40625 * ( 1 / pow( 2, n - 8 ) );
+}
+
+// ----------------------------------------------------------------------------
+float
+float_to_signed_binary_angle( float value, int n )
+{
+  return value * 1.40625 * ( 1 / pow( 2, n - 7 ) );
+}
 
 } // namespace stanag
 

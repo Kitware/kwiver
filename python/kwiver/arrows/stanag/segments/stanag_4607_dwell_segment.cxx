@@ -13,7 +13,7 @@ stanag_4607_dwell_segment( py::module& m )
 {
   py::class_< kas::stanag_4607_sensor_position >( m,
                                                   "stanag_4607_sensor_position" )
-    .def( py::init( []( double latitude, double longitude, int32_t altitude){
+    .def( py::init( []( float latitude, float longitude, int32_t altitude){
                       return kas::stanag_4607_sensor_position{ latitude,
                                                                longitude,
                                                                altitude };
@@ -29,7 +29,7 @@ stanag_4607_dwell_segment( py::module& m )
           } );
 
   py::class_< kas::stanag_4607_scale_factor >( m, "stanag_4607_scale_factor" )
-    .def( py::init( []( int lat_scale, int long_scale ){
+    .def( py::init( []( float lat_scale, float long_scale ){
                       return kas::stanag_4607_scale_factor{ lat_scale,
                                                             long_scale };
                     } ) )
@@ -101,8 +101,8 @@ stanag_4607_dwell_segment( py::module& m )
           } );
 
   py::class_< kas::stanag_4607_dwell_area >( m, "stanag_4607_dwell_area" )
-    .def( py::init( []( double center_lat, double center_long,
-                        double range_half_ext, double dwell_angle_half_ext ){
+    .def( py::init( []( float center_lat, float center_long,
+                        float range_half_ext, float dwell_angle_half_ext ){
                       return kas::stanag_4607_dwell_area{ center_lat,
                                                           center_long,
                                                           range_half_ext,
@@ -364,7 +364,7 @@ stanag_4607_dwell_segment( py::module& m )
 
   py::class_< kas::stanag_4607_target_location >( m,
                                                   "stanag_4607_target_location" )
-    .def( py::init( []( double hi_res_lat, double hi_res_long, int16_t delta_lat,
+    .def( py::init( []( float hi_res_lat, float hi_res_long, int16_t delta_lat,
                         int16_t delta_long, int16_t geodetic_height ){
                       return kas::stanag_4607_target_location{ hi_res_lat,
                                                                hi_res_long,
@@ -503,7 +503,7 @@ stanag_4607_dwell_segment( py::module& m )
                         scale_factor,
                         std::optional< kas::stanag_4607_sensor_pos_uncert >
                         sensor_pos_uncert,
-                        std::optional< uint16_t > sensor_track,
+                        std::optional< float > sensor_track,
                         std::optional< uint32_t > sensor_speed,
                         std::optional< int8_t > sensor_vertical_vel,
                         std::optional< uint8_t > sensor_track_uncert,
