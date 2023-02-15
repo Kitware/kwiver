@@ -29,7 +29,6 @@
 
 #include <vital/util/tokenize.h>
 
-#include <vital/optional.h>
 #include <vital/vital_config.h>
 
 #include <kwiversys/SystemTools.hxx>
@@ -50,6 +49,7 @@ extern "C" {
 #include <list>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <sstream>
 #include <vector>
 
@@ -75,7 +75,7 @@ struct ffmpeg_klv_stream
 
   void send_packet( AVPacket* packet );
 
-  void advance( kv::optional< uint64_t > backup_timestamp,
+  void advance( std::optional< uint64_t > backup_timestamp,
                 int64_t max_pts, int64_t max_pos );
 
   void reset();
@@ -121,6 +121,32 @@ ffmpeg_klv_stream
   {
     return;
   }
+
+#if LIBAVFORMAT_VERSION_MAJOR > 57
+  // Fill in KLV profile (if not previously determined) by looking at packet
+  // MPEG-TS stream identifier
+  if( stream->codecpar->profile < 0 )
+  {
+    int length = 0;
+    auto const stream_id =
+      av_packet_get_side_data( packet, AV_PKT_DATA_MPEGTS_STREAM_ID, &length );
+    if( length )
+    {
+      switch( *stream_id )
+      {
+        case 0xBD:
+          stream->codecpar->profile = FF_PROFILE_KLVA_ASYNC;
+          break;
+        case 0xFC:
+          stream->codecpar->profile = FF_PROFILE_KLVA_SYNC;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+#endif
+
   packet_uptr packet_ref{ av_packet_alloc() };
   throw_error_null( packet_ref.get(), "Failed to allocate packet" );
   throw_error_code(
@@ -133,7 +159,7 @@ ffmpeg_klv_stream
 void
 ffmpeg_klv_stream
 ::advance(
-  kv::optional< uint64_t > backup_timestamp, int64_t max_pts, int64_t max_pos )
+  std::optional< uint64_t > backup_timestamp, int64_t max_pts, int64_t max_pos )
 {
   packets.clear();
 
@@ -261,7 +287,7 @@ public:
     kv::image_container_sptr image;
     ffmpeg_video_raw_image_sptr raw_image;
 
-    kv::optional< kv::metadata_vector > metadata;
+    std::optional< kv::metadata_vector > metadata;
     ffmpeg_video_raw_metadata_sptr raw_metadata;
 
     bool is_draining;
@@ -307,7 +333,7 @@ public:
     std::list< ffmpeg_klv_stream > klv_streams;
     kv::metadata_map_sptr all_metadata;
 
-    kv::optional< frame_state > frame;
+    std::optional< frame_state > frame;
 
     bool at_eof;
   };
@@ -327,7 +353,7 @@ public:
   bool cuda_enabled;
   int cuda_device_index;
 
-  kv::optional< open_video_state > video;
+  std::optional< open_video_state > video;
 
   priv( ffmpeg_video_input& parent );
   ~priv();

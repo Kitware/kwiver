@@ -166,7 +166,8 @@ write_misp_timestamp( misp_timestamp value, klv_write_iter_t& data,
   ++data;
 
   auto timestamp =
-    is_nano ? value.nanoseconds().count() : value.microseconds().count();
+    static_cast< uint64_t >(
+      is_nano ? value.nanoseconds().count() : value.microseconds().count() );
   for( auto const i :
        kwiver::vital::range::iota( misp_detail::timestamp_length ) )
   {
@@ -179,8 +180,8 @@ write_misp_timestamp( misp_timestamp value, klv_write_iter_t& data,
     else
     {
       // Write the next most significant byte
-      constexpr uint64_t mask = 0xFF << 7;
-      *data = timestamp & mask;
+      constexpr uint64_t mask = 0xFFull;
+      *data = ( timestamp >> ( 7 * 8 ) ) & mask;
       timestamp <<= 8;
     }
     ++data;

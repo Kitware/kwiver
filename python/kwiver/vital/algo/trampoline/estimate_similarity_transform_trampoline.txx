@@ -12,7 +12,7 @@
 #ifndef ESTIMATE_SIMILARITY_TRANSFORM_TRAMPOLINE_TXX
 #define ESTIMATE_SIMILARITY_TRANSFORM_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/estimate_similarity_transform.h>
 
@@ -30,7 +30,7 @@ class algorithm_def_est_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
               kwiver::vital::algo::estimate_similarity_transform >,
@@ -53,7 +53,7 @@ class estimate_similarity_transform_trampoline :
                           std::vector< kwiver::vital::vector_3d >  const& to
                         )  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::similarity_d,
         kwiver::vital::algo::estimate_similarity_transform,
         estimate_transform,
@@ -68,7 +68,7 @@ class estimate_similarity_transform_trampoline :
           std::vector< kwiver::vital::camera_perspective_sptr >  const& to
           )  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::similarity_d,
         kwiver::vital::algo::estimate_similarity_transform,
         estimate_transform,
@@ -83,7 +83,7 @@ class estimate_similarity_transform_trampoline :
           std::vector< kwiver::vital::landmark_sptr >  const& to
           )  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::similarity_d,
         kwiver::vital::algo::estimate_similarity_transform,
         estimate_transform,
@@ -98,7 +98,7 @@ class estimate_similarity_transform_trampoline :
           kwiver::vital::camera_map_sptr const to
           )  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::similarity_d,
         kwiver::vital::algo::estimate_similarity_transform,
         estimate_transform,
@@ -113,7 +113,7 @@ class estimate_similarity_transform_trampoline :
           kwiver::vital::landmark_map_sptr const to
           )  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::similarity_d,
         kwiver::vital::algo::estimate_similarity_transform,
         estimate_transform,

@@ -79,7 +79,6 @@ set( vital_public_headers
   iterator.h
   math_constants.h
   noncopyable.h
-  optional.h
   set.h
   signal.h
 
@@ -123,6 +122,7 @@ set( vital_public_headers
   types/geo_point.h
   types/geo_polygon.h
   types/geodesy.h
+  types/ground_control_point.h
   types/homography.h
   types/homography_f2f.h
   types/homography_f2w.h
@@ -204,6 +204,7 @@ set( vital_sources
   types/geo_point.cxx
   types/geo_polygon.cxx
   types/geodesy.cxx
+  types/ground_control_point.cxx
   types/homography.cxx
   types/homography_f2f.cxx
   types/homography_f2w.cxx

@@ -12,7 +12,7 @@
 #ifndef READ_TRACK_DESCRIPTOR_SET_TRAMPOLINE_TXX
 #define READ_TRACK_DESCRIPTOR_SET_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/read_track_descriptor_set.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_rtds_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::read_track_descriptor_set>,
         type_name,
@@ -50,7 +50,7 @@ class read_track_descriptor_set_trampoline :
     void
     open( std::string const& filename ) override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::read_track_descriptor_set,
         open,
@@ -61,7 +61,7 @@ class read_track_descriptor_set_trampoline :
     void
     close() override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::read_track_descriptor_set,
         close,
@@ -71,7 +71,7 @@ class read_track_descriptor_set_trampoline :
     bool
     read_set( kwiver::vital::track_descriptor_set_sptr& descriptor_set ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         kwiver::vital::algo::read_track_descriptor_set,
         read_set,

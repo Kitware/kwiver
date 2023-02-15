@@ -23,6 +23,7 @@
 
 #include <boost/thread/thread.hpp>
 
+#include <optional>
 #include <memory>
 
 #define TEST_ARGS ()
@@ -553,7 +554,7 @@ IMPLEMENT_TEST(try_get_datum)
   time_point_t const start = time_clock_t::now();
 
   // This should be blocking.
-  kwiver::vital::optional<sprokit::edge_datum_t> const opt_datum = edge->try_get_datum(WAIT_DURATION);
+  std::optional<sprokit::edge_datum_t> const opt_datum = edge->try_get_datum(WAIT_DURATION);
 
   time_point_t const end = time_clock_t::now();
 

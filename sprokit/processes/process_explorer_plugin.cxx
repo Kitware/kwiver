@@ -6,6 +6,7 @@
 
 #include <vital/tools/explorer_plugin.h>
 #include <vital/util/wrap_text_block.h>
+#include <vital/exceptions.h>
 #include <vital/util/string.h>
 
 #include <sprokit/pipeline/process.h>
@@ -14,6 +15,7 @@
 #include <sstream>
 #include <iterator>
 #include <fstream>
+#include <optional>
 #include <string>
 #include <regex>
 
@@ -136,7 +138,7 @@ explore( const kwiver::vital::plugin_factory_handle_t fact )
   {
     proc = pf->create_object( kwiver::vital::config_block::empty_config() );
   }
-  catch ( ::kwiver::vital::exception const& e )
+  catch ( kwiver::vital::vital_exception const& e )
   {
     LOG_ERROR( m_logger, "Exception caught creating process: " << e.what() );
     return;

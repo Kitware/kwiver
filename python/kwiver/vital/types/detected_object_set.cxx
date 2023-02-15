@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <vital/types/detected_object_set.h>
-#include <python/kwiver/vital/util/pybind11.h>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/embed.h>
@@ -25,7 +25,7 @@ class det_obj_set_trampoline : public kwiver::vital::detected_object_set{
 
 size_t det_obj_set_trampoline::size() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     size_t,
     det_obj_set,
     size,
@@ -34,7 +34,7 @@ size_t det_obj_set_trampoline::size() const
 
 bool det_obj_set_trampoline::empty() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     bool,
     det_obj_set,
     empty,
@@ -43,7 +43,7 @@ bool det_obj_set_trampoline::empty() const
 
 const detected_object_sptr det_obj_set_trampoline::at(size_t pos) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     detected_object_sptr,
     det_obj_set,
     at,
@@ -53,7 +53,7 @@ const detected_object_sptr det_obj_set_trampoline::at(size_t pos) const
 
 detected_object_sptr det_obj_set_trampoline::at(size_t pos)
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     detected_object_sptr,
     det_obj_set,
     at,

@@ -16,6 +16,8 @@
 
 #include <vital/types/timestamp.h>
 
+#include <optional>
+
 namespace kwiver {
 
 namespace arrows {
@@ -135,7 +137,7 @@ klv_packet_length( klv_packet const& packet );
 ///
 /// \returns Packet timestamp in microseconds, or \c nullopt on failure.
 KWIVER_ALGO_KLV_EXPORT
-kwiver::vital::optional< uint64_t >
+std::optional< uint64_t >
 klv_packet_timestamp( klv_packet const& packet );
 
 // ----------------------------------------------------------------------------

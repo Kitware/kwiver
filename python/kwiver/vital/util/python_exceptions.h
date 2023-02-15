@@ -5,7 +5,7 @@
 #ifndef VITAL_PYTHON_UTIL_PYTHON_EXCEPTIONS_H
 #define VITAL_PYTHON_UTIL_PYTHON_EXCEPTIONS_H
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/util/vital_python_util_export.h>
 
 namespace kwiver {
@@ -51,7 +51,7 @@ void VITAL_PYTHON_UTIL_EXPORT python_print_exception();
   }                                                                 \
   catch ( std::exception const& e )                                 \
   {                                                                 \
-    kwiver::vital::python::gil_scoped_acquire acquire;              \
+    pybind11::gil_scoped_acquire acquire;              \
     (void) acquire;                                                 \
     PyErr_SetString( PyExc_RuntimeError, e.what() );                \
                                                                     \

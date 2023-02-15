@@ -12,7 +12,7 @@
 #ifndef TRACK_FEATURES_TRAMPOLINE_TXX
 #define TRACK_FEATURES_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/track_features.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_tf_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::track_features>,
         type_name,
@@ -54,7 +54,7 @@ class track_features_trampoline :
            kwiver::vital::image_container_sptr image_data,
            kwiver::vital::image_container_sptr mask ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::feature_track_set_sptr,
         kwiver::vital::algo::track_features,
         track,
