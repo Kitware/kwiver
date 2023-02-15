@@ -260,12 +260,10 @@ update_klv
       klv_to_vital_metadata( stream.timeline, timestamp );
 
     // Add any new ST1108 packets
-    auto klv_packets = klv_md->klv();
     auto const new_1108_packets =
       d->create_1108_packets( *derived_md, *results.back(), timestamp );
-    klv_packets.insert(
-      klv_packets.end(), new_1108_packets.begin(), new_1108_packets.end() );
-    klv_md->set_klv( klv_packets );
+    klv_md->klv().insert(
+      klv_md->klv().end(), new_1108_packets.begin(), new_1108_packets.end() );
   }
 
   return results;

@@ -27,9 +27,8 @@ public:
 
   vital::metadata* clone() const;
 
-  void set_klv( std::vector< klv_packet > const& packets );
-
   std::vector< klv_packet > const& klv() const;
+  std::vector< klv_packet >& klv();
 
 private:
   std::vector< klv_packet > m_klv_packets;
