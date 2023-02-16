@@ -237,7 +237,7 @@ operator<<( std::ostream& os, stanag_4607_target_measure_uncert const& value )
   return os << "{ "
             << "Slant Range: " << value.slant_range << " cm" << ", "
             << "Cross Range: " << value.cross_range << " dm" << ", "
-            << "Height: " << value.height << " m" << ", "
+            << "Height: " << int(value.height) << " m" << ", "
             << "Target Radial Velocity: " << value.radial_velocity << " cm/sec"
             << " }";
 
