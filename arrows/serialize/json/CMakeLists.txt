@@ -1,6 +1,8 @@
 # Build / Install plugin for serialization
 
-find_package(ZLIB MODULE REQUIRED)
+if(NOT KWIVER_ENABLE_ZLIB)
+  message(FATAL_ERROR "JSON serialization requires zlib (KWIVER_ENABLE_ZLIB)")
+endif()
 include_directories( ${ZLIB_INCLUDE_DIRS} )
 
 set( headers_public

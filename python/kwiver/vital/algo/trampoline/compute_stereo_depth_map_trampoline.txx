@@ -12,7 +12,7 @@
 #ifndef COMPUTE_STEREO_DEPTH_MAP_TXX
 #define COMPUTE_STEREO_DEPTH_MAP_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/compute_stereo_depth_map.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_csdm_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
           kwiver::vital::algo::compute_stereo_depth_map>,
@@ -54,7 +54,7 @@ class compute_stereo_depth_map_trampoline :
              kwiver::vital::image_container_sptr right_image )
          const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::compute_stereo_depth_map,
         compute,

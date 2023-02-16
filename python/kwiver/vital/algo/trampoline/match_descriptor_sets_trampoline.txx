@@ -12,7 +12,7 @@
 #ifndef MATCH_DESCRIPTOR_SETS_TRAMPOLINE_TXX
 #define MATCH_DESCRIPTOR_SETS_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/match_descriptor_sets.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_mds_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::match_descriptor_sets>,
         type_name,
@@ -52,7 +52,7 @@ class match_descriptor_sets_trampoline :
     append_to_index( kwiver::vital::descriptor_set_sptr const tracks,
                      kwiver::vital::frame_id_t frame ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::match_descriptor_sets,
         append_to_index,
@@ -64,7 +64,7 @@ class match_descriptor_sets_trampoline :
     std::vector< kwiver::vital::frame_id_t >
     query( kwiver::vital::descriptor_set_sptr const desc ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         std::vector< kwiver::vital::frame_id_t >,
         kwiver::vital::algo::match_descriptor_sets,
         query,
@@ -76,7 +76,7 @@ class match_descriptor_sets_trampoline :
     query_and_append( kwiver::vital::descriptor_set_sptr const desc,
                       kwiver::vital::frame_id_t frame ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         std::vector< kwiver::vital::frame_id_t >,
         kwiver::vital::algo::match_descriptor_sets,
         query_and_append,

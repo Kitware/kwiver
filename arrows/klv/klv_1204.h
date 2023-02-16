@@ -12,9 +12,8 @@
 #include <arrows/klv/klv_packet.h>
 #include <arrows/klv/klv_uuid.h>
 
-#include <vital/optional.h>
-
 #include <array>
+#include <optional>
 #include <ostream>
 
 namespace kwiver {
@@ -44,10 +43,10 @@ struct KWIVER_ALGO_KLV_EXPORT klv_1204_miis_id
   uint8_t version;
   klv_1204_device_id_type sensor_id_type;
   klv_1204_device_id_type platform_id_type;
-  kwiver::vital::optional< klv_uuid > sensor_id;
-  kwiver::vital::optional< klv_uuid > platform_id;
-  kwiver::vital::optional< klv_uuid > window_id;
-  kwiver::vital::optional< klv_uuid > minor_id;
+  std::optional< klv_uuid > sensor_id;
+  std::optional< klv_uuid > platform_id;
+  std::optional< klv_uuid > window_id;
+  std::optional< klv_uuid > minor_id;
 };
 
 // ----------------------------------------------------------------------------

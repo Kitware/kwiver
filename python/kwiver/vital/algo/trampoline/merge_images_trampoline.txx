@@ -12,7 +12,7 @@
 #ifndef MERGE_IMAGES_TRAMPOLINE_TXX
 #define MERGE_IMAGES_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/merge_images.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_mi_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::merge_images>,
         type_name,
@@ -52,7 +52,7 @@ class merge_images_trampoline :
     merge( kwiver::vital::image_container_sptr image1,
            kwiver::vital::image_container_sptr image2 ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::merge_images,
         merge,

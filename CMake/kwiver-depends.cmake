@@ -44,6 +44,7 @@ if(KWIVER_ENABLE_ARROWS)
   include( kwiver-depends-PDAL )
   include( kwiver-depends-PyTorch )
   include( kwiver-depends-COLMAP )
+  include( kwiver-depends-zlib )
 endif()
 
 include( kwiver-depends-ZeroMQ )

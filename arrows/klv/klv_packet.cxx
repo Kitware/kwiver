@@ -211,25 +211,25 @@ klv_packet_length( klv_packet const& packet )
 }
 
 // ----------------------------------------------------------------------------
-kv::optional< uint64_t >
+std::optional< uint64_t >
 klv_packet_timestamp( klv_packet const& packet )
 {
   if( !packet.value.valid() )
   {
-    return kv::nullopt;
+    return std::nullopt;
   }
 
-  auto const get_local = [&]( klv_lds_key key ) -> kv::optional< uint64_t > {
+  auto const get_local = [&]( klv_lds_key key ) -> std::optional< uint64_t > {
     auto const& set = packet.value.get< klv_local_set >();
     auto const it = set.find( KLV_0601_PRECISION_TIMESTAMP );
     if ( it != set.end() && it->second.valid() )
     {
       return it->second.get< uint64_t >();
     }
-    return kv::nullopt;
+    return std::nullopt;
   };
 
-  kv::optional< uint64_t > result;
+  std::optional< uint64_t > result;
   switch( klv_lookup_packet_traits().by_uds_key( packet.key ).tag() )
   {
     case KLV_PACKET_MISB_0104_UNIVERSAL_SET:

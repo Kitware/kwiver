@@ -36,6 +36,21 @@ Arrows: KLV
 
 * Implemented ST1107.
 
+* Adjusted tag number requirements of ST0806.
+
 Arrows: PDAL
 
 * Added implementation of the load API to pointcloud_io to load point data via the PDAL library
+
+Applets
+
+Applets: bundle adjustment tool
+
+* Added an implementation bundle adjustment (BA) applet that optimizes a set of
+cameras given multiple 3D-2D point correspondences.
+
+Python:
+
+* Removed the custom pybind11.h header file since the current version of
+  pybind11 now handles cases where the GIL is acquired via the
+  PyGILState_* API.

@@ -10,10 +10,10 @@
 #include <vital/util/demangle.h>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include <memory>
 #include <string>
-#include <pybind11/stl.h>
 
 namespace py = pybind11;
 using namespace kwiver::vital;
@@ -49,7 +49,7 @@ from_py( vital_metadata_tag tag, py::object data ) {
 // ----------------------------------------------------------------------------
 py::object
 to_py( metadata_value const& data ) {
-  return kwiver::vital::visit( to_py_visitor{}, data );
+  return std::visit( to_py_visitor{}, data );
 }
 
 // ----------------------------------------------------------------------------

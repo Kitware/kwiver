@@ -12,9 +12,8 @@
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <vital/optional.h>
-
 #include <bitset>
+#include <optional>
 #include <ostream>
 
 namespace kwiver {

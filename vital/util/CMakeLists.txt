@@ -25,6 +25,7 @@ set( public_headers
   interval_map.h
   string.h
   string_editor.h
+  string_encoding.h
   simple_stats.h
   thread_pool.h
   token_expander.h
@@ -35,10 +36,6 @@ set( public_headers
   token_type_sysenv.h
   tokenize.h
   transform_image.h
-  variant/config.hpp
-  variant/in_place.hpp
-  variant/lib.hpp
-  variant/variant.hpp
   visit.h
   wrap_text_block.h
   file_md5.h
@@ -61,6 +58,7 @@ set( sources
   hex_dump.cxx
   string.cxx
   string_editor.cxx
+  string_encoding.cxx
   thread_pool.cxx
   token_expander.cxx
   token_expand_editor.cxx

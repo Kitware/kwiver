@@ -207,7 +207,7 @@ pipe_display
 
   for ( auto b : blocks )
   {
-    kwiver::vital::visit( printer, b );
+    std::visit( printer, b );
   }
 }
 

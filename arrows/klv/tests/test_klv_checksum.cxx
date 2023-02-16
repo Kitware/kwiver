@@ -25,6 +25,26 @@ using vec_t = std::vector< uint8_t >;
 
 // ----------------------------------------------------------------------------
 void
+test_crc_8_ccitt( uint8_t checksum, vec_t const& data )
+{
+  EXPECT_EQ( checksum, klv_crc_8_ccitt( &*data.cbegin(), &*data.cend() ) );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( klv, crc_8_ccitt )
+{
+  // Test values taken from MISB 'check_digits' example code
+  CALL_TEST( test_crc_8_ccitt, 0x8E, vec_t( 256, 'A' ) );
+  CALL_TEST( test_crc_8_ccitt, 0xCD, { 3, 5, 11 } );
+  CALL_TEST( test_crc_8_ccitt, 0xC0, { 65 } );
+  CALL_TEST( test_crc_8_ccitt, 0x24, { 3, 5 } );
+  CALL_TEST( test_crc_8_ccitt, 0x48, { 5, 3 } );
+  CALL_TEST( test_crc_8_ccitt, 0xF4,
+             { '1', '2', '3', '4', '5', '6', '7', '8', '9' } );
+}
+
+// ----------------------------------------------------------------------------
+void
 test_running_sum_16( uint16_t checksum, vec_t const& data )
 {
   EXPECT_EQ( checksum, klv_running_sum_16( &*data.cbegin(), &*data.cend() ) );

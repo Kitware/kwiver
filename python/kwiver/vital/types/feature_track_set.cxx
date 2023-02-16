@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <vital/types/feature_track_set.h>
-#include <python/kwiver/vital/util/pybind11.h>
+
 #include <typeinfo>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -102,7 +102,7 @@ kv::feature_set_sptr
 feature_track_set_trampoline
 ::last_frame_features() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::feature_set_sptr,
     kv::feature_track_set,
     last_frame_features,
@@ -113,7 +113,7 @@ kv::descriptor_set_sptr
 feature_track_set_trampoline
 ::last_frame_descriptors() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::descriptor_set_sptr,
     kv::feature_track_set,
     last_frame_descriptors,
@@ -124,7 +124,7 @@ kv::feature_set_sptr
 feature_track_set_trampoline
 ::frame_features(kv::frame_id_t offset) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::feature_set_sptr,
     kv::feature_track_set,
     frame_features,
@@ -136,7 +136,7 @@ kv::descriptor_set_sptr
 feature_track_set_trampoline
 ::frame_descriptors(kv::frame_id_t offset) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::descriptor_set_sptr,
     kv::feature_track_set,
     frame_descriptors,
@@ -148,7 +148,7 @@ std::vector< kv::feature_track_state_sptr >
 feature_track_set_trampoline
 ::frame_feature_track_states(kv::frame_id_t offset) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     std::vector< kv::feature_track_state_sptr >,
     kv::feature_track_set,
     frame_feature_track_states,
@@ -160,7 +160,7 @@ std::set< kv::frame_id_t >
 feature_track_set_trampoline
 ::keyframes() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     std::set< kv::frame_id_t >,
     kv::feature_track_set,
     keyframes,

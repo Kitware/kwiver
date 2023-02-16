@@ -11,6 +11,7 @@
 #include <vital/plugin_loader/plugin_loader.h>
 #include <vital/applets/applet_registrar.h>
 
+#include <arrows/mvg/applets/bundle_adjust_tool.h>
 #include <arrows/mvg/applets/init_cameras_landmarks.h>
 #include <arrows/mvg/applets/track_features.h>
 
@@ -32,6 +33,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   }
 
   // -- register applets --
+  reg.register_tool< bundle_adjust_tool >();
   reg.register_tool< init_cameras_landmarks >();
   reg.register_tool< track_features >();
 

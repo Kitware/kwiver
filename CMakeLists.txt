@@ -113,6 +113,7 @@ if(KWIVER_ENABLE_ARROWS)
   OPTION(KWIVER_ENABLE_MVG                "Enable Multi-View Geometry Arrow" ON )
   OPTION(KWIVER_ENABLE_KLV                "Enable Key-Length-Value Metadata Arrow" ON)
   OPTION(KWIVER_ENABLE_STANAG             "Enable NATO Standardization Agreement Arrow" ON)
+  OPTION(KWIVER_ENABLE_ZLIB               "Enable Zlib Arrow" ON)
 endif()
 
 CMAKE_DEPENDENT_OPTION(KWIVER_ENABLE_PROCESSES

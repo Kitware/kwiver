@@ -6,8 +6,6 @@
 
 #include <vital/overload.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
-
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 
@@ -139,7 +137,7 @@ kv::vector_3d
 camera_perspective_trampoline
 ::center() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::vector_3d,
     kv::camera_perspective,
     center,
@@ -150,7 +148,7 @@ kv::vector_3d
 camera_perspective_trampoline
 ::translation() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::vector_3d,
     kv::camera_perspective,
     translation,
@@ -161,7 +159,7 @@ kv::covariance_3d
 camera_perspective_trampoline
 ::center_covar() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::covariance_3d,
     kv::camera_perspective,
     center_covar,
@@ -172,7 +170,7 @@ kv::rotation_d
 camera_perspective_trampoline
 ::rotation() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::rotation_d,
     kv::camera_perspective,
     rotation,
@@ -183,7 +181,7 @@ kv::camera_intrinsics_sptr
 camera_perspective_trampoline
 ::intrinsics() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::camera_intrinsics_sptr,
     kv::camera_perspective,
     intrinsics,
@@ -194,7 +192,7 @@ unsigned int
 camera_perspective_trampoline
 ::image_width() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     unsigned int,
     kv::camera_perspective,
     image_width,
@@ -205,7 +203,7 @@ unsigned int
 camera_perspective_trampoline
 ::image_height() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     unsigned int,
     kv::camera_perspective,
     image_height,
@@ -216,7 +214,7 @@ kv::matrix_3x4d
 camera_perspective_trampoline
 ::as_matrix() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::matrix_3x4d,
     kv::camera_perspective,
     as_matrix,
@@ -227,7 +225,7 @@ kv::vector_2d
 camera_perspective_trampoline
 ::project( const kv::vector_3d& pt ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::vector_2d,
     kv::camera_perspective,
     project,
@@ -239,7 +237,7 @@ double
 camera_perspective_trampoline
 ::depth( const kv::vector_3d& pt ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     double,
     kv::camera_perspective,
     depth,

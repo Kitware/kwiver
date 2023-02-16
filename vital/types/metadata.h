@@ -10,7 +10,6 @@
 
 #include <vital/any.h>
 #include <vital/exceptions/metadata.h>
-#include <vital/util/variant/variant.hpp>
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
 #include <vital/types/metadata_tags.h>
@@ -28,6 +27,7 @@
 #include <type_traits>
 #include <typeindex>
 #include <typeinfo>
+#include <variant>
 #include <vector>
 
 namespace kwiver {
@@ -35,7 +35,8 @@ namespace vital {
 
 // ----------------------------------------------------------------------------
 using metadata_value =
-  variant< bool, int, uint64_t, double, std::string, geo_point, geo_polygon >;
+  std::variant<
+    bool, int, uint64_t, double, std::string, geo_point, geo_polygon >;
 
 // ----------------------------------------------------------------------------
 /// Call \p visitor with template type parameter corresponding to \p type.
@@ -147,7 +148,7 @@ public:
 
   template< class T >
   T const& get() const {
-    return kwiver::vital::get< T >( m_data );
+    return std::get< T >( m_data );
   }
 
   /// Get the value of the metadata item as a \c double.
