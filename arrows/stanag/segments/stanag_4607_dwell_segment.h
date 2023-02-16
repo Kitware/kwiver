@@ -12,9 +12,6 @@
 #include <arrows/stanag/kwiver_algo_stanag_export.h>
 #include <arrows/stanag/stanag_util.h>
 
-#include <arrows/stanag/stanag_util.h>
-#include <vital/optional.h>
-
 #include <initializer_list>
 #include <map>
 #include <memory>
