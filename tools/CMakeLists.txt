@@ -3,3 +3,9 @@ target_link_libraries(
   demo_python_impl_call
   PRIVATE   vital
 )
+
+configure_file(
+  demo_python_impl_call.py
+  ${KWIVER_BINARY_DIR}/bin/demo_python_impl_call.py
+  COPYONLY
+)
