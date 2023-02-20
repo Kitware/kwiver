@@ -2,6 +2,8 @@
 from kwiver.vital import config
 from kwiver.vital import plugin_management
 
+print(dir(plugin_management))
+
 def main_config_formatter_load_example():
     vpm = plugin_management.plugin_manager_instance()
 
@@ -18,4 +20,21 @@ def main_config_formatter_load_example():
     cb_new.set_value( "b", "2" )
     cb_new.set_value( "b:c", "other" )
 
+def main_say_example():
+    vpm = plugin_management.plugin_manager_instance()
+    vpm.load_all_plugins()
+
+    impl_names = vpm.impl_names_say()
+    print("Impl names for say: ", impl_names)
+
+    cb = config.empty_config()
+    sf = plugin_management.SayFactory()
+
+    for impl_name in impl_names:
+        impl = sf.create( impl_name, cb )
+        print( "The", impl_name, "implementation says:")
+        print( impl.says() )
+        print()
+
 main_config_formatter_load_example()
+main_say_example()

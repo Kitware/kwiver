@@ -34,6 +34,8 @@ PYBIND11_MODULE( _plugin_management, m )
       .export_values();
 
 // -------------------------------------------------------------------------
+// Using unique_ptr rather than shared_ptr since destructor of plugin_manager
+// is protected
   py::class_< kv::plugin_manager, std::unique_ptr< kv::plugin_manager, py::nodelete > >(
     m, "PluginManager",
     // doc-string
@@ -54,5 +56,17 @@ PYBIND11_MODULE( _plugin_management, m )
     )
     .def( "impl_names_format_config_block", &kv::plugin_manager::impl_names< kv::format_config_block >,
           py::doc( "Get list of plugin implementation names for format_config_block interface.")
+    );
+
+// -------------------------------------------------------------------------
+  py::class_< kv::implementation_factory_by_name< kv::say > >(
+    m, "SayFactory",
+    // doc-string
+    "Factory for say interface implementations."
+    )
+    .def( py::init<>() )
+    .def( "create",  &kv::implementation_factory_by_name< kv::say >::create,
+          py::arg( "value"), py::arg( "cb" ),
+          py::doc( "Create an instance of the 'value' implemetation of the say interface." )
     );
 }
