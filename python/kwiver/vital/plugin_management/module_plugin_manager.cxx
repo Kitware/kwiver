@@ -3,19 +3,14 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <pybind11/pybind11.h>
-#include <pybind11/stl_bind.h>
+#include <pybind11/stl.h>
 
+#include <vital/config/format_config_block.h>
 #include <vital/plugin_management/plugin_manager.h>
+#include <vital/test_interface/say.h>
 
 namespace py = pybind11;
 namespace kv = kwiver::vital;
-
-// Wrap class so destructor is public
-// class deletable_plugin_manager : public kv::plugin_manager
-// {
-// public:
-//   ~deletable_plugin_manager() = default;
-// };
 
 // ----------------------------------------------------------------------------
 PYBIND11_MODULE( _plugin_management, m )
@@ -46,12 +41,18 @@ PYBIND11_MODULE( _plugin_management, m )
     )
     // Use lambda function for now so we don't have to deal bitflags type
     .def( "load_all_plugins", []( kv::plugin_manager &self ) {
-            return kv::plugin_manager::instance().load_all_plugins();
+            return self.load_all_plugins();
           },
           py::doc( "Loads all plugins that can be discovered on the "
                    "currently active search path. " )
     )
     .def( "reload_all_plugins", &kv::plugin_manager::reload_all_plugins,
           py::doc( "Clears the factory list and reloads plugins.")
+    )
+    .def( "impl_names_say", &kv::plugin_manager::impl_names< kv::say >,
+          py::doc( "Get list of plugin implementation names for say interface.")
+    )
+    .def( "impl_names_format_config_block", &kv::plugin_manager::impl_names< kv::format_config_block >,
+          py::doc( "Get list of plugin implementation names for format_config_block interface.")
     );
 }
