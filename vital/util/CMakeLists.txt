@@ -13,6 +13,7 @@ set( public_headers
   get_paths.h
   timer.h
   cpu_timer.h
+  compare.h
   wall_timer.h
   demangle.h
   any_converter.h
