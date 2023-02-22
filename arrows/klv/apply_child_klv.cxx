@@ -82,9 +82,9 @@ apply_amend( klv_value& value ) {
   {
     while( valid_amend_sets.empty() )
     {
-      auto& value = amend_range.begin()->second;
-      apply_amend( value );
-      auto const amend_ptr = value.get_ptr< klv_local_set >();
+      auto& amend_value = amend_range.begin()->second;
+      apply_amend( amend_value );
+      auto const amend_ptr = amend_value.get_ptr< klv_local_set >();
       if( amend_ptr )
       {
         valid_amend_sets.emplace_back( std::move( *amend_ptr ) );
@@ -184,7 +184,7 @@ apply_child_klv
 // ----------------------------------------------------------------------------
 bool
 apply_child_klv
-::check_configuration( vital::config_block_sptr config ) const
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
 {
   return true;
 }

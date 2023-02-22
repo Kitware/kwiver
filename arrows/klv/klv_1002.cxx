@@ -193,9 +193,11 @@ klv_1002_section_data_pack_format
   klv_1002_section_data_pack result;
 
   result.section_x =
-    klv_read_lv( data, tracker.remaining(), index_format );
+    static_cast< uint32_t >(
+      klv_read_lv( data, tracker.remaining(), index_format ) );
   result.section_y =
-    klv_read_lv( data, tracker.remaining(), index_format );
+    static_cast< uint32_t >(
+      klv_read_lv( data, tracker.remaining(), index_format ) );
   result.measurements =
     klv_read_lv( data, tracker.remaining(), mdap_format );
   result.uncertainty =

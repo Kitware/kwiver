@@ -393,7 +393,7 @@ test_write_ber( uint64_t value, size_t length )
     // Avoid leading zero bytes in value
     EXPECT_NE( 0x00, data.at( 1 ) );
   }
-  catch ( std::exception const& e )
+  catch ( std::exception const& )
   {
     // data.at() threw - data doesn't have 0 or 1 index
   }

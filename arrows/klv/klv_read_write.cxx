@@ -8,9 +8,9 @@
 #include "klv_read_write.txx"
 
 #include <stdexcept>
+#include <algorithm>
 
 namespace kv = kwiver::vital;
-#include <algorithm>
 
 namespace kwiver {
 

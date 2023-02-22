@@ -110,44 +110,6 @@ using klv_type_list =
   >;
 
 // ----------------------------------------------------------------------------
-// Strings which encode which data format was used in an SDCC-FLP.
-
-// ----------------------------------------------------------------------------
-std::vector< std::pair< std::string, std::type_info const& > > const
-format_names = {
-  { "float", typeid( klv_float_format ) },
-  { "imap", typeid( klv_imap_format ) }
-};
-
-// ----------------------------------------------------------------------------
-std::string
-find_format_name( std::type_info const& type )
-{
-  for( auto const& entry : format_names )
-  {
-    if( entry.second == type )
-    {
-      return entry.first;
-    }
-  }
-  throw std::out_of_range( "no name assigned to given format" );
-}
-
-// ----------------------------------------------------------------------------
-std::type_info const&
-find_format_type( std::string const& name )
-{
-  for( auto const& entry : format_names )
-  {
-    if( entry.first == name )
-    {
-      return entry.second;
-    }
-  }
-  throw std::out_of_range( "no format assigned to given name" );
-}
-
-// ----------------------------------------------------------------------------
 // Several template helpers to aid in code brevity.
 
 // ----------------------------------------------------------------------------
@@ -491,7 +453,7 @@ public:
     {
       kv::visit_variant_types< klv_type_list >( visitor, value.type() );
     }
-    catch( std::out_of_range const& e )
+    catch( std::out_of_range const& )
     {
       LOG_ERROR(
         kv::get_logger( "klv" ),
@@ -1060,7 +1022,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
     LOAD_VALUE( frame, std::optional< int64_t > );
     LOAD_VALUE( microseconds, std::optional< int64_t > );
     LOAD_VALUE( packet, klv_packet );
-    LOAD_VALUE( stream_index, uint64_t );
+    LOAD_VALUE( stream_index, int );
     kv::timestamp ts;
     if( frame )
     {
@@ -1089,7 +1051,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
   klv_lds_key load_lds_key()
   {
     auto const object_scope = push_object();
-    return load< uint64_t >( "integer" );
+    return load< klv_lds_key >( "integer" );
   }
 
   klv_lds_key load_lds_key( std::string const& name )
@@ -1132,7 +1094,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
       return kv::visit_variant_types_return< klv_value, klv_type_list >(
         visitor, type );
     }
-    catch( std::out_of_range const& e )
+    catch( std::out_of_range const& )
     {
       LOG_ERROR(
         kv::get_logger( "klv" ),

@@ -503,7 +503,8 @@ klv_muxer
         .get< klv_1108_metric_period_pack >();
       cached_set.erase( KLV_1108_METRIC_PERIOD_PACK );
       cached_period.offset =
-          period.timestamp + period.offset - cached_period.timestamp;
+          static_cast< uint32_t >(
+            period.timestamp + period.offset - cached_period.timestamp );
       if( period.timestamp <= cached_period.timestamp + cached_period.offset &&
           cached_period.offset <= update_interval &&
           set == cached_set )

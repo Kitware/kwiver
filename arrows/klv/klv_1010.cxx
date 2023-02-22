@@ -223,11 +223,11 @@ klv_1010_sdcc_flp_format
   {
     auto parse_control = static_cast< uint16_t >( value.sparse );
     parse_control <<= 1;
-    parse_control |= value.rho_uses_imap;
+    parse_control |= static_cast< uint16_t >( value.rho_uses_imap );
     parse_control <<= 4;
     parse_control |= value.rho_length;
     parse_control <<= 3;
-    parse_control |= value.sigma_uses_imap;
+    parse_control |= static_cast< uint16_t >( value.sigma_uses_imap );
     parse_control <<= 4;
     parse_control |= value.sigma_length;
     if( ( parse_control >> 8 ) == 0 )
@@ -245,7 +245,7 @@ klv_1010_sdcc_flp_format
   {
     auto parse_control = static_cast< uint16_t >( value.sigma_length );
     parse_control <<= 1;
-    parse_control |= value.sparse;
+    parse_control |= static_cast< uint16_t >( value.sparse );
     parse_control <<= 3;
     parse_control |= value.rho_length;
     klv_write_ber_oid( parse_control, data, tracker.verify( 1 ) );

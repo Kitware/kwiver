@@ -147,8 +147,6 @@ TEST ( apply_child_klv, amend_only )
   ASSERT_EQ( 1, output_klv->klv().size() );
   EXPECT_EQ(
     42, output_klv->find( kv::VITAL_META_UNIX_TIMESTAMP ).as_uint64() );
-  auto const& output_set =
-    output_klv->klv().at( 0 ).value.get< klv_local_set >();
 
   std::vector< klv_packet > expected_klv = {
     { klv_0601_key(), klv_local_set{

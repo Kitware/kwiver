@@ -161,7 +161,7 @@ klv_checksum_packet_format
 // ----------------------------------------------------------------------------
 uint64_t
 klv_checksum_packet_format
-::read_typed( klv_read_iter_t& data, size_t length ) const
+::read_typed( klv_read_iter_t& data, VITAL_UNUSED size_t length ) const
 {
   if( !std::equal( m_header.cbegin(), m_header.cend(), data ) )
   {
@@ -176,7 +176,7 @@ klv_checksum_packet_format
 void
 klv_checksum_packet_format
 ::write_typed( uint64_t const& value,
-              klv_write_iter_t& data, size_t length ) const
+              klv_write_iter_t& data, VITAL_UNUSED size_t length ) const
 {
   data = std::copy( m_header.cbegin(), m_header.cend(), data );
   klv_write_int( value, data, m_payload_size );

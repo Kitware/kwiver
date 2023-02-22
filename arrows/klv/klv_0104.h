@@ -93,7 +93,7 @@ klv_0104_traits_lookup();
 /// \param value UTC datetime string in \c YYYYMMDDThhmmss format.
 ///
 /// \returns Microseconds since Jan. 1, 1970 (UTC).
-VITAL_EXPORT
+KWIVER_ALGO_KLV_EXPORT
 uint64_t
 klv_0104_datetime_to_unix_timestamp( std::string const& value );
 
