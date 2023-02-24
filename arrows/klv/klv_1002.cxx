@@ -8,7 +8,7 @@
 #include "klv_1002.h"
 
 #include <arrows/klv/klv_1202.h>
-#include <arrows/klv/klv_1303.hpp>
+#include <arrows/klv/klv_1303.h>
 #include <arrows/klv/klv_checksum.h>
 #include <arrows/klv/klv_length_value.h>
 #include <arrows/klv/klv_util.h>

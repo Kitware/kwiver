@@ -396,6 +396,7 @@ operator<<( std::ostream& os, klv_value const& rhs )
   template class KWIVER_ALGO_KLV_EXPORT              \
   klv_value::internal_< T >;
 
+KLV_INSTANTIATE( bool );
 KLV_INSTANTIATE( double );
 KLV_INSTANTIATE( int64_t );
 KLV_INSTANTIATE( klv_0102_country_coding_method );
@@ -448,7 +449,10 @@ KLV_INSTANTIATE( klv_1204_miis_id );
 KLV_INSTANTIATE( klv_1206_image_plane );
 KLV_INSTANTIATE( klv_1206_look_direction );
 KLV_INSTANTIATE( klv_1303_apa );
+KLV_INSTANTIATE( klv_1303_mdap< bool > );
 KLV_INSTANTIATE( klv_1303_mdap< double > );
+KLV_INSTANTIATE( klv_1303_mdap< int64_t > );
+KLV_INSTANTIATE( klv_1303_mdap< std::string > );
 KLV_INSTANTIATE( klv_1303_mdap< uint64_t > );
 KLV_INSTANTIATE( klv_blob );
 KLV_INSTANTIATE( klv_lengthy< double > );
