@@ -120,9 +120,7 @@ metadata_map_io_klv
     }
 
     // Add the KLV packet data
-    auto klv_packets = klv_md->klv();
-    klv_packets.emplace_back( std::move( packet.packet ) );
-    klv_md->set_klv( std::move( klv_packets ) );
+    klv_md->klv().emplace_back( std::move( packet.packet ) );
   }
 
   // Convert to vital::metadata_map_sptr

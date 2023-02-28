@@ -14,6 +14,7 @@
 #include <vital/logger/logger.h>
 #include <vital/range/iterator_range.h>
 
+#include <iterator>
 #include <list>
 
 namespace kwiver {
@@ -238,9 +239,9 @@ apply_child_klv
     }
 
     // Move packets back to vector for storage
-    std::vector< klv_packet > tmp_klv( result_klv.size() );
-    std::move( result_klv.begin(), result_klv.end(), tmp_klv.begin() );
-    klv_md->set_klv( tmp_klv );
+    klv_md->klv().assign(
+      std::make_move_iterator( result_klv.begin() ),
+      std::make_move_iterator( result_klv.end() ) );
   }
 
   return results;

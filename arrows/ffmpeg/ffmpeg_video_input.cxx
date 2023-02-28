@@ -244,11 +244,11 @@ ffmpeg_klv_stream
   if( smooth_packets )
   {
     muxer.send_frame( timestamp );
-    klv_result.set_klv( muxer.receive_frame() );
+    klv_result.klv() = muxer.receive_frame();
   }
   else
   {
-    klv_result.set_klv( packets );
+    klv_result.klv() = packets;
   }
   klv_result.add< kv::VITAL_META_METADATA_ORIGIN >( "KLV" );
   klv_result.add< kv::VITAL_META_VIDEO_DATA_STREAM_INDEX >( stream->index );
