@@ -27,6 +27,8 @@ def main_say_example():
     impl_names = vpm.impl_names_say()
     print("Impl names for say: ", impl_names)
 
+    impl_names = ["cpp", "PythonImpl"]
+
     cb = config.empty_config()
     sf = plugin_management.SayFactory()
 
@@ -36,5 +38,25 @@ def main_say_example():
         print( impl.says() )
         print()
 
+def main_they_say_example():
+    vpm = plugin_management.plugin_manager_instance()
+    vpm.load_all_plugins()
+
+    they_names = ["cpp_they", "PythonTheyImpl"]
+    speaker_names = ["cpp", "PythonImpl"]
+
+    sf = plugin_management.SayFactory()
+
+    print('Testing composite implementations')
+    for t_name in they_names:
+        for s_name in speaker_names:
+            cb = config.empty_config()
+            cb.set_value( "speaker", s_name )
+
+            impl = sf.create( t_name, cb )
+            print( impl.says() )
+    print()
+
 main_config_formatter_load_example()
 main_say_example()
+main_they_say_example()

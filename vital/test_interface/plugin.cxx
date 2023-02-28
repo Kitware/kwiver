@@ -3,6 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <vital/plugin_management/plugin_loader.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/test_interface/say.h>
 #include <vital/test_interface/say_cpp_export.h>
 
@@ -35,7 +36,42 @@ public:
   }
 };
 
+class cpp_they_say : public say
+{
+public:
+  cpp_they_say() = default;
+  ~cpp_they_say() override = default;
+
+  std::string
+  says() override
+  {
+    return "In C++ they say " + m_speaker->says();
+  }
+
+  static pluggable_sptr
+  from_config( config_block_sptr const cb )
+  {
+    auto ret_val = std::make_shared< cpp_they_say >();
+    ret_val->m_speaker =
+      implementation_factory_by_name< say >().create(
+        cb->get_value( "speaker" , std::string("cpp") ), cb );
+
+    return ret_val;
+  }
+
+  static void
+  get_default_config( config_block& /* cb */ )
+  {
+    // No constructor parameters, so nothing to set in the config block.
+  }
+
+private:
+  say_sptr m_speaker;
+};
+
 } // namespace kwiver::vital
+
+
 
 // ----------------------------------------------------------------------------
 namespace kv = kwiver::vital;
@@ -46,4 +82,5 @@ void
 register_factories( kwiver::vital::plugin_loader& vpl )
 {
   vpl.add_factory< kv::say, kv::cpp_say_impl >( "cpp" );
+  vpl.add_factory< kv::say, kv::cpp_they_say >( "cpp_they" );
 }

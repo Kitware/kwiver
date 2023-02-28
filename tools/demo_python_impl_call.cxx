@@ -90,6 +90,34 @@ main_say_example(std::string impl_name)
 // ----------------------------------------------------------------------------
 
 void
+main_they_say_example()
+{
+  auto& vpm = kv::plugin_manager::instance();
+  vpm.load_all_plugins();
+
+  std::vector< std::string > they_names = { "cpp_they", "PythonTheyImpl" };
+  std::vector< std::string > speaker_names = { "cpp", "PythonImpl" };
+
+  std::cout << "Testing composite implementations" << std::endl;
+  for ( auto t_name: they_names )
+  {
+    for ( auto s_name: speaker_names )
+    {
+      kv::config_block_sptr cb = kv::config_block::empty_config();
+      cb->set_value( "speaker", s_name );
+
+      kv::say_sptr inst = kv::implementation_factory_by_name< kv::say >().create(
+                            t_name, cb );
+
+      std::cout << inst->says() << std::endl;
+    }
+  }
+  std::cout << std::endl;
+}
+
+// ----------------------------------------------------------------------------
+
+void
 main_macro_magic()
 {
   namespace kw = ::kwiver::vital;
@@ -129,6 +157,8 @@ main()
     main_say_example(name);
     std::cout << std::endl;
   }
+
+  main_they_say_example();
 
   main_macro_magic();
 
