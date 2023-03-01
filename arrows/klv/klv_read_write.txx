@@ -31,37 +31,37 @@ namespace klv {
 // Message-less static_assert not available in C++11
 
 #define KLV_ASSERT_INT( T ) \
-  static_assert( std::is_integral< T >::value, "must be an integer type" )
+  static_assert( std::is_integral_v< T >, "must be an integer type" )
 
 #define KLV_ASSERT_UINT( T )                                                \
   KLV_ASSERT_INT( T );                                                      \
-  static_assert( std::is_unsigned< T >::value, "must be an unsigned type" )
+  static_assert( std::is_unsigned_v< T >, "must be an unsigned type" )
 
 #define KLV_ASSERT_SINT( T )                                           \
   KLV_ASSERT_INT( T );                                                 \
-  static_assert( std::is_signed< T >::value, "must be a signed type" )
+  static_assert( std::is_signed_v< T >, "must be a signed type" )
 
 // ----------------------------------------------------------------------------
 // Return number of bits required to store the given signed or unsigned int.
 template < class T >
-size_t
+constexpr size_t
 _int_bit_length( T value );
 
 // ----------------------------------------------------------------------------
 // Return whether left-shifting by given amount would overflow type T.
 template < int shift_amount, typename T >
-bool
+constexpr bool
 _left_shift_overflow( T value );
 
 // ----------------------------------------------------------------------------
 // Minimum integer representable using the given number of bytes
 template < class T >
-T _int_min( size_t length );
+constexpr T _int_min( size_t length );
 
 // ----------------------------------------------------------------------------
 // Maximum integer representable using the given number of bytes
 template < class T >
-T _int_max( size_t length );
+constexpr T _int_max( size_t length );
 
 // ----------------------------------------------------------------------------
 // Returns the IMAP representation of positive or negative infinity.
@@ -143,10 +143,12 @@ klv_read_int( klv_read_iter_t& data, size_t length )
 
   // Extend sign bit
   UnsignedT const result_sign_bit = 1ull << ( 8 * length - 1 );
-  if( std::is_signed< T >::value && sizeof( T ) != length &&
-      ( result_sign_bit & result ) )
+  if constexpr( std::is_signed_v< T > )
   {
-    result |= ~UnsignedT{ 0 } << ( 8 * length );
+    if( sizeof( T ) != length && ( result_sign_bit & result ) )
+    {
+      result |= ~UnsignedT{ 0 } << ( 8 * length );
+    }
   }
 
   data += length;
@@ -356,15 +358,18 @@ klv_read_flint(
   _check_range_length( interval, length );
 
   // Before read to avoid moving iterator
-  if( std::is_signed< T >::value && interval.lower() != -interval.upper() )
+  if constexpr( std::is_signed_v< T > )
   {
-    throw std::logic_error( "range must be symmetrical around zero" );
+    if( interval.lower() != -interval.upper() )
+    {
+      throw std::logic_error( "range must be symmetrical around zero" );
+    }
   }
 
   auto const int_value = klv_read_int< T >( data, length );
   auto const float_value = static_cast< double >( int_value );
 
-  if( std::is_signed< T >::value )
+  if constexpr( std::is_signed_v< T > )
   {
     // Special invalid / out-of-range value
     if( int_value == _int_min< T >( length ) )
@@ -394,9 +399,12 @@ klv_write_flint( double value, vital::interval< double > const& interval,
   _check_range_length( interval, length );
 
   // Check before NaN
-  if( std::is_signed< T >::value && interval.lower() != -interval.upper() )
+  if constexpr( std::is_signed_v< T > )
   {
-    throw std::logic_error( "range must be symmetrical around zero" );
+    if( interval.lower() != -interval.upper() )
+    {
+      throw std::logic_error( "range must be symmetrical around zero" );
+    }
   }
 
   auto const min_int = _int_min< T >( length );
@@ -409,8 +417,7 @@ klv_write_flint( double value, vital::interval< double > const& interval,
     return;
   }
 
-  // C++17: if constexpr
-  if( std::is_signed< T >::value )
+  if constexpr( std::is_signed_v< T > )
   {
     auto const scale = max_int / interval.upper();
     auto const float_value = value * scale;
@@ -456,7 +463,7 @@ klv_write_flint( double value, vital::interval< double > const& interval,
 
 // ----------------------------------------------------------------------------
 template < class T >
-size_t
+constexpr size_t
 _int_bit_length( T value )
 {
   KLV_ASSERT_INT( T );
@@ -470,7 +477,7 @@ _int_bit_length( T value )
   using UnsignedT = typename std::make_unsigned< T >::type;
 
   auto unsigned_value = static_cast< UnsignedT >( value );
-  if( std::is_signed< T >::value )
+  if constexpr( std::is_signed_v< T > )
   {
     unsigned_value = ( ( value < 0 ) ? ~unsigned_value : unsigned_value ) << 1;
   }
@@ -486,7 +493,7 @@ _int_bit_length( T value )
 
 // ----------------------------------------------------------------------------
 template < class T >
-T // TODO(C++14): make this constexpr
+constexpr T
 _int_min( size_t length )
 {
   KLV_ASSERT_INT( T );
@@ -496,7 +503,7 @@ _int_min( size_t length )
     return 0;
   }
 
-  if( std::is_signed< T >::value )
+  if constexpr( std::is_signed_v< T > )
   {
     return -static_cast< T >( ( 0x80ull << ( ( length - 1 ) * 8 ) ) - 1 ) - 1;
   }
@@ -508,7 +515,7 @@ _int_min( size_t length )
 
 // ----------------------------------------------------------------------------
 template < class T >
-T // TODO(C++14): make this constexpr
+constexpr T
 _int_max( size_t length )
 {
   KLV_ASSERT_INT( T );
@@ -518,7 +525,7 @@ _int_max( size_t length )
     return 0;
   }
 
-  if( std::is_signed< T >::value )
+  if constexpr( std::is_signed_v< T > )
   {
     return ( 0x80ull << ( ( length - 1 ) * 8 ) ) - 1;
   }
@@ -535,7 +542,7 @@ _int_max( size_t length )
 
 // ----------------------------------------------------------------------------
 template < int shift_amount, typename T >
-bool
+constexpr bool
 _left_shift_overflow( T value )
 {
   KLV_ASSERT_UINT( T );

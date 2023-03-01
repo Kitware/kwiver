@@ -221,7 +221,7 @@ klv_packet_timestamp( klv_packet const& packet )
 
   auto const get_local = [&]( klv_lds_key key ) -> std::optional< uint64_t > {
     auto const& set = packet.value.get< klv_local_set >();
-    auto const it = set.find( KLV_0601_PRECISION_TIMESTAMP );
+    auto const it = set.find( key );
     if ( it != set.end() && it->second.valid() )
     {
       return it->second.get< uint64_t >();

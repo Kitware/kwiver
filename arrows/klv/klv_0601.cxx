@@ -2488,7 +2488,9 @@ klv_0601_weapons_store_format
   auto const engagement_status_int =
     enums_to_bitfield< klv_0601_weapon_engagement_status_bit >(
       value.engagement_status );
-  uint16_t status = ( engagement_status_int << 8 ) + value.general_status;
+  auto const status =
+    static_cast< uint16_t >(
+      ( engagement_status_int << 8 ) + value.general_status );
   klv_write_ber_oid( status, data, tracker.remaining() );
 
   // Write weapons type
@@ -2515,7 +2517,9 @@ klv_0601_weapons_store_format
   auto const engagement_status_int =
     enums_to_bitfield< klv_0601_weapon_engagement_status_bit >(
       value.engagement_status );
-  uint16_t status = ( engagement_status_int << 8 ) + value.general_status;
+  auto const status =
+    static_cast< uint16_t >(
+      ( engagement_status_int << 8 ) + value.general_status );
   size_t const length_of_status = klv_ber_oid_length( status );
 
   // Length of weapon type

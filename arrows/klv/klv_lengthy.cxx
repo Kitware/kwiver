@@ -107,7 +107,7 @@ operator!=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
 
 // ----------------------------------------------------------------------------
 #define KLV_INSTANTIATE( T )                                                    \
-  template class klv_lengthy< T >;                                              \
+  template struct klv_lengthy< T >;                                             \
   template std::ostream& operator<<( std::ostream&, klv_lengthy< T > const& );  \
   template bool operator>( klv_lengthy< T > const&, klv_lengthy< T > const& );  \
   template bool operator<( klv_lengthy< T > const&, klv_lengthy< T > const& );  \
