@@ -9,6 +9,8 @@
 
 #include <arrows/klv/klv_all.h>
 
+#include <vital/range/iterator_range.h>
+
 #include <iomanip>
 
 namespace kv = kwiver::vital;
@@ -75,6 +77,92 @@ operator<<( std::ostream& os, klv_packet const& packet )
   return traits.format().print( os, packet.value ) << " }";
 }
 
+namespace {
+
+// ----------------------------------------------------------------------------
+size_t
+verify_checksum(
+  klv_tag_traits const& traits,
+  iterator_tracker< klv_read_iter_t > const& tracker,
+  size_t value_size )
+{
+  auto const format = traits.format().checksum_format();
+  if( !format )
+  {
+    // This format doesn't have a checksum
+    return 0;
+  }
+
+  // Get the checksum written at the end of the packet
+  auto const packet_size = tracker.traversed() + value_size;
+  auto const checksum_size = *format->length_constraints().fixed();
+  auto it = tracker.begin() + packet_size - checksum_size;
+  auto const written_checksum = format->read_( it, checksum_size );
+
+  // Calculate our own checksum over the packet
+  using range_t = vital::range::iterator_range< klv_read_iter_t >;
+  auto const header_size = format->header().size();
+  range_t const checked_range{
+    tracker.begin(),
+    tracker.begin() + packet_size - checksum_size + header_size };
+  auto const actual_checksum =
+    format->evaluate( checked_range.begin(), checked_range.size() );
+
+  // Check for match
+  if( written_checksum == actual_checksum )
+  {
+    return checksum_size;
+  }
+
+  // Then check that the mismatch isn't the result of computing the checksum
+  // over the wrong range of data. If so, this doesn't merit a full ERROR log.
+  for( auto const alt_begin_offset :
+       { int64_t{ 0 }, static_cast< int64_t >( packet_size - value_size ) } )
+  {
+    for( auto const alt_end_offset :
+         { int64_t{ 0 }, -static_cast< int64_t >( header_size ) } )
+    {
+      if( !alt_begin_offset && !alt_end_offset )
+      {
+        // Correct algorithm
+        continue;
+      }
+
+      // Compute the checksum of the alternate data range
+      range_t const alt_range{
+        checked_range.begin() + alt_begin_offset,
+        checked_range.end() + alt_end_offset };
+      auto const alt_checksum =
+        format->evaluate( alt_range.begin(), alt_range.size() );
+
+      // Check if they implemented it wrong
+      if( written_checksum == alt_checksum )
+      {
+        LOG_DEBUG(
+          kv::get_logger( "klv" ),
+          traits.name() << ": "
+          << "the producer of this data implemented the checksum incorrectly"
+        );
+        return checksum_size;
+      }
+    }
+  }
+
+  // Checksum is incorrect for some unknown reason.
+  // Possibly actual packet corruption or a different misimplementation
+  LOG_ERROR(
+    kv::get_logger( "klv" ),
+    traits.name() << ": "
+    << "calculated checksum "
+    << "(" << format->to_string( actual_checksum ) << ") "
+    << "does not equal checksum contained in packet "
+    << "(" << format->to_string( written_checksum ) << ")" );
+
+  return checksum_size;
+}
+
+} // namespace <anonymous>
+
 // ----------------------------------------------------------------------------
 klv_packet
 klv_read_packet( klv_read_iter_t& data, size_t max_length )
@@ -120,31 +208,10 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
   }
 
   // Verify checksum
-  auto const& format = klv_lookup_packet_traits().by_uds_key( key ).format();
-  auto const checksum_format = format.checksum_format();
-  size_t checksum_length = 0;
-  if( checksum_format )
-  {
-    auto const packet_length = tracker.traversed() + length_of_value;
-    checksum_length = *checksum_format->length_constraints().fixed();
-
-    auto it = tracker.begin() + packet_length - checksum_length;
-    auto const expected_checksum =
-      checksum_format->read_( it, checksum_length );
-    auto const actual_checksum =
-      checksum_format->evaluate(
-        tracker.begin(),
-        packet_length - checksum_length + checksum_format->header().size() );
-    if( expected_checksum != actual_checksum )
-    {
-      LOG_ERROR(
-        kv::get_logger( "klv" ),
-        "calculated checksum "
-        << "(" << checksum_format->to_string( actual_checksum ) << ") "
-        << "does not equal checksum contained in packet "
-        << "(" << checksum_format->to_string( expected_checksum ) << ")" );
-    }
-  }
+  auto const& traits = klv_lookup_packet_traits().by_uds_key( key );
+  auto const& format = traits.format();
+  auto const checksum_length =
+    verify_checksum( traits, tracker, length_of_value );
 
   // Read value
   auto const value =
