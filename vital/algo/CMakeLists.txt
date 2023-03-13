@@ -12,6 +12,7 @@ set( public_headers
   algorithm_factory.h
   analyze_tracks.h
   associate_detections_to_tracks.h
+  buffered_metadata_filter.h
   bundle_adjust.h
   close_loops.h
   compute_association_matrix.h
@@ -79,6 +80,7 @@ set( sources
   algorithm_factory.cxx
   analyze_tracks.cxx
   associate_detections_to_tracks.cxx
+  buffered_metadata_filter.cxx
   bundle_adjust.cxx
   close_loops.cxx
   compute_association_matrix.cxx
