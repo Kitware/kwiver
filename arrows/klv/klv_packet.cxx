@@ -113,11 +113,7 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
   // Read length
   auto const length_of_value =
     klv_read_ber< size_t >( data, tracker.remaining() );
-  if( max_length < tracker.remaining() )
-  {
-    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                 "reading klv packet value overflows buffer" );
-  }
+  tracker.verify( length_of_value );
 
   // Verify checksum
   auto const& format = klv_lookup_packet_traits().by_uds_key( key ).format();
