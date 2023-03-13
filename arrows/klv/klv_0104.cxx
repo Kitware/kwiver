@@ -35,9 +35,9 @@ klv_0104_universal_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0104_universal_set_format
-::description() const
+::description_() const
 {
-  return "ST 0104 universal set of " + m_length_constraints.description();
+  return "EG0104 Predator UAV US";
 }
 
 // ----------------------------------------------------------------------------

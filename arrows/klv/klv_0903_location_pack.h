@@ -106,7 +106,7 @@ public:
   klv_0903_location_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0903_location_pack
@@ -134,7 +134,7 @@ public:
   klv_0903_velocity_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0903_velocity_pack

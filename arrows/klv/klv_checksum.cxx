@@ -209,9 +209,9 @@ klv_crc_8_ccitt_packet_format
 // ----------------------------------------------------------------------------
 std::string
 klv_crc_8_ccitt_packet_format
-::description() const
+::description_() const
 {
-  return "CRC-8-CCITT packet of " + m_length_constraints.description();
+  return "CRC-8-CCITT Checksum Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -231,9 +231,9 @@ klv_running_sum_16_packet_format
 // ----------------------------------------------------------------------------
 std::string
 klv_running_sum_16_packet_format
-::description() const
+::description_() const
 {
-  return "running 16-byte sum packet of " + m_length_constraints.description();
+  return "Running-Sum-16 Checksum Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -253,9 +253,9 @@ klv_crc_16_ccitt_packet_format
 // ----------------------------------------------------------------------------
 std::string
 klv_crc_16_ccitt_packet_format
-::description() const
+::description_() const
 {
-  return "CRC-16-CCITT packet of " + m_length_constraints.description();
+  return "CRC-16-CCITT Checksum Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -275,9 +275,9 @@ klv_crc_32_mpeg_packet_format
 // ----------------------------------------------------------------------------
 std::string
 klv_crc_32_mpeg_packet_format
-::description() const
+::description_() const
 {
-  return "CRC-32-MPEG packet of " + m_length_constraints.description();
+  return "CRC-32-MPEG Checksum Pack";
 }
 
 // ----------------------------------------------------------------------------

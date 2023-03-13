@@ -266,33 +266,35 @@ klv_length_constraints
     void
     operator()( std::monostate ) const
     {
-      os << "unconstrained length";
+      os << "Any";
     }
 
     void
     operator()( size_t fixed_length ) const
     {
-      os << "exactly " << fixed_length << " bytes";
+      os << fixed_length;
     }
 
     void
     operator()( vital::interval< size_t > const& interval ) const
     {
-      os << "between " << interval.lower() << " and " << interval.upper()
-         << " bytes";
+      os << interval.lower() << " to " << interval.upper();
     }
 
     void
     operator()( std::set< size_t > const& set ) const
     {
-      os << "one of these lengths: ";
-      for( auto const& entry : set )
+      for( auto it = set.begin(); it != set.end(); ++it )
       {
-        os << entry;
-        if( &entry != &*set.end() )
+        if( it != set.begin() )
         {
-          os << ", ";
+          os << ( ( set.size() > 2 ) ? ", " : " " );
         }
+        if( std::next( it ) == set.end() )
+        {
+          os << "or ";
+        }
+        os << *it;
       }
     }
 

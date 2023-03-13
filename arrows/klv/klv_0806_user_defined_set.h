@@ -75,7 +75,7 @@ public:
   klv_0806_user_defined_data_type_id_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0806_user_defined_data_type_id
@@ -110,7 +110,7 @@ public:
   klv_0806_user_defined_data_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0806_user_defined_data
@@ -133,7 +133,7 @@ public:
   klv_0806_user_defined_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

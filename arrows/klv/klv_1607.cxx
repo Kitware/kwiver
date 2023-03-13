@@ -24,9 +24,9 @@ klv_1607_child_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1607_child_set_format
-::description() const
+::description_() const
 {
-  return "child set of " + m_length_constraints.description();
+  return "ST1607 Child LS";
 }
 
 // ----------------------------------------------------------------------------

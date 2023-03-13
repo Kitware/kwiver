@@ -33,7 +33,7 @@ public:
   klv_series_format( Args&&... args );
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   std::vector< element_t >

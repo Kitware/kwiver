@@ -79,9 +79,9 @@ klv_1204_miis_id_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1204_miis_id_format
-::description() const
+::description_() const
 {
-  return "MIIS ID of " + m_length_constraints.description();
+  return "ST1204 MIIS Identifier Pack";
 }
 
 // ----------------------------------------------------------------------------

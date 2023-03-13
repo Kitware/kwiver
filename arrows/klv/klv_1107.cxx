@@ -121,10 +121,9 @@ klv_1107_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1107_local_set_format
-::description() const
+::description_() const
 {
-  return
-    "metric geopositioning local set of " + m_length_constraints.description();
+  return "ST1107 Metric Geopositioning LS";
 }
 
 // ----------------------------------------------------------------------------

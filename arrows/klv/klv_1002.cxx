@@ -95,9 +95,9 @@ klv_1002_enumerations_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1002_enumerations_format
-::description() const
+::description_() const
 {
-  return "range image enumerations of " + m_length_constraints.description();
+  return "ST1002 Range Image Enumerations Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -177,9 +177,9 @@ klv_1002_section_data_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1002_section_data_pack_format
-::description() const
+::description_() const
 {
-  return "section data pack of " + m_length_constraints.description();
+  return "ST1002 Section Data Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -261,9 +261,9 @@ klv_1002_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1002_local_set_format
-::description() const
+::description_() const
 {
-  return "range image local set of " + m_length_constraints.description();
+  return "ST1002 Range Image LS";
 }
 
 // ----------------------------------------------------------------------------

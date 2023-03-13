@@ -31,9 +31,9 @@ klv_0903_vobject_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vobject_local_set_format
-::description() const
+::description_() const
 {
-  return "vobject local set of " + m_length_constraints.description();
+  return "ST0903 VObject LS";
 }
 
 // ----------------------------------------------------------------------------

@@ -88,9 +88,9 @@ klv_1010_sdcc_flp_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1010_sdcc_flp_format
-::description() const
+::description_() const
 {
-  return "SDCC-FLP of " + m_length_constraints.description();
+  return "ST1010 SDCC-FLP";
 }
 
 // ----------------------------------------------------------------------------

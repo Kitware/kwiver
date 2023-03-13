@@ -83,8 +83,8 @@ public:
   to_string( klv_value const& value ) const;
 
   /// Return a textual description of this data format.
-  virtual std::string
-  description() const = 0;
+  std::string
+  description() const;
 
   /// Optionally the checksum format for this data format.
   virtual klv_checksum_packet_format const*
@@ -94,11 +94,14 @@ public:
   klv_length_constraints const&
   length_constraints() const;
 
-  /// Set constraints on the length of this format.
+/// Set constraints on the length of this format.
   void
   set_length_constraints( klv_length_constraints const& length_constraints );
 
 protected:
+  virtual std::string
+  description_() const = 0;
+
   klv_length_constraints m_length_constraints;
 };
 
@@ -315,7 +318,7 @@ public:
   ~klv_blob_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   klv_blob
@@ -338,7 +341,7 @@ public:
   klv_uuid_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   klv_uuid
@@ -361,7 +364,7 @@ public:
   klv_string_format( klv_length_constraints const& length_constraints = {} );
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   std::string
@@ -384,7 +387,7 @@ public:
   klv_bool_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   bool
@@ -407,7 +410,7 @@ public:
   ~klv_uint_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   uint64_t
@@ -433,7 +436,7 @@ public:
   ~klv_sint_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   int64_t
@@ -465,12 +468,9 @@ public:
   {}
 
   std::string
-  description() const override
+  description_() const override
   {
-    std::stringstream ss;
-    ss << this->type_name() << " enumeration of "
-       << this->m_length_constraints.description();
-    return ss.str();
+    return "Enumeration '" + this->type_name() + "'";
   }
 
 protected:
@@ -509,7 +509,7 @@ public:
   ~klv_ber_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   uint64_t
@@ -535,7 +535,7 @@ public:
   ~klv_ber_oid_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   uint64_t
@@ -561,7 +561,7 @@ public:
   ~klv_float_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   klv_lengthy< double >
@@ -594,7 +594,7 @@ public:
   ~klv_sflint_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
   vital::interval< double >
   interval() const;
@@ -632,7 +632,7 @@ public:
   ~klv_uflint_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
   vital::interval< double >
   interval() const;
@@ -666,7 +666,7 @@ public:
     klv_length_constraints const& length_constraints = {} );
 
   std::string
-  description() const override;
+  description_() const override;
 
   vital::interval< double >
   interval() const;
@@ -709,7 +709,7 @@ public:
   }
 
   std::string
-  description() const
+  description_() const
   {
     return m_format.description();
   }
@@ -792,9 +792,9 @@ public:
   }
 
   std::string
-  description() const
+  description_() const
   {
-    return "bitfield of " + this->m_length_constraints.description();
+    return "Bitfield";
   }
 
 protected:

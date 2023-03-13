@@ -169,9 +169,9 @@ klv_1602_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1602_local_set_format
-::description() const
+::description_() const
 {
-  return "composite imaging local set of " + m_length_constraints.description();
+  return "ST1602 Composite Imaging LS";
 }
 
 } // namespace klv

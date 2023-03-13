@@ -50,7 +50,7 @@ public:
   klv_0903_vchip_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

@@ -121,7 +121,7 @@ class KWIVER_ALGO_KLV_EXPORT klv_crc_8_ccitt_packet_format
   klv_crc_8_ccitt_packet_format( klv_bytes_t const& header );
 
   std::string
-  description() const override;
+  description_() const override;
 
   uint64_t
   evaluate( klv_read_iter_t data, size_t length ) const override;
@@ -135,7 +135,7 @@ class KWIVER_ALGO_KLV_EXPORT klv_running_sum_16_packet_format
   klv_running_sum_16_packet_format( klv_bytes_t const& header );
 
   std::string
-  description() const override;
+  description_() const override;
 
   uint64_t
   evaluate( klv_read_iter_t data, size_t length ) const override;
@@ -149,7 +149,7 @@ class KWIVER_ALGO_KLV_EXPORT klv_crc_16_ccitt_packet_format
   klv_crc_16_ccitt_packet_format( klv_bytes_t const& header );
 
   std::string
-  description() const override;
+  description_() const override;
 
   uint64_t
   evaluate( klv_read_iter_t data, size_t length ) const override;
@@ -163,7 +163,7 @@ class KWIVER_ALGO_KLV_EXPORT klv_crc_32_mpeg_packet_format
   klv_crc_32_mpeg_packet_format( klv_bytes_t const& header );
 
   std::string
-  description() const override;
+  description_() const override;
 
   uint64_t
   evaluate( klv_read_iter_t data, size_t length ) const override;

@@ -52,11 +52,9 @@ klv_1202_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1202_local_set_format
-::description() const
+::description_() const
 {
-  return
-    "generalized transformation local set of " +
-    m_length_constraints.description();
+  return "ST1202 Generalized Transformation LS";
 }
 
 // ----------------------------------------------------------------------------

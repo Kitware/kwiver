@@ -1254,9 +1254,9 @@ klv_0601_image_horizon_locations_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_image_horizon_locations_format
-::description() const
+::description_() const
 {
-  return "image horizon locations of " + m_length_constraints.description();
+  return "ST0601 Image Horizon Locations Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1335,9 +1335,9 @@ klv_0601_image_horizon_pixel_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_image_horizon_pixel_pack_format
-::description() const
+::description_() const
 {
-  return "image horizon pixel pack of " + m_length_constraints.description();
+  return "ST0601 Image Horizon Pixel Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1465,9 +1465,9 @@ klv_0601_control_command_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_control_command_format
-::description() const
+::description_() const
 {
-  return "control command of " + m_length_constraints.description();
+  return "ST0601 Control Command Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1541,9 +1541,9 @@ klv_0601_frame_rate_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_frame_rate_format
-::description() const
+::description_() const
 {
-  return "frame rate of " + m_length_constraints.description();
+  return "ST0601 Frame Rate Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1589,9 +1589,9 @@ klv_0601_country_codes_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_country_codes_format
-::description() const
+::description_() const
 {
-  return "country codes pack of " + m_length_constraints.description();
+  return "ST0601 Country Codes Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1791,9 +1791,9 @@ klv_0601_location_dlp_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_location_dlp_format
-::description() const
+::description_() const
 {
-  return "location pack of " + m_length_constraints.description();
+  return "ST0601 Location Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1886,9 +1886,9 @@ klv_0601_airbase_locations_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_airbase_locations_format
-::description() const
+::description_() const
 {
-  return "airbase locations pack of " + m_length_constraints.description();
+  return "ST0601 Airbase Locations Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2069,9 +2069,9 @@ klv_0601_view_domain_interval_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_view_domain_interval_format
-::description() const
+::description_() const
 {
-  return "view domain interval of " + m_length_constraints.description();
+  return "ST0601 View Domain Interval Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2156,9 +2156,9 @@ klv_0601_view_domain_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_view_domain_format
-::description() const
+::description_() const
 {
-  return "view domain pack of " + m_length_constraints.description();
+  return "ST0601 View Domain Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2250,9 +2250,9 @@ klv_0601_waypoint_record_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_waypoint_record_format
-::description() const
+::description_() const
 {
-  return "waypoint pack of " + m_length_constraints.description();
+  return "ST0601 Waypoint Record Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2425,9 +2425,9 @@ klv_0601_weapons_store_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_weapons_store_format
-::description() const
+::description_() const
 {
-  return "weapons store pack of " + m_length_constraints.description();
+  return "ST0601 Weapons Store Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2587,9 +2587,9 @@ klv_0601_payload_record_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_payload_record_format
-::description() const
+::description_() const
 {
-  return "payload pack of " + m_length_constraints.description();
+  return "ST0601 Payload Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2670,9 +2670,9 @@ klv_0601_payload_list_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_payload_list_format
-::description() const
+::description_() const
 {
-  return "payload list pack of " + m_length_constraints.description();
+  return "ST0601 Payload List Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2762,9 +2762,9 @@ klv_0601_wavelength_record_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_wavelength_record_format
-::description() const
+::description_() const
 {
-  return "wavelength pack of " + m_length_constraints.description();
+  return "ST0601 Wavelength Record Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2836,9 +2836,9 @@ klv_0601_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_local_set_format
-::description() const
+::description_() const
 {
-  return "UAS datalink local set of " + m_length_constraints.description();
+  return "ST0601 UAS Datalink LS";
 }
 
 // ----------------------------------------------------------------------------

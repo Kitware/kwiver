@@ -70,7 +70,7 @@ public:
   klv_0903_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
   klv_checksum_packet_format const*
   checksum_format() const override;
