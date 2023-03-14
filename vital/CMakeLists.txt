@@ -140,6 +140,7 @@ set( vital_public_headers
   types/mesh.h
   types/metadata.h
   types/metadata_map.h
+  types/metadata_stream.h
   types/metadata_tags.h
   types/metadata_traits.h
   types/object_track_set.h
@@ -216,6 +217,7 @@ set( vital_sources
   types/local_geo_cs.cxx
   types/mesh.cxx
   types/metadata.cxx
+  types/metadata_stream.cxx
   types/metadata_traits.cxx
   types/object_track_set.cxx
   types/point.cxx
