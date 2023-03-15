@@ -61,7 +61,23 @@ klv_data_format
 // ----------------------------------------------------------------------------
 klv_checksum_packet_format const*
 klv_data_format
-::checksum_format() const
+::prefix_checksum_format() const
+{
+  return nullptr;
+}
+
+// ----------------------------------------------------------------------------
+klv_checksum_packet_format const*
+klv_data_format
+::payload_checksum_format() const
+{
+  return nullptr;
+}
+
+// ----------------------------------------------------------------------------
+klv_checksum_packet_format const*
+klv_data_format
+::packet_checksum_format() const
 {
   return nullptr;
 }

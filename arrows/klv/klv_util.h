@@ -247,27 +247,54 @@ public:
     : m_begin( it ), m_length{ length }, m_it( it )
   {
     static_assert(
-      std::is_same< typename std::decay< decltype( *it ) >::type,
-                    uint8_t >::value, "iterator must point to uint8_t" );
+      std::is_same_v< std::decay_t< decltype( *it ) >, uint8_t >,
+      "iterator must point to uint8_t" );
   }
 
-  size_t verify( size_t count ) const
+  template<
+    class Int,
+    std::enable_if_t< std::is_unsigned_v< std::decay_t< Int > >, bool > = true >
+  size_t verify( Int count ) const
   {
     if( count > remaining() )
     {
       m_it = m_begin;
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+      VITAL_THROW( vital::metadata_buffer_overflow,
                    "tried to read or write past end of data buffer" );
     }
     return count;
   }
 
+  template<
+    class Int,
+    std::enable_if_t< std::is_signed_v< std::decay_t< Int > >, bool > = true >
+  size_t verify( Int count ) const
+  {
+    if( count < 0 )
+    {
+      m_it = m_begin;
+      VITAL_THROW( vital::metadata_buffer_overflow,
+                   "tried to read or write a value of negative length" );
+    }
+
+    return verify( static_cast< size_t >( count ) );
+  }
+
   size_t traversed() const
   {
     auto const distance = std::distance( m_begin, m_it );
-    if( distance > m_length )
+
+    if( distance < 0 )
     {
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+      m_it = m_begin;
+      VITAL_THROW( vital::metadata_buffer_overflow,
+                   "read or written before beginning of data buffer" );
+    }
+
+    if( static_cast< size_t >( distance ) > m_length )
+    {
+      m_it = m_begin;
+      VITAL_THROW( vital::metadata_buffer_overflow,
                    "read or written past end of data buffer" );
     }
 
