@@ -18,7 +18,9 @@ if (NOT FFMPEG_FOUND_SEVERAL)
 endif()
 
 set(ffmpeg_headers_public
+  ffmpeg_cuda.h
   ffmpeg_init.h
+  ffmpeg_util.h
   ffmpeg_video_input.h
   ffmpeg_video_output.h
   ffmpeg_video_raw_image.cxx

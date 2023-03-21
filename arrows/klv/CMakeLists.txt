@@ -63,6 +63,7 @@ set( public_headers
   apply_child_klv.h
   klv_all.h
   klv_blob.h
+  klv_data_format.h
   klv_demuxer.h
   klv_lengthy.h
   klv_length_constraints.h
@@ -72,12 +73,15 @@ set( public_headers
   klv_metadata.h
   klv_muxer.h
   klv_packet.h
+  klv_read_write.h
   klv_series.h
   klv_set.h
   klv_timeline.h
   klv_types.h
   klv_unimplemented.h
   klv_update_intervals.h
+  klv_update_tracker.h
+  klv_util.h
   klv_value.h
   klv_0102.h
   klv_0104.h
@@ -116,12 +120,8 @@ set( public_headers
   )
 
 set( private_headers
-  klv_data_format.h
   klv_length_value.h
   klv_key_traits.h
-  klv_read_write.h
-  klv_update_tracker.h
-  klv_util.h
 )
 
 kwiver_install_headers(
