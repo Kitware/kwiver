@@ -24,10 +24,17 @@ set( public_headers
   hex_dump.h
   interval.h
   interval_map.h
+  singleton.h
   string.h
   string_editor.h
   string_encoding.h
   simple_stats.h
+  text_codec_ascii.h
+  text_codec_endian.h
+  text_codec_error_policies.h
+  text_codec_utf_8.h
+  text_codec_utf_16.h
+  text_codec.h
   thread_pool.h
   token_expander.h
   token_expand_editor.h
@@ -44,6 +51,7 @@ set( public_headers
 
 # ----------------------
 set( private_headers
+  text_codec_priv.h
   thread_pool_builtin_backend.h
   thread_pool_gcd_backend.h
   thread_pool_sync_backend.h
@@ -60,6 +68,11 @@ set( sources
   string.cxx
   string_editor.cxx
   string_encoding.cxx
+  text_codec_ascii.cxx
+  text_codec_error_policies.cxx
+  text_codec_utf_8.cxx
+  text_codec_utf_16.cxx
+  text_codec.cxx
   thread_pool.cxx
   token_expander.cxx
   token_expand_editor.cxx

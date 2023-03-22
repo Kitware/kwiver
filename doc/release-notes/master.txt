@@ -24,6 +24,10 @@ Vital Types
 
 * Added new pointcloud type to hold point cloud data
 
+Vital Util
+
+* Added support for different text codecs (ASCII, UTF-8, etc).
+
 Arrows
 
 Arrows: FFmpeg
