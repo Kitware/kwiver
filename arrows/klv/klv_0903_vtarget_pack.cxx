@@ -76,9 +76,9 @@ klv_0903_fpa_index_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_fpa_index_format
-::description() const
+::description_() const
 {
-  return "fpa index pack of " + m_length_constraints.description();
+  return "ST0903 FPA Index Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -129,9 +129,9 @@ klv_0903_vtarget_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vtarget_pack_format
-::description() const
+::description_() const
 {
-  return "vtarget pack of " + m_length_constraints.description();
+  return "ST0903 VTarget Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -395,9 +395,9 @@ klv_0903_vtarget_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vtarget_local_set_format
-::description() const
+::description_() const
 {
-  return "vtarget local set of " + m_length_constraints.description();
+  return "ST0903 VTarget LS";
 }
 
 } // namespace klv

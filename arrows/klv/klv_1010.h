@@ -63,7 +63,7 @@ public:
   explicit klv_1010_sdcc_flp_format( imap_from_key_fn sigma_imap );
 
   std::string
-  description() const override;
+  description_() const override;
 
   void
   set_preceding( std::vector< klv_lds_key > const& preceding_keys );

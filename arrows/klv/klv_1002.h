@@ -112,7 +112,7 @@ public:
   klv_1002_enumerations_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_1002_enumerations
@@ -154,7 +154,7 @@ public:
   klv_1002_section_data_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_1002_section_data_pack
@@ -177,7 +177,7 @@ public:
   klv_1002_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
   klv_checksum_packet_format const*
   checksum_format() const override;

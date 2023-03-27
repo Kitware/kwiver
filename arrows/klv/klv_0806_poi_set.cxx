@@ -111,9 +111,9 @@ klv_0806_poi_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0806_poi_set_format
-::description() const
+::description_() const
 {
-  return "point-of-interest local set of " + m_length_constraints.description();
+  return "ST0806 Point of Interest LS";
 }
 
 } // namespace klv

@@ -84,7 +84,7 @@ public:
   {}
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   using element_t = typename Format::data_type;

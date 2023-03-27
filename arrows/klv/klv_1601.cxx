@@ -91,9 +91,9 @@ klv_1601_pixel_sdcc_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1601_pixel_sdcc_format
-::description() const
+::description_() const
 {
-  return "pixel sdcc mdarray of " + m_length_constraints.description();
+  return "ST1601 Pixel SDCC MDARRAY Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -189,9 +189,9 @@ klv_1601_geographic_sdcc_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1601_geographic_sdcc_format
-::description() const
+::description_() const
 {
-  return "geographic sdcc mdarray of " + m_length_constraints.description();
+  return "ST1601 Geographic SDCC MDARRAY Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -382,9 +382,9 @@ klv_1601_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1601_local_set_format
-::description() const
+::description_() const
 {
-  return "geo-registration local set of " + m_length_constraints.description();
+  return "ST1601 Geo-Registration LS";
 }
 
 } // namespace klv

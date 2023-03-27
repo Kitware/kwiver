@@ -95,9 +95,9 @@ klv_1108_metric_implementer_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1108_metric_implementer_format
-::description() const
+::description_() const
 {
-  return "metric implementer of " + m_length_constraints.description();
+  return "ST1108 Metric Implementer Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ klv_1108_metric_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1108_metric_local_set_format
-::description() const
+::description_() const
 {
   std::stringstream ss;
   ss << "ST 1108 metric local set";

@@ -116,9 +116,9 @@ klv_1108_metric_period_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1108_metric_period_pack_format
-::description() const
+::description_() const
 {
-  return "metric period pack of " + m_length_constraints.description();
+  return "ST1108 Metric Period Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -192,9 +192,9 @@ klv_1108_window_corners_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1108_window_corners_pack_format
-::description() const
+::description_() const
 {
-  return "window corners pack of " + m_length_constraints.description();
+  return "ST1108 Window Corners Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -222,9 +222,9 @@ klv_1108_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1108_local_set_format
-::description() const
+::description_() const
 {
-  return "ST 1108 local set of " + m_length_constraints.description();
+  return "ST1108 Interpretability and Quality LS";
 }
 
 // ----------------------------------------------------------------------------

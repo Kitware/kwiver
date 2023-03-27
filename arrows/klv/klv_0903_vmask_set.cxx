@@ -49,9 +49,9 @@ klv_0903_pixel_run_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_pixel_run_format
-::description() const
+::description_() const
 {
-  return "pixel run of " + m_length_constraints.description();
+  return "ST0903 Pixel Run Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -102,9 +102,9 @@ klv_0903_vmask_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vmask_local_set_format
-::description() const
+::description_() const
 {
-  return "vmask local set of " + m_length_constraints.description();
+  return "ST0903 VMask LS";
 }
 
 // ----------------------------------------------------------------------------

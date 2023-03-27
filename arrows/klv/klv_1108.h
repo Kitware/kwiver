@@ -142,7 +142,7 @@ public:
   klv_1108_metric_period_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
   klv_1108_metric_period_pack
   read_typed( klv_read_iter_t& data, size_t length ) const override;
@@ -176,7 +176,7 @@ public:
   klv_1108_window_corners_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_1108_window_corners_pack
@@ -198,7 +198,7 @@ public:
   klv_1108_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
   klv_checksum_packet_format const*
   checksum_format() const override;

@@ -60,7 +60,7 @@ public:
   klv_0903_pixel_run_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0903_pixel_run
@@ -88,7 +88,7 @@ public:
   klv_0903_vmask_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

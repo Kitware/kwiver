@@ -89,7 +89,7 @@ public:
   klv_0903_fpa_index_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0903_fpa_index
@@ -128,7 +128,7 @@ public:
   klv_0903_vtarget_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0903_vtarget_pack
@@ -156,7 +156,7 @@ public:
   klv_0903_vtarget_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

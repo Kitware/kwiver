@@ -165,9 +165,9 @@ klv_0903_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_local_set_format
-::description() const
+::description_() const
 {
-  return "vmti local set of " + m_length_constraints.description();
+  return "ST0903 VMTI LS";
 }
 
 // ----------------------------------------------------------------------------

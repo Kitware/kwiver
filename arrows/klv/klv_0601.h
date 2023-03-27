@@ -328,7 +328,7 @@ public:
   klv_0601_image_horizon_locations_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_image_horizon_locations
@@ -369,7 +369,7 @@ public:
   klv_0601_image_horizon_pixel_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_image_horizon_pixel_pack
@@ -464,7 +464,7 @@ public:
   klv_0601_control_command_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_control_command
@@ -508,7 +508,7 @@ public:
   klv_0601_frame_rate_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_frame_rate
@@ -549,7 +549,7 @@ public:
   klv_0601_country_codes_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_country_codes
@@ -588,7 +588,7 @@ public:
   klv_0601_location_dlp_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_location_dlp
@@ -627,7 +627,7 @@ public:
   klv_0601_airbase_locations_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_airbase_locations
@@ -667,7 +667,7 @@ public:
     vital::interval< double > const& start_interval );
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_view_domain_interval
@@ -711,7 +711,7 @@ public:
   klv_0601_view_domain_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_view_domain
@@ -776,7 +776,7 @@ public:
   klv_0601_waypoint_record_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_waypoint_record
@@ -873,7 +873,7 @@ public:
   klv_0601_weapons_store_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_weapons_store
@@ -938,7 +938,7 @@ class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_record_format
     klv_0601_payload_record_format();
 
     std::string
-    description() const override;
+    description_() const override;
 
   private:
      klv_0601_payload_record
@@ -961,7 +961,7 @@ class KWIVER_ALGO_KLV_EXPORT klv_0601_payload_list_format
     klv_0601_payload_list_format();
 
     std::string
-    description() const override;
+    description_() const override;
 
   private:
     std::vector< klv_0601_payload_record >
@@ -1007,7 +1007,7 @@ public:
   klv_0601_wavelength_record_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0601_wavelength_record
@@ -1039,7 +1039,7 @@ public:
   klv_0601_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
   klv_checksum_packet_format const*
   checksum_format() const override;

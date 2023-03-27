@@ -83,6 +83,19 @@ klv_data_format
 }
 
 // ----------------------------------------------------------------------------
+std::string
+klv_data_format
+::description() const
+{
+  auto const result = description_();
+  if( m_length_constraints.is_free() )
+  {
+    return result;
+  }
+  return result + " (Length: " + m_length_constraints.description() + ")";
+}
+
+// ----------------------------------------------------------------------------
 klv_blob_format
 ::klv_blob_format( klv_length_constraints const& length_constraints )
   : klv_data_format_< data_type >{ length_constraints }
@@ -116,11 +129,9 @@ klv_blob_format
 // ----------------------------------------------------------------------------
 std::string
 klv_blob_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "raw bytes of " << m_length_constraints.description();
-  return ss.str();
+  return "Raw Bytes";
 }
 
 // ----------------------------------------------------------------------------
@@ -131,9 +142,9 @@ klv_uuid_format
 // ----------------------------------------------------------------------------
 std::string
 klv_uuid_format
-::description() const
+::description_() const
 {
-  return "UUID of " + m_length_constraints.description();
+  return "UUID";
 }
 
 // ----------------------------------------------------------------------------
@@ -195,11 +206,9 @@ klv_string_format
 // ----------------------------------------------------------------------------
 std::string
 klv_string_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "string of " << m_length_constraints.description();
-  return ss.str();
+  return "String";
 }
 
 // ----------------------------------------------------------------------------
@@ -210,9 +219,9 @@ klv_bool_format
 // ----------------------------------------------------------------------------
 std::string
 klv_bool_format
-::description() const
+::description_() const
 {
-  return "bool of " + m_length_constraints.description();
+  return "Boolean";
 }
 
 // ----------------------------------------------------------------------------
@@ -266,11 +275,9 @@ klv_uint_format
 // ----------------------------------------------------------------------------
 std::string
 klv_uint_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "unsigned integer of " << m_length_constraints.description();
-  return ss.str();
+  return "Unsigned Integer";
 }
 
 // ----------------------------------------------------------------------------
@@ -307,11 +314,9 @@ klv_sint_format
 // ----------------------------------------------------------------------------
 std::string
 klv_sint_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "signed integer of " << m_length_constraints.description();
-  return ss.str();
+  return "Signed Integer";
 }
 
 // ----------------------------------------------------------------------------
@@ -347,12 +352,9 @@ klv_ber_format
 // ----------------------------------------------------------------------------
 std::string
 klv_ber_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "BER-encoded unsigned integer of "
-     << m_length_constraints.description();
-  return ss.str();
+  return "Unsigned Integer (Encoding: BER)";
 }
 
 // ----------------------------------------------------------------------------
@@ -388,12 +390,9 @@ klv_ber_oid_format
 // ----------------------------------------------------------------------------
 std::string
 klv_ber_oid_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "BER-OID-encoded unsigned integer of "
-     << m_length_constraints.description();
-  return ss.str();
+  return "Unsigned Integer (Encoding: BER-OID)";
 }
 
 // ----------------------------------------------------------------------------
@@ -446,12 +445,9 @@ klv_float_format
 // ----------------------------------------------------------------------------
 std::string
 klv_float_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "IEEE-754 floating-point number of "
-     << m_length_constraints.description();
-  return ss.str();
+  return "Float (Encoding: IEEE-754)";
 }
 
 // ----------------------------------------------------------------------------
@@ -507,11 +503,10 @@ klv_sflint_format
 // ----------------------------------------------------------------------------
 std::string
 klv_sflint_format
-::description() const
+::description_() const
 {
   std::stringstream ss;
-  ss << "signed integer of " << m_length_constraints.description()
-     << " mapped to range " << m_interval;
+  ss << "Float (Encoding: Signed Integer) (Range: " << m_interval << ")";
   return ss.str();
 }
 
@@ -576,11 +571,10 @@ klv_uflint_format
 // ----------------------------------------------------------------------------
 std::string
 klv_uflint_format
-::description() const
+::description_() const
 {
   std::stringstream ss;
-  ss << "unsigned integer of " << m_length_constraints.description()
-     << " mapped to range " << m_interval;
+  ss << "Float (Encoding: Unsigned Integer) (Range: " << m_interval << ")";
   return ss.str();
 }
 
@@ -644,11 +638,10 @@ klv_imap_format
 // ----------------------------------------------------------------------------
 std::string
 klv_imap_format
-::description() const
+::description_() const
 {
   std::stringstream ss;
-  ss << "IMAP-encoded range " << m_interval << "of "
-     << m_length_constraints.description();
+  ss << "Float (Encoding: IMAP) (Range: " << m_interval << ")";
   return ss.str();
 }
 

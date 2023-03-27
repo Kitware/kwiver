@@ -189,9 +189,9 @@ klv_0806_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0806_local_set_format
-::description() const
+::description_() const
 {
-  return "ST 0806 local set of " + m_length_constraints.description();
+  return "ST0806 RVT LS";
 }
 
 // ----------------------------------------------------------------------------

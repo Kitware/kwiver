@@ -385,9 +385,9 @@ operator<<( std::ostream& os, klv_1303_mdap< T > const& value )
 template < class Format >
 std::string
 klv_1303_mdap_format< Format >
-::description() const
+::description_() const
 {
-  return "MDAP/MDARRAY of " + this->m_length_constraints.description();
+  return "ST1303 MDARRAY Pack";
 }
 
 // ----------------------------------------------------------------------------

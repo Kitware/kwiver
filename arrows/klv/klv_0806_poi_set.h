@@ -54,7 +54,7 @@ public:
   klv_0806_poi_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 } // namespace klv

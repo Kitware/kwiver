@@ -72,7 +72,7 @@ public:
   klv_0104_universal_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

@@ -284,9 +284,9 @@ klv_0102_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0102_local_set_format
-::description() const
+::description_() const
 {
-  return "security local set of " + m_length_constraints.description();
+  return "ST0102 Security LS";
 }
 
 } // namespace klv

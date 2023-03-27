@@ -28,9 +28,9 @@ klv_list_format< Format >
 template < class Format >
 std::string
 klv_list_format< Format >
-::description() const
+::description_() const
 {
-  return "list of " + m_format.description();
+  return "List (Type: " + m_format.description() + ")";
 }
 
 // ----------------------------------------------------------------------------

@@ -51,7 +51,7 @@ public:
   klv_0903_ontology_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

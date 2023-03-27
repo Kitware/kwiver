@@ -56,9 +56,9 @@ klv_0903_vtrackitem_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vtrackitem_pack_format
-::description() const
+::description_() const
 {
-  return "vtrackitem pack of " + m_length_constraints.description();
+  return "ST0903 VTrackItem Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -318,9 +318,9 @@ klv_0903_vtrackitem_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vtrackitem_local_set_format
-::description() const
+::description_() const
 {
-  return "vtrackitem local set of " + m_length_constraints.description();
+  return "ST0903 VTrackItem LS";
 }
 
 } // namespace klv

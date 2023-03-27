@@ -66,7 +66,7 @@ public:
   klv_1204_miis_id_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_1204_miis_id

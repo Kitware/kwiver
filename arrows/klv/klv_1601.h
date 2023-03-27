@@ -56,7 +56,7 @@ public:
   klv_1601_pixel_sdcc_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_1303_mdap< double >
@@ -83,7 +83,7 @@ public:
   klv_1601_geographic_sdcc_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_1303_mdap< double >
@@ -116,7 +116,7 @@ public:
   klv_1601_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 } // namespace klv
