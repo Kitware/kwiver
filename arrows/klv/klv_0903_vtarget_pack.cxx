@@ -143,8 +143,7 @@ klv_0903_vtarget_pack_format
   klv_0903_vtarget_pack result;
   result.id = klv_read_ber_oid< size_t >( data, tracker.remaining() );
   result.set =
-    klv_0903_vtarget_local_set_format()
-    .read( data, tracker.remaining() ).get< klv_local_set >();
+    klv_0903_vtarget_local_set_format().read( data, tracker.remaining() );
   return result;
 }
 

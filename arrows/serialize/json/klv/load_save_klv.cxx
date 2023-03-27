@@ -885,6 +885,11 @@ public:
   auto NAME = load< decltype( T::NAME ) >( hyphenify( #NAME ) )
 
 // ----------------------------------------------------------------------------
+// Loads a klv_value into the given variable name.
+#define LOAD_MEMBER_VALUE( NAME, T ) \
+  auto NAME = load( hyphenify( #NAME ), typeid( T ) )
+
+// ----------------------------------------------------------------------------
 // Imports KLV objects. Relies heavily on templates to keep code relatively
 // clean, and to work around the lack of return-type-based function overloading
 // in C++.
@@ -1450,7 +1455,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
   {
     auto const object_scope = push_object();
     LOAD_MEMBER( id );
-    LOAD_MEMBER( set );
+    LOAD_MEMBER_VALUE( set, klv_local_set );
     return { std::move( id ),
              std::move( set ) };
   }
@@ -1460,7 +1465,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
   {
     auto const object_scope = push_object();
     LOAD_MEMBER( id );
-    LOAD_MEMBER( set );
+    LOAD_MEMBER_VALUE( set, klv_local_set );
     return { std::move( id ),
              std::move( set ) };
   }

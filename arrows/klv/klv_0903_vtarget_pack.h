@@ -108,7 +108,7 @@ private:
 struct KWIVER_ALGO_KLV_EXPORT klv_0903_vtarget_pack
 {
   uint64_t id;
-  klv_local_set set;
+  klv_value set;
 };
 
 // ----------------------------------------------------------------------------
