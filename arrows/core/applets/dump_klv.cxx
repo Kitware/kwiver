@@ -234,13 +234,6 @@ dump_klv
     return EXIT_FAILURE;
   }
 
-  auto const& caps = video_reader->get_implementation_capabilities();
-  if ( !caps.capability( kva::video_input::HAS_METADATA ) )
-  {
-    std::cerr << "No metadata stream found in " << video_file << '\n';
-    return EXIT_FAILURE;
-  }
-
   int count(1);
   kv::timestamp ts;
   kv::wrap_text_block wtb;
