@@ -32,6 +32,7 @@ set( public_headers
   text_codec_ascii.h
   text_codec_endian.h
   text_codec_error_policies.h
+  text_codec_transcode.h
   text_codec_utf_8.h
   text_codec_utf_16.h
   text_codec.h
@@ -70,6 +71,7 @@ set( sources
   string_encoding.cxx
   text_codec_ascii.cxx
   text_codec_error_policies.cxx
+  text_codec_transcode.cxx
   text_codec_utf_8.cxx
   text_codec_utf_16.cxx
   text_codec.cxx
