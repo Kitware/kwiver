@@ -122,12 +122,16 @@ ffmpeg_klv_stream
     return;
   }
 
-#if LIBAVFORMAT_VERSION_MAJOR > 57
+#if LIBAVCODEC_VERSION_MAJOR > 57
   // Fill in KLV profile (if not previously determined) by looking at packet
   // MPEG-TS stream identifier
   if( stream->codecpar->profile < 0 )
   {
+#if LIBAVCODEC_VERSION_MAJOR > 58
+    size_t length = 0;
+#else
     int length = 0;
+#endif
     auto const stream_id =
       av_packet_get_side_data( packet, AV_PKT_DATA_MPEGTS_STREAM_ID, &length );
     if( length )
