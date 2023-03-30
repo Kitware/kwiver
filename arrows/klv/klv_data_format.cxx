@@ -173,45 +173,6 @@ klv_uuid_format
 }
 
 // ----------------------------------------------------------------------------
-klv_string_format
-::klv_string_format( klv_length_constraints const& length_constraints )
-  : klv_data_format_< data_type >{ length_constraints }
-{}
-
-// ----------------------------------------------------------------------------
-std::string
-klv_string_format
-::read_typed( klv_read_iter_t& data, size_t length ) const
-{
-  return klv_read_string( data, length );
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_string_format
-::write_typed( std::string const& value,
-               klv_write_iter_t& data, size_t length ) const
-{
-  klv_write_string( value, data, length );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_string_format
-::length_of_typed( std::string const& value ) const
-{
-  return klv_string_length( value );
-}
-
-// ----------------------------------------------------------------------------
-std::string
-klv_string_format
-::description_() const
-{
-  return "String";
-}
-
-// ----------------------------------------------------------------------------
 klv_bool_format
 ::klv_bool_format() : klv_data_format_< bool >( 1 )
 {}

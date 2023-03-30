@@ -15,6 +15,7 @@
 #include <arrows/klv/klv_0903_vtarget_pack.h>
 #include <arrows/klv/klv_1204.h>
 #include <arrows/klv/klv_series.hpp>
+#include <arrows/klv/klv_string.h>
 #include <arrows/klv/klv_util.h>
 
 namespace kwiver {
@@ -258,7 +259,7 @@ klv_0903_vtrackitem_pack_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACKITEM_MI_URL ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Motion Imagery URL",
       "A URL for the Motion Imagery, conformant with IETF RFC 3986.",
       { 0, 1 } },

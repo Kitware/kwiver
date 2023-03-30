@@ -5,9 +5,10 @@
 /// \file
 /// Implementation of the KLV 1601 parser.
 
-#include "klv_1601.h"
+#include <arrows/klv/klv_1601.h>
 
 #include <arrows/klv/klv_1303.h>
+#include <arrows/klv/klv_string.h>
 
 #include <vital/range/iota.h>
 
@@ -309,13 +310,13 @@ klv_1601_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_1601_ALGORITHM_NAME ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Algorithm Name",
       "Unique identifier for the algorithm used to geo-register the imagery.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_1601_ALGORITHM_VERSION ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Algorithm Version",
       "Unique identifier for the specific version of the algorithm used.",
       1 },
@@ -335,7 +336,7 @@ klv_1601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1601_SECOND_IMAGE_NAME ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Second Image Name",
       "Unique identifier for the second image used in the geo-registration "
       "process.",

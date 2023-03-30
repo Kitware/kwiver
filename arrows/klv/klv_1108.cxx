@@ -9,6 +9,7 @@
 
 #include <arrows/klv/klv_1108_metric_set.h>
 #include <arrows/klv/klv_checksum.h>
+#include <arrows/klv/klv_string.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -293,7 +294,7 @@ klv_1108_traits_lookup()
       1 },
     { { 0x060E2B3401010101, 0x0E01050400000000 },
       ENUM_AND_NAME( KLV_1108_COMPRESSION_LEVEL ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Compression Level",
       "Level of video compression.",
       1 },

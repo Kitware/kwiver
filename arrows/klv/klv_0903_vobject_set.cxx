@@ -5,9 +5,10 @@
 /// \file
 /// Implementation of the KLV 0903 VObject local set parser.
 
-#include "klv_0903_vobject_set.h"
+#include <arrows/klv/klv_0903_vobject_set.h>
 
 #include <arrows/klv/klv_series.hpp>
+#include <arrows/klv/klv_string.h>
 #include <arrows/klv/klv_util.h>
 
 namespace kwiver {
@@ -50,13 +51,13 @@ klv_0903_vobject_set_traits_lookup()
       0 },
     { {},
       ENUM_AND_NAME( KLV_0903_VOBJECT_ONTOLOGY ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Ontology",
       "URI referring to a vObject ontology.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VOBJECT_ONTOLOGY_CLASS ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Ontology Class",
       "Value representing a target class or type, as defined by the Ontology tag.",
       { 0, 1 } },

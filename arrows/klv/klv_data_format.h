@@ -356,29 +356,6 @@ protected:
 };
 
 // ----------------------------------------------------------------------------
-/// Interprets data as a string.
-class KWIVER_ALGO_KLV_EXPORT klv_string_format
-  : public klv_data_format_< std::string >
-{
-public:
-  klv_string_format( klv_length_constraints const& length_constraints = {} );
-
-  std::string
-  description_() const override;
-
-protected:
-  std::string
-  read_typed( klv_read_iter_t& data, size_t length ) const override;
-
-  void
-  write_typed( std::string const& value,
-               klv_write_iter_t& data, size_t length ) const override;
-
-  size_t
-  length_of_typed( std::string const& value ) const override;
-};
-
-// ----------------------------------------------------------------------------
 /// Treats data as a single boolean value.
 class KWIVER_ALGO_KLV_EXPORT klv_bool_format
   : public klv_data_format_< bool >

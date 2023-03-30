@@ -5,7 +5,9 @@
 /// \file
 /// Implementation of the KLV 1108 Metric Local Set parser.
 
-#include "klv_1108_metric_set.h"
+#include <arrows/klv/klv_1108_metric_set.h>
+
+#include <arrows/klv/klv_string.h>
 
 namespace kwiver {
 
@@ -140,13 +142,13 @@ klv_1108_metric_set_traits_lookup()
       0 },
     { { 0x060E2B3401010101, 0x0E01050700000000 }, // "Key" column
       ENUM_AND_NAME( KLV_1108_METRIC_SET_NAME ),  // KWIVER enumeration
-      std::make_shared< klv_string_format >(),    // "Type" column
+      std::make_shared< klv_utf_8_format >(),     // "Type" column
       "Metric Name",                              // "Item Name" column
       "Examples: 'VNIIRS', 'RER', 'GSD'.",        // "Notes" column
       1 },                                        // "M/O" column (mandatory)
     { { 0x060E2B3401010101, 0x0E01050800000000 },
       ENUM_AND_NAME( KLV_1108_METRIC_SET_VERSION ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Metric Version",
       "Alphanumeric denoting calculated values. 'Human' for observed.",
       1 },
@@ -158,7 +160,7 @@ klv_1108_metric_set_traits_lookup()
       1 },
     { { 0x060E2B3401010101, 0x0E01050A00000000 },
       ENUM_AND_NAME( KLV_1108_METRIC_SET_PARAMETERS ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Metric Parameters",
       "Additional information needed to replicate the calculation.",
       { 0, 1 } },

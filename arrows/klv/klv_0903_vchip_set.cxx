@@ -5,8 +5,9 @@
 /// \file
 /// Implementation of the KLV 0903 VChip local set parser.
 
-#include "klv_0903_vchip_set.h"
+#include <arrows/klv/klv_0903_vchip_set.h>
 
+#include <arrows/klv/klv_string.h>
 #include <arrows/klv/klv_util.h>
 
 namespace kwiver {
@@ -35,13 +36,13 @@ klv_0903_vchip_set_traits_lookup()
       0 },
     { {},
       ENUM_AND_NAME( KLV_0903_VCHIP_IMAGE_TYPE ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Image Type",
       "IANA image media subtype. Only 'jpeg' and 'png' are permitted.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VCHIP_IMAGE_URI ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Image URI",
       "URI referring to an image stored on a server.",
       { 0, 1 } },

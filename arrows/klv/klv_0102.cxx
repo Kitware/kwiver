@@ -7,6 +7,8 @@
 
 #include "klv_0102.h"
 
+#include <arrows/klv/klv_string.h>
+
 namespace kwiver {
 
 namespace arrows {
@@ -52,13 +54,13 @@ klv_0102_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_0102_CLASSIFYING_COUNTRY ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Classifying Country",
       "Country providing the security classification, preceded by '//'.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_0102_SCI_SHI_INFORMATION ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "SCI / SHI Information",
       "Sensitive compartmented information or special handling instructions. "
       "Multiple digraphs, trigraphs, or compartment names are separated by "
@@ -66,47 +68,47 @@ klv_0102_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0102_CAVEATS ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Caveats",
       "Pertinent caveats or code words from each category of the appropriate "
       "security entity register. May be abbreviated or spelled out.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0102_RELEASING_INSTRUCTIONS ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Releasing Instructions",
       "List of country codes, separated by blank spaces, indicating the "
       "countries to which the Motion Imagery is releasable.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0102_CLASSIFIED_BY ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Classified By",
       "Name and type of authority used to classify the Motion Imagery.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0102_DERIVED_FROM ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Derived From",
       "Information about the original source of data from which "
       "classification was derived.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0102_CLASSIFICATION_REASON ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Classification Reason",
       "Reason for classification of the Motion Imagery, or citation from a "
       "document.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0102_DECLASSIFICATION_DATE ),
-      std::make_shared< klv_string_format >( 8 ),
+      std::make_shared< klv_ascii_format >( 8 ),
       "Declassification Date",
       "Date when the classified material may be automatically declassified",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0102_CLASSIFICATION_AND_MARKING_SYSTEM ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Classification and Marking System",
       "Classification or marking system used in this set as determined by the "
       "appropriate security entity for the country originating the data.",
@@ -120,14 +122,14 @@ klv_0102_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_0102_OBJECT_COUNTRY_CODES ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_16_format >(),
       "Object Country Codes",
       "Country or countries which are the object of the Motion Imagery, "
       "separated the ';' character.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_0102_CLASSIFICATION_COMMENTS ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Classification Comments",
       "Security related comments and future format changes.",
       { 0, 1 } },
@@ -183,7 +185,7 @@ klv_0102_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_0102_COUNTRY_CODING_METHOD_VERSION_DATE ),
-      std::make_shared< klv_string_format >( 10 ),
+      std::make_shared< klv_ascii_format >( 10 ),
       "Country Coding Method for 'Classifying Country' and "
       "'Releasing Instructions' Version Date",
       "Effective date of the source standard defining the country coding "
@@ -192,7 +194,7 @@ klv_0102_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0102_OBJECT_COUNTRY_CODING_METHOD_VERSION_DATE ),
-      std::make_shared< klv_string_format >( 10 ),
+      std::make_shared< klv_ascii_format >( 10 ),
       "Country Coding Method for 'Object Country Codes' Version Date",
       "Effective date of the source standard defining the country coding "
       "method used for the 'Object Country Codes' field.",

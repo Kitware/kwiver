@@ -5,7 +5,9 @@
 /// \file
 /// Implementation of the KLV 0903 ontology local set parser.
 
-#include "klv_0903_ontology_set.h"
+#include <arrows/klv/klv_0903_ontology_set.h>
+
+#include <arrows/klv/klv_string.h>
 
 namespace kwiver {
 
@@ -45,14 +47,14 @@ klv_0903_ontology_set_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_ONTOLOGY_URI ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "URI",
       "Uniform Resource Identifier according to the OWL Web Ontology "
       "Language.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_0903_ONTOLOGY_CLASS ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Class",
       "Target class or type, as defined by the ontology.",
       1 } };

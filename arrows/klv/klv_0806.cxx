@@ -5,12 +5,13 @@
 /// \file
 /// Implementation of the KLV 0806 parser.
 
-#include "klv_0806.h"
+#include <arrows/klv/klv_0806.h>
 
-#include "klv_0806_aoi_set.h"
-#include "klv_0806_poi_set.h"
-#include "klv_0806_user_defined_set.h"
-#include "klv_checksum.h"
+#include <arrows/klv/klv_0806_aoi_set.h>
+#include <arrows/klv/klv_0806_poi_set.h>
+#include <arrows/klv/klv_0806_user_defined_set.h>
+#include <arrows/klv/klv_checksum.h>
+#include <arrows/klv/klv_string.h>
 
 namespace kv = kwiver::vital;
 
@@ -92,7 +93,7 @@ klv_0806_traits_lookup()
       { 0, 1 } },
     { { 0x060E2B3401010103, 0x04010B0100000000 },
       ENUM_AND_NAME( KLV_0806_DIGITAL_VIDEO_FILE_FORMAT ),
-      std::make_shared< klv_string_format >(
+      std::make_shared< klv_ascii_format >(
         klv_length_constraints{ 1, 127 } ),
       "Digital Video File Format",
       "Video compression being used. Examples: MPEG2, MPEG4, H.264, Analog "
@@ -127,7 +128,7 @@ klv_0806_traits_lookup()
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101030B000000 },
       ENUM_AND_NAME( KLV_0806_MGRS_LATITUDE_BAND_GRID_SQUARE ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "MGRS Latitude Band and Grid Square",
       "First character is the alpha code for the latitude band. Second and "
       "third are the alpha code for the WGS84 grid square designator.",
@@ -152,7 +153,7 @@ klv_0806_traits_lookup()
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101030B010000 },
       ENUM_AND_NAME( KLV_0806_FRAME_CENTER_MGRS_LATITUDE_BAND_GRID_SQUARE ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Frame Center MGRS Latitude Band and Grid Square",
       "First character is the alpha code for the latitude band. Second and "
       "third are the alpha code for the WGS84 grid square designator.",

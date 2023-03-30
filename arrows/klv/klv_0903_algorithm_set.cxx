@@ -5,7 +5,9 @@
 /// \file
 /// Implementation of the KLV 0903 algorithm local set parser.
 
-#include "klv_0903_algorithm_set.h"
+#include <arrows/klv/klv_0903_algorithm_set.h>
+
+#include <arrows/klv/klv_string.h>
 
 namespace kwiver {
 
@@ -40,19 +42,19 @@ klv_0903_algorithm_set_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_0903_ALGORITHM_NAME ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Name",
       "Name of algorithm.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_0903_ALGORITHM_VERSION ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Version",
       "Version of algorithm",
       1 },
     { {},
       ENUM_AND_NAME( KLV_0903_ALGORITHM_CLASS ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Class",
       "Type of algorithm. Examples: 'detector', 'classifier'.",
       { 0, 1 } },
