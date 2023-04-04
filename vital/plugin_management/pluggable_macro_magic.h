@@ -100,6 +100,13 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
     return this->CONFIG_VAR_NAME( name );                                  \
   }
 
+#define PARAM_PUBLIC_SETTER( tuple ) PARAM_PUBLIC_SETTER_ tuple
+#define PARAM_PUBLIC_SETTER_( name, type, description_str, default_value ) \
+  CAT( set_, name )( type value )                                          \
+  {                                                                        \
+    this->CONFIG_VAR_NAME( name ) = value;                                 \
+  }
+
 /**
  * Produce a constructor parameter definition and optional default value
  * assignment.
@@ -160,7 +167,8 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 private:                           \
   MAP( PARAM_VAR_DEF, EMPTY, __VA_ARGS__ ) \
 public:                            \
-  MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ )
+  MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ ) \
+  MAP( PARAM_PUBLIC_SETTER, EMPTY, __VA_ARGS__ )
 
 #define PLUGGABLE_CONSTRUCTOR( class_name, ... ) \
 public:                                          \
