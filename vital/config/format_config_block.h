@@ -12,6 +12,7 @@
 
 #include <vital/config/config_block.h>
 #include <vital/plugin_management/pluggable.h>
+#include <vital/plugin_management/pluggable_macro_magic.h>
 
 #include <ostream>
 #include <string>
@@ -33,20 +34,17 @@ namespace kwiver::vital {
 class format_config_block : public pluggable
 {
 public:
-  // -- CONSTRUCTORS --
-  virtual ~format_config_block() = default;
-
-  static std::string interface_name() { return "format-config-block"; }
+  PLUGGABLE_INTERFACE( format_config_block )
 
   virtual void print( std::ostream& str ) = 0;
 
-  // Options that are passed from the main calling context
+  #define PARAM_SET() \
+    PARAM( opt_prefix, std::string, "Optional prefix for output" ), \
+    PARAM( config, config_block_sptr, "Reference to a config block"), \
+    PARAM_DEFAULT( opt_gen_source_loc, bool, "Provide information about config file.", false)
 
-  bool opt_gen_source_loc;
-  std::string opt_prefix;
-
-  // The config block to format.
-  config_block_sptr m_config;
+  PLUGGABLE_VARIABLES( PARAM_SET() )
+  // PLUGGABLE_CONSTRUCTOR( format_config_block, PARAM_SET() )
 }; // end class format_config_block
 
 using format_config_block_sptr = std::shared_ptr< format_config_block >;

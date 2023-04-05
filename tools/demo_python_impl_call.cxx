@@ -49,7 +49,7 @@ main_config_formatter_load_example()
   cb_new->set_value( "b", "2" );
   cb_new->set_value( "b:c", "other" );
 
-  inst->m_config = cb_new;
+  inst->set_config( cb_new );
   inst->print( std::cout );
 
   return 0;

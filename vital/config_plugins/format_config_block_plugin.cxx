@@ -43,38 +43,38 @@ format_config_block_markdown
 ::print( std::ostream& str )
 {
   wrap_text_block wtb;
-  wtb.set_indent_string( opt_prefix + "    " );
+  wtb.set_indent_string( this->get_opt_prefix() + "    " );
 
-  kwiver::vital::config_block_keys_t all_keys = m_config->available_values();
+  kwiver::vital::config_block_keys_t all_keys = this->get_config()->available_values();
 
   for( kwiver::vital::config_block_key_t key : all_keys )
   {
     std::string ro;
 
     auto const val =
-      m_config->get_value< kwiver::vital::config_block_value_t >( key );
-    if( m_config->is_read_only( key ) )
+      this->get_config()->get_value< kwiver::vital::config_block_value_t >( key );
+    if( this->get_config()->is_read_only( key ) )
     {
       ro = "[RO]";
     }
 
-    str << opt_prefix << "**" << key << "** " << ro << " = " << val
+    str << this->get_opt_prefix() << "**" << key << "** " << ro << " = " << val
         << std::endl;
 
-    std::string descrip = m_config->get_description( key );
+    std::string descrip = this->get_config()->get_description( key );
     if( !descrip.empty() )
     {
       str << wtb.wrap_text( descrip );
     }
 
-    if( opt_gen_source_loc )
+    if( this->get_opt_gen_source_loc() )
     {
       // Add location information if available
       std::string file;
       int line( 0 );
-      if( m_config->get_location( key, file, line ) )
+      if( this->get_config()->get_location( key, file, line ) )
       {
-        str << opt_prefix << "    Defined at " << file << ":" << line <<
+        str << this->get_opt_prefix() << "    Defined at " << file << ":" << line <<
           std::endl;
       }
     }
@@ -132,7 +132,7 @@ void
 format_config_block_tree
 ::print( std::ostream& str )
 {
-  format_block( str, m_config, opt_prefix );
+  format_block( str, this->get_config(), this->get_opt_prefix() );
 }
 
 // ----------------------------------------------------------------------------
@@ -204,7 +204,7 @@ format_config_block_tree
         str << wtb.wrap_text( descrip );
       }
 
-      if( opt_gen_source_loc )
+      if( this->get_opt_gen_source_loc() )
       {
         // Add location information if available
         std::string file;

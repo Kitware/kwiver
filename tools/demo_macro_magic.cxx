@@ -40,7 +40,7 @@ main_config_formatter_load_example()
     std::cout << "Format config for " << name << " implementation" << std::endl;
 
     auto inst = fact.create( name, cb_empty );
-    inst->m_config = cb_new;
+    inst->set_config( cb_new );
 
     inst->print( std::cout );
     std::cout << std::endl;
