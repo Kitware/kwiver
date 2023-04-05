@@ -22,20 +22,19 @@ class FORMAT_CONFIG_NO_EXPORT format_config_block_markdown
   : public format_config_block
 {
 public:
-  // -- CONSTRUCTORS --
-  format_config_block_markdown();
-  virtual ~format_config_block_markdown() = default;
+  PLUGGABLE_IMPL_BASIC(
+    format_config_block_markdown,
+    "Format config block with markdown"
+  )
+
+  PLUGGABLE_CONSTRUCTOR( format_config_block_markdown )
+
+  // static pluggable_sptr from_config( config_block_sptr const cb );
+  PLUGGABLE_STATIC_FROM_CONFIG( format_config_block_markdown )
+  PLUGGABLE_STATIC_GET_DEFAULT()
 
   void print( std::ostream& str ) override;
-
-  // Plugin support
-  static pluggable_sptr from_config( config_block_sptr const cb );
-  static void get_default_config( config_block& cb );
 }; // end class format_config_block_markdown
-
-format_config_block_markdown
-::format_config_block_markdown()
-{}
 
 // ----------------------------------------------------------------------------
 void
@@ -83,21 +82,6 @@ format_config_block_markdown
   }
 }
 
-pluggable_sptr
-format_config_block_markdown
-::from_config( config_block_sptr const /* cb */ )
-{
-  // No parameter constructor, just return new instance
-  return std::make_shared< format_config_block_markdown >();
-}
-
-void
-format_config_block_markdown
-::get_default_config( config_block& /* cb */ )
-{
-  // No constructor parameters, so nothing to set in the config block.
-}
-
 // ----------------------------------------------------------------------------
 
 /**
@@ -107,25 +91,18 @@ class FORMAT_CONFIG_NO_EXPORT format_config_block_tree
   : public format_config_block
 {
 public:
-  // -- CONSTRUCTORS --
-  format_config_block_tree();
-  virtual ~format_config_block_tree() = default;
+  PLUGGABLE_IMPL(
+    format_config_block_tree,
+    "Format config block to output as a tree"
+  )
 
   void print( std::ostream& str ) override;
-
-  // Plugin support
-  static pluggable_sptr from_config( config_block_sptr const cb );
-  static void get_default_config( config_block& cb );
 
 protected:
   void format_block( std::ostream& str,
                      const config_block_sptr config,
                      const std::string& prefix );
 }; // end class format_config_block_tree
-
-format_config_block_tree
-::format_config_block_tree()
-{}
 
 // ----------------------------------------------------------------------------
 void
@@ -218,21 +195,6 @@ format_config_block_tree
       }
     }
   } // end for
-}
-
-pluggable_sptr
-format_config_block_tree
-::from_config( config_block_sptr const /* cb */ )
-{
-  // No parameter constructor, just return new instance
-  return std::make_shared< format_config_block_tree >();
-}
-
-void
-format_config_block_tree
-::get_default_config( config_block& /* cb */ )
-{
-  // No constructor parameters, so nothing to set in the config block.
 }
 
 // ----------------------------------------------------------------------------
