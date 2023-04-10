@@ -100,7 +100,7 @@ klv_0903_vtracker_set_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACKER_NUM_TRACK_POINTS ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 2 } ),
       "Number of Track Points",
       "Number of coordinates which describe the history of VMTI detections "
       "described by `Track History Series`.",
@@ -125,7 +125,7 @@ klv_0903_vtracker_set_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACKER_ALGORITHM_ID ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Algorithm ID",
       "Identifier indicating which algorithm in the Algorithm Series tracked "
       "this target.",

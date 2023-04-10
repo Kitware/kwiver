@@ -62,14 +62,15 @@ klv_0903_vobject_set_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VOBJECT_ONTOLOGY_ID ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Ontology ID",
       "Identifier for an ontology in the VMTI Ontology Series.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VOBJECT_CONFIDENCE ),
       std::make_shared< klv_imap_format >(
-        vital::interval< double >{ 0.0, 100.0 } ),
+        vital::interval< double >{ 0.0, 100.0 },
+        klv_length_constraints{ 1, 3 } ),
       "Confidence",
       "Level of confidence in the classification of the object.",
       { 0, 1 } } };
