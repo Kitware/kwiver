@@ -738,57 +738,80 @@ ffmpeg_video_input::priv::open_video_state
     format_context.reset( ptr );
   }
 
-  // Get the stream information by reading a bit of the file
-  throw_error_code(
-    avformat_find_stream_info( format_context.get(), NULL ),
-    "Could not read stream information" );
-
-  // Find a video stream, and optionally a data stream.
-  // Use the first ones we find.
-  for( auto const i : kvr::iota( format_context->nb_streams ) )
+  // Try to probe the file for stream information
+  constexpr size_t max_probe_tries = 3;
+  format_context->probesize = 5'000'000; // 5 MB
+  format_context->max_analyze_duration = 10 * AV_TIME_BASE; // 10 seconds
+  for( auto const i : kvr::iota( max_probe_tries ) )
   {
-    auto const stream = format_context->streams[ i ];
-    auto const params = stream->codecpar;
-    if( params->codec_type == AVMEDIA_TYPE_VIDEO )
+    // Increase how much of file to analyze on later attempts
+    if( i != 0 )
     {
-      if( params->width <= 0 || params->height <= 0 )
-      {
-        LOG_ERROR(
-          logger,
-          "FFmpeg cannot determine the characteristics of video stream "
-          << stream->index << "; this stream will be ignored" );
-        continue;
-      }
-      if( video_stream )
-      {
-        LOG_WARN(
-          logger,
-          "Multiple video streams are not currently supported; stream "
-          << stream->index << " will be ignored" );
-        continue;
-      }
-      video_stream = stream;
+      LOG_ERROR(
+        logger,
+        "Could not find a valid video stream in the input on attempt " << i
+        << " of " << max_probe_tries );
+      format_context->probesize *= 3;
+      format_context->max_analyze_duration *= 3;
     }
-    else if( parent.klv_enabled &&
-             params->codec_id == AV_CODEC_ID_SMPTE_KLV )
+
+    // Get the stream information by reading a bit of the file
+    throw_error_code(
+      avformat_find_stream_info( format_context.get(), NULL ),
+      "Could not read stream information" );
+
+    // Find a video stream, and optionally any data streams
+    for( auto const j : kvr::iota( format_context->nb_streams ) )
     {
-      klv_streams.emplace_back( stream );
-    }
-    else if( parent.klv_enabled &&
-             params->codec_id == AV_CODEC_ID_NONE )
-    {
-      if( ( params->codec_type == AVMEDIA_TYPE_DATA ||
-            params->codec_type == AVMEDIA_TYPE_UNKNOWN ) &&
-          parent.unknown_stream_behavior == "klv" )
+      auto const stream = format_context->streams[ j ];
+      auto const params = stream->codecpar;
+      if( params->codec_type == AVMEDIA_TYPE_VIDEO )
       {
-        LOG_INFO( logger,
-          "Treating unknown stream " << stream->index << " as KLV" );
+        if( params->width <= 0 || params->height <= 0 )
+        {
+          LOG_ERROR(
+            logger,
+            "FFmpeg cannot determine the characteristics of video stream "
+            << stream->index << "; this stream will be ignored" );
+          continue;
+        }
+        if( video_stream )
+        {
+          LOG_WARN(
+            logger,
+            "Multiple video streams are not currently supported; stream "
+            << stream->index << " will be ignored" );
+          continue;
+        }
+        video_stream = stream;
+      }
+      else if( parent.klv_enabled &&
+              params->codec_id == AV_CODEC_ID_SMPTE_KLV )
+      {
         klv_streams.emplace_back( stream );
       }
-      else
+      else if( parent.klv_enabled &&
+              params->codec_id == AV_CODEC_ID_NONE )
       {
-        LOG_INFO( logger, "Ignoring unknown stream " << stream->index );
+        if( ( params->codec_type == AVMEDIA_TYPE_DATA ||
+              params->codec_type == AVMEDIA_TYPE_UNKNOWN ) &&
+            parent.unknown_stream_behavior == "klv" )
+        {
+          LOG_INFO( logger,
+            "Treating unknown stream " << stream->index << " as KLV" );
+          klv_streams.emplace_back( stream );
+        }
+        else
+        {
+          LOG_INFO( logger, "Ignoring unknown stream " << stream->index );
+        }
       }
+    }
+
+    if( video_stream )
+    {
+      // Success!
+      break;
     }
   }
 
