@@ -50,6 +50,7 @@ kwiver_discover_gtests(vital mesh                           LIBRARIES ${test_lib
 kwiver_discover_gtests(vital mesh_io                        LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(vital metadata                       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital metadata_io                    LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
+kwiver_discover_gtests(vital metadata_stream_from_map       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital point                          LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital polygon                        LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital rotation                       LIBRARIES ${test_libraries})
