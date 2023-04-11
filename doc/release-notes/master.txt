@@ -24,3 +24,5 @@ Arrows: KLV
 * Disabled initialization of image writer in dump-klv if no images are to be written.
 
 * Accounted for missing or extra frames in compare-klv.
+
+* Implemented metadata_map_io_csv.load_().
