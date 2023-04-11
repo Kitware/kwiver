@@ -7,6 +7,8 @@
 
 #include "metadata_map_io_csv.h"
 
+#include <arrows/core/csv_io.h>
+
 #include <vital/any.h>
 #include <vital/exceptions/algorithm.h>
 #include <vital/exceptions/io.h>
@@ -38,9 +40,10 @@ namespace core {
 class metadata_map_io_csv::priv
 {
 public:
-  void write_csv_item( kv::vital_metadata_tag tag,
-                       kv::metadata_value const& value,
-                       std::ostream& fout );
+  void write_csv_item(
+    core::csv_writer& csv_os,
+    kv::vital_metadata_tag tag,
+    kv::metadata_value const& value );
 
   bool write_remaining_columns{ true };
   bool write_enum_names{ false };
@@ -48,8 +51,8 @@ public:
   std::vector< std::string > column_names;
   std::string overrides_string;
   std::vector< std::string > column_overrides;
-  uint64_t every_n_microseconds;
-  uint64_t every_n_frames;
+  uint64_t every_n_microseconds{ 0 };
+  uint64_t every_n_frames{ 0 };
 };
 
 namespace {
@@ -60,52 +63,20 @@ struct write_visitor {
   void
   operator()( T const& data ) const
   {
-    if( std::is_arithmetic< T >::value )
+    if constexpr(
+      std::is_same_v< T, kv::geo_point > ||
+      std::is_same_v< T, kv::geo_polygon > )
     {
-      os << data << ',';
+      throw std::logic_error( "Complex type given to csv field writer" );
     }
     else
     {
-      // TODO: handle pathalogical characters such as quotes or newlines
-      os << "\"" << data << "\",";
+      csv_os << data;
     }
   }
 
-  std::ostream& os;
+  core::csv_writer& csv_os;
 };
-
-// ----------------------------------------------------------------------------
-template<>
-void
-write_visitor::operator()< bool >( bool const& data ) const
-{
-  os << ( data ? "true," : "false," );
-}
-
-// ----------------------------------------------------------------------------
-template<>
-void
-write_visitor::operator()< std::string >( std::string const& data ) const
-{
-  // TODO: handle other pathalogical characters such as quotes or newlines
-  os << "\"" << data << "\",";
-}
-
-// ----------------------------------------------------------------------------
-template<>
-void
-write_visitor::operator()< kv::geo_point >( kv::geo_point const& ) const
-{
-  throw std::logic_error( "geo_point should have been split" );
-}
-
-// ----------------------------------------------------------------------------
-template<>
-void
-write_visitor::operator()< kv::geo_polygon >( kv::geo_polygon const& ) const
-{
-  throw std::logic_error( "geo_polygon should have been split" );
-}
 
 // ----------------------------------------------------------------------------
 // Get the number of simple values (e.g. numbers) required to express the given
@@ -281,9 +252,10 @@ parse_column_id( std::string const& s )
 // ----------------------------------------------------------------------------
 void
 metadata_map_io_csv::priv
-::write_csv_item( kv::vital_metadata_tag tag,
-                  kv::metadata_value const& value,
-                  std::ostream& fout )
+::write_csv_item(
+  core::csv_writer& csv_os,
+  kv::vital_metadata_tag tag,
+  kv::metadata_value const& value )
 {
   if( tag == kv::VITAL_META_VIDEO_MICROSECONDS )
   {
@@ -292,17 +264,17 @@ metadata_map_io_csv::priv
     auto const seconds = ( microseconds / 1000000 );
     auto const minutes = ( seconds / 60 );
     auto const hours = ( minutes / 60 );
-    auto const flags = fout.flags();
-    fout << std::setfill( '0' );
-    fout << std::setw( 2 ) << hours << ':';
-    fout << std::setw( 2 ) << ( minutes % 60 ) << ':';
-    fout << std::setw( 2 ) << ( seconds % 60 ) << '.';
-    fout << std::setw( 6 ) << ( microseconds % 1000000 ) << ',';
-    fout.flags( flags );
+    std::stringstream ss;
+    ss << std::setfill( '0' );
+    ss << std::setw( 2 ) << hours << ':';
+    ss << std::setw( 2 ) << ( minutes % 60 ) << ':';
+    ss << std::setw( 2 ) << ( seconds % 60 ) << '.';
+    ss << std::setw( 6 ) << ( microseconds % 1000000 );
+    csv_os << ss.str();
   }
   else
   {
-    std::visit( write_visitor{ fout }, value );
+    std::visit( write_visitor{ csv_os }, value );
   }
 }
 
@@ -409,11 +381,11 @@ metadata_map_io_csv
 // ----------------------------------------------------------------------------
 void
 metadata_map_io_csv
-::save_( std::ostream& fout,
+::save_( std::ostream& os,
          kv::metadata_map_sptr data,
          std::string const& filename ) const
 {
-  if( !fout )
+  if( !os )
   {
     VITAL_THROW( kv::file_write_exception, filename,
                  "Insufficient permissions or moved file" );
@@ -482,12 +454,13 @@ metadata_map_io_csv
   }
 
   // Write out the csv header
-  fout << "\"Frame ID\",";
+  core::csv_writer csv_os{ os };
+  csv_os << "Frame ID";
   for( auto const& info : infos )
   {
-    fout << "\"" << info.name << "\",";
+    csv_os << info.name;
   }
-  fout << std::endl;
+  csv_os << core::csv::endl;
 
   if( d_->every_n_microseconds && d_->every_n_frames )
   {
@@ -531,27 +504,26 @@ metadata_map_io_csv
     for( auto const& metadata_packet : frame_data.second )
     {
       // Write the frame number
-      fout << frame_data.first << ",";
+      csv_os << frame_data.first;
       for( auto const& info : infos )
       {
         if( metadata_packet->has( info.id.tag ) )
         // Write field data
         {
           auto const& item = metadata_packet->find( info.id.tag );
-          d_->write_csv_item( item.tag(),
-                              get_subvalue( item.data(), info.id.index ),
-                              fout );
+          auto const subvalue = get_subvalue( item.data(), info.id.index );
+          d_->write_csv_item( csv_os, item.tag(), subvalue );
         }
         else
         // Write empty fields
         {
-          fout << ',';
+          csv_os << core::csv::skipf;
         }
       }
-      fout << "\n";
+      csv_os << core::csv::endl;
     }
   }
-  fout << std::flush;
+  os << std::flush;
 }
 
 } // namespace core
