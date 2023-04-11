@@ -3,9 +3,9 @@
 # ``__SOURCE_PATH__`` and ``__TEMP_PATH__``
 #
 
-message(STATUS "Source Path       : '${__SOURCE_PATH__}'")
-message(STATUS "Intermediate Path : '${__TEMP_PATH__}'")
-message(STATUS "Output Path       : '${__OUTPUT_PATH__}'")
+message(TRACE "Source Path       : '${__SOURCE_PATH__}'")
+message(TRACE "Intermediate Path : '${__TEMP_PATH__}'")
+message(TRACE "Output Path       : '${__OUTPUT_PATH__}'")
 if(NOT EXISTS "${__SOURCE_PATH__}")
   message(FATAL_ERROR "Source file for configuration did not exist! -> ${__SOURCE_PATH__}")
 endif()
