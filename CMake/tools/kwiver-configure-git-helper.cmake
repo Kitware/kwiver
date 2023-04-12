@@ -3,10 +3,10 @@
 # ``__SOURCE_PATH__`` and ``__TEMP_PATH__``
 #
 
-message(STATUS "Source Path       : '${__SOURCE_PATH__}'")
-message(STATUS "Intermediate Path : '${__TEMP_PATH__}'")
-message(STATUS "Output Path       : '${__OUTPUT_PATH__}'")
-message(STATUS "Project Root      : '${KWIVER_SOURCE_DIR}'")
+message(TRACE "Source Path       : '${__SOURCE_PATH__}'")
+message(TRACE "Intermediate Path : '${__TEMP_PATH__}'")
+message(TRACE "Output Path       : '${__OUTPUT_PATH__}'")
+message(VERBOSE "Project Root      : '${KWIVER_SOURCE_DIR}'")
 
 if(NOT EXISTS "${__SOURCE_PATH__}")
   message(FATAL_ERROR "Source file for configuration did not exist! -> ${__SOURCE_PATH__}")
@@ -47,10 +47,10 @@ if (Git_FOUND AND IS_DIRECTORY "${KWIVER_SOURCE_DIR}/.git")
     set(kwiver_git_dirty "dirty")
   endif ()
 
-  message(STATUS "version: ${KWIVER_VERSION}")
-  message(STATUS "git hash: ${kwiver_git_hash}")
-  message(STATUS "git short hash: ${kwiver_git_hash_short}")
-  message(STATUS "git dirty: ${kwiver_git_dirty}")
+  message(VERBOSE "version: ${KWIVER_VERSION}")
+  message(VERBOSE "git hash: ${kwiver_git_hash}")
+  message(VERBOSE "git short hash: ${kwiver_git_hash_short}")
+  message(VERBOSE "git dirty: ${kwiver_git_dirty}")
 endif ()
 
 # There are TWO configures here on purpose. The second configure containing
@@ -68,4 +68,3 @@ configure_file(
   "${__OUTPUT_PATH__}"
   COPYONLY
   )
-

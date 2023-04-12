@@ -64,6 +64,7 @@ function(kwiver_configure_file name source dest)
     OUTPUT  "${dest}"
     COMMAND "${CMAKE_COMMAND}"
             ${gen_command_args}
+            "-DCMAKE_MESSAGE_LOG_LEVEL:STRING=${CMAKE_MESSAGE_LOG_LEVEL}"
             "-D__SOURCE_PATH__:PATH=${source}"
             "-D__TEMP_PATH__:PATH=${temp_file}"
             "-D__OUTPUT_PATH__:PATH=${dest}"
