@@ -236,6 +236,33 @@ metadata::operator=( metadata const& other )
 }
 
 // ----------------------------------------------------------------------------
+bool
+metadata
+::operator==( metadata const& other ) const
+{
+  if( m_metadata_map.size() != other.m_metadata_map.size() )
+  {
+    return false;
+  }
+
+  static auto const cmp =
+    []( metadata_map_t::value_type const& lhs,
+        metadata_map_t::value_type const& rhs ) {
+      return lhs.first == rhs.first && *lhs.second == *rhs.second;
+    };
+  return std::equal( m_metadata_map.begin(), m_metadata_map.end(),
+                     other.m_metadata_map.begin(), cmp );
+}
+
+// ----------------------------------------------------------------------------
+bool
+metadata
+::operator!=( metadata const& other ) const
+{
+  return !( *this == other );
+}
+
+// ----------------------------------------------------------------------------
 metadata*
 metadata
 ::clone() const
@@ -475,28 +502,10 @@ std::ostream& print_metadata( std::ostream& str, metadata const& metadata )
 }
 
 // ----------------------------------------------------------------------------
-bool test_equal_content( const kwiver::vital::metadata& one,
-                         const kwiver::vital::metadata& other )
+bool
+test_equal_content( vital::metadata const& lhs, vital::metadata const& rhs )
 {
-  // They must be the same size to be the same content
-  if ( one.size() != other.size() ) { return false; }
-
-  for ( const auto& mi : one )
-  {
-    // element is <tag, any>
-    const auto tag = mi.first;
-    const auto metap = mi.second;
-
-    auto& omi = other.find( tag );
-    if ( ! omi ) { return false; }
-
-    // It is simpler to just do a string comparison than to try to do
-    // a type specific comparison.
-    if ( metap->as_string() != omi.as_string() ) { return false; }
-
-  } // end for
-
-  return true;
+  return lhs == rhs;
 }
 
 } // namespace vital

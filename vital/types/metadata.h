@@ -251,6 +251,9 @@ public:
   metadata& operator=( metadata&& other ) = default;
   metadata& operator=( metadata const& other );
 
+  bool operator==( metadata const& other ) const;
+  bool operator!=( metadata const& other ) const;
+
   /// Create a deep copy of this object.
   virtual metadata* clone() const;
 
@@ -430,8 +433,9 @@ using metadata_sptr = std::shared_ptr< metadata >;
 using metadata_vector = std::vector< metadata_sptr >;
 
 VITAL_EXPORT std::ostream& print_metadata( std::ostream& str, metadata const& metadata );
-VITAL_EXPORT bool test_equal_content( const kwiver::vital::metadata& one,
-                                      const kwiver::vital::metadata& other );
+VITAL_DEPRECATED_EXPORT
+bool test_equal_content( vital::metadata const& lhs,
+                         vital::metadata const& rhs );
 
 } } // end namespace
 
