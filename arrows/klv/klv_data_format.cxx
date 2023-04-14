@@ -242,6 +242,14 @@ klv_bool_format
 }
 
 // ----------------------------------------------------------------------------
+size_t
+klv_bool_format
+::length_of_typed( bool const& ) const
+{
+  return m_length_constraints.fixed_or( 1 );
+}
+
+// ----------------------------------------------------------------------------
 klv_uint_format
 ::klv_uint_format( klv_length_constraints const& length_constraints )
   : klv_data_format_< data_type >{ length_constraints }
@@ -269,7 +277,7 @@ size_t
 klv_uint_format
 ::length_of_typed( uint64_t const& value ) const
 {
-  return klv_int_length( value );
+  return m_length_constraints.fixed_or( klv_int_length( value ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -308,7 +316,7 @@ size_t
 klv_sint_format
 ::length_of_typed( int64_t const& value ) const
 {
-  return klv_int_length( value );
+  return m_length_constraints.fixed_or( klv_int_length( value ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -423,7 +431,7 @@ size_t
 klv_float_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return value.length;
+  return m_length_constraints.fixed_or( value.length );
 }
 
 // ----------------------------------------------------------------------------
@@ -480,7 +488,7 @@ size_t
 klv_sflint_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return value.length;
+  return m_length_constraints.fixed_or( value.length );
 }
 
 // ----------------------------------------------------------------------------
@@ -548,7 +556,7 @@ size_t
 klv_uflint_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return value.length;
+  return m_length_constraints.fixed_or( value.length );
 }
 
 // ----------------------------------------------------------------------------
@@ -615,7 +623,7 @@ size_t
 klv_imap_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return value.length;
+  return m_length_constraints.fixed_or( value.length );
 }
 
 // ----------------------------------------------------------------------------

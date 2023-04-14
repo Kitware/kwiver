@@ -114,6 +114,14 @@ klv_1108_metric_period_pack_format
 }
 
 // ----------------------------------------------------------------------------
+size_t
+klv_1108_metric_period_pack_format
+::length_of_typed( klv_1108_metric_period_pack const& ) const
+{
+  return 12;
+}
+
+// ----------------------------------------------------------------------------
 std::string
 klv_1108_metric_period_pack_format
 ::description_() const
