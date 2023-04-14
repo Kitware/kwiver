@@ -60,7 +60,11 @@ public:
 
     size_t frame_count;
     format_context_uptr format_context;
+#if LIBAVFORMAT_VERSION_MAJOR > 58
+    AVOutputFormat const* output_format;
+#else
     AVOutputFormat* output_format;
+#endif
     AVStream* video_stream;
     AVStream* metadata_stream;
     codec_context_uptr codec_context;
