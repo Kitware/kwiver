@@ -29,53 +29,39 @@ public:
 
   PLUGGABLE_CONSTRUCTOR( format_config_block_markdown )
 
-  // static pluggable_sptr from_config( config_block_sptr const cb );
   PLUGGABLE_STATIC_FROM_CONFIG( format_config_block_markdown )
   PLUGGABLE_STATIC_GET_DEFAULT()
 
-  void print( std::ostream& str ) override;
+  void print( const config_block_sptr config, std::ostream& str ) override;
 }; // end class format_config_block_markdown
 
 // ----------------------------------------------------------------------------
 void
 format_config_block_markdown
-::print( std::ostream& str )
+::print( config_block_sptr config, std::ostream& str )
 {
   wrap_text_block wtb;
-  wtb.set_indent_string( this->get_opt_prefix() + "    " );
 
-  kwiver::vital::config_block_keys_t all_keys = this->get_config()->available_values();
+  kwiver::vital::config_block_keys_t all_keys = config->available_values();
 
   for( kwiver::vital::config_block_key_t key : all_keys )
   {
     std::string ro;
 
     auto const val =
-      this->get_config()->get_value< kwiver::vital::config_block_value_t >( key );
-    if( this->get_config()->is_read_only( key ) )
+      config->get_value< kwiver::vital::config_block_value_t >( key );
+    if( config->is_read_only( key ) )
     {
       ro = "[RO]";
     }
 
-    str << this->get_opt_prefix() << "**" << key << "** " << ro << " = " << val
+    str << "**" << key << "** " << ro << " = " << val
         << std::endl;
 
-    std::string descrip = this->get_config()->get_description( key );
+    std::string descrip = config->get_description( key );
     if( !descrip.empty() )
     {
       str << wtb.wrap_text( descrip );
-    }
-
-    if( this->get_opt_gen_source_loc() )
-    {
-      // Add location information if available
-      std::string file;
-      int line( 0 );
-      if( this->get_config()->get_location( key, file, line ) )
-      {
-        str << this->get_opt_prefix() << "    Defined at " << file << ":" << line <<
-          std::endl;
-      }
     }
 
     str << std::endl;
@@ -93,10 +79,12 @@ class FORMAT_CONFIG_NO_EXPORT format_config_block_tree
 public:
   PLUGGABLE_IMPL(
     format_config_block_tree,
-    "Format config block to output as a tree"
+    "Format config block to output as a tree",
+    PARAM( opt_prefix, std::string, "Optional prefix for output" ), \
+    PARAM_DEFAULT( opt_gen_source_loc, bool, "Provide information about config file.", false)
   )
 
-  void print( std::ostream& str ) override;
+  void print( const config_block_sptr config,std::ostream& str ) override;
 
 protected:
   void format_block( std::ostream& str,
@@ -107,9 +95,9 @@ protected:
 // ----------------------------------------------------------------------------
 void
 format_config_block_tree
-::print( std::ostream& str )
+::print( const config_block_sptr config, std::ostream& str )
 {
-  format_block( str, this->get_config(), this->get_opt_prefix() );
+  format_block( str, config, this->get_opt_prefix() );
 }
 
 // ----------------------------------------------------------------------------

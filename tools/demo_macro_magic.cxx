@@ -22,6 +22,7 @@ main_config_formatter_load_example()
   vpm.load_all_plugins();
 
   auto cb_empty = kv::config_block::empty_config();
+  cb_empty->set_value( "opt_prefix", ">>" );
 
   auto impl_names = vpm.impl_names< kv::format_config_block >();
   LOG_INFO( LOG, "What impls are there for format_config_block? "
@@ -40,9 +41,8 @@ main_config_formatter_load_example()
     std::cout << "Format config for " << name << " implementation" << std::endl;
 
     auto inst = fact.create( name, cb_empty );
-    inst->set_config( cb_new );
 
-    inst->print( std::cout );
+    inst->print( cb_new, std::cout );
     std::cout << std::endl;
   }
 
