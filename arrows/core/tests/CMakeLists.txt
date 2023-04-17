@@ -17,6 +17,8 @@ kwiver_discover_gtests(core feature_descriptor_io     LIBRARIES ${test_libraries
 kwiver_discover_gtests(core interpolate_track_spline  LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core mesh_intersect            LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core mesh_operations           LIBRARIES ${test_libraries})
+kwiver_discover_gtests(core metadata_stream_from_video
+                                                      LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core render_mesh_depth_map     LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core track_set_impl            LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core transfer_bbox_with_depth_map
