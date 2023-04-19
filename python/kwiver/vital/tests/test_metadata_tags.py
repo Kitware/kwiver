@@ -82,6 +82,7 @@ class TestVitalMetadataTags(unittest.TestCase):
             mt.tags.VITAL_META_SENSOR_YAW_ANGLE,
             mt.tags.VITAL_META_SENSOR_PITCH_ANGLE,
             mt.tags.VITAL_META_SENSOR_ROLL_ANGLE,
+            mt.tags.VITAL_META_SENSOR_ALTITUDE,
             mt.tags.VITAL_META_SENSOR_TYPE,
             mt.tags.VITAL_META_SLANT_RANGE,
             mt.tags.VITAL_META_TARGET_WIDTH,
