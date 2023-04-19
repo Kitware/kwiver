@@ -158,7 +158,7 @@ VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
       "Sensor Roll Angle (degrees)",
       "" },
     { TRAITS_OF( SENSOR_ALTITUDE ),
-      "Sensor Altitude (degrees)",
+      "Sensor Altitude (meters)",
       "" },
     { TRAITS_OF( SENSOR_TYPE ),
       "Sensor Type",
