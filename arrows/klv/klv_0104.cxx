@@ -5,7 +5,9 @@
 /// \file
 /// Implementation of the KLV 0104 parser.
 
-#include "klv_0104.h"
+#include <arrows/klv/klv_0104.h>
+
+#include <arrows/klv/klv_string.h>
 
 #include <vital/exceptions.h>
 
@@ -82,7 +84,7 @@ klv_0104_traits_lookup()
       1 },
     { { 0x060E2B3401010101, 0x0105050000000000 },
       ENUM_AND_NAME( KLV_0104_EPISODE_NUMBER ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Episode Number",
       "Number to distinguish different missions started on a given day.",
       { 0, 1 } },
@@ -110,20 +112,20 @@ klv_0104_traits_lookup()
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0101200100000000 },
       ENUM_AND_NAME( KLV_0104_DEVICE_DESIGNATION ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Device Designation",
       "Model name for the platform. Examples: 'Predator', 'Reaper'.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0420010201010000 },
       ENUM_AND_NAME( KLV_0104_IMAGE_SOURCE_DEVICE ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Image Source Device",
       "Name of the currently active sensor. Examples: 'EO Nose', "
       "'IR Mitsubishi PtSi Model 500'.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0701010100000000 },
       ENUM_AND_NAME( KLV_0104_IMAGE_COORDINATE_SYSTEM ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Image Coordinate System",
       "Name of the image coordinate system used.",
       { 0, 1 } },
@@ -247,14 +249,14 @@ klv_0104_traits_lookup()
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0702010201010000 },
       ENUM_AND_NAME( KLV_0104_START_DATETIME ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Start Datetime",
       "Start time of Motion Imagery Collection. "
       "Format: YYYYMMDDDThhmmss. UTC.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0702010207010000 },
       ENUM_AND_NAME( KLV_0104_EVENT_START_DATETIME ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(),
       "Event Start Datetime",
       "Start time of scene, project, event, mission, editing event, license, "
       "publication, etc. Format: YYYYMMDDDThhmmss. UTC.",

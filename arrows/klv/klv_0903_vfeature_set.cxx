@@ -5,8 +5,9 @@
 /// \file
 /// Implementation of the KLV 0903 VFeature local set parser.
 
-#include "klv_0903_vfeature_set.h"
+#include <arrows/klv/klv_0903_vfeature_set.h>
 
+#include <arrows/klv/klv_string.h>
 #include <arrows/klv/klv_util.h>
 
 namespace kwiver {
@@ -35,14 +36,14 @@ klv_0903_vfeature_set_traits_lookup()
       0 },
     { {},
       ENUM_AND_NAME( KLV_0903_VFEATURE_SCHEMA ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Schema",
       "URI which points to a relevant Observation schema "
       "(http://schemas.opengis.net/om/1.0.0/) or a related schema.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VFEATURE_SCHEMA_FEATURE ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Schema Feature",
       "Geographic Markup Language document structured according to the Schema "
       "tag. May contain one or more observed values for a feature of "

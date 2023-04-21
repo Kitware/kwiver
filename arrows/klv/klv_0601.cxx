@@ -2,22 +2,23 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include "klv_0601.h"
+#include <arrows/klv/klv_0601.h>
 
-#include "klv_0806.h"
-#include "klv_0903.h"
-#include "klv_1002.h"
-#include "klv_1010.h"
-#include "klv_1204.h"
-#include "klv_1206.h"
-#include "klv_1601.h"
-#include "klv_1602.h"
-#include "klv_1607.h"
-#include "klv_checksum.h"
-#include "klv_series.hpp"
-#include "klv_length_value.h"
-#include "klv_list.hpp"
-#include "klv_util.h"
+#include <arrows/klv/klv_0806.h>
+#include <arrows/klv/klv_0903.h>
+#include <arrows/klv/klv_1002.h>
+#include <arrows/klv/klv_1010.h>
+#include <arrows/klv/klv_1204.h>
+#include <arrows/klv/klv_1206.h>
+#include <arrows/klv/klv_1601.h>
+#include <arrows/klv/klv_1602.h>
+#include <arrows/klv/klv_1607.h>
+#include <arrows/klv/klv_checksum.h>
+#include <arrows/klv/klv_series.hpp>
+#include <arrows/klv/klv_length_value.h>
+#include <arrows/klv/klv_list.hpp>
+#include <arrows/klv/klv_string.h>
+#include <arrows/klv/klv_util.h>
 
 #include <vital/logger/logger.h>
 
@@ -69,15 +70,13 @@ klv_0601_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_0601_MISSION_ID ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Mission ID",
       "Descriptive mission identifier to distinguish an event or sortie.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_TAIL_NUMBER ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Platform Tail Number",
       "Identifier of platform as posted.",
       { 0, 1 } },
@@ -124,23 +123,20 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_DESIGNATION ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Platform Designation",
       "Model name for the platform. Examples: 'Predator', 'Reaper'.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_IMAGE_SOURCE_SENSOR ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Image Source Sensor",
       "Name of the currently active sensor. Examples: 'EO Nose', 'TESAR "
       "Imagery'.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_IMAGE_COORDINATE_SYSTEM ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Image Coordinate System",
       "Name of the image coordinate system used.",
       { 0, 1 } },
@@ -488,7 +484,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_CALL_SIGN ),
-      std::make_shared< klv_string_format >( klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Platform Call Sign",
       "Call sign of the platform or operating unit.",
       { 0, 1 } },
@@ -562,7 +558,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ALTERNATE_PLATFORM_NAME ),
-      std::make_shared< klv_string_format >( klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Alternate Platform Name",
       "Name of the platform connected to the UAS via direct datalink. "
       "Examples: 'Apache', 'Rover'.",
@@ -824,23 +820,20 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_STREAM_DESIGNATOR ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Stream Designator",
       "Shorthand descriptor for a particular Motion Imagery data stream, "
       "typically delivered over IP.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OPERATIONAL_BASE ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Operational Base",
       "Indicates the location for the launch recovery equipment.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_BROADCAST_SOURCE ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Broadcast Source",
       "Location where the Motion Imagery is first broadcast. Examples: "
       "'Creech', 'Cannon'.",
@@ -994,7 +987,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_ID ),
-      std::make_shared< klv_string_format >( klv_length_constraints{ 1, 32 } ),
+      std::make_shared< klv_utf_8_format >( 32 ),
       "Target ID",
       "Alpha-numeric identification of the target.",
       { 0, 1 } },
@@ -1036,8 +1029,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_COMMUNICATIONS_METHOD ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( 127 ),
       "Communications Method",
       "Type of communications used with platform",
       { 0, 1 } },

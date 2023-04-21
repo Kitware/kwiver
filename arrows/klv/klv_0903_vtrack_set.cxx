@@ -12,6 +12,7 @@
 #include <arrows/klv/klv_0903_vtracker_set.h>
 #include <arrows/klv/klv_0903_vtrackitem_pack.h>
 #include <arrows/klv/klv_series.hpp>
+#include <arrows/klv/klv_string.h>
 #include <arrows/klv/klv_uuid.h>
 
 namespace kwiver {
@@ -85,7 +86,7 @@ klv_0903_vtrack_set_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACK_ALGORITHM ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Algorithm",
       "Name or description of the algorith or method used to create or "
       "maintain object movement reports or predictions.",
@@ -99,7 +100,7 @@ klv_0903_vtrack_set_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACK_SYSTEM_NAME ),
-      std::make_shared< klv_string_format >( klv_length_constraints{ 1, 32 } ),
+      std::make_shared< klv_utf_8_format >( 32 ),
       "VMTI System Name",
       "Name or description of the VMTI system producing the targets.",
       { 0, 1 } },
@@ -112,8 +113,7 @@ klv_0903_vtrack_set_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_0903_VTRACK_SOURCE_SENSOR ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 128 } ),
+      std::make_shared< klv_utf_8_format >( 128 ),
       "VMTI Source Sensor",
       "Name of VMTI source sensor. Examples: 'EO Nose', 'EO Zoom (DLTV)'.",
       { 0, 1 } },

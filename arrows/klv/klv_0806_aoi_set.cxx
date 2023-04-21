@@ -5,9 +5,10 @@
 /// \file
 /// Implementation of the KLV 0806 AOI Set parser.
 
-#include "klv_0806_aoi_set.h"
+#include <arrows/klv/klv_0806_aoi_set.h>
 
-#include "klv_0806.h"
+#include <arrows/klv/klv_0806.h>
+#include <arrows/klv/klv_string.h>
 
 namespace kwiver {
 
@@ -72,27 +73,27 @@ klv_0806_aoi_set_traits_lookup()
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101031B000000 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_TEXT ),
-      std::make_shared< klv_string_format >(
+      std::make_shared< klv_ascii_format >(
         klv_length_constraints{ 1, 2048 } ),
       "AOI Text",
       "User-defined string.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101031D000000 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_SOURCE_ID ),
-      std::make_shared< klv_string_format >(
+      std::make_shared< klv_ascii_format >(
         klv_length_constraints{ 1, 255 } ),
       "AOI Source ID",
       "User-defined string.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101031E000000 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_LABEL ),
-      std::make_shared< klv_string_format >( 16 ),
+      std::make_shared< klv_ascii_format >( 16 ),
       "AOI Label",
       "User-defined string.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E01040301000000 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_OPERATION_ID ),
-      std::make_shared< klv_string_format >(
+      std::make_shared< klv_ascii_format >(
         klv_length_constraints{ 1, 127 } ),
       "Operation ID",
       "Identifier for the duration of the supporting mission or event "

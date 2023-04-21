@@ -5,7 +5,9 @@
 /// \file
 /// Implementation of the KLV 1303 parser's non-templated functions.
 
-#include "klv_1303.hpp"
+#include <arrows/klv/klv_1303.hpp>
+
+#include <arrows/klv/klv_string.h>
 
 namespace kwiver {
 
@@ -51,16 +53,18 @@ KLV_INSTANTIATE( uint64_t );
 #define KLV_INSTANTIATE( FORMAT ) \
   template class klv_1303_mdap_format< FORMAT >;
 
+KLV_INSTANTIATE( klv_ascii_format );
 KLV_INSTANTIATE( klv_ber_format );
 KLV_INSTANTIATE( klv_ber_oid_format );
 KLV_INSTANTIATE( klv_bool_format );
 KLV_INSTANTIATE( klv_lengthless_format< klv_float_format > );
 KLV_INSTANTIATE( klv_lengthless_format< klv_imap_format > );
 KLV_INSTANTIATE( klv_lengthless_format< klv_sflint_format > );
-KLV_INSTANTIATE( klv_sint_format );
-KLV_INSTANTIATE( klv_string_format );
 KLV_INSTANTIATE( klv_lengthless_format< klv_uflint_format > );
+KLV_INSTANTIATE( klv_sint_format );
 KLV_INSTANTIATE( klv_uint_format );
+KLV_INSTANTIATE( klv_utf_16_format );
+KLV_INSTANTIATE( klv_utf_8_format );
 
 #undef KLV_INSTANTIATE
 
