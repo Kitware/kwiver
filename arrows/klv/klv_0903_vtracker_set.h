@@ -24,19 +24,19 @@ namespace klv {
 // ----------------------------------------------------------------------------
 enum klv_0903_vtracker_set_tag : klv_lds_key
 {
-  KLV_0903_VTRACKER_UNKNOWN              = 0,
-  KLV_0903_VTRACKER_TRACK_ID             = 1,
-  KLV_0903_VTRACKER_DETECTION_STATUS     = 2,
-  KLV_0903_VTRACKER_START_TIME           = 3,
-  KLV_0903_VTRACKER_END_TIME             = 4,
-  KLV_0903_VTRACKER_BOUNDARY_SERIES      = 5,
-  KLV_0903_VTRACKER_ALGORITHM            = 6,
-  KLV_0903_VTRACKER_CONFIDENCE_LEVEL     = 7,
-  KLV_0903_VTRACKER_NUM_TRACK_POINTS     = 8,
-  KLV_0903_VTRACKER_TRACK_HISTORY_SERIES = 9,
-  KLV_0903_VTRACKER_VELOCITY             = 10,
-  KLV_0903_VTRACKER_ACCELERATION         = 11,
-  KLV_0903_VTRACKER_ALGORITHM_ID         = 12,
+  KLV_0903_VTRACKER_UNKNOWN                 = 0,
+  KLV_0903_VTRACKER_TRACK_ID                = 1,
+  KLV_0903_VTRACKER_DETECTION_STATUS        = 2, // Deprecated
+  KLV_0903_VTRACKER_FIRST_OBSERVATION_TIME  = 3,
+  KLV_0903_VTRACKER_LATEST_OBSERVATION_TIME = 4,
+  KLV_0903_VTRACKER_TRACK_BOUNDARY_SERIES   = 5,
+  KLV_0903_VTRACKER_ALGORITHM               = 6, // Deprecated
+  KLV_0903_VTRACKER_CONFIDENCE_LEVEL        = 7,
+  KLV_0903_VTRACKER_NUM_TRACK_POINTS        = 8, // Deprecated
+  KLV_0903_VTRACKER_TRACK_HISTORY_SERIES    = 9,
+  KLV_0903_VTRACKER_VELOCITY                = 10,
+  KLV_0903_VTRACKER_ACCELERATION            = 11,
+  KLV_0903_VTRACKER_ALGORITHM_ID            = 12,
 };
 
 // ----------------------------------------------------------------------------
@@ -47,10 +47,11 @@ operator<<( std::ostream& os, klv_0903_vtracker_set_tag tag );
 // ----------------------------------------------------------------------------
 enum klv_0903_detection_status
 {
-  KLV_0903_DETECTION_STATUS_INACTIVE = 0,
-  KLV_0903_DETECTION_STATUS_ACTIVE   = 1,
-  KLV_0903_DETECTION_STATUS_DROPPED  = 2,
-  KLV_0903_DETECTION_STATUS_STOPPED  = 3,
+  KLV_0903_DETECTION_STATUS_INACTIVE        = 0,
+  KLV_0903_DETECTION_STATUS_ACTIVE_MOVING   = 1,
+  KLV_0903_DETECTION_STATUS_DROPPED         = 2,
+  KLV_0903_DETECTION_STATUS_ACTIVE_STOPPED  = 3,
+  KLV_0903_DETECTION_STATUS_ACTIVE_COASTING = 4,
   KLV_0903_DETECTION_STATUS_ENUM_END,
 };
 

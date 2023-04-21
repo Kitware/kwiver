@@ -32,7 +32,7 @@ enum klv_0903_tag : klv_lds_key
   KLV_0903_VERSION              = 4,
   KLV_0903_NUM_TARGETS_DETECTED = 5,
   KLV_0903_NUM_TARGETS_REPORTED = 6,
-  KLV_0903_FRAME_NUMBER         = 7,
+  KLV_0903_FRAME_NUMBER         = 7, // Deprecated
   KLV_0903_FRAME_WIDTH          = 8,
   KLV_0903_FRAME_HEIGHT         = 9,
   KLV_0903_SOURCE_SENSOR        = 10,

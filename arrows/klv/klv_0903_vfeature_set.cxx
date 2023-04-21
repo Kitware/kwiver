@@ -40,7 +40,7 @@ klv_0903_vfeature_set_traits_lookup()
       "Schema",
       "URI which points to a relevant Observation schema "
       "(http://schemas.opengis.net/om/1.0.0/) or a related schema.",
-      { 0, 1 } },
+      0 },
     { {},
       ENUM_AND_NAME( KLV_0903_VFEATURE_SCHEMA_FEATURE ),
       std::make_shared< klv_utf_8_format >(),
@@ -48,7 +48,21 @@ klv_0903_vfeature_set_traits_lookup()
       "Geographic Markup Language document structured according to the Schema "
       "tag. May contain one or more observed values for a feature of "
       "interest.",
-      { 0, 1 } }, };
+      0 },
+    { {},
+      ENUM_AND_NAME( KLV_0903_VFEATURE_ONTOLOGY_ID ),
+      std::make_shared< klv_uint_format >(),
+      "Ontology ID",
+      "Identifier indicating which ontology in the Ontology Series represents this feature.",
+      { 0, 1 } },
+    { {},
+      ENUM_AND_NAME( KLV_0903_VFEATURE_CONFIDENCE ),
+      std::make_shared< klv_imap_format >(
+        vital::interval< double >{ 0.0, 100.0 },
+        klv_length_constraints{ 1, 3, 2 } ),
+      "Confidence",
+      "Percent confidence in this feature's label.",
+      { 0, 1 } } };
   return lookup;
 }
 

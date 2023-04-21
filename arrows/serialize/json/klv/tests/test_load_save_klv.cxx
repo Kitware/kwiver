@@ -96,7 +96,7 @@ klv_local_set const test_0903_vtarget_set = {
   { KLV_0903_VTARGET_FPA_INDEX, klv_0903_fpa_index{ 1, 2 } },
   { KLV_0903_VTARGET_VMASK,
     klv_local_set{
-      { KLV_0903_VMASK_POLYGON, std::vector< uint64_t >{ 1, 2, 3, 4 } },
+      { KLV_0903_VMASK_PIXEL_CONTOUR, std::vector< uint64_t >{ 1, 2, 3, 4 } },
       { KLV_0903_VMASK_BITMASK_SERIES,
         std::vector< klv_0903_pixel_run >{ { 1, 2 }, { 3, 4 } } } } },
   { KLV_0903_VTARGET_VOBJECT, klv_local_set{} },

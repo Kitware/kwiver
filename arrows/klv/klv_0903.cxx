@@ -90,7 +90,7 @@ klv_0903_traits_lookup()
       std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Frame Number",
       "Frame number identifying detected targets.",
-      { 0, 1 } },
+      0 },
     { {},
       ENUM_AND_NAME( KLV_0903_FRAME_WIDTH ),
       std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
