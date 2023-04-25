@@ -256,6 +256,16 @@ ffmpeg_klv_stream
   }
   klv_result.add< kv::VITAL_META_METADATA_ORIGIN >( "KLV" );
   klv_result.add< kv::VITAL_META_VIDEO_DATA_STREAM_INDEX >( stream->index );
+
+#if LIBAVCODEC_VERSION_MAJOR > 57
+  if( stream->codecpar->profile >= 0 )
+  {
+    klv_result.add< kv::VITAL_META_VIDEO_DATA_STREAM_SYNCHRONOUS >(
+      stream->codecpar->profile == FF_PROFILE_KLVA_SYNC
+    );
+  }
+#endif
+
   return result;
 }
 
