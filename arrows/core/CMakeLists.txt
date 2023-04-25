@@ -38,6 +38,7 @@ set( plugin_core_headers
   match_features_fundamental_matrix.h
   match_features_homography.h
   match_tracks.h
+  merge_metadata_streams.h
   mesh_intersect.h
   mesh_operations.h
   metadata_map_io_csv.h
@@ -114,6 +115,7 @@ set( plugin_core_sources
   match_features_fundamental_matrix.cxx
   match_features_homography.cxx
   match_tracks.cxx
+  merge_metadata_streams.cxx
   mesh_intersect.cxx
   mesh_operations.cxx
   metadata_map_io_csv.cxx
