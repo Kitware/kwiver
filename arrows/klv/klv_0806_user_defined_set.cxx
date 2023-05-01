@@ -103,6 +103,14 @@ klv_0806_user_defined_data_type_id_format
 }
 
 // ----------------------------------------------------------------------------
+size_t
+klv_0806_user_defined_data_type_id_format
+::length_of_typed( klv_0806_user_defined_data_type_id const& ) const
+{
+  return 1;
+}
+
+// ----------------------------------------------------------------------------
 std::ostream&
 operator<<( std::ostream& os, klv_0806_user_defined_data const& value )
 {

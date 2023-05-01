@@ -94,7 +94,7 @@ public:
   klv_length_constraints const&
   length_constraints() const;
 
-/// Set constraints on the length of this format.
+  /// Set constraints on the length of this format.
   void
   set_length_constraints( klv_length_constraints const& length_constraints );
 
@@ -158,15 +158,18 @@ public:
   {
     if( !length )
     {
-      VITAL_THROW( kwiver::vital::metadata_exception,
-                  "zero length given to read_()" );
+      throw vital::metadata_exception{ "zero length given to read_()" };
     }
-    else if( !m_length_constraints.do_allow( length ) )
+
+    if( !m_length_constraints.do_allow( length ) )
     {
       // Invalid length
-      LOG_WARN( kwiver::vital::get_logger( "klv" ),
-                "format `" << description() <<
-                "` received wrong number of bytes ( " << length << " )" );
+      std::stringstream ss;
+      ss << "format `" << description() << "` "
+         << "received illegal number of bytes (" << length << ") "
+         << "when reading";
+
+      LOG_WARN( vital::get_logger( "klv" ), ss.str() );
     }
 
     return read_typed( data, length );
@@ -199,15 +202,24 @@ public:
     auto const value_length = length_of_( value );
     if( value_length > max_length )
     {
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                  "write will overflow buffer" );
+      std::stringstream ss;
+      ss << "format `" << description() << "` "
+         << "has been asked to write value `" << to_string( value ) << "`, "
+         << "which is too long (" << value_length << ") "
+         << "for remaining buffer length (" << max_length << ")";
+      throw vital::metadata_buffer_overflow{ ss.str() };
     }
-    else if( !m_length_constraints.do_allow( value_length ) )
+
+    if( !m_length_constraints.do_allow( value_length ) )
     {
       // Invalid length
-      LOG_WARN( kwiver::vital::get_logger( "klv" ),
-                "format `" << description() <<
-                "` received wrong number of bytes ( " << value_length << " )" );
+      std::stringstream ss;
+      ss << "format `" << description() << "` "
+         << "has been asked to write value `" << to_string( value ) << "`, "
+         << "which serializes to an illegal number of bytes "
+         << "(" << value_length << ")";
+
+      LOG_WARN( vital::get_logger( "klv" ), ss.str() );
     }
 
     // Write the value
@@ -221,8 +233,8 @@ public:
     {
       std::stringstream ss;
       ss << "format `" << description() << "`: "
-        << "written length (" << written_length << ") and "
-        << "calculated length (" << value_length <<  ") not equal";
+         << "written length (" << written_length << ") and "
+         << "calculated length (" << value_length <<  ") not equal";
       throw std::logic_error( ss.str() );
     }
   }
@@ -247,9 +259,7 @@ public:
   size_t
   length_of_( T const& value ) const
   {
-    return m_length_constraints.fixed()
-          ? *m_length_constraints.fixed()
-          : length_of_typed( value );
+    return length_of_typed( value );
   }
 
   std::type_info const&
@@ -285,12 +295,7 @@ protected:
                size_t length ) const = 0;
 
   virtual size_t
-  length_of_typed( VITAL_UNUSED T const& value ) const
-  {
-    throw std::logic_error(
-      std::string{} + "data format of type `" + type_name() +
-      "` must either provide a fixed size or override length_of_typed()" );
-  }
+  length_of_typed( T const& value ) const = 0;
 
   virtual std::ostream&
   print_typed( std::ostream& os, T const& value ) const
@@ -373,6 +378,9 @@ protected:
   void
   write_typed( bool const& value,
                klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( bool const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -468,7 +476,8 @@ protected:
   size_t
   length_of_typed( data_type const& value ) const override
   {
-    return klv_int_length( static_cast< uint64_t >( value ) );
+    return this->m_length_constraints.fixed_or(
+      klv_int_length( static_cast< uint64_t >( value ) ) );
   }
 
   size_t m_length;
@@ -791,7 +800,8 @@ protected:
   size_t
   length_of_typed( std::set< Enum > const& value ) const
   {
-    return m_format.length_of_( enums_to_bitfield( value ) );
+    return this->m_length_constraints.fixed_or(
+      m_format.length_of_( enums_to_bitfield( value ) ) );
   }
 
   Format m_format;
