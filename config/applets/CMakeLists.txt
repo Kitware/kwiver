@@ -1,5 +1,6 @@
 set(config_files
   color_mesh.conf
+  compare_klv.conf
   dump_klv.conf
   estimate_depth.conf
   fuse_depth.conf
