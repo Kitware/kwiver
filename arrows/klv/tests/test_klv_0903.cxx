@@ -58,8 +58,8 @@ auto const expected_result = klv_local_set{
       { 1, klv_local_set{
           { KLV_0903_VTARGET_CENTROID, uint64_t{ 409600 } } } },
       { 1234, klv_local_set{
-          { KLV_0903_VTARGET_BOUNDARY_TOP_LEFT, uint64_t{ 409600 } },
-          { KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT, uint64_t{ 409600 } },
+          { KLV_0903_VTARGET_BBOX_TOP_LEFT_PIXEL, uint64_t{ 409600 } },
+          { KLV_0903_VTARGET_BBOX_BOTTOM_RIGHT_PIXEL, uint64_t{ 409600 } },
           { KLV_0903_VTARGET_PRIORITY, uint64_t{ 27 } },
           { KLV_0903_VTARGET_CONFIDENCE_LEVEL, uint64_t{ 80 } },
           { KLV_0903_VTARGET_HISTORY, uint64_t{ 2765 } },
@@ -69,18 +69,20 @@ auto const expected_result = klv_local_set{
           { KLV_0903_VTARGET_LOCATION_OFFSET_LATITUDE, kld{ 10.0 } },
           { KLV_0903_VTARGET_LOCATION_OFFSET_LONGITUDE, kld{ 12.0 } },
           { KLV_0903_VTARGET_LOCATION_ELLIPSOID_HEIGHT, kld{ 10000.0 } },
-          { KLV_0903_VTARGET_BOUNDARY_TOP_LEFT_LATITUDE_OFFSET, kld{ 10.0 } },
-          { KLV_0903_VTARGET_BOUNDARY_TOP_LEFT_LONGITUDE_OFFSET, kld{ 10.0 } },
-          { KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT_LATITUDE_OFFSET,
+          { KLV_0903_VTARGET_BBOX_TOP_LEFT_LATITUDE_OFFSET, kld{ 10.0 } },
+          { KLV_0903_VTARGET_BBOX_TOP_LEFT_LONGITUDE_OFFSET, kld{ 10.0 } },
+          { KLV_0903_VTARGET_BBOX_BOTTOM_RIGHT_LATITUDE_OFFSET,
             kld{ 10.0 } },
-          { KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT_LONGITUDE_OFFSET,
+          { KLV_0903_VTARGET_BBOX_BOTTOM_RIGHT_LONGITUDE_OFFSET,
             kld{ 10.0 } },
           { KLV_0903_VTARGET_LOCATION, {} },
-          { KLV_0903_VTARGET_BOUNDARY_SERIES, {} },
+          { KLV_0903_VTARGET_GEOSPATIAL_CONTOUR_SERIES, {} },
           { KLV_0903_VTARGET_CENTROID_ROW, uint64_t{ 872 } },
           { KLV_0903_VTARGET_CENTROID_COLUMN, uint64_t{ 1137 } },
           { KLV_0903_VTARGET_FPA_INDEX, klv_0903_fpa_index{ 2, 3 } },
           { KLV_0903_VTARGET_ALGORITHM_ID, uint64_t{ 3 } },
+          { KLV_0903_VTARGET_DETECTION_STATUS,
+            KLV_0903_DETECTION_STATUS_ACTIVE_COASTING },
           { KLV_0903_VTARGET_VMASK, {} },
           { KLV_0903_VTARGET_VOBJECT, {} },
           { KLV_0903_VTARGET_VFEATURE, {} },
@@ -99,8 +101,10 @@ auto const expected_result = klv_local_set{
     std::vector< klv_local_set >{
       { { KLV_0903_ONTOLOGY_ID, uint64_t{ 17 } },
         { KLV_0903_ONTOLOGY_PARENT_ID, uint64_t{ 12 } },
-        { KLV_0903_ONTOLOGY_URI, std::string{ "URI" } },
-        { KLV_0903_ONTOLOGY_CLASS, std::string{ "class" } } } } } };
+        { KLV_0903_ONTOLOGY_IRI, std::string{ "IRI" } },
+        { KLV_0903_ONTOLOGY_ENTITY, std::string{ "entity" } },
+        { KLV_0903_ONTOLOGY_VERSION, std::string{ "v2" } },
+        { KLV_0903_ONTOLOGY_LABEL, std::string{ "label" } } } } } };
 
 // ----------------------------------------------------------------------------
 auto const input_bytes = klv_bytes_t{
@@ -128,13 +132,13 @@ auto const input_bytes = klv_bytes_t{
   0x0C, 0x02, // KLV_0903_VERTICAL_FOV
   0x05, 0x00,
   0x0D, 0x00, // KLV_0903_MIIS_ID
-  0x65, 0x6D, // KLV_0903_VTARGET_SERIES
+  0x65, 0x70, // KLV_0903_VTARGET_SERIES
 
   0x06, 0x01, // Start VTarget Pack
   0x01, 0x03, // KLV_0903_VTARGET_CENTROID
   0x06, 0x40, 0x00,
 
-  0x65, 0x89, 0x52, // Start VTarget Pack
+  0x68, 0x89, 0x52, // Start VTarget Pack
   0x02, 0x03, // KLV_0903_VTARGET_BOUNDARY_TOP_LEFT
   0x06, 0x40, 0x00,
   0x03, 0x03, // KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT
@@ -175,6 +179,8 @@ auto const input_bytes = klv_bytes_t{
   0x02, 0x03,
   0x16, 0x01, // KLV_0903_VTARGET_ALGORITHM_ID
   0x03,
+  0x17, 0x01, // KLV_0903_VTARGET_DETECTION_STATUS
+  0x04,
   0x65, 0x00, // KLV_0903_VTARGET_VMASK
   0x66, 0x00, // KLV_0903_VTARGET_VOBJECT
   0x67, 0x00, // KLV_0903_VTARGET_VFEATURE
@@ -198,17 +204,21 @@ auto const input_bytes = klv_bytes_t{
   0x05, 0x01, // KLV_0903_ALGORITHM_NUM_FRAMES
   0x0A,
 
-  0x67, 0x13, // KLV_0903_ONTOLOGY_SERIES
+  0x67, 0x1F, // KLV_0903_ONTOLOGY_SERIES
 
-  0x12, // Start Ontology set
+  0x1E, // Start Ontology set
   0x01, 0x01, // KLV_0903_ONTOLOGY_ID
   0x11,
   0x02, 0x01, // KLV_0903_ONTOLOGY_PARENT_ID
   0x0C,
-  0x03, 0x03, // KLV_0903_ONTOLOGY_URI
-  'U', 'R', 'I',
-  0x04, 0x05,
-  'c', 'l', 'a', 's', 's', };
+  0x03, 0x03, // KLV_0903_ONTOLOGY_IRI
+  'I', 'R', 'I',
+  0x04, 0x06, // KLV_0903_ONTOLOGY_ENTITY
+  'e', 'n', 't', 'i', 't', 'y',
+  0x05, 0x02, // KLV_0903_ONTOLOGY_VERSION
+  'v', '2',
+  0x06, 0x05, // KLV_0903_ONTOLOGY_LABEL
+  'l', 'a', 'b', 'e', 'l' };
 
 // ----------------------------------------------------------------------------
 TEST ( klv, read_write_0903 )
@@ -265,7 +275,7 @@ TEST ( klv, read_write_0903_boundary_series )
 TEST ( klv, read_write_0903_vmask )
 {
   auto const expected_result = klv_local_set{
-    { KLV_0903_VMASK_POLYGON,
+    { KLV_0903_VMASK_PIXEL_CONTOUR,
       std::vector< uint64_t >{ 14762, 14783, 15115 } },
     { KLV_0903_VMASK_BITMASK_SERIES,
       std::vector< klv_0903_pixel_run >{
@@ -315,13 +325,19 @@ TEST ( klv, read_write_0903_vfeature )
 {
   auto const expected_result = klv_local_set{
     { KLV_0903_VFEATURE_SCHEMA, std::string{ "A" } },
-    { KLV_0903_VFEATURE_SCHEMA_FEATURE, std::string{ "B" } }, };
+    { KLV_0903_VFEATURE_SCHEMA_FEATURE, std::string{ "B" } },
+    { KLV_0903_VFEATURE_ONTOLOGY_ID, uint64_t{ 9 } },
+    { KLV_0903_VFEATURE_CONFIDENCE, kld{ 99.0 } } };
 
   auto const input_bytes = klv_bytes_t{
     0x01, 0x01,
     'A',
     0x02, 0x01,
-    'B', };
+    'B',
+    0x03, 0x01,
+    0x09,
+    0x04, 0x01,
+    0x63 };
 
   using format_t = klv_0903_vfeature_local_set_format;
   test_read_write_format< format_t >( expected_result, input_bytes );
@@ -335,9 +351,9 @@ TEST ( klv, read_write_0903_vtracker )
         0xF8, 0x1D, 0x4F, 0xAE, 0x7D, 0xEC, 0x11, 0xD0,
         0xA7, 0x65, 0x00, 0xA0, 0xC9, 0x1E, 0x6B, 0xF6 } },
     { KLV_0903_VTRACKER_DETECTION_STATUS, KLV_0903_DETECTION_STATUS_DROPPED },
-    { KLV_0903_VTRACKER_START_TIME, uint64_t{ 987654321000000 } },
-    { KLV_0903_VTRACKER_END_TIME, uint64_t{ 987654321000000 } },
-    { KLV_0903_VTRACKER_BOUNDARY_SERIES, {} },
+    { KLV_0903_VTRACKER_FIRST_OBSERVATION_TIME, uint64_t{ 987654321000000 } },
+    { KLV_0903_VTRACKER_LATEST_OBSERVATION_TIME, uint64_t{ 987654321000000 } },
+    { KLV_0903_VTRACKER_TRACK_BOUNDARY_SERIES, {} },
     { KLV_0903_VTRACKER_ALGORITHM, std::string{ "test" } },
     { KLV_0903_VTRACKER_CONFIDENCE_LEVEL, uint64_t{ 50 } },
     { KLV_0903_VTRACKER_NUM_TRACK_POINTS, uint64_t{ 27 } },
@@ -354,11 +370,11 @@ TEST ( klv, read_write_0903_vtracker )
     0xA7, 0x65, 0x00, 0xA0, 0xC9, 0x1E, 0x6B, 0xF6,
     0x02, 0x01, // KLV_0903_VTRACKER_DETECTION_STATUS
     0x02,
-    0x03, 0x08, // KLV_0903_VTRACKER_START_TIME
+    0x03, 0x08, // KLV_0903_VTRACKER_FIRST_OBSERVATION_TIME
     0x00, 0x03, 0x82, 0x44, 0x30, 0xF6, 0xCE, 0x40,
-    0x04, 0x08, // KLV_0903_VTRACKER_END_TIME
+    0x04, 0x08, // KLV_0903_VTRACKER_LATEST_OBSERVATION_TIME
     0x00, 0x03, 0x82, 0x44, 0x30, 0xF6, 0xCE, 0x40,
-    0x05, 0x00, // KLV_0903_VTRACKER_BOUNDARY_SERIES
+    0x05, 0x00, // KLV_0903_VTRACKER_TRACK_BOUNDARY_SERIES
     0x06, 0x04, // KLV_0903_VTRACKER_ALGORITHM
     0x74, 0x65, 0x73, 0x74,
     0x07, 0x01, // KLV_0903_VTRACKER_CONFIDENCE_LEVEL
@@ -386,7 +402,7 @@ TEST ( klv, read_write_0903_vchip )
 {
   auto const expected_result = klv_local_set{
     { KLV_0903_VCHIP_IMAGE_TYPE, std::string{ "jpeg" } },
-    { KLV_0903_VCHIP_IMAGE_URI, std::string{ "URI" } },
+    { KLV_0903_VCHIP_IMAGE_IRI, std::string{ "IRI" } },
     { KLV_0903_VCHIP_EMBEDDED_IMAGE, klv_blob{ 0x01, 0x02, 0x03, 0x04 } },
   };
 
@@ -394,7 +410,7 @@ TEST ( klv, read_write_0903_vchip )
     0x01, 0x04,
     0x6A, 0x70, 0x65, 0x67,
     0x02, 0x03,
-    'U', 'R', 'I',
+    'I', 'R', 'I',
     0x03, 0x04,
     0x01, 0x02, 0x03, 0x04, };
 

@@ -26,8 +26,8 @@ namespace klv {
 enum klv_0903_vobject_set_tag : klv_lds_key
 {
   KLV_0903_VOBJECT_UNKNOWN        = 0,
-  KLV_0903_VOBJECT_ONTOLOGY       = 1,
-  KLV_0903_VOBJECT_ONTOLOGY_CLASS = 2,
+  KLV_0903_VOBJECT_ONTOLOGY       = 1, // Deprecated
+  KLV_0903_VOBJECT_ONTOLOGY_CLASS = 2, // Deprecated
   KLV_0903_VOBJECT_ONTOLOGY_ID    = 3,
   KLV_0903_VOBJECT_CONFIDENCE     = 4,
 };

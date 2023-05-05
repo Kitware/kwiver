@@ -55,7 +55,9 @@ klv_tag_traits_lookup const&
 klv_0903_vtrack_set_traits_lookup();
 
 // ----------------------------------------------------------------------------
-/// Interprets data as a ST0903 vTrack local set.
+/// Interprets data as a ST0903 VTrack local set.
+///
+/// \warning The VTrack set is deprecated as of ST0903.6.
 class KWIVER_ALGO_KLV_EXPORT klv_0903_vtrack_local_set_format
   : public klv_local_set_format
 {
