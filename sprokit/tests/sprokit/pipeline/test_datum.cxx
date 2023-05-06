@@ -141,10 +141,10 @@ IMPLEMENT_TEST(equality)
   sprokit::datum_t const error1b = sprokit::datum::error_datum(errorb);
   sprokit::datum_t const error2b = sprokit::datum::error_datum(errorb);
 
-  kwiver::vital::any const dummy1 = kwiver::vital::any();
-  kwiver::vital::any const dummy2 = kwiver::vital::any();
-  kwiver::vital::any const in_value1 = kwiver::vital::any(1);
-  kwiver::vital::any const in_value2 = kwiver::vital::any(2);
+  std::any const dummy1 = std::any();
+  std::any const dummy2 = std::any();
+  std::any const in_value1 = std::any(1);
+  std::any const in_value2 = std::any(2);
   sprokit::datum_t const value_dummy1 = sprokit::datum::new_datum(dummy1);
   sprokit::datum_t const value_dummy2 = sprokit::datum::new_datum(dummy2);
   sprokit::datum_t const value1 = sprokit::datum::new_datum(in_value1);

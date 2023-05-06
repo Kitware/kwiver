@@ -29,10 +29,10 @@ track_state::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 track_state::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::track_state trk_state =
-    kwiver::vital::any_cast< kwiver::vital::track_state > ( element );
+    std::any_cast< kwiver::vital::track_state > ( element );
 
   std::stringstream msg;
   msg << "track_state "; // add type tag
@@ -45,7 +45,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any track_state::
+std::any track_state::
 deserialize( const std::string& message )
 {
   std::stringstream msg(message);
@@ -64,7 +64,7 @@ deserialize( const std::string& message )
     load( ar, trk_state );
   }
 
-  return kwiver::vital::any( trk_state );
+  return std::any( trk_state );
 }
 
 } } } }       // end namespace kwiver

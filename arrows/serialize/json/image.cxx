@@ -31,11 +31,11 @@ image::
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 image::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   // Get native data type from any
   kwiver::vital::image_container_sptr obj =
-    kwiver::vital::any_cast< kwiver::vital::image_container_sptr > ( element );
+    std::any_cast< kwiver::vital::image_container_sptr > ( element );
 
   std::stringstream msg;
   msg << "image ";
@@ -48,7 +48,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any
+std::any
 image::
 deserialize( const std::string& message )
 {
@@ -69,7 +69,7 @@ deserialize( const std::string& message )
     load( ar, img_ctr_sptr );
   }
 
-  return kwiver::vital::any( img_ctr_sptr );
+  return std::any( img_ctr_sptr );
 }
 
 } } } }       // end namespace kwiver

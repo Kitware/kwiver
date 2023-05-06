@@ -28,10 +28,10 @@ image::~image()
 // ----------------------------------------------------------------------------
 std::shared_ptr< std::string >
 image::
-serialize( const vital::any& element )
+serialize( const std::any& element )
 {
   kwiver::vital::image_container_sptr img_sptr =
-    kwiver::vital::any_cast< kwiver::vital::image_container_sptr > ( element );
+    std::any_cast< kwiver::vital::image_container_sptr > ( element );
 
   std::ostringstream msg;
   msg << "image ";   // add type tag
@@ -48,7 +48,7 @@ serialize( const vital::any& element )
 }
 
 // ----------------------------------------------------------------------------
-vital::any
+std::any
 image::
 deserialize( const std::string& message )
 {
@@ -78,7 +78,7 @@ deserialize( const std::string& message )
     convert_protobuf(proto_img, img_container_sptr);
   }
 
-  return kwiver::vital::any( img_container_sptr );
+  return std::any( img_container_sptr );
 }
 
 } } } }

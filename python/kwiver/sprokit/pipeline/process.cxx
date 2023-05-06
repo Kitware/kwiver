@@ -802,19 +802,19 @@ grab_value_from_port(::sprokit::process &self, ::sprokit::process::port_t const&
 {
   ::sprokit::process* self_ptr = &self;
   ::sprokit::datum_t const dat = ((wrap_process*) self_ptr)->grab_datum_from_port(port);
-  kwiver::vital::any const any = dat->get_datum<kwiver::vital::any>();
+  std::any const any = dat->get_datum<std::any>();
 
   //We have to explicitly list the different types we try
   object return_val = none();
   try
   {
-    return_val = kwiver::vital::any_cast<object>(any);
+    return_val = std::any_cast<object>(any);
   } catch(...){}
 
 #define CONVERT_ANY(T) \
   try \
   { \
-    return_val = cast<T>(kwiver::vital::any_cast<T>(any)); \
+    return_val = cast<T>(std::any_cast<T>(any)); \
   } catch(...){}
 
   CONVERT_ANY(int)
@@ -858,7 +858,7 @@ push_datum_to_port(::sprokit::process &self, ::sprokit::process::port_t const& p
 void
 push_value_to_port(::sprokit::process &self, ::sprokit::process::port_t const& port, object const& obj)
 {
-  kwiver::vital::any const any = obj;
+  std::any const any = obj;
   ::sprokit::datum_t const dat = ::sprokit::datum::new_datum(any);
 
   ::sprokit::process* self_ptr = &self;

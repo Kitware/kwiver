@@ -47,7 +47,7 @@ TEST(attribute_set, api)
   // Test returning wrong type, exception
   EXPECT_THROW(
     set.get<double>( "second" ),
-    kwiver::vital::bad_any_cast );
+    std::bad_any_cast );
 
   // Test data() accessor
   EXPECT_THROW(

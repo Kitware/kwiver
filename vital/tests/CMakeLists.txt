@@ -12,7 +12,6 @@ set( test_libraries vital vital_vpm vital_algo kwiver_algo_proj )
 
 ## kwiver_discover_tests(vital_algo               test_libraries test_algo.cxx)
 kwiver_discover_gtests(vital algorithm_capabilities         LIBRARIES ${test_libraries})
-kwiver_discover_gtests(vital any                            LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital attribute_set                  LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital bounding_box                   LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital camera_from_metadata           LIBRARIES ${test_libraries})

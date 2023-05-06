@@ -7,7 +7,6 @@
 
 #include <arrows/serialize/json/object_track_set.h>
 #include <vital/types/object_track_set.h>
-#include <vital/any.h>
 
 namespace kwiver {
 namespace arrows {
