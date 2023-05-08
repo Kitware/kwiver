@@ -137,7 +137,12 @@ std::string
 klv_string_format
 ::description_() const
 {
-  return "String (Encoding: " + m_codec->name() + ")";
+  auto const result = "String (Encoding: " + m_codec->name() + ")";
+  if( m_char_constraints.is_free() )
+  {
+    return result;
+  }
+  return result + " (Chars: " + m_char_constraints.description() + ")";
 }
 
 // ----------------------------------------------------------------------------

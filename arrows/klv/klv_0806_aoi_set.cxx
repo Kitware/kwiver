@@ -74,14 +74,14 @@ klv_0806_aoi_set_traits_lookup()
     { { 0x060E2B3401010101, 0x0E0101031B000000 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_TEXT ),
       std::make_shared< klv_ascii_format >(
-        klv_length_constraints{ 1, 2048 } ),
+        klv_length_constraints{ 0, 2048 } ),
       "AOI Text",
       "User-defined string.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101031D000000 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_SOURCE_ID ),
       std::make_shared< klv_ascii_format >(
-        klv_length_constraints{ 1, 255 } ),
+        klv_length_constraints{ 0, 255 } ),
       "AOI Source ID",
       "User-defined string.",
       { 0, 1 } },
@@ -94,7 +94,7 @@ klv_0806_aoi_set_traits_lookup()
     { { 0x060E2B3401010101, 0x0E01040301000000 },
       ENUM_AND_NAME( KLV_0806_AOI_SET_OPERATION_ID ),
       std::make_shared< klv_ascii_format >(
-        klv_length_constraints{ 1, 127 } ),
+        klv_length_constraints{ 0, 127 } ),
       "Operation ID",
       "Identifier for the duration of the supporting mission or event "
       "associated with the point of interest. Distinct from the platform "

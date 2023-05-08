@@ -63,21 +63,21 @@ klv_0806_poi_set_traits_lookup()
     { { 0x060E2B3401010101, 0x0E0101031B000000 },
       ENUM_AND_NAME( KLV_0806_POI_SET_TEXT ),
       std::make_shared< klv_ascii_format >(
-        klv_length_constraints{ 1, 2048 } ),
+        klv_length_constraints{ 0, 2048 } ),
       "POI Text",
       "User-defined string.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101031C000000 },
       ENUM_AND_NAME( KLV_0806_POI_SET_SOURCE_ICON ),
       std::make_shared< klv_ascii_format >(
-        klv_length_constraints{ 1, 127 } ),
+        klv_length_constraints{ 0, 127 } ),
       "POI Source Icon",
       "Per MIL-STD-2525B. Icon used in FalconView.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101031D000000 },
       ENUM_AND_NAME( KLV_0806_POI_SET_SOURCE_ID ),
       std::make_shared< klv_ascii_format >(
-        klv_length_constraints{ 1, 255 } ),
+        klv_length_constraints{ 0, 255 } ),
       "POI Source ID",
       "User-defined string.",
       { 0, 1 } },
@@ -90,7 +90,7 @@ klv_0806_poi_set_traits_lookup()
     { { 0x060E2B3401010101, 0x0E01040301000000 },
       ENUM_AND_NAME( KLV_0806_POI_SET_OPERATION_ID ),
       std::make_shared< klv_ascii_format >(
-        klv_length_constraints{ 1, 127 } ),
+        klv_length_constraints{ 0, 127 } ),
       "Operation ID",
       "Identifier for the duration of the supporting mission or event "
       "associated with the point of interest. Distinct from the platform "
