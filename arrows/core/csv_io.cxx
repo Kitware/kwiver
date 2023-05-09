@@ -114,11 +114,11 @@ csv_writer
     {
       m_ss << value;
     }
-    else if constexpr( std::is_signed_v< T > )
+    else if constexpr( std::is_integral_v< T > && std::is_signed_v< T > )
     {
       m_ss << static_cast< int64_t >( value );
     }
-    else if constexpr( std::is_unsigned_v< T > )
+    else if constexpr( std::is_integral_v< T > && std::is_unsigned_v< T > )
     {
       m_ss << static_cast< uint64_t >( value );
     }
@@ -203,16 +203,22 @@ csv_writer
 
   m_first_field = m_first_field ? false : ( m_os << m_delim, false );
 
-  auto needs_quotes = false;
-  for( auto const c : m_ss.str() )
+  auto needs_quotes =
+    m_ss.str().size() &&
+    ( std::isspace( m_ss.str().front() ) ||
+      std::isspace( m_ss.str().back() ) );
+  if( !needs_quotes )
   {
-    for( auto const special_c :
-         { m_delim, m_quote_esc, m_quote, m_comment, '\n' } )
+    for( auto const c : m_ss.str() )
     {
-      if( c == special_c )
+      for( auto const special_c :
+          { m_delim, m_quote_esc, m_quote, m_comment, '\n' } )
       {
-        needs_quotes = true;
-        break;
+        if( c == special_c )
+        {
+          needs_quotes = true;
+          break;
+        }
       }
     }
   }
