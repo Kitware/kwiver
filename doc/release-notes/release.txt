@@ -15,6 +15,8 @@ Arrows: Core
 * Fixed undefined behavior leading to a crash in track_features_core when the
   track set remained empty after the first frame.
 
+* Fixed an incorrect cast of a geo_point to double in derive_metadata.
+
 Arrows: KLV
 
 * Fixed possible out-of-bounds memory read leading to crash when KLV parsing
