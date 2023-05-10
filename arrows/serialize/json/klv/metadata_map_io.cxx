@@ -69,21 +69,29 @@ metadata_map_io_klv
 {
   // Load KLV from JSON
   std::vector< klv::klv_timed_packet > packets;
-  if( d->compress )
+  try
   {
-    vital::bytestream_compressor decompressor(
-      vital::bytestream_compressor::MODE_DECOMPRESS,
-      d->compress_type,
-      vital::bytestream_compressor::DATA_TYPE_TEXT );
-    vital::compress_istream compress_is( fin, decompressor );
+    if( d->compress )
+    {
+      vital::bytestream_compressor decompressor(
+        vital::bytestream_compressor::MODE_DECOMPRESS,
+        d->compress_type,
+        vital::bytestream_compressor::DATA_TYPE_TEXT );
+      vital::compress_istream compress_is( fin, decompressor );
 
-    cereal::JSONInputArchive archive( compress_is );
-    cereal::load( archive, packets );
+      cereal::JSONInputArchive archive( compress_is );
+      cereal::load( archive, packets );
+    }
+    else
+    {
+      cereal::JSONInputArchive archive( fin );
+      cereal::load( archive, packets );
+    }
   }
-  else
+  catch( cereal::RapidJSONException const& e )
   {
-    cereal::JSONInputArchive archive( fin );
-    cereal::load( archive, packets );
+    LOG_ERROR( logger(), "Failed to load KLV JSON: " << e.what() );
+    return std::make_shared< vital::simple_metadata_map >();
   }
 
   // Add KLV for each frame to vital::metadata structures
