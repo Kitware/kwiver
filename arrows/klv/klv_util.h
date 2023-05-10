@@ -86,11 +86,67 @@ operator<<( std::ostream& os, std::set< T > const& value )
 }
 
 // ----------------------------------------------------------------------------
+template< class T >
+struct wrap_cmp_nan
+{
+  explicit wrap_cmp_nan( T const& value ) : value{ value } {}
+
+  bool operator<( wrap_cmp_nan< T > const& other ) const
+  {
+    if constexpr( std::is_floating_point_v< T > )
+    {
+      return value < other.value ||
+             ( std::isnan( value ) && !std::isnan( other.value ) );
+    }
+    else
+    {
+      return value < other.value;
+    }
+  }
+
+  bool operator>( wrap_cmp_nan< T > const& other ) const
+  {
+    return other < *this;
+  }
+
+  bool operator<=( wrap_cmp_nan< T > const& other ) const
+  {
+    return !( other < *this );
+  }
+
+  bool operator>=( wrap_cmp_nan< T > const& other ) const
+  {
+    return !( *this < other );
+  }
+
+  bool operator==( wrap_cmp_nan< T > const& other ) const
+  {
+    if constexpr( std::is_floating_point_v< T > )
+    {
+      return value == other.value ||
+             ( std::isnan( value ) && std::isnan( other.value ) );
+    }
+    else
+    {
+      return value == other.value;
+    }
+  }
+
+  bool operator!=( wrap_cmp_nan< T > const& other ) const
+  {
+    return !( *this == other );
+  }
+
+  T const& value;
+};
+
+// ----------------------------------------------------------------------------
 template< class T, class... Args >
 bool
 struct_lt( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) < std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) <
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -98,7 +154,8 @@ template< class T, class... Args >
 bool
 struct_gt( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) > std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) >
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -106,7 +163,8 @@ template< class T, class... Args >
 bool
 struct_le( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) <= std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) <=
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -114,7 +172,8 @@ template< class T, class... Args >
 bool
 struct_ge( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) >= std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) >=
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -122,7 +181,8 @@ template< class T, class... Args >
 bool
 struct_eq( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) == std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) ==
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -130,7 +190,8 @@ template< class T, class... Args >
 bool
 struct_ne( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) != std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) !=
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------

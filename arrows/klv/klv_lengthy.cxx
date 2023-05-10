@@ -58,52 +58,7 @@ operator<<( std::ostream& os, klv_lengthy< T > const& value )
 }
 
 // ----------------------------------------------------------------------------
-template < class T >
-bool
-operator<( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value < rhs.value;
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-bool
-operator>( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value > rhs.value;
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-bool
-operator<=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value <= rhs.value;
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-bool
-operator>=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value >= rhs.value;
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-bool
-operator==( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value == rhs.value;
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-bool
-operator!=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value != rhs.value;
-}
+DEFINE_TEMPLATE_CMP( klv_lengthy< T >, &klv_lengthy< T >::value )
 
 // ----------------------------------------------------------------------------
 #define KLV_INSTANTIATE( T )                                                    \

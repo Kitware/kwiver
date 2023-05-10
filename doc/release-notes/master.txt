@@ -10,3 +10,7 @@ Updates
 Arrows: Core
 
 * Implemented the csv_reader reading std::optional fields.
+
+Arrows: KLV
+
+* Ensured that NaN comparisons happen consistently across all data structures.
