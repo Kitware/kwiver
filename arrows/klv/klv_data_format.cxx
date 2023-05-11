@@ -392,7 +392,10 @@ size_t
 klv_float_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return m_length_constraints.fixed_or( value.length );
+  return
+    value.length
+    ? value.length
+    : m_length_constraints.fixed_or( m_length_constraints.suggested() );
 }
 
 // ----------------------------------------------------------------------------
@@ -449,7 +452,10 @@ size_t
 klv_sflint_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return m_length_constraints.fixed_or( value.length );
+  return
+    value.length
+    ? value.length
+    : m_length_constraints.fixed_or( m_length_constraints.suggested() );
 }
 
 // ----------------------------------------------------------------------------
@@ -517,7 +523,10 @@ size_t
 klv_uflint_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return m_length_constraints.fixed_or( value.length );
+  return
+    value.length
+    ? value.length
+    : m_length_constraints.fixed_or( m_length_constraints.suggested() );
 }
 
 // ----------------------------------------------------------------------------
@@ -584,7 +593,10 @@ size_t
 klv_imap_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return m_length_constraints.fixed_or( value.length );
+  return
+    value.length
+    ? value.length
+    : m_length_constraints.fixed_or( m_length_constraints.suggested() );
 }
 
 // ----------------------------------------------------------------------------
