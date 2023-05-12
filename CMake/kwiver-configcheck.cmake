@@ -50,13 +50,6 @@ macro(vital_check_optional_feature NAME TEST MESSAGE)
   endif()
 endmacro()
 
-# Set default visibility
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-
-# C++17 is required
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
 vital_check_required_feature(CPP_AUTO         auto.cxx            "auto type specifier")
 vital_check_required_feature(CPP_CONSTEXPR    constexpr.cxx       "constant expressions")
 vital_check_required_feature(CPP_DEFAULT_CTOR default-ctor.cxx    "explicitly defaulted constructors")
