@@ -24,22 +24,13 @@ klv_length_constraints
 // ----------------------------------------------------------------------------
 klv_length_constraints
 ::klv_length_constraints( size_t fixed_length ) : m_impl{ fixed_length }
-{
-  if( fixed_length == 0 )
-  {
-    throw std::logic_error{ "length constraints cannot include zero" };
-  }
-}
+{}
 
 // ----------------------------------------------------------------------------
 klv_length_constraints
 ::klv_length_constraints( size_t minimum, size_t maximum )
   : m_impl{ vital::interval< size_t >{ minimum, maximum } }
 {
-  if( minimum == 0 || maximum == 0 )
-  {
-    throw std::logic_error{ "length constraints cannot include zero" };
-  }
   if( minimum == maximum )
   {
     throw std::logic_error{ "length constraints cannot exclude all lengths" };
@@ -52,10 +43,6 @@ klv_length_constraints
   : m_impl{ vital::interval< size_t >{ minimum, maximum } },
     m_suggested{ suggested }
 {
-  if( minimum == 0 || maximum == 0 )
-  {
-    throw std::logic_error{ "length constraints cannot include zero" };
-  }
   if( minimum == maximum )
   {
     throw std::logic_error{ "length constraints cannot exclude all lengths" };
@@ -72,10 +59,6 @@ klv_length_constraints
   {
     throw std::logic_error{ "length constraints cannot exclude all lengths" };
   }
-  if( allowed.count( 0 ) )
-  {
-    throw std::logic_error{ "length constraints cannot include zero" };
-  }
 }
 
 // ----------------------------------------------------------------------------
@@ -86,10 +69,6 @@ klv_length_constraints
   if( allowed.empty() )
   {
     throw std::logic_error{ "length constraints cannot exclude all lengths" };
-  }
-  if( allowed.count( 0 ) )
-  {
-    throw std::logic_error{ "length constraints cannot include zero" };
   }
   set_suggested( suggested );
 }
@@ -248,7 +227,7 @@ void
 klv_length_constraints
 ::set_suggested( size_t length )
 {
-  if( length == 0 || !do_allow( length ) )
+  if( !do_allow( length ) )
   {
     throw std::logic_error{
             "suggested length is not permitted by constraints" };
