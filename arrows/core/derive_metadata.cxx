@@ -212,6 +212,10 @@ compute_slant_range( kwiver::vital::metadata_sptr const& metadata )
     kv::rotation_d const total_rotation = get_total_rotation( metadata );
     double yaw, pitch, roll;
     total_rotation.get_yaw_pitch_roll( yaw, pitch, roll );
+    if ( pitch >= 0 )
+    {
+      VITAL_THROW( kv::invalid_value, "pitch must be negative" );
+    }
 
     // Determine the altitude of the sensor above the frame center
     kv::geo_point const sensor_location = get_sensor_location( metadata );
@@ -497,6 +501,10 @@ derive_metadata
         // Compute GSD
         auto const gsd =
           compute_gsd( updated_metadata, frame_width, frame_height );
+        if( !std::isfinite( gsd ) || gsd <= 0 )
+        {
+          VITAL_THROW( kv::invalid_value, "invalid GSD result" );
+        }
         updated_metadata->add< kv::VITAL_META_AVERAGE_GSD >( gsd );
 
         // Compute VNIIRS
