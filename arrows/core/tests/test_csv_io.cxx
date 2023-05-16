@@ -377,3 +377,30 @@ TEST ( csv_io, read_comment )
   reader.skip_line();
   EXPECT_TRUE( reader.is_at_eof() );
 }
+
+// ----------------------------------------------------------------------------
+TEST ( csv_io, read_optional )
+{
+  std::stringstream ss{ ",,,,,A,Maybe,1L,-10,five,0,true,\"\",5,7.0" };
+  csv_reader reader( ss );
+
+  EXPECT_EQ( std::nullopt, reader.read< std::optional< char > >() );
+  EXPECT_EQ( std::nullopt, reader.read< std::optional< bool > >() );
+  EXPECT_EQ( std::nullopt, reader.read< std::optional< std::string > >() );
+  EXPECT_EQ( std::nullopt, reader.read< std::optional< uint16_t > >() );
+  EXPECT_EQ( std::nullopt, reader.read< std::optional< float > >() );
+
+  EXPECT_EQ( std::nullopt, reader.read< std::optional< char > >() );
+  EXPECT_EQ( std::nullopt, reader.read< std::optional< bool > >() );
+  EXPECT_EQ( std::nullopt, reader.read< std::optional< uint16_t > >() );
+  EXPECT_EQ( std::nullopt, reader.read< std::optional< uint16_t > >() );
+  EXPECT_EQ( std::nullopt, reader.read< std::optional< float > >() );
+
+  EXPECT_EQ( 0, reader.read< std::optional< char > >() );
+  EXPECT_EQ( true, reader.read< std::optional< bool > >() );
+  EXPECT_EQ( std::string{}, reader.read< std::optional< std::string > >() );
+  EXPECT_EQ( 5, reader.read< std::optional< uint16_t > >() );
+  EXPECT_EQ( 7.0f, reader.read< std::optional< float > >() );
+
+  EXPECT_TRUE( reader.is_at_eol() );
+}

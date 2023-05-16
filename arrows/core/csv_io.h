@@ -11,6 +11,7 @@
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -290,7 +291,10 @@ public:
   /// csv::comment_t to begin reading the contents of a comment as regular
   /// fields. Otherwise, comments will be silently skipped. Passing \c
   /// csv::endl_t has the same effect as \c next_line(). Passing \c
-  /// csv::skipf_t has the same effect as \c skip_field().
+  /// csv::skipf_t has the same effect as \c skip_field(). If \p T is a \c
+  /// std::optional, \c std::nullopt will be returned if the field is empty or
+  /// if parsing the field fails. Therefore, \c parse_error will not be thrown
+  /// if \p T is a \c std::optional.
   ///
   /// \throws parse_error If parsing from the current field to type \p T fails.
   /// The current field is skipped if this occurs. A string representation of

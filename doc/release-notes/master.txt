@@ -6,3 +6,7 @@ over the previous v1.8.0 release.
 
 Updates
 -------
+
+Arrows: Core
+
+* Implemented the csv_reader reading std::optional fields.
