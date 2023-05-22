@@ -55,6 +55,8 @@ Arrows: Core
 
 * Implemented a general-purpose CSV reader and writer.
 
+* Prevent UV coordinates from going to NaN for degenerate triangles in uv_unwrap_mesh.
+
 Arrows: FFmpeg
 
 * Added support for FFmpeg 5.1.2.
