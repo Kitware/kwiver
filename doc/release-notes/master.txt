@@ -12,6 +12,10 @@ KWIVER
 
  * Adopted C++17.
 
+ * Added setup_KWIVER.ps1.
+
+ * Added the MSVC 2022 compiler as a case in our CMake logic.
+
 Vital
 
 Vital Algo
@@ -20,31 +24,134 @@ Vital Algo
 
 * Expanded the pointcloud_io API to include the ability to load point cloud data
 
+* Added option to open file given to metadata_map_io in binary mode.
+
+* Added buffered_metadata_filter.
+
 Vital Types
 
 * Added new pointcloud type to hold point cloud data
+
+* Added VITAL_META_UNIX_TIMESTAMP_SOURCE, VITAL_META_VIDEO_DATA_STREAM_SYNCHRONOUS.
+
+* Removed VITAL_META_ICING_DETECTED.
+
+* Added equality operators for metadata_item.
+
+* Added metadata_[io]stream.
 
 Vital Util
 
 * Added support for different text codecs (ASCII, UTF-8, etc).
 
+* Added threeway_compare().
+
 Arrows
+
+* Passed a constant seed to the random point generator used by several tests to
+  prevent occasional random failure.
+
+Arrows: Core
+
+* Implemented a general-purpose CSV reader and writer.
 
 Arrows: FFmpeg
 
+* Added support for FFmpeg 5.1.2.
+
 * Added basic configuration options to ffmpeg_video_output.
 
-* Added CUVID video decoding support.
+* Added CUVID video decoding/encoding support.
+
+* Added support in ffmpeg_video_output for non-RGB24 input images.
+
+* Fixed many bugs with timestamps.
+
+* Implemented direct copying of video stream packets from input to output.
+
+* Improved robustness against invalid input data.
+
+* Added config options to ffmpeg_video_input to ignore the video or KLV streams.
+
+* Properly handle MISP nanosecond timestamps.
+
+* Added padding to end of image memory to avoid segfaults.
+
+* Improved the search paths to find an FFmpeg installation.
+
+* Fixed alignment between KLV packets and frames when reading and writing.
+
+* Limit total amount of past KLV maintained in memory.
+
+* Added new synthetic test videos.
+
+* Added derivation of KLV synchronicity from stream and packet characteristics.
+
+* Made initial probing logic more persistent.
 
 Arrows: KLV
 
 * Implemented ST1107.
 
+* Updated ST0903 implementation to version 6.
+
+* Implemented the BOOLEAN, UINT, and RLE APAs in ST1303.
+
 * Adjusted tag number requirements of ST0806.
+
+* Changed data type of EG0104 Episode Number to string.
+
+* Implemented configuration of KLV muxing update rates.
+
+* Modified interface to use pointers when reading/writing instead of
+  std::vector iterators.
+
+* Used std::nullopt to indicate no ST0601 control command timestamp instead of 0.
+
+* Used std::chrono to better express MISP timestamps.
+
+* Changed type of ST0601 Waypoint Record bitfield.
+
+* Added detailed length constraint information.
+
+* Fixed bug when calculating length of ST0601 Airbase Locations.
+
+* Fixed bug which prevented detection of some too-long KLV packet lengths.
+
+* Added apply_child_klv and update_klv metadata filters.
+
+* Implemented CRC-8-CCITT checksum.
+
+* Fixed bug when ST0903 local set packs fail to parse.
+
+* Made headers public which were included by other public headers.
+
+* Improved descriptions of formats.
+
+* Implemented handling of different string encodings.
 
 Arrows: PDAL
 
 * Added implementation of the load API to pointcloud_io to load point data via the PDAL library
+
+Arrows: Serialize JSON
+
+* Fixed bug when loading a KLV local set item with a null value.
+
+* Fixed bug preventing the proper loading of strings with embedded null ('\0')
+  characters.
+
+* Increased the precision of exported floating point values.
+
+* Added a configuration option to compress JSON on output.
+
+Arrows: Zlib
+
+* Added this arrow with bytestream_compressor functionality.
+
+KwiverSys
+
+* Made compiling regular expression thread-safe.
 
 Applets
 
@@ -52,6 +159,21 @@ Applets: bundle adjustment tool
 
 * Added an implementation bundle adjustment (BA) applet that optimizes a set of
 cameras given multiple 3D-2D point correspondences.
+
+Applets: transcode
+
+* Fixed a bug in which metadata was erroneously written after each frame,
+  instead of before.
+
+Applets: dump-klv
+
+* Added an option to use multithreading when dumping frame images.
+
+* Removed early exit when no KLV stream is found.
+
+Applets: compare-klv
+
+* Added this applet.
 
 Python:
 
