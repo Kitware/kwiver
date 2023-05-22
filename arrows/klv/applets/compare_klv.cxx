@@ -750,6 +750,11 @@ compare_klv
     std::vector< klv::klv_packet const* > unmatched_lhs;
     for( auto& lhs : lhs_data )
     {
+      if( !lhs.klv )
+      {
+        continue;
+      }
+
       for( auto& packet : *lhs.klv )
       {
         bool found = false;
@@ -781,6 +786,11 @@ compare_klv
     std::vector< klv::klv_packet const* > unmatched_rhs;
     for( auto& rhs : rhs_data )
     {
+      if( !rhs.klv )
+      {
+        continue;
+      }
+
       for( auto& packet : *rhs.klv )
       {
         bool found = false;
