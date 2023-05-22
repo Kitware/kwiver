@@ -155,13 +155,19 @@ get_sensor_location( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_SENSOR_LOCATION );
 
-  if( !item || !std::isfinite( item.as_double() ) )
+  if( item )
   {
-    VITAL_THROW( kv::invalid_value,
-                 "metadata does not contain sensor location" );
+    auto const typed_item = item.get< kv::geo_point >();
+    if( std::isfinite( typed_item.location()[ 0 ] ) &&
+        std::isfinite( typed_item.location()[ 1 ] ) &&
+        std::isfinite( typed_item.location()[ 2 ] ) )
+    {
+      return typed_item;
+    }
   }
 
-  return item.get< kv::geo_point >();
+  VITAL_THROW(
+    kv::invalid_value, "metadata does not contain sensor location" );
 }
 
 // ----------------------------------------------------------------------------
@@ -171,13 +177,19 @@ get_frame_center( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_FRAME_CENTER );
 
-  if( !item || !std::isfinite( item.as_double() ) )
+  if( item )
   {
-    VITAL_THROW( kv::invalid_value,
-                 "metadata does not contain frame center" );
+    auto const typed_item = item.get< kv::geo_point >();
+    if( std::isfinite( typed_item.location()[ 0 ] ) &&
+        std::isfinite( typed_item.location()[ 1 ] ) &&
+        std::isfinite( typed_item.location()[ 2 ] ) )
+    {
+      return typed_item;
+    }
   }
 
-  return item.get< kv::geo_point >();
+  VITAL_THROW(
+    kv::invalid_value, "metadata does not contain frame center" );
 }
 
 // ----------------------------------------------------------------------------
