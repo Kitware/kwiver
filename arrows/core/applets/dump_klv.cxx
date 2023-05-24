@@ -223,14 +223,12 @@ dump_klv
   }
   catch ( kv::video_exception const& e )
   {
-    std::cerr << "Video Exception-Couldn't open \"" << video_file << "\"" << std::endl
-              << e.what() << std::endl;
+    std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
   }
   catch ( kv::file_not_found_exception const& e )
   {
-    std::cerr << "Couldn't open \"" << video_file << "\"" << std::endl
-              << e.what() << std::endl;
+    std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
   }
 

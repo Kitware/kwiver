@@ -107,7 +107,20 @@ public:
       exit( EXIT_FAILURE );
     }
 
-    m_video->open( filepath.string() );
+    try
+    {
+      m_video->open( filepath.string() );
+    }
+    catch( vital::video_runtime_exception const& e )
+    {
+      std::cerr << e.what() << std::endl;
+      exit( EXIT_FAILURE );
+    }
+    catch( vital::file_not_found_exception const& e )
+    {
+      std::cerr << e.what() << std::endl;
+      exit( EXIT_FAILURE );
+    }
     m_is.emplace( *m_video );
   }
 
