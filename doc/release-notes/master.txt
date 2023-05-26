@@ -13,6 +13,9 @@ Arrows: Core
 
 * Made the transcode applet's failure to open a video result in a more graceful exit.
 
+* Made the transcode applet ask for video settings slightly later, when they
+  might be more accurate.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.

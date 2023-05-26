@@ -153,6 +153,9 @@ transcode_applet
   }
   check_input( input, cmd_args );
 
+  // Acquire first frame, which may help produce more accurate video settings
+  kv::timestamp timestamp;
+  input->next_frame( timestamp );
   auto const video_settings = input->implementation_settings();
 
   // Setup video output
@@ -165,10 +168,7 @@ transcode_applet
   output->open( output_filename, video_settings.get() );
 
   // Transcode frames
-  kv::timestamp timestamp;
-  for( input->next_frame( timestamp );
-       !input->end_of_video();
-       input->next_frame( timestamp ) )
+  for( ; !input->end_of_video(); input->next_frame( timestamp ) )
   {
     // Transcode metadata
     if( cmd_args.count( "copy-metadata" ) )
