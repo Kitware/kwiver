@@ -357,7 +357,6 @@ public:
 
   hardware_device_context_uptr hardware_device_context;
 
-  bool imagery_enabled;
   bool klv_enabled;
   bool use_misp_timestamps;
   bool smooth_klv_packets;
@@ -393,7 +392,6 @@ ffmpeg_video_input::priv
   : parent( parent ),
     logger{ kv::get_logger( "ffmpeg_video_input" ) },
     hardware_device_context{ nullptr },
-    imagery_enabled{ true },
     klv_enabled{ true },
     use_misp_timestamps{ false },
     smooth_klv_packets{ false },
@@ -556,11 +554,6 @@ kv::image_container_sptr
 ffmpeg_video_input::priv::frame_state
 ::convert_image()
 {
-  if( !parent->parent->imagery_enabled )
-  {
-    return nullptr;
-  }
-
   if( image )
   {
     return image;
@@ -844,74 +837,71 @@ ffmpeg_video_input::priv::open_video_state
     }
   }
 
-  if( parent.imagery_enabled )
-  {
-    // Dig up information about the video's codec
-    auto const video_params = video_stream->codecpar;
-    auto const codec_id = video_params->codec_id;
-    LOG_INFO(
-      logger, "Video requires codec type: " << pretty_codec_name( codec_id ) );
+  // Dig up information about the video's codec
+  auto const video_params = video_stream->codecpar;
+  auto const codec_id = video_params->codec_id;
+  LOG_INFO(
+    logger, "Video requires codec type: " << pretty_codec_name( codec_id ) );
 
-    // Codec prioritization scheme:
-    // (1) Choose hardware over software codecs
-    auto const codec_cmp =
-      [ & ]( AVCodec const* lhs, AVCodec const* rhs ) -> bool {
-        return
-          std::make_tuple( is_hardware_codec( lhs ) ) >
-          std::make_tuple( is_hardware_codec( rhs ) );
-      };
-    std::multiset<
-      AVCodec const*, std::function< bool( AVCodec const*, AVCodec const* ) > >
-    possible_codecs{ codec_cmp };
+  // Codec prioritization scheme:
+  // (1) Choose hardware over software codecs
+  auto const codec_cmp =
+    [ & ]( AVCodec const* lhs, AVCodec const* rhs ) -> bool {
+      return
+        std::make_tuple( is_hardware_codec( lhs ) ) >
+        std::make_tuple( is_hardware_codec( rhs ) );
+    };
+  std::multiset<
+    AVCodec const*, std::function< bool( AVCodec const*, AVCodec const* ) > >
+  possible_codecs{ codec_cmp };
 
-    // Find all compatible CUDA codecs
+  // Find all compatible CUDA codecs
 #ifdef KWIVER_ENABLE_FFMPEG_CUDA
-    if( parent.cuda_device() )
-    {
-      auto const cuda_codecs = cuda_find_decoders( *video_params );
-      possible_codecs.insert( cuda_codecs.begin(), cuda_codecs.end() );
-    }
-#endif
-
-    // Find all compatible software codecs
-    AVCodec const* codec_ptr = nullptr;
-#if LIBAVCODEC_VERSION_MAJOR > 57
-    for( void* it = nullptr; ( codec_ptr = av_codec_iterate( &it ) ); )
-#else
-    while( ( codec_ptr = av_codec_next( codec_ptr ) ) )
-#endif
-    {
-      if( codec_ptr->id == codec_id &&
-          av_codec_is_decoder( codec_ptr ) &&
-          !is_hardware_codec( codec_ptr ) &&
-          !( codec_ptr->capabilities & AV_CODEC_CAP_EXPERIMENTAL ) )
-      {
-        possible_codecs.emplace( codec_ptr );
-      }
-    }
-
-    // Find the first compatible codec that works, in priority order
-    for( auto const possible_codec : possible_codecs )
-    {
-      codec = possible_codec;
-      if( try_codec() )
-      {
-        break;
-      }
-      else
-      {
-        codec = nullptr;
-      }
-    }
-
-    throw_error_null(
-      codec,
-      "Could not open video with any known input codec. ",
-      possible_codecs.size(), " codecs were tried. ",
-      "Required codec type: ", pretty_codec_name( codec_id ) );
-    LOG_INFO(
-      logger, "Successfully loaded codec: " << pretty_codec_name( codec ) );
+  if( parent.cuda_device() )
+  {
+    auto const cuda_codecs = cuda_find_decoders( *video_params );
+    possible_codecs.insert( cuda_codecs.begin(), cuda_codecs.end() );
   }
+#endif
+
+  // Find all compatible software codecs
+  AVCodec const* codec_ptr = nullptr;
+#if LIBAVCODEC_VERSION_MAJOR > 57
+  for( void* it = nullptr; ( codec_ptr = av_codec_iterate( &it ) ); )
+#else
+  while( ( codec_ptr = av_codec_next( codec_ptr ) ) )
+#endif
+  {
+    if( codec_ptr->id == codec_id &&
+        av_codec_is_decoder( codec_ptr ) &&
+        !is_hardware_codec( codec_ptr ) &&
+        !( codec_ptr->capabilities & AV_CODEC_CAP_EXPERIMENTAL ) )
+    {
+      possible_codecs.emplace( codec_ptr );
+    }
+  }
+
+  // Find the first compatible codec that works, in priority order
+  for( auto const possible_codec : possible_codecs )
+  {
+    codec = possible_codec;
+    if( try_codec() )
+    {
+      break;
+    }
+    else
+    {
+      codec = nullptr;
+    }
+  }
+
+  throw_error_null(
+    codec,
+    "Could not open video with any known input codec. ",
+    possible_codecs.size(), " codecs were tried. ",
+    "Required codec type: ", pretty_codec_name( codec_id ) );
+  LOG_INFO(
+    logger, "Successfully loaded codec: " << pretty_codec_name( codec ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -1140,24 +1130,15 @@ ffmpeg_video_input::priv::open_video_state
       if( read_err == AVERROR_EOF )
       {
         // End of input. Tell this to decoder
-        if( parent->imagery_enabled )
-        {
-          avcodec_send_packet( codec_context.get(), nullptr );
-          new_frame.is_draining = true;
-        }
-        else
-        {
-          at_eof = true;
-          return false;
-        }
+        avcodec_send_packet( codec_context.get(), nullptr );
+        new_frame.is_draining = true;
       }
       else
       {
         throw_error_code( read_err, "Could not read next packet from file" );
 
         // Video packet
-        if( parent->imagery_enabled &&
-            packet->stream_index == video_stream->index )
+        if( packet->stream_index == video_stream->index )
         {
           // Record packet as raw image
           new_frame.raw_image->packets.emplace_back(
@@ -1216,30 +1197,27 @@ ffmpeg_video_input::priv::open_video_state
       }
     }
 
-    if( parent->imagery_enabled )
+    // Receive decoded frame
+    auto const recv_err =
+      avcodec_receive_frame( codec_context.get(), new_frame.frame.get() );
+    switch( recv_err )
     {
-      // Receive decoded frame
-      auto const recv_err =
-        avcodec_receive_frame( codec_context.get(), new_frame.frame.get() );
-      switch( recv_err )
-      {
-        case 0:
-          // Success
-          frame = std::move( new_frame );
-          break;
-        case AVERROR_EOF:
-          // End of file
-          at_eof = true;
-          break;
-        case AVERROR_INVALIDDATA:
-        case AVERROR( EAGAIN ):
-          // Acceptable errors
-          break;
-        default:
-          // Unacceptable errors
-          throw_error_code( recv_err, "Decoder returned error" );
-          break;
-      }
+      case 0:
+        // Success
+        frame = std::move( new_frame );
+        break;
+      case AVERROR_EOF:
+        // End of file
+        at_eof = true;
+        break;
+      case AVERROR_INVALIDDATA:
+      case AVERROR( EAGAIN ):
+        // Acceptable errors
+        break;
+      default:
+        // Unacceptable errors
+        throw_error_code( recv_err, "Decoder returned error" );
+        break;
     }
   }
 
@@ -1261,7 +1239,7 @@ ffmpeg_video_input::priv::open_video_state
     stream.advance( backup_timestamp, max_pts, max_pos );
   }
 
-  return !parent->imagery_enabled || frame.has_value();
+  return frame.has_value();
 }
 
 // ----------------------------------------------------------------------------
@@ -1623,12 +1601,6 @@ ffmpeg_video_input
     "See details at https://ffmpeg.org/ffmpeg-filters.html" );
 
   config->set_value(
-    "imagery_enabled", d->imagery_enabled,
-    "When set to false, will not attempt to process any imagery found in the "
-    "video file. This may be useful if only processing metadata."
-  );
-
-  config->set_value(
     "klv_enabled", d->klv_enabled,
     "When set to false, will not attempt to process any KLV metadata found in "
     "the video file. This may be useful if only processing imagery."
@@ -1695,9 +1667,6 @@ ffmpeg_video_input
   d->filter_description =
     config->get_value< std::string >(
       "filter_desc", d->filter_description );
-
-  d->imagery_enabled =
-    config->get_value< bool >( "imagery_enabled", d->imagery_enabled );
 
   d->klv_enabled =
     config->get_value< bool >( "klv_enabled", d->klv_enabled );

@@ -149,39 +149,6 @@ TEST_F ( ffmpeg_video_input, frame_image )
 }
 
 // ----------------------------------------------------------------------------
-// Verify that disabling imagery processing acts as expected and doesn't break
-// anything else.
-TEST_F( ffmpeg_video_input, imagery_disabled )
-{
-  ffmpeg::ffmpeg_video_input input;
-
-  auto config = input.get_configuration();
-  config->set_value< bool >( "imagery_enabled", false );
-  input.set_configuration( config );
-  input.open( aphill_video_path );
-
-  EXPECT_FALSE( input.good() );
-  EXPECT_EQ( input.frame_image(), nullptr );
-
-  size_t frame_count = 0;
-  kv::timestamp ts;
-  while( input.next_frame( ts ) )
-  {
-    ++frame_count;
-    EXPECT_TRUE( input.good() );
-    EXPECT_EQ( input.frame_image(), nullptr );
-    EXPECT_EQ( ts.get_frame(), frame_count );
-
-    auto const md = input.frame_metadata();
-    ASSERT_FALSE( md.empty() );
-    ASSERT_TRUE( md.at( 0 )->has( kv::VITAL_META_UNIX_TIMESTAMP ) );
-  }
-
-  input.close();
-  EXPECT_FALSE( input.good() );
-}
-
-// ----------------------------------------------------------------------------
 // Verify that disabling KLV processing acts as expected and doesn't break
 // anything else.
 TEST_F( ffmpeg_video_input, klv_disabled )

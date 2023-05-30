@@ -22,6 +22,8 @@ Arrows: FFmpeg
 
 * Added functionality to copy the input video's start timestamp when transcoding.
 
+* Removed imagery_enabled option from ffmpeg_video_input.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.
