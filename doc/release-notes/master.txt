@@ -14,3 +14,5 @@ Arrows: Core
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.
+
+* Throw an exception when reading an out-of-bounds IMAP value.
