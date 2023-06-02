@@ -674,10 +674,22 @@ compare_klv
   // Loop through frames
   while( !lhs_is->at_end() || !rhs_is->at_end() )
   {
+    // Determine frame numbers
+    auto const lhs_frame_number =
+      lhs_is->at_end() ? INT64_MAX : lhs_is->frame_number();
+    auto const rhs_frame_number =
+      rhs_is->at_end() ? INT64_MAX : rhs_is->frame_number();
+    auto const frame_number = std::min( lhs_frame_number, rhs_frame_number );
+    d->breadcrumbs.emplace_back(
+        std::string{} + "frame (" + std::to_string( frame_number ) + ")" );
+
     // Extract information about this frame's KLV
     auto const build_data =
-      []( vital::metadata_istream& is ) -> std::vector< istream_data > {
-        if( is.at_end() )
+      [ frame_number ](
+        vital::metadata_istream& is, vital::frame_id_t this_frame_number )
+      -> std::vector< istream_data >
+      {
+        if( is.at_end() || this_frame_number > frame_number )
         {
           return {};
         }
@@ -689,17 +701,8 @@ compare_klv
         }
         return data;
       };
-    auto lhs_data = build_data( *lhs_is );
-    auto rhs_data = build_data( *rhs_is );
-
-    // Determine frame numbers
-    auto const lhs_frame_number =
-      lhs_is->at_end() ? 0 : lhs_is->frame_number();
-    auto const rhs_frame_number =
-      rhs_is->at_end() ? 0 : rhs_is->frame_number();
-    auto const frame_number = std::max( lhs_frame_number, rhs_frame_number );
-    d->breadcrumbs.emplace_back(
-        std::string{} + "frame (" + std::to_string( frame_number ) + ")" );
+    auto lhs_data = build_data( *lhs_is, lhs_frame_number );
+    auto rhs_data = build_data( *rhs_is, rhs_frame_number );
 
     // Score each possible pair of packets on their similarity
     std::multimap< std::vector< size_t >, possible_pair > ranked_pairs;
@@ -833,11 +836,11 @@ compare_klv
 
     // Next frame
     d->breadcrumbs.pop_back();
-    if( !lhs_is->at_end() )
+    if( !lhs_is->at_end() && lhs_frame_number == frame_number )
     {
       lhs_is->next_frame();
     }
-    if( !rhs_is->at_end() )
+    if( !rhs_is->at_end() && rhs_frame_number == frame_number )
     {
       rhs_is->next_frame();
     }
