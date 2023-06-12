@@ -70,6 +70,7 @@ public:
     codec_context_uptr codec_context;
     AVCodec const* codec;
     sws_context_uptr image_conversion_context;
+    int64_t prev_video_dts;
   };
 
   impl();
@@ -413,7 +414,8 @@ ffmpeg_video_output::impl::open_video_state
     metadata_stream{ nullptr },
     codec_context{ nullptr },
     codec{ nullptr },
-    image_conversion_context{ nullptr }
+    image_conversion_context{ nullptr },
+    prev_video_dts{ AV_NOPTS_VALUE }
 {
   // Allocate output format context
   {
@@ -740,8 +742,30 @@ ffmpeg_video_output::impl::open_video_state
     dynamic_cast< ffmpeg_video_raw_image const& >( image );
   for( auto const& packet : ffmpeg_image.packets )
   {
+    // Ensure this packet has sensible timestamps or FFmpeg will complain
+    if( packet->pts == AV_NOPTS_VALUE || packet->dts == AV_NOPTS_VALUE ||
+        packet->dts <= prev_video_dts || packet->dts > packet->pts )
+    {
+      LOG_ERROR(
+        parent->logger,
+        "Dropping video packet with invalid dts/pts "
+        << packet->dts << "/" << packet->pts << " "
+        << "with prev dts " << prev_video_dts );
+      continue;
+    }
+
+    // Copy the packet so we can switch the video stream index
+    packet_uptr tmp_packet{
+      throw_error_null(
+        av_packet_clone( packet.get() ), "Could not copy video packet" ) };
+    tmp_packet->stream_index = video_stream->index;
+
+    // Record this DTS for next time
+    prev_video_dts = packet->dts;
+
+    // Write the packet
     throw_error_code(
-      av_interleaved_write_frame( format_context.get(), packet.get() ),
+      av_interleaved_write_frame( format_context.get(), tmp_packet.get() ),
       "Could not write frame to file" );
   }
   ++frame_count;

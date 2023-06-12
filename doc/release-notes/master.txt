@@ -16,6 +16,10 @@ Arrows: Core
 * Made the transcode applet ask for video settings slightly later, when they
   might be more accurate.
 
+Arrows: FFmpeg
+
+* Added check for incoming raw video packets' timestamps and stream indices.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.
