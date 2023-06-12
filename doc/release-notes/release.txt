@@ -6,3 +6,8 @@ Updates
 
 Bug Fixes
 ---------
+
+Arrows: KLV
+
+* Fixed an integer promotion bug when writing the ST0806 user defined data
+  type / id field.
