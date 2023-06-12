@@ -173,10 +173,13 @@ dump_klv
     "metadata_serializer", config, metadata_serializer_ptr );
   kva::metadata_map_io::get_nested_algo_configuration(
     "metadata_serializer", config, metadata_serializer_ptr );
-  kva::image_io::set_nested_algo_configuration(
-    "image_writer", config, image_writer );
-  kva::image_io::get_nested_algo_configuration(
-    "image_writer", config, image_writer );
+  if( cmd_args.count( "frames" ) )
+  {
+    kva::image_io::set_nested_algo_configuration(
+      "image_writer", config, image_writer );
+    kva::image_io::get_nested_algo_configuration(
+      "image_writer", config, image_writer );
+  }
 
   // Check to see if we are to dump config
   if ( cmd_args.count("output") )
@@ -209,7 +212,8 @@ dump_klv
     return EXIT_FAILURE;
   }
 
-  if( !kva::image_io::check_nested_algo_configuration(
+  if( cmd_args.count( "frames" ) &&
+      !kva::image_io::check_nested_algo_configuration(
          "image_writer", config ) )
   {
     std::cerr << "Invalid image_writer config" << std::endl;
