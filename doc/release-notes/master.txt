@@ -11,8 +11,12 @@ Arrows: Core
 
 * Implemented the csv_reader reading std::optional fields.
 
+* Made the transcode applet's failure to open a video result in a more graceful exit.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.
 
 * Throw an exception when reading an out-of-bounds IMAP value.
+
+* Made the compare-klv applet's failure to open a video result in a more graceful exit.

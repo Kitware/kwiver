@@ -136,7 +136,21 @@ transcode_applet
     std::cerr << "Failed to initialize video input." << std::endl;
     exit( EXIT_FAILURE );
   }
-  input->open( input_filename );
+
+  try
+  {
+    input->open( input_filename );
+  }
+  catch( kv::video_runtime_exception const& e )
+  {
+    std::cerr << e.what() << std::endl;
+    exit( EXIT_FAILURE );
+  }
+  catch( kv::file_not_found_exception const& e )
+  {
+    std::cerr << e.what() << std::endl;
+    exit( EXIT_FAILURE );
+  }
   check_input( input, cmd_args );
 
   auto const video_settings = input->implementation_settings();
