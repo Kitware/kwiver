@@ -265,7 +265,14 @@ klv_read_imap(
   // Return exactly zero if applicable, overriding rounding errors. IMAP
   // specification considers this important
   auto const precision = klv_imap_precision( interval, length );
-  return ( std::abs( value ) < precision / 2.0 ) ? 0.0 : value;
+  value = ( std::abs( value ) < precision / 2.0 ) ? 0.0 : value;
+
+  if( !interval.contains( value, true, true ) )
+  {
+    VITAL_THROW( kv::metadata_type_overflow, "value outside IMAP bounds" );
+  }
+
+  return value;
 }
 
 // ----------------------------------------------------------------------------
