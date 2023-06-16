@@ -22,3 +22,5 @@ Arrows: KLV
 * Made the compare-klv applet's failure to open a video result in a more graceful exit.
 
 * Disabled initialization of image writer in dump-klv if no images are to be written.
+
+* Accounted for missing or extra frames in compare-klv.
