@@ -1558,6 +1558,7 @@ ffmpeg_video_input::priv::open_video_state
   ffmpeg_video_settings_uptr result{ new ffmpeg_video_settings{} };
   result->frame_rate = frame_rate();
   result->klv_stream_count = klv_streams.size();
+  result->start_timestamp = format_context->start_time;
 
   if( codec_context )
   {

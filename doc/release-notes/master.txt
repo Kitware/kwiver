@@ -20,6 +20,8 @@ Arrows: FFmpeg
 
 * Added check for incoming raw video packets' timestamps and stream indices.
 
+* Added functionality to copy the input video's start timestamp when transcoding.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.

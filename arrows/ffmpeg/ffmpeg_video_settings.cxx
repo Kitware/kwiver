@@ -20,7 +20,8 @@ ffmpeg_video_settings
 ::ffmpeg_video_settings()
   : frame_rate{ 0, 1 },
     parameters{ avcodec_parameters_alloc() },
-    klv_stream_count{ 0 }
+    klv_stream_count{ 0 },
+    start_timestamp{ AV_NOPTS_VALUE }
 {
   if( !parameters )
   {
@@ -34,7 +35,8 @@ ffmpeg_video_settings
 ::ffmpeg_video_settings( ffmpeg_video_settings const& other )
   : frame_rate{ other.frame_rate },
     parameters{ avcodec_parameters_alloc() },
-    klv_stream_count{ other.klv_stream_count }
+    klv_stream_count{ other.klv_stream_count },
+    start_timestamp{ other.start_timestamp }
 {
   throw_error_code(
     avcodec_parameters_copy( parameters.get(), other.parameters.get() ),
@@ -46,7 +48,8 @@ ffmpeg_video_settings
 ::ffmpeg_video_settings( ffmpeg_video_settings&& other )
   : frame_rate{ std::move( other.frame_rate ) },
     parameters{ std::move( other.parameters ) },
-    klv_stream_count{ std::move( other.klv_stream_count ) }
+    klv_stream_count{ std::move( other.klv_stream_count ) },
+    start_timestamp{ other.start_timestamp }
 {}
 
 // ----------------------------------------------------------------------------
@@ -57,7 +60,8 @@ ffmpeg_video_settings
   size_t klv_stream_count )
   : frame_rate( frame_rate ),
     parameters{ avcodec_parameters_alloc() },
-    klv_stream_count{ klv_stream_count }
+    klv_stream_count{ klv_stream_count },
+    start_timestamp{ AV_NOPTS_VALUE }
 {
   if( !parameters )
   {
@@ -84,6 +88,7 @@ ffmpeg_video_settings
     avcodec_parameters_copy( parameters.get(), other.parameters.get() ),
     "Could not copy codec parameters" );
   klv_stream_count = other.klv_stream_count;
+  start_timestamp = other.start_timestamp;
   return *this;
 }
 
@@ -95,6 +100,7 @@ ffmpeg_video_settings
   frame_rate = std::move( other.frame_rate );
   parameters = std::move( other.parameters );
   klv_stream_count = std::move( other.klv_stream_count );
+  start_timestamp = std::move( other.start_timestamp );
   return *this;
 }
 
