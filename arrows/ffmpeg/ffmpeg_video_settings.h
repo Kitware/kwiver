@@ -47,6 +47,7 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   AVRational frame_rate;
   codec_parameters_uptr parameters;
   size_t klv_stream_count;
+  int64_t start_timestamp; // In AV_TIME_BASE units
 };
 using ffmpeg_video_settings_uptr = std::unique_ptr< ffmpeg_video_settings >;
 

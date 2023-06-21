@@ -398,6 +398,7 @@ ffmpeg_video_output
   avcodec_parameters_from_context( result->parameters.get(),
                                    d->video->codec_context.get() );
   result->klv_stream_count = 0; // TODO
+  result->start_timestamp = d->video->format_context->start_time;
   return kwiver::vital::video_settings_uptr{ result };
 }
 
@@ -427,6 +428,9 @@ ffmpeg_video_output::impl::open_video_state
     format_context.reset( tmp );
   }
   output_format = format_context->oformat;
+
+  // Set timestamp value to start at
+  format_context->output_ts_offset = settings.start_timestamp;
 
   // Prioritization scheme for codecs:
   // (1) Match ffmpeg settings passed to constructor if present
