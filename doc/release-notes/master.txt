@@ -38,5 +38,6 @@ Arrows: KLV
 
 * Implemented metadata_map_io_csv.load_().
 
-* Modified flint/IMAP behavior to print a warning when writing values with
-  incorrect lengths instead of correcting the length and possibly losing data.
+* Modified flint, IMAP, and integer behavior to print a warning when writing
+  values with incorrect lengths instead of correcting the length and possibly
+  losing data.

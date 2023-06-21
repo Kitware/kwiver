@@ -238,7 +238,8 @@ size_t
 klv_uint_format
 ::length_of_typed( uint64_t const& value ) const
 {
-  return m_length_constraints.fixed_or( klv_int_length( value ) );
+  auto const int_length = klv_int_length( value );
+  return std::max( m_length_constraints.fixed_or( 1 ), int_length );
 }
 
 // ----------------------------------------------------------------------------
@@ -277,7 +278,8 @@ size_t
 klv_sint_format
 ::length_of_typed( int64_t const& value ) const
 {
-  return m_length_constraints.fixed_or( klv_int_length( value ) );
+  auto const int_length = klv_int_length( value );
+  return std::max( m_length_constraints.fixed_or( 1 ), int_length );
 }
 
 // ----------------------------------------------------------------------------
