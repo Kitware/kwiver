@@ -1017,12 +1017,6 @@ ffmpeg_video_input::priv::open_video_state
   // Initialize filter graph
   init_filters( filter_parameters{ *codec_context } );
 
-  // Start time taken from the first decodable frame
-  throw_error_code(
-    av_seek_frame(
-      format_context.get(), video_stream->index, 0, AVSEEK_FLAG_FRAME ),
-    "Could not seek to beginning of video" );
-
   // Read frames until we can successfully decode one to get start timestamp
   {
     packet_uptr tmp_packet{
