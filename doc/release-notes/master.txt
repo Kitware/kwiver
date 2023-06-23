@@ -24,6 +24,8 @@ Arrows: FFmpeg
 
 * Removed imagery_enabled option from ffmpeg_video_input.
 
+* Added proper handling for changing size or pixel format mid-video.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.

@@ -308,11 +308,24 @@ public:
   };
 
   struct open_video_state {
+    struct filter_parameters {
+      explicit filter_parameters( AVCodecContext const& codec_context );
+      explicit filter_parameters( AVFrame const& frame );
+
+      bool operator==( filter_parameters const& other ) const;
+      bool operator!=( filter_parameters const& other ) const;
+
+      int width;
+      int height;
+      AVPixelFormat pix_fmt;
+      AVRational sample_aspect_ratio;
+    };
+
     open_video_state( priv& parent, std::string const& path );
     ~open_video_state();
 
     bool try_codec();
-    void init_filters();
+    void init_filters( filter_parameters const& parameters );
     bool advance();
     void seek( kv::frame_id_t frame_number );
     void set_video_metadata( kv::metadata& md );
@@ -338,6 +351,7 @@ public:
     filter_graph_uptr filter_graph;
     AVFilterContext* filter_sink_context;
     AVFilterContext* filter_source_context;
+    std::optional< filter_parameters > filter_params;
 
     sws_context_uptr image_conversion_context;
 
@@ -575,6 +589,13 @@ ffmpeg_video_input::priv::frame_state
   // Run the frame through the filter graph
   if( parent->filter_source_context && parent->filter_sink_context )
   {
+    // Check for parameter changes
+    open_video_state::filter_parameters const frame_params{ *frame };
+    if( frame_params != *parent->filter_params )
+    {
+      parent->init_filters( frame_params );
+    }
+
     int recv_err;
     do{
       throw_error_code(
@@ -713,6 +734,48 @@ ffmpeg_video_input::priv::frame_state
   }
 
   return *metadata;
+}
+
+// ----------------------------------------------------------------------------
+ffmpeg_video_input::priv::open_video_state::filter_parameters
+::filter_parameters( AVCodecContext const& codec_context )
+  : width{ codec_context.width },
+    height{ codec_context.height },
+    pix_fmt{
+      codec_context.hw_device_ctx
+      ? codec_context.sw_pix_fmt
+      : codec_context.pix_fmt },
+    sample_aspect_ratio{ codec_context.sample_aspect_ratio }
+{}
+
+// ----------------------------------------------------------------------------
+ffmpeg_video_input::priv::open_video_state::filter_parameters
+::filter_parameters( AVFrame const& frame )
+  : width{ frame.width },
+    height{ frame.height },
+    pix_fmt{ static_cast< AVPixelFormat >( frame.format ) },
+    sample_aspect_ratio{ frame.sample_aspect_ratio }
+{}
+
+// ----------------------------------------------------------------------------
+bool
+ffmpeg_video_input::priv::open_video_state::filter_parameters
+::operator==( filter_parameters const& other ) const
+{
+  return
+    width == other.width &&
+    height == other.height &&
+    pix_fmt == other.pix_fmt &&
+    sample_aspect_ratio.num == other.sample_aspect_ratio.num &&
+    sample_aspect_ratio.den == other.sample_aspect_ratio.den;
+}
+
+// ----------------------------------------------------------------------------
+bool
+ffmpeg_video_input::priv::open_video_state::filter_parameters
+::operator!=( filter_parameters const& other ) const
+{
+  return !( *this == other );
 }
 
 // ----------------------------------------------------------------------------
@@ -949,7 +1012,7 @@ ffmpeg_video_input::priv::open_video_state
   }
 
   // Initialize filter graph
-  init_filters();
+  init_filters( filter_parameters{ *codec_context } );
 
   // Start time taken from the first decodable frame
   throw_error_code(
@@ -1015,7 +1078,7 @@ ffmpeg_video_input::priv::open_video_state
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_input::priv::open_video_state
-::init_filters()
+::init_filters( filter_parameters const& parameters )
 {
   // Check for empty filter string
   if( std::all_of(
@@ -1032,18 +1095,14 @@ ffmpeg_video_input::priv::open_video_state
 
   // Create the input buffer
   {
-    auto const pix_fmt =
-      codec_context->hw_device_ctx
-      ? codec_context->sw_pix_fmt
-      : codec_context->pix_fmt;
     std::stringstream ss;
-    ss << "video_size=" << codec_context->width << "x"
-                        << codec_context->height
-      << ":pix_fmt=" << pix_fmt
+    ss << "video_size=" << parameters.width << "x"
+                        << parameters.height
+      << ":pix_fmt=" << parameters.pix_fmt
       << ":time_base=" << video_stream->time_base.num << "/"
                        << video_stream->time_base.den
-      << ":pixel_aspect=" << codec_context->sample_aspect_ratio.num << "/"
-                          << codec_context->sample_aspect_ratio.den;
+      << ":pixel_aspect=" << parameters.sample_aspect_ratio.num << "/"
+                          << parameters.sample_aspect_ratio.den;
     throw_error_code(
       avfilter_graph_create_filter(
         &filter_source_context, avfilter_get_by_name( "buffer" ),
@@ -1095,6 +1154,8 @@ ffmpeg_video_input::priv::open_video_state
   throw_error_code(
     avfilter_graph_config( filter_graph.get(), NULL ),
     "Could not configure filter graph" );
+
+  filter_params.emplace( parameters );
 }
 
 // ----------------------------------------------------------------------------
