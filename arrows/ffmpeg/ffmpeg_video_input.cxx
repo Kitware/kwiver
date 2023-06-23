@@ -799,31 +799,23 @@ ffmpeg_video_input::priv::open_video_state
     frame{},
     at_eof{ false }
 {
-  // Open the file
-  {
-    AVFormatContext* ptr = nullptr;
-    throw_error_code(
-      avformat_open_input( &ptr, path.c_str(), NULL, NULL ),
-      "Could not open input stream" );
-    format_context.reset( ptr );
-  }
-
-  // Try to probe the file for stream information
-  constexpr size_t max_probe_tries = 3;
-  format_context->probesize = 5'000'000; // 5 MB
-  format_context->max_analyze_duration = 10 * AV_TIME_BASE; // 10 seconds
+// Try to probe the file for stream information
+  constexpr size_t max_probe_tries = 4;
+  int64_t probesize = 5'000'000; // 5 MB
+  int64_t max_analyze_duration = 10 * AV_TIME_BASE; // 10 seconds
+  uint64_t increase_factor = 100;
   for( auto const i : kvr::iota( max_probe_tries ) )
   {
-    // Increase how much of file to analyze on later attempts
-    if( i != 0 )
+    // Open the file
     {
-      LOG_ERROR(
-        logger,
-        "Could not find a valid video stream in the input on attempt " << i
-        << " of " << max_probe_tries );
-      format_context->probesize *= 3;
-      format_context->max_analyze_duration *= 3;
+      AVFormatContext* ptr = nullptr;
+      throw_error_code(
+        avformat_open_input( &ptr, path.c_str(), NULL, NULL ),
+        "Could not open input stream" );
+      format_context.reset( ptr );
     }
+    format_context->probesize = probesize;
+    format_context->max_analyze_duration = max_analyze_duration;
 
     // Get the stream information by reading a bit of the file
     throw_error_code(
@@ -883,6 +875,17 @@ ffmpeg_video_input::priv::open_video_state
       // Success!
       break;
     }
+
+    // Increase how much of file to analyze on later attempts
+    LOG_ERROR(
+      logger,
+      "Could not find a valid video stream in the input on attempt "
+      << ( i + 1 ) << " of " << max_probe_tries );
+    probesize *= increase_factor;
+    max_analyze_duration *= increase_factor;
+
+    // Clear state
+    klv_streams.clear();
   }
 
   // Confirm stream characteristics
@@ -1013,12 +1016,6 @@ ffmpeg_video_input::priv::open_video_state
 
   // Initialize filter graph
   init_filters( filter_parameters{ *codec_context } );
-
-  // Start time taken from the first decodable frame
-  throw_error_code(
-    av_seek_frame(
-      format_context.get(), video_stream->index, 0, AVSEEK_FLAG_FRAME ),
-    "Could not seek to beginning of video" );
 
   // Read frames until we can successfully decode one to get start timestamp
   {

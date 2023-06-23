@@ -26,6 +26,8 @@ Arrows: FFmpeg
 
 * Added proper handling for changing size or pixel format mid-video.
 
+* Improved probing behavior and increased duration.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.
