@@ -11,6 +11,8 @@
 #include <arrows/ffmpeg/ffmpeg_util.h>
 #include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
 
+#include <arrows/klv/klv_stream_settings.h>
+
 #include <vital/types/video_settings.h>
 
 extern "C" {
@@ -19,6 +21,7 @@ extern "C" {
 
 #include <map>
 #include <memory>
+#include <vector>
 
 namespace kwiver {
 
@@ -36,7 +39,7 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   ffmpeg_video_settings(
     size_t width, size_t height,
     AVRational frame_rate,
-    size_t klv_stream_count );
+    std::vector< klv::klv_stream_settings > const& klv_streams = {} );
 
   ~ffmpeg_video_settings();
 
@@ -47,7 +50,7 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
 
   AVRational frame_rate;
   codec_parameters_uptr parameters;
-  size_t klv_stream_count;
+  std::vector< klv::klv_stream_settings > klv_streams;
   int64_t start_timestamp; // In AV_TIME_BASE units
   std::map< std::string, std::string > codec_options;
 };

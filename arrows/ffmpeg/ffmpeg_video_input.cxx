@@ -73,6 +73,8 @@ struct ffmpeg_klv_stream
   ffmpeg_klv_stream( ffmpeg_klv_stream const& ) = delete;
   ffmpeg_klv_stream( ffmpeg_klv_stream&& ) = delete;
 
+  klv::klv_stream_settings settings() const;
+
   void send_packet( AVPacket* packet );
 
   void advance( std::optional< uint64_t > backup_timestamp,
@@ -84,6 +86,7 @@ struct ffmpeg_klv_stream
 
   AVStream* stream;
   std::vector< packet_uptr > buffer;
+  std::vector< packet_uptr > this_frame_buffer;
   std::vector< uint8_t > bytes;
   std::vector< klv::klv_packet > packets;
   klv::klv_timeline timeline;
@@ -110,6 +113,34 @@ ffmpeg_klv_stream
   {
     throw std::logic_error( "ffmpeg_klv_stream given null stream" );
   }
+}
+
+// ----------------------------------------------------------------------------
+klv::klv_stream_settings
+ffmpeg_klv_stream
+::settings() const
+{
+  klv::klv_stream_settings result;
+  result.index = stream->index;
+  switch( stream->codecpar->profile )
+  {
+#if LIBAVCODEC_VERSION_MAJOR > 57
+    case FF_PROFILE_KLVA_SYNC:
+      result.type = klv::KLV_STREAM_TYPE_SYNC;
+      break;
+    case FF_PROFILE_KLVA_ASYNC:
+      result.type = klv::KLV_STREAM_TYPE_ASYNC;
+      break;
+#endif
+    default:
+      LOG_DEBUG(
+        kv::get_logger( "klv" ),
+        "Could not determine synchronicity of KLV stream " << stream->index
+        << "; reporting as asynchronous" );
+      result.type = klv::KLV_STREAM_TYPE_ASYNC;
+      break;
+  }
+  return result;
 }
 
 // ----------------------------------------------------------------------------
@@ -165,6 +196,7 @@ ffmpeg_klv_stream
 ::advance(
   std::optional< uint64_t > backup_timestamp, int64_t max_pts, int64_t max_pos )
 {
+  this_frame_buffer.clear();
   packets.clear();
 
   for( auto it = buffer.begin(); it != buffer.end(); )
@@ -174,6 +206,7 @@ ffmpeg_klv_stream
         ( packet.pts == AV_NOPTS_VALUE && packet.pos <= max_pos ) )
     {
       bytes.insert( bytes.end(), packet.data, packet.data + packet.size );
+      this_frame_buffer.emplace_back( std::move( *it ) );
       it = buffer.erase( it );
     }
     else
@@ -291,6 +324,9 @@ public:
     kv::image_container_sptr convert_image();
     kv::metadata_vector const& convert_metadata();
 
+    ffmpeg_video_raw_image& get_raw_image();
+    ffmpeg_video_raw_metadata& get_raw_metadata();
+
     open_video_state* parent;
     kv::logger_handle_t logger;
 
@@ -299,10 +335,10 @@ public:
 
     kv::image_memory_sptr image_memory;
     kv::image_container_sptr image;
-    ffmpeg_video_raw_image_sptr raw_image;
+    kv::video_raw_image_sptr raw_image;
 
     std::optional< kv::metadata_vector > metadata;
-    ffmpeg_video_raw_metadata_sptr raw_metadata;
+    kv::video_raw_metadata_sptr raw_metadata;
 
     bool is_draining;
   };
@@ -357,12 +393,17 @@ public:
 
     int64_t start_ts;
     std::map< int64_t, klv::misp_timestamp > pts_to_misp_ts;
+    std::map< int64_t, int64_t > packet_pos_to_dts;
+    int64_t prev_frame_dts;
+    int64_t prev_video_dts;
+    std::multimap< int64_t, packet_uptr > lookahead;
 
     std::list< ffmpeg_klv_stream > klv_streams;
     kv::metadata_map_sptr all_metadata;
 
     std::optional< frame_state > frame;
 
+    bool lookahead_at_eof;
     bool at_eof;
   };
 
@@ -737,6 +778,22 @@ ffmpeg_video_input::priv::frame_state
 }
 
 // ----------------------------------------------------------------------------
+ffmpeg_video_raw_image&
+ffmpeg_video_input::priv::frame_state
+::get_raw_image()
+{
+  return dynamic_cast< ffmpeg_video_raw_image& >( *raw_image );
+}
+
+// ----------------------------------------------------------------------------
+ffmpeg_video_raw_metadata&
+ffmpeg_video_input::priv::frame_state
+::get_raw_metadata()
+{
+  return dynamic_cast< ffmpeg_video_raw_metadata& >( *raw_metadata );
+}
+
+// ----------------------------------------------------------------------------
 ffmpeg_video_input::priv::open_video_state::filter_parameters
 ::filter_parameters( AVCodecContext const& codec_context )
   : width{ codec_context.width },
@@ -794,9 +851,14 @@ ffmpeg_video_input::priv::open_video_state
     image_conversion_context{ nullptr },
     start_ts{ 0 },
     pts_to_misp_ts{},
+    packet_pos_to_dts{},
+    prev_frame_dts{ AV_NOPTS_VALUE },
+    prev_video_dts{ AV_NOPTS_VALUE },
+    lookahead{},
     klv_streams{},
     all_metadata{ nullptr },
     frame{},
+    lookahead_at_eof{ false },
     at_eof{ false }
 {
 // Try to probe the file for stream information
@@ -1178,94 +1240,245 @@ ffmpeg_video_input::priv::open_video_state
   frame.reset();
 
   // Run through video until we can assemble a frame image
-  packet_uptr packet{
-    throw_error_null( av_packet_alloc(), "Could not allocate packet" ) };
-  while( !at_eof && !frame.has_value() )
+  while( !frame.has_value() && !at_eof )
   {
-    if( !new_frame.is_draining )
+    // We need at least one video packet before we could expect another frame
+    auto first_video_it = lookahead.end();
+
+    // We want to make sure each stream has caught up before actually using the
+    // next video packet
+    std::vector< int64_t > most_recent_dts(
+      format_context->nb_streams, AV_NOPTS_VALUE );
+
+    // Take stock of packets we have in storage
+    for( auto it = lookahead.begin(); it != lookahead.end(); ++it )
     {
-      // Read next packet
+      most_recent_dts.at( it->second->stream_index ) =
+        std::max(
+          most_recent_dts.at( it->second->stream_index ), it->first );
+      if( first_video_it == lookahead.end() &&
+          it->second->stream_index == video_stream->index )
+      {
+        first_video_it = it;
+      }
+    }
+
+    // Functor determining if we need to parse more of other streams before
+    // continuing with decoding the video
+    auto const looked_ahead_enough =
+      [ this, &most_recent_dts, &first_video_it ]() -> bool
+      {
+        if( first_video_it == lookahead.end() )
+        {
+          return false;
+        }
+
+        for( auto const& stream : klv_streams )
+        {
+          auto const dts = most_recent_dts.at( stream.stream->index );
+          if( dts == AV_NOPTS_VALUE ||
+              dts <= first_video_it->first ||
+              dts <= first_video_it->second->pts )
+          {
+            return false;
+          }
+        }
+
+        return true;
+      };
+
+    // Read until all streams are up-to-date with the video stream
+    packet_uptr packet{
+      throw_error_null( av_packet_alloc(), "Could not allocate packet" ) };
+    while( !lookahead_at_eof && !looked_ahead_enough() )
+    {
       av_packet_unref( packet.get() );
+
       auto const read_err =
         av_read_frame( format_context.get(), packet.get() );
       if( read_err == AVERROR_EOF )
       {
-        // End of input. Tell this to decoder
-        avcodec_send_packet( codec_context.get(), nullptr );
-        new_frame.is_draining = true;
+        // End of input
+        lookahead_at_eof = true;
+        break;
       }
-      else
+      throw_error_code( read_err, "Could not read next packet from file" );
+
+      // Sanity check for stream index
+      if( packet->stream_index < 0 ||
+          static_cast< unsigned int >( packet->stream_index ) >=
+            most_recent_dts.size() )
       {
-        throw_error_code( read_err, "Could not read next packet from file" );
+        continue;
+      }
 
-        // Video packet
-        if( packet->stream_index == video_stream->index )
+      // Process video packet
+      if( packet->stream_index == video_stream->index )
+      {
+        // Need pts
+        if( packet->pts == AV_NOPTS_VALUE )
         {
-          // Record packet as raw image
-          new_frame.raw_image->packets.emplace_back(
-            throw_error_null(
-              av_packet_alloc(), "Could not allocate packet" ) );
-          throw_error_code(
-            av_packet_ref(
-              new_frame.raw_image->packets.back().get(), packet.get() ),
-            "Could not give packet to raw image cache" );
-
-          // Find MISP timestamp
-          for( auto const tag_type : { klv::MISP_TIMESTAMP_TAG_STRING,
-                                       klv::MISP_TIMESTAMP_TAG_UUID } )
-          {
-            auto it =
-              klv::find_misp_timestamp(
-                packet->data, packet->data + packet->size, tag_type );
-            if( it != packet->data + packet->size )
-            {
-              auto const timestamp = klv::read_misp_timestamp( it );
-              pts_to_misp_ts.emplace( packet->pts, timestamp );
-              break;
-            }
-          }
-
-          // Send packet to decoder
-          auto const send_err =
-            avcodec_send_packet( codec_context.get(), packet.get() );
-          if( send_err != AVERROR_INVALIDDATA )
-          {
-            throw_error_code( send_err, "Decoder rejected packet" );
-          }
+          LOG_ERROR(
+            parent->logger,
+            "Dropping video packet with invalid pts" );
+          continue;
         }
 
-        // KLV packet
-        for( auto& stream : klv_streams )
+        // Replace any weird dts with a guess
+        if( packet->dts == AV_NOPTS_VALUE )
         {
-          if( packet->stream_index != stream.stream->index )
+          packet->dts =
+            ( prev_video_dts == AV_NOPTS_VALUE )
+            ? 0
+            : ( prev_video_dts + 1 );
+        }
+        else if(
+          packet->dts == AV_NOPTS_VALUE ||
+          packet->dts < prev_video_dts ||
+          packet->dts > packet->pts )
+        {
+          if( prev_video_dts != AV_NOPTS_VALUE && packet->duration > 0 )
           {
-            continue;
+            packet->dts = prev_video_dts + packet->duration;
+            packet->dts = std::min( packet->dts, packet->pts );
           }
+          else
+          {
+            packet->dts = packet->pts;
+          }
+        }
+        prev_video_dts = packet->dts;
+      }
 
-          // Record packet as raw KLV
-          new_frame.raw_metadata->packets.emplace_back(
-            throw_error_null(
-              av_packet_alloc(), "Could not allocate packet" ) );
-          throw_error_code(
-            av_packet_ref(
-              new_frame.raw_metadata->packets.back().get(), packet.get() ),
-            "Could not give packet to raw metadata cache" );
+      // Guess the missing DTS field for asynchronous KLV
+      auto packet_dts = packet->dts;
+      for( auto& stream : klv_streams )
+      {
+        if( packet->stream_index != stream.stream->index ||
+            stream.settings().type != klv::KLV_STREAM_TYPE_ASYNC )
+        {
+          continue;
+        }
 
-          // Decode packet
-          stream.send_packet( packet.get() );
+        packet_dts =
+          lookahead.empty() ? 0 : std::prev( lookahead.end() )->first;
+        break;
+      }
+
+      // Put the packet in the lookahead buffer
+      auto new_packet =
+        throw_error_null( av_packet_alloc(), "Could not allocate packet" );
+      auto const it = lookahead.emplace( packet_dts, std::move( new_packet ) );
+      av_packet_move_ref( it->second.get(), packet.get() );
+
+      // Update stats for this stream
+      most_recent_dts.at( it->second->stream_index ) =
+        std::max(
+          packet_dts, most_recent_dts.at( it->second->stream_index ) );
+      if( first_video_it == lookahead.end() &&
+          it->second->stream_index == video_stream->index )
+      {
+        first_video_it = it;
+      }
+    }
+
+    // Couldn't find next video packet? Tell the decoder to flush any remaining
+    // buffered frames
+    if( first_video_it == lookahead.end() &&
+        lookahead_at_eof && !new_frame.is_draining )
+    {
+      avcodec_send_packet( codec_context.get(), nullptr );
+      new_frame.is_draining = true;
+    }
+
+    // Process next video packet, if there is one
+    if( first_video_it != lookahead.end() )
+    {
+      packet = std::move( first_video_it->second );
+      lookahead.erase( first_video_it );
+      first_video_it = lookahead.end();
+
+      // Record packet as raw image
+      new_frame.get_raw_image().packets.emplace_back(
+        throw_error_null(
+          av_packet_alloc(), "Could not allocate packet" ) );
+      throw_error_code(
+        av_packet_ref(
+          new_frame.get_raw_image().packets.back().get(), packet.get() ),
+        "Could not give packet to raw image cache" );
+      packet_pos_to_dts.emplace( packet->pos, packet->dts );
+
+      // Find MISP timestamp
+      for( auto const tag_type : { klv::MISP_TIMESTAMP_TAG_STRING,
+                                   klv::MISP_TIMESTAMP_TAG_UUID } )
+      {
+        auto it =
+          klv::find_misp_timestamp(
+            packet->data, packet->data + packet->size, tag_type );
+        if( it != packet->data + packet->size )
+        {
+          auto const timestamp = klv::read_misp_timestamp( it );
+          pts_to_misp_ts.emplace( packet->pts, timestamp );
           break;
         }
+      }
+
+      // Send packet to decoder
+      auto const send_err =
+        avcodec_send_packet( codec_context.get(), packet.get() );
+      if( send_err != AVERROR_INVALIDDATA )
+      {
+        throw_error_code( send_err, "Decoder rejected packet" );
       }
     }
 
     // Receive decoded frame
     auto const recv_err =
       avcodec_receive_frame( codec_context.get(), new_frame.frame.get() );
+    auto dts_lookup_failed = false;
     switch( recv_err )
     {
       case 0:
         // Success
         frame = std::move( new_frame );
+
+        // Look up the dts of the packet that contained this frame
+        if( auto const it = packet_pos_to_dts.find( frame->frame->pkt_pos );
+            it != packet_pos_to_dts.end() )
+        {
+          frame->get_raw_image().frame_dts = it->second;
+          prev_frame_dts = it->second;
+          packet_pos_to_dts.erase( it );
+        }
+        else
+        {
+          LOG_DEBUG(
+            parent->logger,
+            "Raw frame dts lookup failed, likely due to corruption" );
+          dts_lookup_failed = true;
+          frame->get_raw_image().frame_dts = prev_frame_dts;
+
+          // We can't erase an entry from packet_pos_to_dts, since we don't
+          // know for sure which entry to erase
+        }
+        frame->get_raw_image().frame_pts = frame->frame->best_effort_timestamp;
+        frame->get_raw_image().is_keyframe = frame->frame->key_frame;
+
+        // Clean up
+        if( frame->frame->key_frame && !dts_lookup_failed )
+        {
+          auto const it =
+            packet_pos_to_dts.lower_bound( frame->frame->pkt_pos );
+          if( it != packet_pos_to_dts.begin() )
+          {
+            auto const cleanup_count =
+              std::distance( packet_pos_to_dts.begin(), it );
+            LOG_DEBUG(
+              parent->logger,
+              "Cleaning up " << cleanup_count << " dts lookup entries" );
+            packet_pos_to_dts.erase( packet_pos_to_dts.begin(), it );
+          }
+        }
         break;
       case AVERROR_EOF:
         // End of file
@@ -1279,6 +1492,38 @@ ffmpeg_video_input::priv::open_video_state
         // Unacceptable errors
         throw_error_code( recv_err, "Decoder returned error" );
         break;
+    }
+  }
+
+  if( frame.has_value() )
+  {
+    // Give the KLV stream processors all packets up to this new frame image
+    for( auto it = lookahead.begin(); it != lookahead.end(); )
+    {
+      if( it->second->pts > frame->frame->best_effort_timestamp )
+      {
+        ++it;
+        continue;
+      }
+
+      auto found = false;
+      for( auto& stream : klv_streams )
+      {
+        if( it->second->stream_index != stream.stream->index )
+        {
+          continue;
+        }
+
+        found = true;
+        stream.send_packet( it->second.get() );
+        it = lookahead.erase( it );
+        break;
+      }
+
+      if( !found )
+      {
+        ++it;
+      }
     }
   }
 
@@ -1324,6 +1569,10 @@ ffmpeg_video_input::priv::open_video_state
   for( size_t i = 0; i < maximum_attempts; ++i )
   {
     // Clear current state
+    prev_frame_dts = AV_NOPTS_VALUE;
+    prev_video_dts = AV_NOPTS_VALUE;
+    lookahead.clear();
+    lookahead_at_eof = false;
     at_eof = false;
     frame.reset();
     for( auto& stream : klv_streams )
@@ -1596,7 +1845,10 @@ ffmpeg_video_input::priv::open_video_state
 {
   ffmpeg_video_settings_uptr result{ new ffmpeg_video_settings{} };
   result->frame_rate = frame_rate();
-  result->klv_stream_count = klv_streams.size();
+  for( auto const& stream : klv_streams )
+  {
+    result->klv_streams.emplace_back( stream.settings() );
+  }
   result->start_timestamp = format_context->start_time;
 
   if( codec_context )
@@ -1632,7 +1884,7 @@ ffmpeg_video_input
   set_capability( kva::video_input::HAS_TIMEOUT, false );
   set_capability( kva::video_input::IS_SEEKABLE, true );
   set_capability( kva::video_input::HAS_RAW_IMAGE, true );
-  set_capability( kva::video_input::HAS_RAW_METADATA, false );
+  set_capability( kva::video_input::HAS_RAW_METADATA, true );
 
   ffmpeg_init();
 }
@@ -1924,6 +2176,18 @@ ffmpeg_video_input
     return nullptr;
   }
 
+  for( auto& stream : d->video->klv_streams )
+  {
+    for( auto& packet : stream.this_frame_buffer )
+    {
+      ffmpeg_video_raw_metadata::packet_info info;
+      info.packet = std::move( packet );
+      info.stream_settings = stream.settings();
+      d->video->frame->get_raw_metadata().packets
+        .emplace_back( std::move( info ) );
+    }
+    stream.this_frame_buffer.clear();
+  }
   return d->video->frame->raw_metadata;
 }
 

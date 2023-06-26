@@ -397,7 +397,7 @@ ffmpeg_video_output
   result->frame_rate = d->video->video_stream->avg_frame_rate;
   avcodec_parameters_from_context( result->parameters.get(),
                                    d->video->codec_context.get() );
-  result->klv_stream_count = 0; // TODO
+  result->klv_streams = {};
   result->start_timestamp = d->video->format_context->start_time;
   return kwiver::vital::video_settings_uptr{ result };
 }
