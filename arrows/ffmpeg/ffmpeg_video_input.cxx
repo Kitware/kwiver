@@ -1310,14 +1310,6 @@ ffmpeg_video_input::priv::open_video_state
     return;
   }
 
-  // Clear current state
-  at_eof = false;
-  frame.reset();
-  for( auto& stream : klv_streams )
-  {
-    stream.reset();
-  }
-
   // Get to the desired frame by seeking some number of frames before it, then
   // iterating forward. If we still don't have a frame image for that frame,
   // try again by seeking even further back. Finding the last keyframe is
@@ -1328,6 +1320,14 @@ ffmpeg_video_input::priv::open_video_state
   constexpr size_t maximum_attempts = 5;
   for( size_t i = 0; i < maximum_attempts; ++i )
   {
+    // Clear current state
+    at_eof = false;
+    frame.reset();
+    for( auto& stream : klv_streams )
+    {
+      stream.reset();
+    }
+
     // Increasing backstep intervals on further tries
     size_t const backstep = i ? ( ( 1 << ( i - 1 ) ) * backstep_size ) : 1;
 
