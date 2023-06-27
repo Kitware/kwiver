@@ -28,6 +28,8 @@ Arrows: FFmpeg
 
 * Improved probing behavior and increased duration.
 
+* Ensured proper clearing of video state even when seek attempts fail.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.
