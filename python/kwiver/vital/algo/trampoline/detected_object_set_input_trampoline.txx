@@ -56,14 +56,14 @@ class detected_object_set_input_trampoline :
       pybind11::gil_scoped_acquire gil;
       pybind11::function overload = pybind11::get_overload(static_cast<dosi const*>(this), "read_set");
       if (overload) {
-	auto o = overload();
-	if (pybind11::isinstance<pybind11::none>(o)) {
-	  return false;
-	}
-	std::tie(set, image_path) = o.cast<std::tuple<kwiver::vital::detected_object_set_sptr, std::string>>();
-	return true;
+        auto o = overload();
+        if (pybind11::isinstance<pybind11::none>(o)) {
+          return false;
+        }
+        std::tie(set, image_path) = o.cast<std::tuple<kwiver::vital::detected_object_set_sptr, std::string>>();
+        return true;
       } else {
-	pybind11::pybind11_fail("Tried to call pure virtual function \"dosi::read_set\"");
+        pybind11::pybind11_fail("Tried to call pure virtual function \"dosi::read_set\"");
       }
     }
 
@@ -73,7 +73,7 @@ class detected_object_set_input_trampoline :
         void,
         dosi,
         open,
-	filename
+        filename
       );
     }
 
