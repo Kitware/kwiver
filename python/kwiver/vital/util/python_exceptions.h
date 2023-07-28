@@ -51,7 +51,7 @@ void VITAL_PYTHON_UTIL_EXPORT python_print_exception();
   }                                                                 \
   catch ( std::exception const& e )                                 \
   {                                                                 \
-    pybind11::gil_scoped_acquire acquire;              \
+    pybind11::gil_scoped_acquire acquire;                           \
     (void) acquire;                                                 \
     PyErr_SetString( PyExc_RuntimeError, e.what() );                \
                                                                     \
