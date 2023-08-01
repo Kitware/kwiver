@@ -148,7 +148,12 @@ include_directories(SYSTEM ${PYTHON_INCLUDE_DIR})
 ###
 # Temporary fix around some kwiver/cmake find python issues
 #
-if(NOT EXISTS ${PYTHON_LIBRARY})
+if( "${PYTHON_LIBRARIES}" MATCHES "^.*;.*$" )
+  list( GET PYTHON_LIBRARIES 1 PYTHON_LIBRARY )
+  set( PYTHON_LIBRARIES "${PYTHON_LIBRARY}" CACHE INTERNAL "Auto-convert python library" )
+endif()
+
+if(NOT EXISTS "${PYTHON_LIBRARY}")
   string(REPLACE "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}m"
                  "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}"
                  PYTHON_LIBRARY
