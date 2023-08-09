@@ -6,6 +6,9 @@ Updates
 
 Bug Fixes
 ---------
+* Fix for NVIDIA updating and rotating the signing keys used by apt
+  package managers beginning April 27, 2022 which results in a key
+  verification error when building the docker image for kwiver.
 
 Arrows: KLV
 
