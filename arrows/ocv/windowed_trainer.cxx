@@ -84,6 +84,7 @@ public:
     , m_random_validation( 0.0 )
     , m_ignore_category( "false_alarm" )
     , m_min_train_box_length( 0 )
+    , m_min_train_box_edge_dist( 0 )
     , m_small_box_area( 0 )
     , m_small_action( "" )
     , m_synthetic_labels( true )
@@ -116,6 +117,7 @@ public:
   double m_random_validation;
   std::string m_ignore_category;
   int m_min_train_box_length;
+  double m_min_train_box_edge_dist;
   int m_small_box_area;
   std::string m_small_action;
 
@@ -226,6 +228,9 @@ windowed_trainer
   config->set_value( "min_train_box_length", d->m_min_train_box_length,
     "If a box resizes to smaller than this during training, the input frame " 
     "will not be used in training." );
+  config->set_value( "min_train_box_edge_dist", d->m_min_train_box_edge_dist,
+    "If non-zero and a box is within a chip boundary adjusted by this many "
+    "pixels, do not train on the chip." );
   config->set_value( "small_box_area", d->m_small_box_area,
     "If a box resizes to smaller than this during training, consider it a small "
     "detection which might lead to several modifications to it." );
@@ -275,6 +280,7 @@ windowed_trainer
   this->d->m_random_validation = config->get_value< double >( "random_validation" );
   this->d->m_ignore_category = config->get_value< std::string >( "ignore_category" );
   this->d->m_min_train_box_length = config->get_value< int >( "min_train_box_length" );
+  this->d->m_min_train_box_edge_dist = config->get_value< double >( "min_train_box_edge_dist" );
   this->d->m_small_box_area = config->get_value< int >( "small_box_area" );
   this->d->m_small_action = config->get_value< std::string >( "small_action" );
 
@@ -791,6 +797,15 @@ windowed_trainer::priv
       double max_x = det_box.max_x() - region.min_x();
       double max_y = det_box.max_y() - region.min_y();
 
+      if( m_min_train_box_edge_dist != 0 &&
+          ( min_x <= m_min_train_box_edge_dist ||
+            min_y <= m_min_train_box_edge_dist ||
+            max_x >= region.width() - m_min_train_box_edge_dist ||
+            max_y >= region.height() - m_min_train_box_edge_dist ) )
+      {
+        return false;
+      }
+
       vital::bounding_box_d bbox( min_x, min_y, max_x, max_y );
 
       auto odet = (*detection)->clone();
@@ -801,6 +816,10 @@ windowed_trainer::priv
         if( m_small_action == "remove" )
         {
           continue;
+        }
+        else if( m_small_action == "skip-chip" )
+        {
+          return false;
         }
 
         auto dot_ovr = std::make_shared< kwiver::vital::detected_object_type >(
