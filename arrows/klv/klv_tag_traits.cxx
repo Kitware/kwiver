@@ -141,6 +141,12 @@ klv_tag_traits
 
 // ----------------------------------------------------------------------------
 klv_tag_traits_lookup
+::klv_tag_traits_lookup()
+  : m_traits{}
+{}
+
+// ----------------------------------------------------------------------------
+klv_tag_traits_lookup
 ::klv_tag_traits_lookup( std::initializer_list< klv_tag_traits > const& traits )
   : m_traits{ traits.begin(), traits.end() }
 {
@@ -153,6 +159,28 @@ klv_tag_traits_lookup
   : m_traits{ traits.begin(), traits.end() }
 {
   initialize();
+}
+
+// ----------------------------------------------------------------------------
+klv_tag_traits_lookup
+::klv_tag_traits_lookup( klv_tag_traits_lookup const& other )
+  : m_traits( other.m_traits )
+{
+  initialize();
+}
+
+// ----------------------------------------------------------------------------
+klv_tag_traits_lookup&
+klv_tag_traits_lookup
+::operator=( klv_tag_traits_lookup const& other )
+{
+  m_tag_to_traits.clear();
+  m_uds_key_to_traits.clear();
+  m_name_to_traits.clear();
+  m_enum_name_to_traits.clear();
+  m_traits = other.m_traits;
+  initialize();
+  return *this;
 }
 
 // ----------------------------------------------------------------------------
@@ -220,11 +248,6 @@ void
 klv_tag_traits_lookup
 ::initialize()
 {
-  if( m_traits.empty() )
-  {
-    throw std::logic_error( "tag traits cannot be empty" );
-  }
-
   for( auto const& trait : m_traits )
   {
     if( trait.tag() && !m_tag_to_traits.emplace( trait.tag(), &trait ).second )
