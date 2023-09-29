@@ -557,6 +557,9 @@ ffmpeg_video_output::impl::open_video_state
     throw_error_null(
       avcodec_alloc_context3( codec ), "Could not allocate codec context" ) );
 
+  codec_context->thread_count = 0;
+  codec_context->thread_type = FF_THREAD_FRAME;
+
   // Fill in fields from given settings
   if( codec->id == settings.parameters->codec_id )
   {

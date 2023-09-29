@@ -1003,6 +1003,9 @@ ffmpeg_video_input::priv::open_video_state
       av_buffer_ref( parent->hardware_device_context.get() );
   }
 
+  codec_context->thread_count = 0;
+  codec_context->thread_type = FF_THREAD_FRAME;
+
   // Open codec
   auto const err = avcodec_open2( codec_context.get(), codec, NULL );
   if( err < 0 )
