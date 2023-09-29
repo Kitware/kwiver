@@ -626,7 +626,12 @@ ffmpeg_video_output::impl::open_video_state
   video_stream->codecpar->height = codec_context->height;
   video_stream->codecpar->format = codec_context->pix_fmt;
 
-  auto const err = avcodec_open2( codec_context.get(), codec, nullptr );
+  AVDictionary* codec_options = nullptr;
+  for( auto const& entry : settings.codec_options )
+  {
+    av_dict_set( &codec_options, entry.first.c_str(), entry.second.c_str(), 0 );
+  }
+  auto const err = avcodec_open2( codec_context.get(), codec, &codec_options );
   if( err < 0 )
   {
     LOG_WARN(

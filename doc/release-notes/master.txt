@@ -30,6 +30,8 @@ Arrows: FFmpeg
 
 * Ensured proper clearing of video state even when seek attempts fail.
 
+* Exposed codec options in ffmpeg_video_settings.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.
