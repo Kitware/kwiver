@@ -63,6 +63,9 @@
 
 include(GoogleTest)
 
+set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVERY_MODE PRE_TEST CACHE STRING
+    "When to run test discovery: POST_BUILD or PRE_TEST")
+
 option(KWIVER_TEST_ADD_TARGETS "Add targets for tests to the build system" OFF)
 mark_as_advanced(KWIVER_TEST_ADD_TARGETS)
 if (KWIVER_TEST_ADD_TARGETS)
