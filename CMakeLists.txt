@@ -19,6 +19,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Set default visibility
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
+# Allow capitalized _ROOT variables
+if(POLICY_CMP0144)
+  cmake_policy(SET CMP0144 NEW)
+endif()
+
 # Organize target into folders for IDEs that support it
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
