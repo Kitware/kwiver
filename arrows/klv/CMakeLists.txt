@@ -17,6 +17,7 @@ set( sources
   klv_packet.cxx
   klv_read_write.cxx
   klv_set.cxx
+  klv_stream_settings.cxx
   klv_string.cxx
   klv_tag_traits.cxx
   klv_timeline.cxx
@@ -77,6 +78,7 @@ set( public_headers
   klv_read_write.h
   klv_series.h
   klv_set.h
+  klv_stream_settings.h
   klv_string.h
   klv_timeline.h
   klv_types.h

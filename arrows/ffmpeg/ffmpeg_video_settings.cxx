@@ -20,7 +20,7 @@ ffmpeg_video_settings
 ::ffmpeg_video_settings()
   : frame_rate{ 0, 1 },
     parameters{ avcodec_parameters_alloc() },
-    klv_stream_count{ 0 },
+    klv_streams{},
     start_timestamp{ AV_NOPTS_VALUE },
     codec_options{}
 {
@@ -36,7 +36,7 @@ ffmpeg_video_settings
 ::ffmpeg_video_settings( ffmpeg_video_settings const& other )
   : frame_rate{ other.frame_rate },
     parameters{ avcodec_parameters_alloc() },
-    klv_stream_count{ other.klv_stream_count },
+    klv_streams{ other.klv_streams },
     start_timestamp{ other.start_timestamp },
     codec_options{ other.codec_options }
 {
@@ -50,7 +50,7 @@ ffmpeg_video_settings
 ::ffmpeg_video_settings( ffmpeg_video_settings&& other )
   : frame_rate{ std::move( other.frame_rate ) },
     parameters{ std::move( other.parameters ) },
-    klv_stream_count{ std::move( other.klv_stream_count ) },
+    klv_streams{ std::move( other.klv_streams ) },
     start_timestamp{ other.start_timestamp },
     codec_options{ std::move( other.codec_options ) }
 {}
@@ -60,10 +60,10 @@ ffmpeg_video_settings
 ::ffmpeg_video_settings(
   size_t width, size_t height,
   AVRational frame_rate,
-  size_t klv_stream_count )
+  std::vector< klv::klv_stream_settings > const& klv_streams )
   : frame_rate( frame_rate ),
     parameters{ avcodec_parameters_alloc() },
-    klv_stream_count{ klv_stream_count },
+    klv_streams{ klv_streams },
     start_timestamp{ AV_NOPTS_VALUE },
     codec_options{}
 {
@@ -91,7 +91,7 @@ ffmpeg_video_settings
   throw_error_code(
     avcodec_parameters_copy( parameters.get(), other.parameters.get() ),
     "Could not copy codec parameters" );
-  klv_stream_count = other.klv_stream_count;
+  klv_streams = other.klv_streams;
   start_timestamp = other.start_timestamp;
   codec_options = other.codec_options;
   return *this;
@@ -104,7 +104,7 @@ ffmpeg_video_settings
 {
   frame_rate = std::move( other.frame_rate );
   parameters = std::move( other.parameters );
-  klv_stream_count = std::move( other.klv_stream_count );
+  klv_streams = std::move( other.klv_streams );
   start_timestamp = std::move( other.start_timestamp );
   codec_options = std::move( other.codec_options );
   return *this;

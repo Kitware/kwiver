@@ -14,7 +14,11 @@ namespace arrows {
 namespace ffmpeg {
 
 ffmpeg_video_raw_image
-::ffmpeg_video_raw_image() : packets{}
+::ffmpeg_video_raw_image()
+  : packets{},
+    frame_dts{ AV_NOPTS_VALUE },
+    frame_pts{ AV_NOPTS_VALUE },
+    is_keyframe{ true }
 {}
 
 } // namespace ffmpeg

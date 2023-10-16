@@ -34,6 +34,8 @@ Arrows: FFmpeg
 
 * Optimized copying behavior when encoding frames.
 
+* Implemented packet lookahead to ensure stream synchronization.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.

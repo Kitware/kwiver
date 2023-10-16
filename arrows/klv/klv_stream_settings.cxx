@@ -3,27 +3,33 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// Implementation of FFmpeg video raw metadata.
+/// Implementation of settings structure for the creation of a klv stream.
 
-#include "ffmpeg_video_raw_metadata.h"
+#include "klv_stream_settings.h"
+
+#include <climits>
 
 namespace kwiver {
 
 namespace arrows {
 
-namespace ffmpeg {
+namespace klv {
 
 // ----------------------------------------------------------------------------
-ffmpeg_video_raw_metadata
-::ffmpeg_video_raw_metadata() : packets{}
+klv_stream_settings
+::klv_stream_settings()
+  : type{ KLV_STREAM_TYPE_ASYNC },
+    index{ INT_MIN }
 {}
 
 // ----------------------------------------------------------------------------
-ffmpeg_video_raw_metadata::packet_info
-::packet_info() : packet{}, stream_settings{}
-{}
+bool operator==( klv_stream_settings const& lhs,
+                 klv_stream_settings const& rhs )
+{
+  return lhs.type == rhs.type && lhs.index == rhs.index;
+}
 
-} // namespace ffmpeg
+} // namespace klv
 
 } // namespace arrows
 
