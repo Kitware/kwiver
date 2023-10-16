@@ -32,6 +32,8 @@ Arrows: FFmpeg
 
 * Exposed codec options in ffmpeg_video_settings.
 
+* Optimized copying behavior when encoding frames.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.

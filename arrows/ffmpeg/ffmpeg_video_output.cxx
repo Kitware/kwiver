@@ -678,24 +678,43 @@ ffmpeg_video_output::impl::open_video_state
 
   // Give the frame the raw pixel data
   {
-    size_t index = 0;
-    auto ptr = static_cast< uint8_t* >( image->get_image().first_pixel() );
+    auto ptr =
+      static_cast< uint8_t const* >( image->get_image().first_pixel() );
     auto const i_step = image->get_image().h_step();
     auto const j_step = image->get_image().w_step();
     auto const k_step = image->get_image().d_step();
-    for( size_t i = 0; i < image->height(); ++i )
+    if( j_step == static_cast< ptrdiff_t >( image->depth() ) &&
+        k_step == static_cast< ptrdiff_t >( 1 ) )
     {
-      for( size_t j = 0; j < image->width(); ++j )
+      for( size_t i = 0; i < image->height(); ++i )
       {
-        for( size_t k = 0; k < image->depth(); ++k )
-        {
-          frame->data[ 0 ][ index++ ] = *ptr;
-          ptr += k_step;
-        }
-        ptr += j_step - k_step * image->depth();
+        std::memcpy(
+          frame->data[ 0 ] + i * frame->linesize[ 0 ], ptr + i * i_step,
+          image->width() * image->depth() );
       }
-      ptr += i_step - j_step * image->width();
-      index += frame->linesize[ 0 ] - image->width() * image->depth();
+    }
+    else
+    {
+      auto const i_step_ptr = i_step - j_step * image->width();
+      auto const j_step_ptr = j_step - k_step * image->depth();
+      auto const k_step_ptr = k_step;
+      auto const i_step_index =
+        frame->linesize[ 0 ] - image->width() * image->depth();
+      size_t index = 0;
+      for( size_t i = 0; i < image->height(); ++i )
+      {
+        for( size_t j = 0; j < image->width(); ++j )
+        {
+          for( size_t k = 0; k < image->depth(); ++k )
+          {
+            frame->data[ 0 ][ index++ ] = *ptr;
+            ptr += k_step_ptr;
+          }
+          ptr += j_step_ptr;
+        }
+        ptr += i_step_ptr;
+        index += i_step_index;
+      }
     }
   }
 
