@@ -35,6 +35,7 @@ public:
     kv::timestamp timestamp;
     kv::image_container_sptr image;
     kv::video_raw_image_sptr raw_image;
+    kv::video_uninterpreted_data_sptr uninterpreted_data;
   };
 
   kv::algo::video_input_sptr video_input;
@@ -50,7 +51,8 @@ video_input_buffered_metadata_filter::impl::frame_info
 ::frame_info( kv::algo::video_input& input )
   : timestamp{ input.frame_timestamp() },
     image{ input.frame_image() },
-    raw_image{ input.raw_frame_image() }
+    raw_image{ input.raw_frame_image() },
+    uninterpreted_data{ input.uninterpreted_frame_data() }
 {}
 
 // ----------------------------------------------------------------------------
@@ -148,7 +150,8 @@ video_input_buffered_metadata_filter
     vi::HAS_ABSOLUTE_FRAME_TIME,
     vi::HAS_TIMEOUT,
     vi::HAS_RAW_IMAGE,
-    vi::HAS_RAW_METADATA, } )
+    vi::HAS_RAW_METADATA,
+    vi::HAS_UNINTERPRETED_DATA, } )
   {
     set_capability( capability, capabilities.capability( capability ) );
   }
@@ -343,6 +346,19 @@ video_input_buffered_metadata_filter
   }
 
   return d->frame_metadata;
+}
+
+// ----------------------------------------------------------------------------
+vital::video_uninterpreted_data_sptr
+video_input_buffered_metadata_filter
+::uninterpreted_frame_data()
+{
+  if( end_of_video() || d->frames.empty() )
+  {
+    return nullptr;
+  }
+
+  return d->frames.front().uninterpreted_data;
 }
 
 // ----------------------------------------------------------------------------

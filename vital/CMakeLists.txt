@@ -166,6 +166,7 @@ set( vital_public_headers
   types/video_raw_image.h
   types/video_raw_metadata.h
   types/video_settings.h
+  types/video_uninterpreted_data.h
 )
 
 # ----------------------
@@ -236,6 +237,7 @@ set( vital_sources
   types/video_raw_image.cxx
   types/video_raw_metadata.cxx
   types/video_settings.cxx
+  types/video_uninterpreted_data.cxx
   types/uid.cxx
 )
 
