@@ -434,7 +434,7 @@ klv_1303_mdap_format< Format >
   // Array processing algorithm parameters
   std::unique_ptr< klv_data_format > format;
   uint64_t uint_bias;
-  element_t rle_default_element;
+  element_t rle_default_element = {};
   switch( result.apa )
   {
     case KLV_1303_APA_IMAP:
