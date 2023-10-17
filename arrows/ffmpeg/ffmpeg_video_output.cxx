@@ -10,6 +10,7 @@
 #include "arrows/ffmpeg/ffmpeg_video_output.h"
 #include "arrows/ffmpeg/ffmpeg_video_raw_image.h"
 #include "arrows/ffmpeg/ffmpeg_video_settings.h"
+#include "arrows/ffmpeg/ffmpeg_video_uninterpreted_data.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -18,6 +19,7 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <list>
 #include <optional>
 
 namespace kv = kwiver::vital;
@@ -27,6 +29,65 @@ namespace kwiver {
 namespace arrows {
 
 namespace ffmpeg {
+
+namespace {
+
+// ----------------------------------------------------------------------------
+struct ffmpeg_audio_stream
+{
+  ffmpeg_audio_stream(
+    AVFormatContext* format_context,
+    ffmpeg_audio_stream_settings const& settings );
+
+  ffmpeg_audio_stream( ffmpeg_audio_stream const& ) = delete;
+  ffmpeg_audio_stream( ffmpeg_audio_stream&& ) = delete;
+
+  ffmpeg_audio_stream_settings settings;
+  AVStream* stream;
+};
+
+// ----------------------------------------------------------------------------
+ffmpeg_audio_stream
+::ffmpeg_audio_stream(
+    AVFormatContext* format_context,
+    ffmpeg_audio_stream_settings const& settings )
+  : settings{ settings },
+    stream{ nullptr }
+{
+  auto const codec =
+    throw_error_null(
+      avcodec_find_encoder( settings.parameters->codec_id ),
+      "Could not find audio codec for stream ", settings.index );
+
+  codec_context_uptr codec_context{
+    throw_error_null(
+      avcodec_alloc_context3( codec ), "Could not allocate codec context" ) };
+
+  throw_error_code(
+    avcodec_parameters_to_context(
+      codec_context.get(), settings.parameters.get() ) );
+
+  codec_context->time_base = settings.time_base;
+
+  throw_error_code(
+    avcodec_open2( codec_context.get(), codec, nullptr ),
+    "Could not open audio codec"
+  );
+
+  stream =
+    throw_error_null(
+      avformat_new_stream( format_context, codec ),
+      "Could not allocate audio stream" );
+
+  throw_error_code(
+    avcodec_parameters_copy( stream->codecpar, settings.parameters.get() ),
+    "Could not copy codec parameters"
+  );
+
+  stream->time_base = codec_context->time_base;
+}
+
+} // namespace <anonymous>
 
 // ----------------------------------------------------------------------------
 class ffmpeg_video_output::impl
@@ -45,11 +106,13 @@ public:
     open_video_state&
     operator=( open_video_state&& ) = default;
 
-    bool try_codec( ffmpeg_video_settings const& settings );
+    bool try_codec();
 
     void add_image(
       kv::image_container_sptr const& image, kv::timestamp const& ts );
     void add_image( vital::video_raw_image const& image );
+    void add_uninterpreted_data(
+      vital::video_uninterpreted_data const& misc_data );
 
     bool write_next_packet();
     void write_remaining_packets();
@@ -65,12 +128,16 @@ public:
 #else
     AVOutputFormat* output_format;
 #endif
+    ffmpeg_video_settings video_settings;
     AVStream* video_stream;
     AVStream* metadata_stream;
     codec_context_uptr codec_context;
     AVCodec const* codec;
     sws_context_uptr image_conversion_context;
+    bsf_context_uptr annex_b_bsf;
     int64_t prev_video_dts;
+
+    std::list< ffmpeg_audio_stream > audio_streams;
   };
 
   impl();
@@ -384,6 +451,15 @@ ffmpeg_video_output
 }
 
 // ----------------------------------------------------------------------------
+void
+ffmpeg_video_output
+::add_uninterpreted_data( vital::video_uninterpreted_data const& misc_data )
+{
+  d->assert_open( "add_image()" );
+  d->video->add_uninterpreted_data( misc_data );
+}
+
+// ----------------------------------------------------------------------------
 vital::video_settings_uptr
 ffmpeg_video_output
 ::implementation_settings() const
@@ -398,6 +474,11 @@ ffmpeg_video_output
   avcodec_parameters_from_context( result->parameters.get(),
                                    d->video->codec_context.get() );
   result->klv_streams = {};
+  for( auto const& stream : d->video->audio_streams )
+  {
+    result->audio_streams.emplace_back( stream.settings );
+  }
+  result->time_base = d->video->video_stream->time_base;
   result->start_timestamp = d->video->format_context->start_time;
   return kwiver::vital::video_settings_uptr{ result };
 }
@@ -411,6 +492,7 @@ ffmpeg_video_output::impl::open_video_state
     frame_count{ 0 },
     format_context{ nullptr },
     output_format{ nullptr },
+    video_settings{ settings },
     video_stream{ nullptr },
     metadata_stream{ nullptr },
     codec_context{ nullptr },
@@ -431,6 +513,8 @@ ffmpeg_video_output::impl::open_video_state
 
   // Set timestamp value to start at
   format_context->output_ts_offset = settings.start_timestamp;
+  format_context->flags |= AVFMT_FLAG_AUTO_BSF;
+  format_context->flags |= AVFMT_FLAG_GENPTS;
 
   // Prioritization scheme for codecs:
   // (1) Match ffmpeg settings passed to constructor if present
@@ -489,7 +573,7 @@ ffmpeg_video_output::impl::open_video_state
   for( auto const possible_codec : possible_codecs )
   {
     codec = possible_codec;
-    if( try_codec( settings ) )
+    if( try_codec() )
     {
       break;
     }
@@ -509,20 +593,26 @@ ffmpeg_video_output::impl::open_video_state
   av_dump_format(
     format_context.get(), video_stream->index, video_name.c_str(), 1 );
 
+  for( auto const& stream_settings : settings.audio_streams )
+  {
+    audio_streams.emplace_back( format_context.get(), stream_settings );
+    av_dump_format(
+      format_context.get(),
+      audio_streams.back().stream->index, video_name.c_str(), 1 );
+  }
+
   // Open streams
   throw_error_code(
     avio_open( &format_context->pb, video_name.c_str(), AVIO_FLAG_WRITE ),
     "Could not open `", video_name, "` for writing" );
 
-  auto const output_status =
-    avformat_init_output( format_context.get(), nullptr );
-  if( output_status == AVSTREAM_INIT_IN_WRITE_HEADER )
-  {
-    throw_error_code(
-      avformat_write_header( format_context.get(), nullptr ),
-      "Could not write video header" );
-  }
-  throw_error_code( output_status, "Could not initialize output stream" );
+  throw_error_code(
+    avformat_write_header( format_context.get(), nullptr ),
+    "Could not write video header" );
+
+  throw_error_code(
+    avformat_init_output( format_context.get(), nullptr ),
+    "Could not initialize output stream" );
 }
 
 // ----------------------------------------------------------------------------
@@ -547,7 +637,7 @@ ffmpeg_video_output::impl::open_video_state
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_output::impl::open_video_state
-::try_codec( ffmpeg_video_settings const& settings )
+::try_codec()
 {
   LOG_DEBUG(
     parent->logger, "Trying output codec: " << pretty_codec_name( codec ) );
@@ -561,19 +651,19 @@ ffmpeg_video_output::impl::open_video_state
   codec_context->thread_type = FF_THREAD_FRAME;
 
   // Fill in fields from given settings
-  if( codec->id == settings.parameters->codec_id )
+  if( codec->id == video_settings.parameters->codec_id )
   {
     throw_error_code(
       avcodec_parameters_to_context(
-        codec_context.get(), settings.parameters.get() ) );
+        codec_context.get(), video_settings.parameters.get() ) );
   }
   else
   {
-    codec_context->width = settings.parameters->width;
-    codec_context->height = settings.parameters->height;
+    codec_context->width = video_settings.parameters->width;
+    codec_context->height = video_settings.parameters->height;
   }
-  codec_context->time_base = av_inv_q( settings.frame_rate );
-  codec_context->framerate = settings.frame_rate;
+  codec_context->time_base = av_inv_q( video_settings.frame_rate );
+  codec_context->framerate = video_settings.frame_rate;
 
   // Fill in backup parameters from config
   if( codec_context->pix_fmt < 0 )
@@ -627,7 +717,7 @@ ffmpeg_video_output::impl::open_video_state
   video_stream->codecpar->format = codec_context->pix_fmt;
 
   AVDictionary* codec_options = nullptr;
-  for( auto const& entry : settings.codec_options )
+  for( auto const& entry : video_settings.codec_options )
   {
     av_dict_set( &codec_options, entry.first.c_str(), entry.second.c_str(), 0 );
   }
@@ -771,6 +861,41 @@ ffmpeg_video_output::impl::open_video_state
 {
   auto const& ffmpeg_image =
     dynamic_cast< ffmpeg_video_raw_image const& >( image );
+
+  // Initialize bitstream filters
+  if( !annex_b_bsf &&
+      ( codec_context->codec_id == AV_CODEC_ID_H264 ||
+        codec_context->codec_id == AV_CODEC_ID_H265 ) )
+  {
+    // Find filter
+    auto const bsf_name =
+      ( codec_context->codec_id == AV_CODEC_ID_H264 )
+      ? "h264_mp4toannexb"
+      : "hevc_mp4toannexb";
+    auto const bsf = av_bsf_get_by_name( bsf_name );
+
+    if( bsf )
+    {
+      // Allocate filter context
+      AVBSFContext* bsf_context = nullptr;
+      av_bsf_alloc( bsf, &bsf_context );
+      annex_b_bsf.reset(
+        throw_error_null( bsf_context, "Could not allocate BSF context" ) );
+
+      // Fill in filter parameters
+      throw_error_code(
+        avcodec_parameters_copy(
+          annex_b_bsf->par_in, video_settings.parameters.get() ),
+        "Could not copy codec parameters" );
+      annex_b_bsf->time_base_in = video_settings.time_base;
+
+      // Initialize filter
+      throw_error_code(
+        av_bsf_init( annex_b_bsf.get() ),
+        "Could not initialize Annex B filter" );
+    }
+  }
+
   for( auto const& packet : ffmpeg_image.packets )
   {
     // Ensure this packet has sensible timestamps or FFmpeg will complain
@@ -785,14 +910,26 @@ ffmpeg_video_output::impl::open_video_state
       continue;
     }
 
+    // Record this DTS for next time
+    prev_video_dts = packet->dts;
+
     // Copy the packet so we can switch the video stream index
     packet_uptr tmp_packet{
       throw_error_null(
         av_packet_clone( packet.get() ), "Could not copy video packet" ) };
     tmp_packet->stream_index = video_stream->index;
 
-    // Record this DTS for next time
-    prev_video_dts = packet->dts;
+    // Convert MP4-compatible H.264/H.265 to TS-compatible
+    if( annex_b_bsf )
+    {
+      throw_error_code(
+        av_bsf_send_packet( annex_b_bsf.get(), tmp_packet.get() ) );
+      throw_error_code(
+        av_bsf_receive_packet( annex_b_bsf.get(), tmp_packet.get() ) );
+    }
+
+    av_packet_rescale_ts(
+      tmp_packet.get(), video_settings.time_base, video_stream->time_base );
 
     // Write the packet
     throw_error_code(
@@ -800,6 +937,51 @@ ffmpeg_video_output::impl::open_video_state
       "Could not write frame to file" );
   }
   ++frame_count;
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_output::impl::open_video_state
+::add_uninterpreted_data( vital::video_uninterpreted_data const& misc_data )
+{
+  auto const& ffmpeg_data =
+    dynamic_cast< ffmpeg_video_uninterpreted_data const& >( misc_data );
+
+  for( auto const& packet : ffmpeg_data.audio_packets )
+  {
+    for( auto const& stream : audio_streams )
+    {
+      if( stream.settings.index != packet->stream_index )
+      {
+        continue;
+      }
+
+      // Copy the packet to switch the stream index
+      packet_uptr tmp_packet{
+        throw_error_null(
+          av_packet_clone( packet.get() ), "Could not copy audio packet" ) };
+      tmp_packet->stream_index = stream.stream->index;
+
+      av_packet_rescale_ts(
+        tmp_packet.get(), stream.settings.time_base, stream.stream->time_base );
+
+      // Adjust for any global timestamp offset
+      auto const counter_offset =
+        av_rescale_q(
+          format_context->output_ts_offset,
+          AVRational{ 1, AV_TIME_BASE },
+          stream.stream->time_base );
+      tmp_packet->dts -= counter_offset;
+      tmp_packet->pts -= counter_offset;
+
+      // Write the packet
+      throw_error_code(
+        av_interleaved_write_frame( format_context.get(), tmp_packet.get() ),
+        "Could not write frame to file" );
+
+      break;
+    }
+  }
 }
 
 // ----------------------------------------------------------------------------

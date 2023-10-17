@@ -57,6 +57,9 @@ public:
 
   void add_metadata( vital::metadata const& md ) override;
 
+  void add_uninterpreted_data(
+    vital::video_uninterpreted_data const& misc_data ) override;
+
   vital::video_settings_uptr implementation_settings() const override;
 
 private:

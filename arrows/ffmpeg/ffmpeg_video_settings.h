@@ -9,6 +9,7 @@
 #define KWIVER_ARROWS_FFMPEG_FFMPEG_VIDEO_SETTINGS_H_
 
 #include <arrows/ffmpeg/ffmpeg_util.h>
+#include <arrows/ffmpeg/ffmpeg_audio_stream_settings.h>
 #include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
 
 #include <arrows/klv/klv_stream_settings.h>
@@ -51,6 +52,8 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   AVRational frame_rate;
   codec_parameters_uptr parameters;
   std::vector< klv::klv_stream_settings > klv_streams;
+  std::vector< ffmpeg_audio_stream_settings > audio_streams;
+  AVRational time_base;
   int64_t start_timestamp; // In AV_TIME_BASE units
   std::map< std::string, std::string > codec_options;
 };
