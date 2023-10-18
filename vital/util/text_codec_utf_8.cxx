@@ -9,6 +9,8 @@
 
 #include <vital/util/text_codec_priv.h>
 
+#include <cstdint>
+
 namespace kwiver {
 
 namespace vital {
