@@ -97,7 +97,7 @@ class mesh_vertex_array : public mesh_vertex_array_base
   ///
   /// \note Eigen::Matrix<double,2,1> == vector_2d
   ///   and Eigen::Matrix<double,3,1> == vector_3d
-  typedef Eigen::Matrix< double, 3, 1 > vert_t;
+  typedef Eigen::Matrix< double, d, 1 > vert_t;
 
   /// vector of d-dimensional points
   std::vector< vert_t > verts_;
