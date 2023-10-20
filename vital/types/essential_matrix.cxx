@@ -58,26 +58,6 @@ essential_matrix_<T>
 {
 }
 
-/// Conversion Copy constructor -- float specialization
-template <>
-template <>
-essential_matrix_<float>
-::essential_matrix_( essential_matrix_<float> const &other )
-  : rot_( other.rot_ ),
-    trans_( other.trans_ )
-{
-}
-
-/// Conversion Copy constructor -- double specialization
-template <>
-template <>
-essential_matrix_<double>
-::essential_matrix_( essential_matrix_<double> const &other )
-  : rot_( other.rot_ ),
-    trans_( other.trans_ )
-{
-}
-
 /// Construct from a generic essential_matrix
 template <typename T>
 essential_matrix_<T>
