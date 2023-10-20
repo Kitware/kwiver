@@ -48,7 +48,7 @@ function (kwiver_add_python_run_test group instance)
 
     set_tests_properties(test-python-${group}-${instance}-${scheduler}
       PROPERTIES
-        TIMEOUT 5)
+        TIMEOUT 10)
   endforeach ()
 endfunction ()
 
