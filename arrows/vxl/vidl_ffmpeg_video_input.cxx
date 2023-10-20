@@ -26,6 +26,7 @@
 
 #include <kwiversys/SystemTools.hxx>
 
+#include <algorithm>
 #include <chrono>
 #include <memory>
 #include <mutex>
@@ -157,13 +158,15 @@ public:
 
     m_prev_misp_timestamp = m_curr_misp_timestamp;
 
-    auto it = md_buffer.cbegin();
-    while( it != md_buffer.cend() )
+    std::vector< klv::klv_packet > packets;
+    auto it = &*md_buffer.cbegin();
+    while( it != &*md_buffer.cend() )
     {
-      klv::klv_packet packet;
       try
       {
-        packet = klv::klv_read_packet( it, std::distance( it, md_buffer.cend() ) );
+        auto packet =
+          klv::klv_read_packet( it, std::distance( it, &*md_buffer.cend() ) );
+        packets.emplace_back( std::move( packet ) );
       }
       catch( kwiver::vital::metadata_buffer_overflow const& e )
       {
@@ -175,14 +178,15 @@ public:
         LOG_ERROR( d_logger, "error while parsing KLV packet: " << e.what() );
       }
 
+      auto const& packet = packets.back();
       if( klv::klv_lookup_packet_traits().by_uds_key( packet.key ).tag() !=
           klv::KLV_PACKET_MISB_1108_LOCAL_SET )
       {
         auto const timestamp = klv::klv_packet_timestamp( packet );
-        m_curr_misp_timestamp = std::max( m_curr_misp_timestamp, timestamp );
+        m_curr_misp_timestamp = std::max( m_curr_misp_timestamp, timestamp.value() );
       }
 
-      m_klv_demuxer.demux_packet( packet );
+      m_klv_demuxer.send_frame( packets, m_curr_misp_timestamp );
     }
 
     // Erase the bytes we just used
@@ -193,13 +197,13 @@ public:
                      std::next( md_buffer.begin(),
                                 std::distance( md_buffer.cbegin(), it ) ) );
 #else
-    md_buffer.erase( md_buffer.cbegin(), it );
+    md_buffer.erase( md_buffer.begin(),
+                     md_buffer.begin() + std::distance( &*md_buffer.cbegin(), it ) );
 #endif
 
     // Get the vital metadata structure for the current frame
     auto result =
-      klv::klv_to_vital_metadata( m_klv_timeline, { m_prev_misp_timestamp,
-                                                    m_curr_misp_timestamp } );
+      klv::klv_to_vital_metadata( m_klv_timeline, m_curr_misp_timestamp );
 
     // Add the frame timestamp to the metadata
     kwiver::vital::timestamp frame_timestamp;
@@ -301,11 +305,12 @@ public:
     do
     {
       auto const packet_data = d_video_stream.current_packet_data();
-      auto it = kwiver::arrows::klv::find_misp_timestamp( packet_data.cbegin(),
-                                                          packet_data.cend() );
-      if ( it != packet_data.cend() )
+      auto it = kwiver::arrows::klv::find_misp_timestamp( &*packet_data.cbegin(),
+                                                          &*packet_data.cend(),
+                                                          klv::MISP_TIMESTAMP_TAG_STRING );
+      if ( it != &*packet_data.cend() )
       {
-        meta_ts = kwiver::arrows::klv::read_misp_timestamp( it ).timestamp;
+        meta_ts = kwiver::arrows::klv::read_misp_timestamp( it ).microseconds().count();
         LOG_DEBUG( this->d_logger, "Found MISP frame time:" << meta_ts );
 
         d_have_abs_frame_time = true;
