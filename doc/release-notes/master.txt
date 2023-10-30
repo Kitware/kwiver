@@ -7,6 +7,10 @@ over the previous v1.8.0 release.
 Updates
 -------
 
+Vital: Types
+
+* Added interfaces for copying uninterpreted video data.
+
 Arrows: Core
 
 * Implemented the csv_reader reading std::optional fields.
@@ -15,6 +19,9 @@ Arrows: Core
 
 * Made the transcode applet ask for video settings slightly later, when they
   might be more accurate.
+
+* Added pass-throughs for uninterpreted video data in the metadata_filter and
+  buffered_metadata_filter video inputs.
 
 Arrows: FFmpeg
 

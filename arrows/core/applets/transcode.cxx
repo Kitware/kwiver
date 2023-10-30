@@ -190,6 +190,13 @@ transcode_applet
       }
     }
 
+    // Transcode uninterpreted data
+    auto const misc_data = input->uninterpreted_frame_data();
+    if( misc_data )
+    {
+      output->add_uninterpreted_data( *misc_data );
+    }
+
     // Transcode image
     if( cmd_args.count( "copy-video" ) )
     {

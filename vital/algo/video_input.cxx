@@ -27,6 +27,7 @@ algorithm_capabilities::capability_name_t const video_input::HAS_TIMEOUT( "has-t
 algorithm_capabilities::capability_name_t const video_input::IS_SEEKABLE( "is-seekable" );
 algorithm_capabilities::capability_name_t const video_input::HAS_RAW_IMAGE( "has-raw-image" );
 algorithm_capabilities::capability_name_t const video_input::HAS_RAW_METADATA( "has-raw-metadata" );
+algorithm_capabilities::capability_name_t const video_input::HAS_UNINTERPRETED_DATA( "has-uninterpreted-data" );
 
 // ----------------------------------------------------------------------------
 
@@ -64,6 +65,14 @@ video_input
 video_raw_metadata_sptr
 video_input
 ::raw_frame_metadata()
+{
+  return nullptr;
+}
+
+// ----------------------------------------------------------------------------
+video_uninterpreted_data_sptr
+video_input
+::uninterpreted_frame_data()
 {
   return nullptr;
 }

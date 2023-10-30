@@ -1885,6 +1885,7 @@ ffmpeg_video_input
   set_capability( kva::video_input::IS_SEEKABLE, true );
   set_capability( kva::video_input::HAS_RAW_IMAGE, true );
   set_capability( kva::video_input::HAS_RAW_METADATA, true );
+  set_capability( kva::video_input::HAS_UNINTERPRETED_DATA, false );
 
   ffmpeg_init();
 }

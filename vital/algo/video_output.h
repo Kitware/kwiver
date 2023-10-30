@@ -21,6 +21,7 @@
 #include <vital/types/video_raw_image.h>
 #include <vital/types/video_raw_metadata.h>
 #include <vital/types/video_settings.h>
+#include <vital/types/video_uninterpreted_data.h>
 
 #include <vital/vital_config.h>
 
@@ -60,6 +61,13 @@ public:
   /// This capability indicates if the implementation is able to write
   /// metadata.
   static const algorithm_capabilities::capability_name_t SUPPORTS_METADATA;
+
+  /// Writer can write uninterpreted data.
+  ///
+  /// This capability indicates if the implementation can take data which a
+  /// video input did not interpret and put it back in the video stream.
+  static const algorithm_capabilities::capability_name_t
+  SUPPORTS_UNINTERPRETED_DATA;
 
   virtual ~video_output();
 
@@ -132,10 +140,13 @@ public:
   /// This method writes the raw metadata to the video stream. There is no
   /// guarantee that this functions correctly when intermixed with non-raw
   /// metadata.
-  ///
-  /// For implementations that do not support metadata, this method does
-  /// nothing.
   virtual void add_metadata( video_raw_metadata const& md );
+
+  /// Add a frame of uninterpreted data to the video stream.
+  ///
+  /// This method writes the uninterpreted data to the video stream.
+  virtual void add_uninterpreted_data(
+      video_uninterpreted_data const& misc_data );
 
   /// Extract implementation-specific video encoding settings.
   ///

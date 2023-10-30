@@ -53,6 +53,7 @@ public:
   kwiver::vital::image_container_sptr frame_image() override;
   kwiver::vital::video_raw_image_sptr raw_frame_image() override;
   kwiver::vital::metadata_vector frame_metadata() override;
+  kwiver::vital::video_uninterpreted_data_sptr uninterpreted_frame_data() override;
   kwiver::vital::metadata_map_sptr metadata_map() override;
 
   kwiver::vital::video_settings_uptr implementation_settings() const override;
