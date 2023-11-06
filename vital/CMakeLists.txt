@@ -150,6 +150,9 @@ add_subdirectory( plugin_management )
 # -- Created library "vital_applets"
 add_subdirectory( applets )
 
+# -- Creates library "vital_algo"
+add_subdirectory( algo )
+
 # ==============================================================================
 # Vital Library
 
