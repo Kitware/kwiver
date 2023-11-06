@@ -31,7 +31,6 @@ class any
   using non_self = typename std::enable_if< !is_self< T >::value >::type*;
 
 public:
-
   /// @brief Create empty object.
   ///
   any() noexcept
@@ -213,7 +212,6 @@ private:
       return new internal_typed{ m_any_data };
     }
 
-
     T m_any_data;
 
     // -- NOT IMPLEMENTED --
@@ -244,7 +242,6 @@ private:
     return static_cast< internal_typed< T >* >( this->m_content.get() );
   }
 
-
   std::unique_ptr< internal > m_content;
 };
 
@@ -252,7 +249,6 @@ private:
 class bad_any_cast : public std::bad_cast
 {
 public:
-
   /// @brief Create bad cast exception;
   ///
   /// This is the constructor for the bad any cast exception. A message is

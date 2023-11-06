@@ -211,6 +211,12 @@ operator<<( std::ostream& str, vital::geo_polygon const& obj )
   return str;
 }
 
+bool
+operator==( geo_polygon const& a, geo_polygon const& b )
+{
+  return a.crs() == b.crs() && a.polygon() == b.polygon();
+}
+
 } // namespace vital
 
 } // namespace kwiver

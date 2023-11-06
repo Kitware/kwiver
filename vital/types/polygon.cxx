@@ -133,6 +133,12 @@ polygon
   return m_polygon;
 }
 
+bool
+operator==( polygon const& a, polygon const& b )
+{
+  return a.get_vertices() == b.get_vertices();
+}
+
 } // namespace vital
 
 } // namespace kwiver
