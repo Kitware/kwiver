@@ -6,15 +6,36 @@
 #
 
 set( vital_types_public_headers
+  color.h
   geo_polygon.h
+  geo_point.h
   geodesy.h
+  image.h
+  image_container.h
+  metadata.h
+  metadata_map.h
+  metadata_traits.h
   polygon.h
+  timestamp.h
   vector.h
+  video_raw_image.h
+  video_raw_metadata.h
+  video_settings.h
+  video_uninterpreted_data.h
   )
 set( vital_type_sources
   geo_polygon.cxx
+  geo_point.cxx
   geodesy.cxx
+  image.cxx
+  metadata.cxx
+  metadata_traits.cxx
   polygon.cxx
+  timestamp.cxx
+  video_raw_image.cxx
+  video_raw_metadata.cxx
+  video_settings.cxx
+  video_uninterpreted_data.cxx
   )
 
 kwiver_install_headers(
