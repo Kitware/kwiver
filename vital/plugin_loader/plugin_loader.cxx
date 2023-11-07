@@ -368,11 +368,15 @@ plugin_loader_impl
   // Save currently opened library in map
   m_library_map[path] = lib_handle;
 
-  typedef void (* reg_fp_t)( plugin_loader* );
+  typedef void (* reg_fp_t)( plugin_loader& );
+
 
   reg_fp_t reg_fp = reinterpret_cast< reg_fp_t > ( fp );
 
-  ( *reg_fp )( m_parent ); // register plugins
+  if(m_parent)
+  {
+    ( *reg_fp )( *m_parent ); // register plugins
+  }
 }
 
 // ----------------------------------------------------------------------------
