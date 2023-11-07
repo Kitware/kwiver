@@ -25,10 +25,16 @@ enum klv_stream_type {
 
 // ----------------------------------------------------------------------------
 /// Parameters describing the general characteristics of a KLV stream.
+///
+/// Members have been left public so users may modify them at their disgression.
 struct KWIVER_ALGO_KLV_EXPORT klv_stream_settings {
   klv_stream_settings();
 
+  /// Whether this stream is synchronous or asynchronous.
   klv_stream_type type;
+
+  /// Index of this stream in the input file. May not determine the index in
+  /// an output file.
   int index;
 };
 

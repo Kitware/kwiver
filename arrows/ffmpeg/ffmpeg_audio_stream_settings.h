@@ -22,6 +22,11 @@ namespace arrows {
 namespace ffmpeg {
 
 // ----------------------------------------------------------------------------
+/// Parameters describing the general characteristics of an audio stream.
+///
+/// This struct will be filled in by ffmpeg_video_input, to be used by
+/// ffmpeg_video_output when creating an audio stream. Members have been left
+/// public so users may modify them before passing to ffmpeg_video_output.
 struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_audio_stream_settings
 {
   ffmpeg_audio_stream_settings();
@@ -35,8 +40,15 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_audio_stream_settings
   ffmpeg_audio_stream_settings&
   operator=( ffmpeg_audio_stream_settings&& other );
 
+  /// Index of this stream in the input video. Does not determine the index in
+  /// the output video.
   int index;
+
+  /// FFmpeg's parameters determining how the audio codec is set up.
   codec_parameters_uptr parameters;
+
+  /// Time base of this stream in the input video. Not guaranteed to determine
+  /// the time base in the output video.
   AVRational time_base;
 };
 
