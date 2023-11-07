@@ -38,7 +38,7 @@
           TEST_OPT_3( a, b, __VA_ARGS__ ) \
         )
 
-int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
+static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 
 // ----------------------------------------------------------------------------
 // Helper macros
