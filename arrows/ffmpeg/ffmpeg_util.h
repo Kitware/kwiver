@@ -92,6 +92,7 @@ DECLARE_PTRS( filter_graph, AVFilterGraph )
 DECLARE_PTRS( filter_in_out, AVFilterInOut )
 DECLARE_PTRS( sws_context, SwsContext )
 DECLARE_PTRS( hardware_device_context, AVBufferRef )
+DECLARE_PTRS( bsf_context, AVBSFContext )
 
 #undef DECLARE_PTRS
 

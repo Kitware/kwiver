@@ -12,6 +12,7 @@
 #include "ffmpeg_video_raw_image.h"
 #include "ffmpeg_video_raw_metadata.h"
 #include "ffmpeg_video_settings.h"
+#include "ffmpeg_video_uninterpreted_data.h"
 
 #include <arrows/klv/klv_convert_vital.h>
 #include <arrows/klv/klv_demuxer.h>
@@ -302,6 +303,54 @@ ffmpeg_klv_stream
   return result;
 }
 
+// ----------------------------------------------------------------------------
+struct ffmpeg_audio_stream
+{
+  ffmpeg_audio_stream( AVStream* stream );
+
+  ffmpeg_audio_stream( ffmpeg_audio_stream const& ) = delete;
+  ffmpeg_audio_stream( ffmpeg_audio_stream&& ) = delete;
+
+  ffmpeg_audio_stream_settings settings() const;
+
+  AVStream* stream;
+  codec_context_uptr codec_context;
+};
+
+// ----------------------------------------------------------------------------
+ffmpeg_audio_stream
+::ffmpeg_audio_stream( AVStream* stream ) : stream{ stream }
+{
+  if( !stream )
+  {
+    throw std::logic_error( "ffmpeg_audio_stream given null stream" );
+  }
+
+  auto const codec =
+    throw_error_null(
+      avcodec_find_decoder( stream->codecpar->codec_id ),
+      "Could not find audio decoder" );
+
+  codec_context.reset(
+    throw_error_null( avcodec_alloc_context3( codec ),
+    "Could not allocate codec context" ) );
+}
+
+// ----------------------------------------------------------------------------
+ffmpeg_audio_stream_settings
+ffmpeg_audio_stream
+::settings() const
+{
+  ffmpeg_audio_stream_settings result;
+  result.index = stream->index;
+  throw_error_code(
+    avcodec_parameters_copy(
+      result.parameters.get(), stream->codecpar ),
+      "Could not copy codec parameters" );
+  result.time_base = stream->time_base;
+  return result;
+}
+
 } // namespace <anonymous>
 
 // ----------------------------------------------------------------------------
@@ -326,6 +375,7 @@ public:
 
     ffmpeg_video_raw_image& get_raw_image();
     ffmpeg_video_raw_metadata& get_raw_metadata();
+    ffmpeg_video_uninterpreted_data& get_uninterpreted_data();
 
     open_video_state* parent;
     kv::logger_handle_t logger;
@@ -339,6 +389,8 @@ public:
 
     std::optional< kv::metadata_vector > metadata;
     kv::video_raw_metadata_sptr raw_metadata;
+
+    kv::video_uninterpreted_data_sptr uninterpreted_data;
 
     bool is_draining;
   };
@@ -401,6 +453,8 @@ public:
     std::list< ffmpeg_klv_stream > klv_streams;
     kv::metadata_map_sptr all_metadata;
 
+    std::list< ffmpeg_audio_stream > audio_streams;
+
     std::optional< frame_state > frame;
 
     bool lookahead_at_eof;
@@ -413,6 +467,7 @@ public:
   hardware_device_context_uptr hardware_device_context;
 
   bool klv_enabled;
+  bool audio_enabled;
   bool use_misp_timestamps;
   bool smooth_klv_packets;
   std::string unknown_stream_behavior;
@@ -448,6 +503,7 @@ ffmpeg_video_input::priv
     logger{ kv::get_logger( "ffmpeg_video_input" ) },
     hardware_device_context{ nullptr },
     klv_enabled{ true },
+    audio_enabled{ true },
     use_misp_timestamps{ false },
     smooth_klv_packets{ false },
     unknown_stream_behavior{ "klv" },
@@ -586,6 +642,7 @@ ffmpeg_video_input::priv::frame_state
     raw_image{},
     metadata{},
     raw_metadata{},
+    uninterpreted_data{},
     is_draining{ false }
 {
   // Allocate frame containers
@@ -597,6 +654,7 @@ ffmpeg_video_input::priv::frame_state
   // Allocate raw data containers
   raw_image.reset( new ffmpeg_video_raw_image{} );
   raw_metadata.reset( new ffmpeg_video_raw_metadata{} );
+  uninterpreted_data.reset( new ffmpeg_video_uninterpreted_data{} );
 }
 
 // ----------------------------------------------------------------------------
@@ -794,6 +852,15 @@ ffmpeg_video_input::priv::frame_state
 }
 
 // ----------------------------------------------------------------------------
+ffmpeg_video_uninterpreted_data&
+ffmpeg_video_input::priv::frame_state
+::get_uninterpreted_data()
+{
+  return
+    dynamic_cast< ffmpeg_video_uninterpreted_data& >( *uninterpreted_data );
+}
+
+// ----------------------------------------------------------------------------
 ffmpeg_video_input::priv::open_video_state::filter_parameters
 ::filter_parameters( AVCodecContext const& codec_context )
   : width{ codec_context.width },
@@ -857,6 +924,7 @@ ffmpeg_video_input::priv::open_video_state
     lookahead{},
     klv_streams{},
     all_metadata{ nullptr },
+    audio_streams{},
     frame{},
     lookahead_at_eof{ false },
     at_eof{ false }
@@ -884,7 +952,7 @@ ffmpeg_video_input::priv::open_video_state
       avformat_find_stream_info( format_context.get(), NULL ),
       "Could not read stream information" );
 
-    // Find a video stream, and optionally any data streams
+    // Find a video stream, and optionally any data or audio streams
     for( auto const j : kvr::iota( format_context->nb_streams ) )
     {
       auto const stream = format_context->streams[ j ];
@@ -929,6 +997,12 @@ ffmpeg_video_input::priv::open_video_state
         {
           LOG_INFO( logger, "Ignoring unknown stream " << stream->index );
         }
+      }
+      else if(
+        parent.audio_enabled &&
+        params->codec_type == AVMEDIA_TYPE_AUDIO )
+      {
+        audio_streams.emplace_back( stream );
       }
     }
 
@@ -1273,12 +1347,37 @@ ffmpeg_video_input::priv::open_video_state
           return false;
         }
 
+        auto const first_video_pts =
+          av_rescale_q(
+            first_video_it->second->pts,
+            video_stream->time_base,
+            AVRational{ 1, AV_TIME_BASE } );
+
+        auto const first_video_end =
+          ( first_video_it->second->duration <= 0 )
+          ? first_video_pts
+          : av_rescale_q(
+              first_video_it->second->pts + first_video_it->second->duration,
+              video_stream->time_base,
+              AVRational{ 1, AV_TIME_BASE } );
+
         for( auto const& stream : klv_streams )
         {
           auto const dts = most_recent_dts.at( stream.stream->index );
           if( dts == AV_NOPTS_VALUE ||
               dts <= first_video_it->first ||
-              dts <= first_video_it->second->pts )
+              dts <= first_video_pts )
+          {
+            return false;
+          }
+        }
+
+        for( auto const& stream : audio_streams )
+        {
+          auto const dts = most_recent_dts.at( stream.stream->index );
+          if( dts == AV_NOPTS_VALUE ||
+              dts <= first_video_it->first ||
+              dts < first_video_end )
           {
             return false;
           }
@@ -1351,7 +1450,11 @@ ffmpeg_video_input::priv::open_video_state
       }
 
       // Guess the missing DTS field for asynchronous KLV
-      auto packet_dts = packet->dts;
+      auto packet_dts =
+        av_rescale_q(
+          packet->dts,
+          format_context->streams[ packet->stream_index ]->time_base,
+          AVRational{ 1, AV_TIME_BASE } );
       for( auto& stream : klv_streams )
       {
         if( packet->stream_index != stream.stream->index ||
@@ -1497,10 +1600,17 @@ ffmpeg_video_input::priv::open_video_state
 
   if( frame.has_value() )
   {
-    // Give the KLV stream processors all packets up to this new frame image
+    // Give the non-video streams all packets up to this new frame image
     for( auto it = lookahead.begin(); it != lookahead.end(); )
     {
-      if( it->second->pts > frame->frame->best_effort_timestamp )
+      if( av_rescale_q(
+            it->second->pts,
+            format_context->streams[ it->second->stream_index ]->time_base,
+            AVRational{ 1, AV_TIME_BASE } ) >
+          av_rescale_q(
+            frame->frame->best_effort_timestamp,
+            video_stream->time_base,
+            AVRational{ 1, AV_TIME_BASE } ) )
       {
         ++it;
         continue;
@@ -1516,6 +1626,25 @@ ffmpeg_video_input::priv::open_video_state
 
         found = true;
         stream.send_packet( it->second.get() );
+        it = lookahead.erase( it );
+        break;
+      }
+
+      if( found )
+      {
+        continue;
+      }
+
+      for( auto& stream : audio_streams )
+      {
+        if( it->second->stream_index != stream.stream->index )
+        {
+          continue;
+        }
+
+        found = true;
+        frame->get_uninterpreted_data().audio_packets.emplace_back(
+          std::move( it->second ) );
         it = lookahead.erase( it );
         break;
       }
@@ -1538,7 +1667,10 @@ ffmpeg_video_input::priv::open_video_state
     auto max_pos = INT64_MAX;
     if( frame.has_value() )
     {
-      max_pts = frame->frame->best_effort_timestamp;
+      max_pts = av_rescale_q(
+        frame->frame->best_effort_timestamp,
+        video_stream->time_base,
+        stream.stream->time_base );
       max_pos = frame->frame->pkt_pos;
     }
 
@@ -1849,6 +1981,11 @@ ffmpeg_video_input::priv::open_video_state
   {
     result->klv_streams.emplace_back( stream.settings() );
   }
+  for( auto const& stream: audio_streams )
+  {
+    result->audio_streams.emplace_back( stream.settings() );
+  }
+  result->time_base = video_stream->time_base;
   result->start_timestamp = format_context->start_time;
 
   if( codec_context )
@@ -1885,7 +2022,7 @@ ffmpeg_video_input
   set_capability( kva::video_input::IS_SEEKABLE, true );
   set_capability( kva::video_input::HAS_RAW_IMAGE, true );
   set_capability( kva::video_input::HAS_RAW_METADATA, true );
-  set_capability( kva::video_input::HAS_UNINTERPRETED_DATA, false );
+  set_capability( kva::video_input::HAS_UNINTERPRETED_DATA, true );
 
   ffmpeg_init();
 }
@@ -1918,6 +2055,13 @@ ffmpeg_video_input
     "klv_enabled", d->klv_enabled,
     "When set to false, will not attempt to process any KLV metadata found in "
     "the video file. This may be useful if only processing imagery."
+  );
+
+  config->set_value(
+    "audio_enabled", d->audio_enabled,
+    "When set to false, will not attempt to pass along any audio streams found "
+    "in the video file. This may be useful if no transcoding is to be done, or "
+    "if audio is to be dropped."
   );
 
   config->set_value(
@@ -1984,6 +2128,9 @@ ffmpeg_video_input
 
   d->klv_enabled =
     config->get_value< bool >( "klv_enabled", d->klv_enabled );
+
+  d->audio_enabled =
+    config->get_value< bool >( "audio_enabled", d->audio_enabled );
 
   d->use_misp_timestamps =
     config->get_value< bool >(
@@ -2190,6 +2337,19 @@ ffmpeg_video_input
     stream.this_frame_buffer.clear();
   }
   return d->video->frame->raw_metadata;
+}
+
+// ----------------------------------------------------------------------------
+kv::video_uninterpreted_data_sptr
+ffmpeg_video_input
+::uninterpreted_frame_data()
+{
+  if( !d->is_valid() )
+  {
+    return nullptr;
+  }
+
+  return d->video->frame->uninterpreted_data;
 }
 
 // ----------------------------------------------------------------------------

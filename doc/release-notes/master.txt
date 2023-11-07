@@ -45,6 +45,10 @@ Arrows: FFmpeg
 
 * Implemented packet lookahead to ensure stream synchronization.
 
+* Implemented copy of audio streams from input to output.
+
+* Fixed bugs causing invalid output when transcoding between .mp4 and .ts files.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.
