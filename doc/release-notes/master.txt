@@ -15,6 +15,8 @@ Arrows: Core
 
 * Implemented the csv_reader reading std::optional fields.
 
+* Increased the precision of written floats and doubles in the csv_writer.
+
 * Made the transcode applet's failure to open a video result in a more graceful exit.
 
 * Made the transcode applet ask for video settings slightly later, when they
