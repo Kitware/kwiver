@@ -16,6 +16,7 @@
 #include <limits>
 
 #include <cctype>
+#include <cfloat>
 
 namespace kwiver {
 
@@ -121,6 +122,14 @@ csv_writer
     else if constexpr( std::is_integral_v< T > && std::is_unsigned_v< T > )
     {
       m_ss << static_cast< uint64_t >( value );
+    }
+    else if constexpr( std::is_same_v< T, float > )
+    {
+      m_ss << std::setprecision( FLT_DIG + 1 ) << value;
+    }
+    else if constexpr( std::is_same_v< T, double > )
+    {
+      m_ss << std::setprecision( DBL_DIG + 1 ) << value;
     }
     else
     {
