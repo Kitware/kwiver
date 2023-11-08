@@ -364,7 +364,7 @@ TEST_F ( ffmpeg_video_output, round_trip_audio )
 // Similar to round_trip_direct, but for a test video with an audio stream.
 TEST_F ( ffmpeg_video_output, round_trip_audio_direct )
 {
-  auto const src_path = data_dir + "/" + short_video_name;
+  auto const src_path = data_dir + "/" + audio_video_name;
   auto const tmp_path =
     kwiver::testing::temp_file_name( "test-ffmpeg-output-", ".ts" );
 

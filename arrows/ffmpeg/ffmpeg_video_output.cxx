@@ -511,8 +511,6 @@ ffmpeg_video_output::impl::open_video_state
   }
   output_format = format_context->oformat;
 
-  // Set timestamp value to start at
-  format_context->output_ts_offset = settings.start_timestamp;
   format_context->flags |= AVFMT_FLAG_AUTO_BSF;
   format_context->flags |= AVFMT_FLAG_GENPTS;
 
@@ -965,15 +963,6 @@ ffmpeg_video_output::impl::open_video_state
       av_packet_rescale_ts(
         tmp_packet.get(), stream.settings.time_base, stream.stream->time_base );
 
-      // Adjust for any global timestamp offset
-      auto const counter_offset =
-        av_rescale_q(
-          format_context->output_ts_offset,
-          AVRational{ 1, AV_TIME_BASE },
-          stream.stream->time_base );
-      tmp_packet->dts -= counter_offset;
-      tmp_packet->pts -= counter_offset;
-
       // Write the packet
       throw_error_code(
         av_interleaved_write_frame( format_context.get(), tmp_packet.get() ),
@@ -1001,6 +990,18 @@ ffmpeg_video_output::impl::open_video_state
     return false;
   }
   throw_error_code( err, "Could not get next packet from encoder" );
+
+  // Adjust for any global timestamp offset
+  if( video_settings.start_timestamp != AV_NOPTS_VALUE )
+  {
+    auto const offset =
+      av_rescale_q(
+        video_settings.start_timestamp,
+        AVRational{ 1, AV_TIME_BASE },
+        video_stream->time_base );
+    packet->dts += offset;
+    packet->pts += offset;
+  }
 
   // Succeeded; write to file
   throw_error_code(

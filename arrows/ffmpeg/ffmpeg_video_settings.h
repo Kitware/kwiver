@@ -71,9 +71,9 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   /// guaranteed to determine the time base in the output video.
   AVRational time_base;
 
-  /// Desired PTS of the first video frame, in AV_TIME_BASE units
-  /// (microseconds). For some formats, the actual first PTS may exceed this
-  /// value to ensure non-negative PTS or DTS.
+  /// Start time of the input video, in AV_TIME_BASE units (microseconds).
+  /// This information is necessary for copied and newly-encoded packets to sync
+  /// correctly.
   int64_t start_timestamp;
 
   /// FFmpeg-defined string options passed to the video codec.
