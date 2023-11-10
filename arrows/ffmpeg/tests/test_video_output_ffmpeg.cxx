@@ -5,20 +5,16 @@
 #include <test_gtest.h>
 #include <test_tmpfn.h>
 
+#include <arrows/ffmpeg/tests/common.h>
+
 #include <arrows/ffmpeg/ffmpeg_video_input.h>
 #include <arrows/ffmpeg/ffmpeg_video_output.h>
 #include <arrows/ffmpeg/ffmpeg_video_uninterpreted_data.h>
 #include <arrows/klv/klv_metadata.h>
 
 #include <vital/plugin_loader/plugin_manager.h>
-#include <vital/range/iota.h>
 
 #include <random>
-
-namespace ffmpeg = kwiver::arrows::ffmpeg;
-namespace klv = kwiver::arrows::klv;
-namespace kv = kwiver::vital;
-namespace kvr = kwiver::vital::range;
 
 kv::path_t g_data_dir;
 
@@ -111,104 +107,6 @@ protected:
   TEST_ARG( data_dir );
 };
 
-// ----------------------------------------------------------------------------
-// Verify the average difference between pixels is not too high. Some
-// difference is expected due to compression artifacts, but we need to make
-// sure the frame images we get out are generally the same as what we put in.
-void
-expect_eq_images( kv::image const& src_image,
-                  kv::image const& tmp_image,
-                  double epsilon )
-{
-  auto error = 0.0;
-
-  ASSERT_TRUE( src_image.width() == tmp_image.width() );
-  ASSERT_TRUE( src_image.height() == tmp_image.height() );
-  ASSERT_TRUE( src_image.depth() == tmp_image.depth() );
-
-  for( auto const i : kvr::iota( src_image.width() ) )
-  {
-    for( auto const j : kvr::iota( src_image.height() ) )
-    {
-      for( auto const k : kvr::iota( src_image.depth() ) )
-      {
-        error += std::abs(
-          static_cast< double >( src_image.at< uint8_t >( i, j, k ) ) -
-          static_cast< double >( tmp_image.at< uint8_t >( i, j, k ) ) );
-      }
-    }
-  }
-  error /= src_image.width() * src_image.height() * src_image.depth();
-
-  EXPECT_LE( error, epsilon );
-}
-
-// ----------------------------------------------------------------------------
-void
-expect_eq_audio( kv::video_uninterpreted_data_sptr const& src_data,
-                 kv::video_uninterpreted_data_sptr const& tmp_data )
-{
-  ASSERT_EQ( src_data == nullptr, tmp_data == nullptr );
-  if( !src_data )
-  {
-    return;
-  }
-
-  auto const& src_packets =
-    dynamic_cast< ffmpeg::ffmpeg_video_uninterpreted_data const& >( *src_data )
-    .audio_packets;
-  auto const& tmp_packets =
-    dynamic_cast< ffmpeg::ffmpeg_video_uninterpreted_data const& >( *tmp_data )
-    .audio_packets;
-  ASSERT_EQ( src_packets.size(), tmp_packets.size() );
-
-  auto src_it = src_packets.begin();
-  auto tmp_it = tmp_packets.begin();
-  while( src_it != src_packets.begin() && tmp_it != tmp_packets.begin() )
-  {
-    ASSERT_EQ( ( *src_it )->size, ( *tmp_it )->size );
-    EXPECT_TRUE(
-      std::equal( ( *src_it )->data, ( *src_it )->data + ( *src_it )->size,
-                  ( *tmp_it )->data ) );
-    ++src_it;
-    ++tmp_it;
-  }
-}
-
-// ----------------------------------------------------------------------------
-void
-expect_eq_videos( std::string const& src_path, std::string const& tmp_path,
-                  double image_epsilon )
-{
-  ffmpeg::ffmpeg_video_input src_is;
-  ffmpeg::ffmpeg_video_input tmp_is;
-  kv::timestamp src_ts;
-  kv::timestamp tmp_ts;
-  src_is.open( src_path );
-  tmp_is.open( tmp_path );
-
-  // Check each pair of frames for equality
-  for( src_is.next_frame( src_ts ), tmp_is.next_frame( tmp_ts );
-       !src_is.end_of_video() && !tmp_is.end_of_video();
-       src_is.next_frame( src_ts ), tmp_is.next_frame( tmp_ts ) )
-  {
-    EXPECT_EQ( src_ts.get_frame(), tmp_ts.get_frame() );
-    EXPECT_EQ( src_ts.get_time_usec(), tmp_ts.get_time_usec() );
-
-    auto const src_data = src_is.uninterpreted_frame_data();
-    auto const tmp_data = tmp_is.uninterpreted_frame_data();
-    expect_eq_audio( src_data, tmp_data );
-
-    auto const src_image = src_is.frame_image()->get_image();
-    auto const tmp_image = tmp_is.frame_image()->get_image();
-    expect_eq_images( src_image, tmp_image, image_epsilon );
-  }
-  EXPECT_TRUE( src_is.end_of_video() );
-  EXPECT_TRUE( tmp_is.end_of_video() );
-  src_is.close();
-  tmp_is.close();
-}
-
 namespace {
 
 // This will delete the temporary file even if an exception is thrown
@@ -261,7 +159,7 @@ TEST_F ( ffmpeg_video_output, round_trip )
   }
 
   // Read the temporary file back in
-  expect_eq_videos( src_path, tmp_path, image_epsilon );
+  CALL_TEST( expect_eq_videos, src_path, tmp_path, image_epsilon );
 }
 
 // ----------------------------------------------------------------------------
@@ -313,7 +211,7 @@ TEST_F ( ffmpeg_video_output, round_trip_direct )
   auto const image_epsilon = 0.0;
 
   // Read the temporary file back in
-  expect_eq_videos( src_path, tmp_path, image_epsilon );
+  CALL_TEST( expect_eq_videos, src_path, tmp_path, image_epsilon );
 }
 
 // ----------------------------------------------------------------------------
@@ -357,7 +255,7 @@ TEST_F ( ffmpeg_video_output, round_trip_audio )
   }
 
   // Read the temporary file back in
-  expect_eq_videos( src_path, tmp_path, image_epsilon );
+  CALL_TEST( expect_eq_videos, src_path, tmp_path, image_epsilon );
 }
 
 // ----------------------------------------------------------------------------
@@ -414,7 +312,7 @@ TEST_F ( ffmpeg_video_output, round_trip_audio_direct )
   auto const image_epsilon = 0.0;
 
   // Read the temporary file back in
-  expect_eq_videos( src_path, tmp_path, image_epsilon );
+  CALL_TEST( expect_eq_videos, src_path, tmp_path, image_epsilon );
 }
 
 // ----------------------------------------------------------------------------
