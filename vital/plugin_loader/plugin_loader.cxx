@@ -373,7 +373,7 @@ plugin_loader_impl
 
   reg_fp_t reg_fp = reinterpret_cast< reg_fp_t > ( fp );
 
-  if(m_parent)
+  if( m_parent )
   {
     ( *reg_fp )( *m_parent ); // register plugins
   }
