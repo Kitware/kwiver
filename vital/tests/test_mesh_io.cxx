@@ -56,10 +56,9 @@ TEST_F(mesh_io, invalid_input_file)
 // ----------------------------------------------------------------------------
 TEST_F(mesh_io, read_invalid_type)
 {
-  mesh_sptr empty_read_mesh = read_mesh(
-    data_dir + "/aphill_pipeline_data/geo_origin.txt");
-
-  EXPECT_EQ( empty_read_mesh, nullptr );
+  EXPECT_THROW(
+    read_mesh(data_dir + "/aphill_pipeline_data/geo_origin.txt"), invalid_file
+  );
 }
 
 // ----------------------------------------------------------------------------

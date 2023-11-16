@@ -95,7 +95,8 @@ read_mesh(const std::string& filename)
     return read_obj(input_stream);
   }
 
-  return mesh_sptr();
+  VITAL_THROW( invalid_file, filename,
+               "Unrecognized file extension for mesh file");
 }
 
 /// Read a mesh from a PLY2 file
@@ -104,6 +105,7 @@ read_ply2(const std::string& filename)
 {
   check_input_file(filename);
   std::ifstream input_stream(filename.c_str());
+
   return read_ply2(input_stream);
 }
 
@@ -341,7 +343,8 @@ read_obj(std::istream& is)
                 else
                 {
                   LOG_ERROR(logger, "improperly formed face line in OBJ: "<<line);
-                  return mesh_sptr();
+                  VITAL_THROW( invalid_data,
+                               "Improperly formed face line in OBJ file.");
                 }
               }
             }
@@ -356,7 +359,8 @@ read_obj(std::istream& is)
               else
               {
                 LOG_ERROR(logger, "improperly formed face line in OBJ: "<<line);
-                return mesh_sptr();
+                VITAL_THROW( invalid_data,
+                             "Improperly formed face line in OBJ file.");
               }
             }
           }
