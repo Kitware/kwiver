@@ -116,7 +116,7 @@ static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
         IF_ELSE( HAS_ARGS( default_value ) )                                        \
         (                                                                           \
           type name = ( default_value ),                                            \
-          type name                                                                 \
+          type name = type()                                                        \
         )
 
 /**
@@ -135,9 +135,15 @@ static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 #define PARAM_CONFIG_GET_( name, type, description_str, default ) \
         IF_ELSE( HAS_ARGS( default ) )                                  \
         (                                                               \
-          cb->get_value< type >( #name, default ),                      \
-          cb->get_value< type >( #name )                                \
+          kwiver::vital::get_config_helper< type >( cb, #name, default ), \
+          kwiver::vital::get_config_helper< type >( cb, #name )           \
         )
+
+#define PARAM_CONFIG_GET_FROM_THIS( tuple ) PARAM_CONFIG_GET_FROM_THIS_ tuple
+#define PARAM_CONFIG_GET_FROM_THIS_( name, type, description_str, default ) \
+        kwiver::vital::set_config_helper< type >( cb, #name, \
+                                                  this->CONFIG_VAR_NAME( \
+                                                    name ) );
 
 /**
  * Produce a set_value call on the config_block (assumed variable `cb`) to set
@@ -201,6 +207,43 @@ static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
           MAP( PARAM_CONFIG_DEFAULT_SET, EMPTY, __VA_ARGS__ )               \
         }
 
+#define PLUGGABLE_GET_CONFIGURATION( ... )                                             \
+      public:                                                                                \
+        kwiver::vital::config_block_sptr get_configuration()     const override              \
+        {                                                                                    \
+          kwiver::vital::config_block_sptr cb = \
+            kwiver::vital::config_block::empty_config(); \
+          MAP( PARAM_CONFIG_GET_FROM_THIS, EMPTY, __VA_ARGS__ )                              \
+          return cb;                                                                         \
+        }                                                                                    \
+
+
+/**
+ * Produce a configuration helper for a single parameter
+ */
+#define PARAM_CONFIG_SET( tuple ) PARAM_CONFIG_SET_ tuple
+#define PARAM_CONFIG_SET_( name, type, description_str, default ) \
+        this->CONFIG_VAR_NAME( name ) = kwiver::vital::get_config_helper< type >( config, #name ); \
+
+
+/**
+ * Define a method for setting an algorithm's configuration
+ */
+#define PLUGGABLE_SET_CONFIGURATION( class_name, ... )                                 \
+      public:                                                                               \
+        void set_configuration( \
+          ::kwiver::vital::config_block_sptr in_config )  override      \
+        {                                                                                     \
+          kwiver::vital::config_block_sptr config = \
+            kwiver::vital::config_block::empty_config(); \
+          class_name::get_default_config( *config );                                            \
+          config->merge_config( in_config );                                                    \
+          IF( HAS_ARGS( __VA_ARGS__ ) )(                                                      \
+            MAP( PARAM_CONFIG_SET, EMPTY, __VA_ARGS__ )                                       \
+            )                                                                                 \
+          this->set_configuration_internal( in_config );                                        \
+        }                                                                                     \
+
 // ----------------------------------------------------------------------------
 
 /**
@@ -230,7 +273,10 @@ static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
         PLUGGABLE_CONSTRUCTOR( class_name, __VA_ARGS__ )     \
         PLUGGABLE_IMPL_BASIC( class_name, description )      \
         PLUGGABLE_STATIC_FROM_CONFIG( class_name, __VA_ARGS__ ) \
-        PLUGGABLE_STATIC_GET_DEFAULT( __VA_ARGS__ )
+        PLUGGABLE_STATIC_GET_DEFAULT( __VA_ARGS__ ) \
+        PLUGGABLE_SET_CONFIGURATION( class_name, __VA_ARGS__ ) \
+        PLUGGABLE_GET_CONFIGURATION( __VA_ARGS__ ) \
+
 
 // ----------------------------------------------------------------------------
 // utilties for PIMPL

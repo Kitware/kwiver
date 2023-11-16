@@ -4,6 +4,7 @@
 
 set(public_headers
    algorithm.h
+   algorithm.txx
   )
 #
 set(source_files
