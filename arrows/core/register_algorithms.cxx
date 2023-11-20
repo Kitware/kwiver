@@ -31,7 +31,7 @@ register_factories( kwiver::vital::plugin_loader& vpl )
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
 
     vpl.add_factory< vital::algo::metadata_map_io , metadata_map_io_csv >( "csv" );
-       fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
 }
 
 } // end namespace
