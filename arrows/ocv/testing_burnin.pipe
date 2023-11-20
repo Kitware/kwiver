@@ -1,0 +1,84 @@
+# =============================================================================
+#process input
+#  :: video_input
+#  #video_filename   	= /home/local/KHQ/hannah.defazio/kwiver-fork/src/examples/videos/drone-video.mp4
+#  frame_time        	= .3333
+
+ # video_reader:type	= ffmpeg
+
+process input
+    :: frame_list_input
+    image_list_file     = /home/local/KHQ/hannah.defazio/kwiver-fork/src/examples/images/highway2_frames/highway2_frames.txt
+    frame_time          = .3333
+    image_reader:type   = ocv
+
+# =============================================================================
+process detect_moving_burnin
+  :: image_filter
+  filter:type = moving_burnin_detector_opencv
+
+  block filter:moving_burnin_detector_opencv
+    disabled                            = false
+    highest_score_only                  = true
+    line_width                          = 2
+    draw_line_width                     = 3
+    roi_ratio                           = 0.9
+    min_roi_ratio                       = 0.1
+    roi_aspect                          = 0
+    off_center_x                        = 0
+    off_center_y                        = 0
+
+    cross_threshold                     = 0.2
+    cross_output_color_R                = 255
+    cross_output_color_G                = 0
+    cross_output_color_B                = 0
+    cross_gap_x                         = 10
+    cross_gap_y                         = 10
+    cross_length_x                      = 20
+    cross_length_y                      = 20
+    cross_ends_ratio                    = -1.0
+
+    bracket_threshold                   = 0.6
+    bracket_output_color_R              = 0
+    bracket_output_color_G              = 255
+    bracket_output_color_B              = 0
+    bracket_length_x                    = 12
+    bracket_length_y                    = 8
+    bracket_aspect_jitter               = 5
+
+    rectangle_threshold                 = 0.2
+    rectangle_output_color_R            = 0
+    rectangle_output_color_G            = 0
+    rectangle_output_color_B            = 255
+
+    off_center_jitter                   = 10
+    target_resolution_x                 = 0
+    target_resolution_y                 = 0
+    verbose                             = true
+  endblock
+
+# ================================================================
+#process disp
+#  :: image_viewer
+#  annotate_image = true
+#  pause_time     = 0  #  pause_time in seconds. 0 means wait for keystroke.
+#  title          = images
+#  footer         = images
+#  header         = header-header
+
+# =============================================================================
+process writer
+  :: image_writer
+  image_writer:type                     = vxl
+  file_name_template                    = /home/local/KHQ/hannah.defazio/kwiver-fork/src/examples/images/highway2_frames/output/image%04d.png
+  image_writer:vxl:force_byte           = true
+  image_writer:vxl:auto_stretch         = true
+
+###############################################################################
+connect from input.image
+#        to   detect_burnin__in_image.image
+#connect from detect_burnin__in_image.image
+        to   detect_moving_burnin.image
+connect from detect_moving_burnin.image
+        to   writer.image
+#         to disp.image
