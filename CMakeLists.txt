@@ -228,8 +228,8 @@ if (KWIVER_ENABLE_PYTHON)
   add_subdirectory( python/kwiver )
 endif()
 
-## this is where the algorithm default configuration files live
-#add_subdirectory(config)
+# this is where the algorithm default configuration files live
+add_subdirectory(config)
 
 
 # ==============================================================================
