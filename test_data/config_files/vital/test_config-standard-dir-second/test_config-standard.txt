@@ -1,0 +1,3 @@
+general:zero = 2
+general:first = none
+general:second = bar
