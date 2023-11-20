@@ -18,12 +18,12 @@ class dump_klv
   : public kwiver::tools::kwiver_applet
 {
 public:
-  dump_klv();
 
-  PLUGIN_INFO("dump-klv",
-              "Dump KLV stream from video.\n\n"
-              "This program displays the KLV metadata packets that are embedded in "
-              "a video stream.");
+  PLUGGABLE_IMPL(dump_klv, 
+    "Dump KLV stream from video.\n\n"
+    "This program displays the KLV metadata packets that are embedded in "
+    "a video stream.");
+
 
   int run() override;
   void add_command_options() override;
