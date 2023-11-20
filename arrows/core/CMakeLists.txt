@@ -15,7 +15,7 @@ set( plugin_core_headers
 #  compute_ref_homography_core.h
 #  convert_image_bypass.h
 #  create_detection_grid.h
-#  csv_io.h
+  csv_io.h
 #  depth_utils.h
 #  derive_metadata.h
 #  detect_features_filtered.h
@@ -41,7 +41,7 @@ set( plugin_core_headers
 #  merge_metadata_streams.h
 #  mesh_intersect.h
 #  mesh_operations.h
-#  metadata_map_io_csv.h
+  metadata_map_io_csv.h
 #  metadata_stream_from_video.h
 #  read_object_track_set_kw18.h
 #  read_track_descriptor_set_csv.h
@@ -92,7 +92,7 @@ set( plugin_core_sources
 #  compute_ref_homography_core.cxx
 #  convert_image_bypass.cxx
 #  create_detection_grid.cxx
-#  csv_io.cxx
+  csv_io.cxx
 #  depth_utils.cxx
 #  derive_metadata.cxx
 #  detect_features_filtered.cxx
@@ -118,7 +118,7 @@ set( plugin_core_sources
 #  merge_metadata_streams.cxx
 #  mesh_intersect.cxx
 #  mesh_operations.cxx
-#  metadata_map_io_csv.cxx
+  metadata_map_io_csv.cxx
 #  metadata_stream_from_video.cxx
 #  read_object_track_set_kw18.cxx
 #  read_track_descriptor_set_csv.cxx
