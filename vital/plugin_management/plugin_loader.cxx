@@ -223,11 +223,11 @@ plugin_loader
                 << demangle( concrete_type ) <<
             "\" already has been registered by "
                 << prev_file << ".  This factory from "
-                << m_impl->m_current_filename << " will not be registered.";
+                << m_impl->m_current_filename << " will not be registered."
+                << "Using the existing factory";
 
-          VITAL_THROW( plugin_already_exists, str.str() );
-          // TODO: Maybe just don't add it and NOT error? What do we return
-          // then?
+          LOG_WARN( this->m_logger, str.str() );
+          return afact;
         }
         else
         {
