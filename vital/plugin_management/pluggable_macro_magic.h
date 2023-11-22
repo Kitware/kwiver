@@ -229,6 +229,26 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
         PLUGGABLE_STATIC_GET_DEFAULT( __VA_ARGS__ )
 
 // ----------------------------------------------------------------------------
+// utilties for PIMPL 
+// TODO document why nwe need them
+namespace kwiver::vital::detail {
+template<typename T>
+void KwiverDefaultDeleter(T* p)
+{
+  delete p ;
+}
+
+template<typename T>
+void KwiverEmptyDeleter(T* p)
+{
+  (void)(p);
+}
+
+}
+
+#define KWIVER_UNIQUE_PTR(type, name) std::unique_ptr<type,decltype(&kwiver::vital::detail::KwiverEmptyDeleter<type>)> name = { nullptr, kwiver::vital::detail::KwiverEmptyDeleter<type>}
+#define KWIVER_INITIALIZE_UNIQUE_PTR(type, name) this->name = std::unique_ptr<type,decltype(&kwiver::vital::detail::KwiverDefaultDeleter<type>)>( new type(*this), kwiver::vital::detail::KwiverDefaultDeleter<type>)
+// ----------------------------------------------------------------------------
 
 namespace kwiver::vital {
 
