@@ -145,7 +145,7 @@ add_subdirectory( config )
 add_subdirectory( types )
 # -- Creates library "vital_vpm"
 # Requires: vital_exceptions, vital_logger, vital_util
-# Uses common headers: typedefs.h
+# Uses common headers: vital_types.h
 add_subdirectory( plugin_management )
 # -- Created library "vital_applets"
 add_subdirectory( applets )
@@ -164,11 +164,10 @@ set( vital_public_headers
 # Shared pure headers with above "deps"
   bitflags.h
   noncopyable.h
-  typedefs.h
 
   algorithm_capabilities.h
 
-#  vital_types.h
+  vital_types.h
 #  attribute_set.h
 #  context.h
 #  exceptions.h

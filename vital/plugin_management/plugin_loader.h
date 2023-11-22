@@ -9,7 +9,7 @@
 
 #include <vital/logger/logger.h>
 #include <vital/plugin_management/plugin_factory.h>
-#include <vital/typedefs.h>
+#include <vital/vital_types.h>
 
 #include <map>
 #include <memory>
