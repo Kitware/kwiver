@@ -203,9 +203,9 @@ add_subdirectory( vital )
 #  add_subdirectory( track_oracle )
 #endif()
 #
-#if (KWIVER_ENABLE_ARROWS)
-#  add_subdirectory( arrows )
-#endif()
+if (KWIVER_ENABLE_ARROWS)
+  add_subdirectory( arrows )
+endif()
 #
 #if (KWIVER_ENABLE_SPROKIT)
 #  add_subdirectory(sprokit)
