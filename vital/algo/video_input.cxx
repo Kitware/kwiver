@@ -7,8 +7,6 @@
 
 #include <vital/algo/video_input.h>
 
-#include <vital/algo/algorithm.txx>
-
 namespace kwiver {
 
 namespace vital {
@@ -118,7 +116,3 @@ video_input
 } // namespace vital
 
 } // namespace kwiver
-
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::video_input );
-/// \endcond

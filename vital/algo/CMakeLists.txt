@@ -5,10 +5,12 @@
 set(public_headers
    algorithm.h
    algorithm.txx
+   video_input.h
   )
 #
 set(source_files
   algorithm.cxx
+  video_input.cxx
   )
 
 # algorithm library
@@ -20,9 +22,10 @@ kwiver_add_library( vital_algorithms
 target_link_libraries( vital_algorithms
   PUBLIC
               vital_vpm  # uses pluggable
+              vital_types
  PRIVATE
               vital_logger
-              vital_config
+              vital
  )
 
 ###
