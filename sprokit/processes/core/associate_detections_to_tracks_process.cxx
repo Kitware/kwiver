@@ -126,9 +126,16 @@ associate_detections_to_tracks_process
   {
     scoped_step_instrumentation();
 
-    // Run associator
-    d->m_track_associator->associate( frame_id, image,
-           tracks, detections, ass_matrix, output, unused );
+    try
+    {
+      // Run associator
+      d->m_track_associator->associate( frame_id, image,
+            tracks, detections, ass_matrix, output, unused );
+    }
+    catch ( vital::invalid_value const& e )
+    {
+      LOG_ERROR( logger(),  "An error occurred: " << e.what());
+    }
   }
 
   // Return by value
