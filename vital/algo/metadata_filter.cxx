@@ -5,7 +5,6 @@
 /// \file
 /// \brief metadata_filter algorithm instantiation
 
-#include <vital/algo/algorithm.txx>
 #include <vital/algo/metadata_filter.h>
 
 namespace kwiver {
@@ -46,7 +45,3 @@ metadata_filter
 } // namespace vital
 
 } // namespace kwiver
-
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::metadata_filter );
-/// \endcond
