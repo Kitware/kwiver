@@ -181,8 +181,8 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 
 #define PLUGGABLE_STATIC_FROM_CONFIG( class_name, ... ) \
       public:                                                          \
-        static pluggable_sptr from_config( \
-          ::kwiver::vital::config_block_sptr const cb ) \
+        static ::kwiver::vital::pluggable_sptr from_config( \
+          [[maybe_unused]] ::kwiver::vital::config_block_sptr const cb ) \
         {                                                              \
           return std::make_shared< class_name >(                       \
             MAP( PARAM_CONFIG_GET, COMMA, __VA_ARGS__ )             \
@@ -191,7 +191,8 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 
 #define PLUGGABLE_STATIC_GET_DEFAULT( ... ) \
       public:                                     \
-        static void get_default_config( ::kwiver::vital::config_block& cb ) \
+        static void get_default_config( \
+          [[maybe_unused]] ::kwiver::vital::config_block& cb ) \
         {                                         \
           MAP( PARAM_CONFIG_DEFAULT_SET, EMPTY, __VA_ARGS__ )               \
         }
