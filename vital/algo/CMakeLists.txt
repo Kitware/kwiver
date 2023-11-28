@@ -6,12 +6,14 @@ set(public_headers
    algorithm.h
    algorithm.txx
    image_io.h
+   metadata_filter.h
    video_input.h
   )
 #
 set(source_files
   algorithm.cxx
   image_io.cxx
+  metadata_filter.cxx
   video_input.cxx
   )
 
