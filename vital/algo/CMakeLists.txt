@@ -5,6 +5,7 @@
 set(public_headers
    algorithm.h
    algorithm.txx
+   buffered_metadata_filter.h
    image_io.h
    metadata_filter.h
    video_input.h
@@ -12,6 +13,7 @@ set(public_headers
 #
 set(source_files
   algorithm.cxx
+  buffered_metadata_filter.cxx
   image_io.cxx
   metadata_filter.cxx
   video_input.cxx
