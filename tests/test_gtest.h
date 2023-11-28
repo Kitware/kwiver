@@ -77,6 +77,14 @@
       public: \
         decltype( g_ ## var ) const& var = g_ ## var
 
+// ----------------------------------------------------------------------------
+/// Call a test function with the given arguments and print a traceback
+/// on failure.
+///
+/// \param func Test function to call.
+#define CALL_TEST( func, ... ) \
+        do { SCOPED_TRACE( #func ); func( __VA_ARGS__ ); } while( 0 )
+
 namespace kwiver::testing {
 
 // ----------------------------------------------------------------------------
