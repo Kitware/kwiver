@@ -6,6 +6,7 @@
 #
 
 set( vital_types_public_headers
+  bounding_box.h
   color.h
   geo_polygon.h
   geo_point.h
@@ -24,6 +25,7 @@ set( vital_types_public_headers
   video_uninterpreted_data.h
   )
 set( vital_type_sources
+  bounding_box.cxx
   geo_polygon.cxx
   geo_point.cxx
   geodesy.cxx
