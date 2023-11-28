@@ -388,7 +388,7 @@ add_subdirectory( applets_plugins )
 ####
 ##
 #add_subdirectory( algo )
-#add_subdirectory( range )
+add_subdirectory( range )
 #add_subdirectory( bindings )
 #
 #if (KWIVER_ENABLE_TOOLS)
