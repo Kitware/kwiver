@@ -152,7 +152,7 @@ kwiver_add_library( kwiver_algo_core
   )
 
 target_link_libraries( kwiver_algo_core
-  PUBLIC               vital_algorithms
+  PUBLIC               vital_algo
   PRIVATE              kwiversys
                        vital_config
                        vital_types
@@ -170,6 +170,6 @@ if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
 endif()
 
-if (KWIVER_ENABLE_TOOLS)
-  add_subdirectory(applets)
-endif()
+#if (KWIVER_ENABLE_TOOLS)
+#  add_subdirectory(applets)
+#endif()

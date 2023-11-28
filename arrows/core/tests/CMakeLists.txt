@@ -4,7 +4,7 @@ set(CMAKE_FOLDER "Arrows/Core/Tests")
 
 include(kwiver-test-setup)
 
-set( test_libraries    vital_algorithms vital vital_vpm kwiver_algo_core )
+set( test_libraries    vital_algo vital vital_vpm kwiver_algo_core )
 
 ##############################
 # Algorithms core plugin tests

@@ -16,12 +16,12 @@ set(source_files
   )
 
 # algorithm library
-kwiver_add_library( vital_algorithms
+kwiver_add_library( vital_algo
   ${public_headers}
   ${source_files}
 )
 
-target_link_libraries( vital_algorithms
+target_link_libraries( vital_algo
   PUBLIC
               vital_vpm  # uses pluggable
               vital_types
