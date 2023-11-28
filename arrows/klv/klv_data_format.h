@@ -725,7 +725,7 @@ protected:
   }
 
   size_t
-  length_of_typed( VITAL_UNUSED data_type const& value ) const
+  length_of_typed( [[maybe_unused]] data_type const& value ) const
   {
     return *this->m_length_constraints.fixed();
   }
