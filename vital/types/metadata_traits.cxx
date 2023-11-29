@@ -178,24 +178,11 @@ VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
       "Corner Points (lon/lat)",
       "Four sided polygon representing the image bounds. The corners are "
       "ordered: upper left, upper right, lower right, lower left." },
-    { TRAITS_OF( WIND_DIRECTION ),
-      "Wind Direction (degrees)",
-      "Wind direction at aircraft location. This is the direction the wind is "
-      "coming from relative to true north." },
-    { TRAITS_OF( WIND_SPEED ),
-      "Wind Speed (meters/second)",
-      "Wind speed at aircraft location." },
-    { TRAITS_OF( STATIC_PRESSURE ),
-      "Static Pressure (millibar)",
-      "Static pressure at aircraft location." },
     { TRAITS_OF( DENSITY_ALTITUDE ),
       "Density Altitude (meters)",
       "Density altitude at aircraft location. Relative aircraft performance "
       "metric based on outside air temperature, static pressure, and "
       "humidity." },
-    { TRAITS_OF( OUTSIDE_AIR_TEMPERATURE ),
-      "Outside Air Temperature (Celsius)",
-      "Temperature outside aircraft." },
     { TRAITS_OF( TARGET_LOCATION ),
       "Target Geodetic Location (lon/lat/alt)",
       "Three-dimensional coordinates of the target: longitude, latitude, and "
@@ -216,31 +203,13 @@ VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
       "Lateral Error 90 (LE90) is the estimated error distance in the "
       "vertical (or lateral) direction. Specifies the interval of 90% "
       "probability in the local vertical direction." },
-    { TRAITS_OF( DIFFERENTIAL_PRESSURE ),
-      "Differential Pressure (millibar)",
-      "Differential pressure at aircraft location. Measured as the stagnation/"
-      "impact/total pressure minus static pressure." },
-    { TRAITS_OF( PLATFORM_ANG_OF_ATTACK ),
-      "Platform Angle of Attack (deg)",
-      "Angle between platform longitudinal axis and relative wind. Positive "
-      "angles for upward relative wind." },
     { TRAITS_OF( PLATFORM_VERTICAL_SPEED ),
       "Platform Vertical Speed (meters/sec)",
       "Vertical speed of the aircraft relative to zenith. Positive ascending, "
       "negative descending." },
-    { TRAITS_OF( PLATFORM_SIDESLIP_ANGLE ),
-      "Platform Sideslip Angle (degrees)",
-      "The sideslip angle is the angle between the platform longitudinal axis "
-      "and relative wind. Positive angles to right wing, negative to left." },
-    { TRAITS_OF( AIRFIELD_BAROMET_PRESS ),
-      "Airfield Barometric Pressure (millibars)",
-      "Local pressure at airfield of known height." },
     { TRAITS_OF( AIRFIELD_ELEVATION ),
       "Airfield Elevation (meters)",
       "Elevation of airfield corresponding to Airfield Barometric Pressure." },
-    { TRAITS_OF( RELATIVE_HUMIDITY ),
-      "Relative Humidity (percent)",
-      "Relative humidity at aircraft location." },
     { TRAITS_OF( PLATFORM_GROUND_SPEED ),
       "Platform Ground Speed (meters/second)",
       "Speed projected to the ground of an airborne platform passing "
