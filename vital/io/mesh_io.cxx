@@ -20,19 +20,18 @@ namespace vital {
 
 namespace {
 
-/// Helper function to check that the output file name can be used
-void
-check_output_file(const std::string& filename)
+/// Helper function to open the output file and return its stream
+std::ofstream
+open_output_file(const std::string& filename)
 {
-  // If the given path is a directory, we obviously can't write to it.
+  // Check if the given path is a directory
   if ( kwiversys::SystemTools::FileIsDirectory( filename ) )
   {
     VITAL_THROW( file_write_exception, filename,
-          "Path given is a directory, can not write file." );
+                 "Path is a directory, cannot write file." );
   }
 
-  // Check that the directory of the given filepath exists, creating necessary
-  // directories where needed.
+  // Ensure the directory of the given filepath exists, create if necessary
   std::string parent_dir = kwiversys::SystemTools::GetFilenamePath(
     kwiversys::SystemTools::CollapseFullPath( filename ));
   if ( ! kwiversys::SystemTools::FileIsDirectory( parent_dir ) )
@@ -40,37 +39,46 @@ check_output_file(const std::string& filename)
     if ( ! kwiversys::SystemTools::MakeDirectory( parent_dir ) )
     {
       VITAL_THROW( file_write_exception, parent_dir,
-                   "Attempted directory creation, but no directory created!" );
+                   "Failed to create directory." );
     }
   }
 
-  // Open the output stream
-  std::ofstream output_stream(filename.c_str());
+  // Open the output file stream
+  std::ofstream output_stream(filename.c_str(), std::fstream::out);
+  if (!output_stream)
+  {
+    VITAL_THROW( file_write_exception, filename,
+                 "Could not open file for writing." );
+  }
+
+  return output_stream;
 }
 
-/// Helper function to check that the input file name can be used
-void
-check_input_file(const std::string& filename)
+/// Helper function to open the input file and return its stream
+std::ifstream
+open_input_file(const std::string& filename)
 {
-  // Check that file exists
+  // Check that file exists and is not a directory
   if ( ! kwiversys::SystemTools::FileExists( filename ) )
   {
     VITAL_THROW( file_not_found_exception,
                  filename, "File does not exist." );
   }
-  else if (  kwiversys::SystemTools::FileIsDirectory( filename ) )
+  else if ( kwiversys::SystemTools::FileIsDirectory( filename ) )
   {
     VITAL_THROW( file_not_found_exception, filename,
                  "Path given doesn't point to a regular file!" );
   }
 
-  // Reading in input file data
+  // Open the input file stream
   std::ifstream input_stream( filename.c_str(), std::fstream::in );
   if ( ! input_stream )
   {
     VITAL_THROW( file_not_read_exception, filename,
                  "Could not open file at given path." );
   }
+
+  return input_stream;
 }
 
 }
@@ -79,9 +87,9 @@ check_input_file(const std::string& filename)
 mesh_sptr
 read_mesh(const std::string& filename)
 {
-  check_input_file(filename);
-  std::ifstream input_stream(filename.c_str());
+  std::ifstream input_stream = open_input_file(filename);
   const std::string ext = kwiversys::SystemTools::GetFilenameLastExtension(filename);
+
   if (ext == ".ply2")
   {
     return read_ply2(input_stream);
@@ -103,8 +111,7 @@ read_mesh(const std::string& filename)
 mesh_sptr
 read_ply2(const std::string& filename)
 {
-  check_input_file(filename);
-  std::ifstream input_stream(filename.c_str());
+  std::ifstream input_stream = open_input_file(filename);
 
   return read_ply2(input_stream);
 }
@@ -141,8 +148,8 @@ read_ply2(std::istream& is)
 mesh_sptr
 read_ply(const std::string& filename)
 {
-  check_input_file(filename);
-  std::ifstream input_stream(filename.c_str());
+  std::ifstream input_stream = open_input_file(filename);
+
   return read_ply(input_stream);
 }
 
@@ -200,8 +207,8 @@ mesh_sptr read_ply(std::istream& is)
 void
 write_ply2(const std::string& filename, const mesh& mesh)
 {
-  check_output_file(filename);
-  std::ofstream output_stream(filename.c_str());
+  std::ofstream output_stream = open_output_file(filename);
+
   write_ply2(output_stream, mesh);
 }
 
@@ -232,10 +239,9 @@ void write_ply2(std::ostream& os, const mesh& mesh)
 /// Read texture coordinates from a UV2 file
 bool read_uv2(const std::string& filename, mesh& mesh)
 {
-  std::ifstream fh(filename.c_str());
-  bool retval = read_uv2(fh,mesh);
-  fh.close();
-  return retval;
+  std::ifstream input_stream = open_input_file(filename);
+
+  return read_uv2(input_stream, mesh);
 }
 
 /// Read texture coordinates from a UV2 stream
@@ -263,8 +269,8 @@ bool read_uv2(std::istream& is, mesh& mesh)
 mesh_sptr
 read_obj(const std::string& filename)
 {
-  check_input_file(filename);
-  std::ifstream input_stream(filename.c_str());
+  std::ifstream input_stream = open_input_file(filename);
+
   return read_obj(input_stream);
 }
 
@@ -401,8 +407,8 @@ read_obj(std::istream& is)
 void
 write_obj(const std::string& filename, const mesh& mesh)
 {
-  check_output_file(filename);
-  std::ofstream output_stream(filename.c_str());
+  std::ofstream output_stream = open_output_file(filename);
+
   write_obj(output_stream, mesh);
 }
 
@@ -499,8 +505,8 @@ write_obj(std::ostream& os, const mesh& mesh)
 void
 write_kml(const std::string& filename, const mesh& mesh)
 {
-  check_output_file(filename);
-  std::ofstream output_stream(filename.c_str());
+  std::ofstream output_stream = open_output_file(filename);
+
   write_kml(output_stream, mesh);
 }
 
@@ -555,8 +561,8 @@ write_kml(std::ostream& os, const mesh& mesh)
 void
 write_kml_collada(const std::string& filename, const mesh& mesh)
 {
-  check_output_file(filename);
-  std::ofstream output_stream(filename.c_str());
+  std::ofstream output_stream = open_output_file(filename);
+
   write_kml_collada(output_stream, mesh);
 }
 
@@ -715,8 +721,8 @@ write_kml_collada(std::ostream& os, const mesh& mesh)
 void
 write_vrml(const std::string& filename, const mesh& mesh)
 {
-  check_output_file(filename);
-  std::ofstream output_stream(filename.c_str());
+  std::ofstream output_stream = open_output_file(filename);
+
   write_vrml(output_stream, mesh);
 }
 
