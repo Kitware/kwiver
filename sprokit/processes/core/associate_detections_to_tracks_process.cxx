@@ -134,7 +134,7 @@ associate_detections_to_tracks_process
     }
     catch ( vital::invalid_value const& e )
     {
-      LOG_ERROR( logger(),  "An error occurred: " << e.what());
+      LOG_ERROR( logger(), "Failed to associate tracks: " << e.what());
     }
   }
 
