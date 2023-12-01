@@ -164,11 +164,13 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  * accessor methods that return const& variants of parameter types.
  */
 #define PLUGGABLE_VARIABLES( ... ) \
-      private:                           \
-        MAP( PARAM_VAR_DEF, EMPTY, __VA_ARGS__ ) \
-      public:                            \
-        MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ ) \
-        MAP( PARAM_PUBLIC_SETTER, EMPTY, __VA_ARGS__ )
+        IF( HAS_ARGS( __VA_ARGS__ ) )(                 \
+        private:                           \
+          MAP( PARAM_VAR_DEF, EMPTY, __VA_ARGS__ ) \
+        public:                            \
+          MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ ) \
+          MAP( PARAM_PUBLIC_SETTER, EMPTY, __VA_ARGS__ ) \
+          )
 
 #define PLUGGABLE_CONSTRUCTOR( class_name, ... ) \
       public:                                          \
@@ -179,7 +181,7 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
           )                                            \
         {                                              \
           this->initialize();                           \
-        }                                               \
+        }
 
 #define PLUGGABLE_STATIC_FROM_CONFIG( class_name, ... ) \
       public:                                                          \
@@ -260,8 +262,9 @@ KwiverEmptyDeleter( T* p )
         name = { nullptr, kwiver::vital::detail::KwiverEmptyDeleter< type > }
 #define KWIVER_INITIALIZE_UNIQUE_PTR( type, \
                                       name ) this->name = std::unique_ptr< type, decltype( &kwiver::vital::detail::KwiverDefaultDeleter< type > ) >( new type( *this ), kwiver::vital::detail::KwiverDefaultDeleter< type > )
-
 // ----------------------------------------------------------------------------
+
+#include <string>
 
 namespace kwiver::vital {
 
@@ -272,7 +275,7 @@ public:
 
   virtual std::string test() = 0;
 
-  void initialize() {}
+  virtual void initialize() {}
 };
 typedef std::shared_ptr< test_interface > test_interface_sptr;
 
