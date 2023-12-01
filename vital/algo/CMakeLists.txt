@@ -10,6 +10,7 @@ set(public_headers
    metadata_filter.h
    metadata_map_io.h
    video_input.h
+   video_output.h
   )
 #
 set(source_files
@@ -19,6 +20,7 @@ set(source_files
   metadata_filter.cxx
   metadata_map_io.cxx
   video_input.cxx
+  video_output.cxx
   )
 
 # algorithm library
