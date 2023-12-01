@@ -275,6 +275,7 @@ public:
 
   virtual std::string test() = 0;
 
+protected:
   virtual void initialize() {}
 };
 typedef std::shared_ptr< test_interface > test_interface_sptr;
