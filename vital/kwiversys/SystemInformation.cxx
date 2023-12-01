@@ -373,7 +373,11 @@ public:
 
   // enable/disable stack trace signal handler.
   static
-  void SetStackTraceOnError(int enable);
+  void SetStackTraceOnError(bool enable);
+
+  // interrupt the program
+  static
+  void InterruptionHandler(int sigNo);
 
   // get current stack
   static
@@ -835,9 +839,14 @@ SystemInformation::LongLong SystemInformation::GetProcessId()
   return this->Implementation->GetProcessId();
 }
 
-void SystemInformation::SetStackTraceOnError(int enable)
+void SystemInformation::SetStackTraceOnError(bool enable)
 {
   SystemInformationImplementation::SetStackTraceOnError(enable);
+}
+
+void SystemInformation::InterruptionHandler()
+{
+  signal(SIGINT, SystemInformationImplementation::InterruptionHandler);
 }
 
 std::string SystemInformation::GetProgramStack(int firstFrame, int wholePath)
@@ -1290,7 +1299,7 @@ void StacktraceSignalHandler(
 
   // restore the previously registered handlers
   // and abort
-  SystemInformationImplementation::SetStackTraceOnError(0);
+  SystemInformationImplementation::SetStackTraceOnError(false);
   abort();
   //In the case multiple signals happen at the same time, only one will be
   //processed, since the code terminates before the mutex is unlocked.
@@ -3760,7 +3769,7 @@ std::string SystemInformationImplementation::GetProgramStack(
 /**
 when set print stack trace in response to common signals.
 */
-void SystemInformationImplementation::SetStackTraceOnError(int enable)
+void SystemInformationImplementation::SetStackTraceOnError(bool enable)
 {
 #if !defined(_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
   static int saOrigValid=0;
@@ -3823,6 +3832,14 @@ void SystemInformationImplementation::SetStackTraceOnError(int enable)
   // avoid warning C4100
   (void)enable;
 #endif
+}
+
+void SystemInformationImplementation::InterruptionHandler([[maybe_unused]] int sigNo)
+{
+  std::cerr << "\nSignal " << sigNo << " received, terminating the program." << std::endl;
+
+  // Terminate the program
+  std::_Exit(EXIT_SUCCESS);
 }
 
 bool SystemInformationImplementation::QueryWindowsMemory()

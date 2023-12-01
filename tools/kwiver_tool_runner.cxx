@@ -5,6 +5,7 @@
 #include <vital/applets/kwiver_applet.h>
 #include <vital/applets/applet_context.h>
 
+#include "vital/kwiversys/kwiversys/SystemInformation.hxx"
 #include <vital/applets/applet_registrar.h>
 #include <vital/exceptions/base.h>
 #include <vital/plugin_loader/plugin_factory.h>
@@ -171,6 +172,8 @@ void help_applet( const command_line_parser& options,
 // ============================================================================
 int main(int argc, char *argv[])
 {
+  kwiversys::SystemInformation::InterruptionHandler();
+
   //
   // Global shared context
   // Allocated on the stack so it will automatically clean up
