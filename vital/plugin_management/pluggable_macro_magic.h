@@ -102,7 +102,7 @@ static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 
 #define PARAM_PUBLIC_SETTER( tuple ) PARAM_PUBLIC_SETTER_ tuple
 #define PARAM_PUBLIC_SETTER_( name, type, description_str, default_value ) \
-        CAT( set_, name )(type value)                                          \
+        void CAT( set_, name )(type value)                                          \
         {                                                                        \
           this->CONFIG_VAR_NAME( name ) = value;                                 \
         }
