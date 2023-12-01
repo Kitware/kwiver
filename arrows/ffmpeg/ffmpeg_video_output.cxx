@@ -378,7 +378,7 @@ ffmpeg_video_output
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
-::add_metadata( VITAL_UNUSED kwiver::vital::metadata const& md )
+::add_metadata( [[maybe_unused]] kwiver::vital::metadata const& md )
 {
   // TODO
 }
@@ -648,7 +648,7 @@ ffmpeg_video_output::impl::open_video_state
 void
 ffmpeg_video_output::impl::open_video_state
 ::add_image( kv::image_container_sptr const& image,
-             VITAL_UNUSED kv::timestamp const& ts )
+             [[maybe_unused]] kv::timestamp const& ts )
 {
   // Create frame object to represent incoming image
   frame_uptr frame{
