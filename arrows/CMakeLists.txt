@@ -105,7 +105,7 @@ if( KWIVER_ENABLE_UUID )
 endif()
 
 # if FFmpeg is enabled
-if( KWIVER_ENABLE_FFMPEG)
+if( KWIVER_ENABLE_DEP_FFMPEG)
   add_subdirectory( ffmpeg )
 endif()
 

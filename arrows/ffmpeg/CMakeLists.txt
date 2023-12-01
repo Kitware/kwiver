@@ -3,7 +3,7 @@
 
 set(CMAKE_FOLDER "Arrows/FFmpeg")
 
-if(NOT KWIVER_ENABLE_KLV)
+if(NOT KWIVER_ENABLE_ARROW_KLV)
   message(FATAL_ERROR
           "The FFmpeg arrow requires the KLV arrow (KWIVER_ENABLE_KLV)")
 endif()
