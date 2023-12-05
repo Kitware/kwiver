@@ -44,6 +44,7 @@ public:
   set_configuration_internal( [[maybe_unused]] config_block_sptr )
   {
   }
+
   virtual config_block_sptr
   get_configuration() const { return nullptr; }
 

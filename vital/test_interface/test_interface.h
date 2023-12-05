@@ -6,6 +6,7 @@
 #define VITAL_TEST_INTERFACE_H
 
 #include <string>
+#include <vital/config/config_block.h>
 #include <vital/config/config_helpers.txx>
 #include <vital/plugin_management/pluggable_macro_magic.h>
 #include <vital/plugin_management/plugin_loader.h>
@@ -18,6 +19,17 @@ public:
   PLUGGABLE_INTERFACE( test_interface )
 
   virtual std::string test() = 0;
+
+  virtual void set_configuration_internal(
+    [[maybe_unused]] config_block_sptr cb ) {}
+  virtual void set_configuration( [[maybe_unused]] config_block_sptr cb ) {}
+
+  virtual config_block_sptr
+  get_configuration() const
+  {
+    config_block_sptr cb = config_block::empty_config();
+    return cb;
+  }
 
 protected:
   virtual void initialize() {}
