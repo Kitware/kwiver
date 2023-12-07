@@ -14,6 +14,9 @@
 
 extern "C" {
 #include <libavcodec/avcodec.h>
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(58, 87, 100)
+#include <libavcodec/bsf.h>
+#endif
 #include <libavfilter/avfilter.h>
 #include <libavformat/avformat.h>
 #include <libavutil/hwcontext.h>
