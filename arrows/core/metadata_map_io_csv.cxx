@@ -163,12 +163,19 @@ special_column_names()
     { { kv::VITAL_META_SENSOR_LOCATION, 2 },
       "Sensor Geodetic Altitude (meters)" },
 
-    { { kv::VITAL_META_FRAME_CENTER, 0 },
+    { { kv::VITAL_META_TARGET_LOCATION, 0 },
       "Target Geodetic Location Longitude (EPSG:4326)" },
-    { { kv::VITAL_META_FRAME_CENTER, 1 },
+    { { kv::VITAL_META_TARGET_LOCATION, 1 },
       "Target Geodetic Location Latitude (EPSG:4326)" },
-    { { kv::VITAL_META_FRAME_CENTER, 2 },
+    { { kv::VITAL_META_TARGET_LOCATION, 2 },
       "Target Geodetic Location Altitude (meters)" },
+
+    { { kv::VITAL_META_FRAME_CENTER, 0 },
+      "Geodetic Frame Center Longitude (EPSG:4326)" },
+    { { kv::VITAL_META_FRAME_CENTER, 1 },
+      "Geodetic Frame Center Longitude (EPSG:4326)" },
+    { { kv::VITAL_META_FRAME_CENTER, 2 },
+      "Geodetic Frame Center Altitude (meters)" },
 
     { { kv::VITAL_META_CORNER_POINTS, 0 },
       "Upper Left Corner Longitude (EPSG:4326)" },
