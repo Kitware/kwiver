@@ -111,4 +111,13 @@ kwiver_applet
   throw std::runtime_error( "Invalid context pointer" );
 }
 
+// ----------------------------------------------------------------------------
+vital::config_block_sptr
+kwiver_applet
+::get_configuration() const
+{
+  vital::config_block_sptr cb = vital::config_block::empty_config();
+  return cb;
+}
+
 } // namespace kwiver::tools
