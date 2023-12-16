@@ -99,7 +99,6 @@ public:
   virtual bool at_end() const = 0;
 };
 
-
 } // namespace vital
 
 } // namespace kwiver
