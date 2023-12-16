@@ -95,16 +95,16 @@ static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 
 #define PARAM_PUBLIC_GETTER( tuple ) PARAM_PUBLIC_GETTER_ tuple
 #define PARAM_PUBLIC_GETTER_( name, type, description_str, default_value ) \
-        type const& CAT( get_, name )( ) const                                   \
-        {                                                                        \
-          return this->CONFIG_VAR_NAME( name );                                  \
+        type const& CAT( get_, name )( ) const                             \
+        {                                                                  \
+          return this->CONFIG_VAR_NAME( name );                            \
         }
 
 #define PARAM_PUBLIC_SETTER( tuple ) PARAM_PUBLIC_SETTER_ tuple
 #define PARAM_PUBLIC_SETTER_( name, type, description_str, default_value ) \
-        void CAT( set_, name )(type value)                                          \
-        {                                                                        \
-          this->CONFIG_VAR_NAME( name ) = value;                                 \
+        void CAT( set_, name )(type value)                                 \
+        {                                                                  \
+          this->CONFIG_VAR_NAME( name ) = value;                           \
         }
 
 /**
@@ -113,10 +113,10 @@ static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  */
 #define PARAM_CONSTRUCTOR_ARGS( tuple ) PARAM_CONSTRUCTOR_ARGS_ tuple
 #define PARAM_CONSTRUCTOR_ARGS_( name, type, description_str, default_value ) \
-        IF_ELSE( HAS_ARGS( default_value ) )                                        \
-        (                                                                           \
-          type name = ( default_value ),                                            \
-          type name = type()                                                        \
+        IF_ELSE( HAS_ARGS( default_value ) )                                  \
+        (                                                                     \
+          type name = ( default_value ),                                      \
+          type name = type()                                                  \
         )
 
 /**
@@ -132,26 +132,27 @@ static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  * value out, cast to the parameters declared type.
  */
 #define PARAM_CONFIG_GET( tuple ) PARAM_CONFIG_GET_ tuple
-#define PARAM_CONFIG_GET_( name, type, description_str, default ) \
-        IF_ELSE( HAS_ARGS( default ) )                                  \
-        (                                                               \
+#define PARAM_CONFIG_GET_( name, type, description_str, default )         \
+        IF_ELSE( HAS_ARGS( default ) )                                    \
+        (                                                                 \
           kwiver::vital::get_config_helper< type >( cb, #name, default ), \
           kwiver::vital::get_config_helper< type >( cb, #name )           \
         )
 
 #define PARAM_CONFIG_GET_FROM_THIS( tuple ) PARAM_CONFIG_GET_FROM_THIS_ tuple
 #define PARAM_CONFIG_GET_FROM_THIS_( name, type, description_str, default ) \
-        kwiver::vital::set_config_helper< type >( cb, #name, \
-                                                  this->CONFIG_VAR_NAME( \
-                                                    name ) );
+        kwiver::vital::set_config_helper< type >( cb, #name,                \
+                                                  this->CONFIG_VAR_NAME(    \
+                                                    name ) );               \
+
 
 /**
  * Produce a set_value call on the config_block (assumed variable `cb`) to set
  * the current class-variable value.
  */
 #define PARAM_CONFIG_DEFAULT_SET( tuple ) PARAM_CONFIG_DEFAULT_SET_ tuple
-#define PARAM_CONFIG_DEFAULT_SET_( name, type, description_str, \
-                                   default )                    \
+#define PARAM_CONFIG_DEFAULT_SET_( name, type, description_str,       \
+                                   default )                          \
         IF_ELSE( HAS_ARGS( default ) )                                \
         (                                                             \
           cb.set_value( #name, default, description_str ); ,          \
@@ -169,80 +170,80 @@ static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  * Setup private member variables for the parameter set, as well as public
  * accessor methods that return const& variants of parameter types.
  */
-#define PLUGGABLE_VARIABLES( ... ) \
-        IF( HAS_ARGS( __VA_ARGS__ ) )(                 \
-        private:                           \
-          MAP( PARAM_VAR_DEF, EMPTY, __VA_ARGS__ ) \
-        public:                            \
-          MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ ) \
-          MAP( PARAM_PUBLIC_SETTER, EMPTY, __VA_ARGS__ ) \
+#define PLUGGABLE_VARIABLES( ... )                          \
+        IF( HAS_ARGS( __VA_ARGS__ ) )(                      \
+        private:                                            \
+          MAP( PARAM_VAR_DEF, EMPTY, __VA_ARGS__ )          \
+        public:                                             \
+          MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ )    \
+          MAP( PARAM_PUBLIC_SETTER, EMPTY, __VA_ARGS__ )    \
           )
 
-#define PLUGGABLE_CONSTRUCTOR( class_name, ... ) \
-      public:                                          \
+#define PLUGGABLE_CONSTRUCTOR( class_name, ... )                 \
+      public:                                                    \
         explicit class_name( MAP( PARAM_CONSTRUCTOR_ARGS, COMMA, \
-                                  __VA_ARGS__ ) ) \
-        IF( HAS_ARGS( __VA_ARGS__ ) )(                 \
-          : MAP( PARAM_CONSTRUCTOR_ASSN, COMMA, __VA_ARGS__ )                    \
-          )                                            \
-        {                                              \
-          this->initialize();                           \
+                                  __VA_ARGS__ ) )                \
+        IF( HAS_ARGS( __VA_ARGS__ ) )(                           \
+          : MAP( PARAM_CONSTRUCTOR_ASSN, COMMA, __VA_ARGS__ )    \
+          )                                                      \
+        {                                                        \
+          this->initialize();                                    \
         }
 
-#define PLUGGABLE_STATIC_FROM_CONFIG( class_name, ... ) \
-      public:                                                          \
-        static ::kwiver::vital::pluggable_sptr from_config( \
+#define PLUGGABLE_STATIC_FROM_CONFIG( class_name, ... )                  \
+      public:                                                            \
+        static ::kwiver::vital::pluggable_sptr from_config(              \
           [[maybe_unused]] ::kwiver::vital::config_block_sptr const cb ) \
-        {                                                              \
-          return std::make_shared< class_name >(                       \
-            MAP( PARAM_CONFIG_GET, COMMA, __VA_ARGS__ )             \
-            );                                                         \
+        {                                                                \
+          return std::make_shared< class_name >(                         \
+            MAP( PARAM_CONFIG_GET, COMMA, __VA_ARGS__ )                  \
+            );                                                           \
         }
 
-#define PLUGGABLE_STATIC_GET_DEFAULT( ... ) \
-      public:                                     \
-        static void get_default_config( \
+#define PLUGGABLE_STATIC_GET_DEFAULT( ... )                    \
+      public:                                                  \
+        static void get_default_config(                        \
           [[maybe_unused]] ::kwiver::vital::config_block& cb ) \
-        {                                         \
-          MAP( PARAM_CONFIG_DEFAULT_SET, EMPTY, __VA_ARGS__ )               \
+        {                                                      \
+          MAP( PARAM_CONFIG_DEFAULT_SET, EMPTY, __VA_ARGS__ )  \
         }
 
-#define PLUGGABLE_GET_CONFIGURATION( ... )                                             \
-      public:                                                                                \
-        kwiver::vital::config_block_sptr get_configuration()     const override              \
-        {                                                                                    \
-          kwiver::vital::config_block_sptr cb = \
-            kwiver::vital::config_block::empty_config(); \
-          MAP( PARAM_CONFIG_GET_FROM_THIS, EMPTY, __VA_ARGS__ )                              \
-          return cb;                                                                         \
-        }                                                                                    \
+#define PLUGGABLE_GET_CONFIGURATION( ... )                                      \
+      public:                                                                   \
+        kwiver::vital::config_block_sptr get_configuration()     const override \
+        {                                                                       \
+          kwiver::vital::config_block_sptr cb =                                 \
+            kwiver::vital::config_block::empty_config();                        \
+          MAP( PARAM_CONFIG_GET_FROM_THIS, EMPTY, __VA_ARGS__ )                 \
+          return cb;                                                            \
+        }                                                                       \
 
 
 /**
  * Produce a configuration helper for a single parameter
  */
 #define PARAM_CONFIG_SET( tuple ) PARAM_CONFIG_SET_ tuple
-#define PARAM_CONFIG_SET_( name, type, description_str, default ) \
+#define PARAM_CONFIG_SET_( name, type, description_str, default )                                  \
         this->CONFIG_VAR_NAME( name ) = kwiver::vital::get_config_helper< type >( config, #name ); \
 
 
 /**
  * Define a method for setting an algorithm's configuration
  */
-#define PLUGGABLE_SET_CONFIGURATION( class_name, ... )                                 \
-      public:                                                                               \
-        void set_configuration( \
-          ::kwiver::vital::config_block_sptr in_config )  override      \
-        {                                                                                     \
-          kwiver::vital::config_block_sptr config = \
-            kwiver::vital::config_block::empty_config(); \
-          class_name::get_default_config( *config );                                            \
-          config->merge_config( in_config );                                                    \
-          IF( HAS_ARGS( __VA_ARGS__ ) )(                                                      \
-            MAP( PARAM_CONFIG_SET, EMPTY, __VA_ARGS__ )                                       \
-            )                                                                                 \
-          this->set_configuration_internal( in_config );                                        \
-        }                                                                                     \
+#define PLUGGABLE_SET_CONFIGURATION( class_name, ... )             \
+      public:                                                      \
+        void set_configuration(                                    \
+          ::kwiver::vital::config_block_sptr in_config )  override \
+        {                                                          \
+          kwiver::vital::config_block_sptr config =                \
+            kwiver::vital::config_block::empty_config();           \
+          class_name::get_default_config( *config );               \
+          config->merge_config( in_config );                       \
+          IF( HAS_ARGS( __VA_ARGS__ ) )(                           \
+            MAP( PARAM_CONFIG_SET, EMPTY, __VA_ARGS__ )            \
+            )                                                      \
+          this->set_configuration_internal( in_config );           \
+        }                                                          \
 
 // ----------------------------------------------------------------------------
 
@@ -252,30 +253,30 @@ static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  * \param interface_name The name of the interface class, or other like string
  * that will be used as the string name for this interface.
  */
-#define PLUGGABLE_INTERFACE( name ) \
-      public:                             \
+#define PLUGGABLE_INTERFACE( name )                            \
+      public:                                                  \
         static std::string interface_name() { return #name; }
 
 /**
  * Basic implementation class helper macro for when you want to author your
  * own from_config and get_default_config static methods.
  */
-#define PLUGGABLE_IMPL_BASIC( class_name, description ) \
-      public:                                                 \
-        static std::string plugin_name() { return #class_name; } \
+#define PLUGGABLE_IMPL_BASIC( class_name, description )                  \
+      public:                                                            \
+        static std::string plugin_name() { return #class_name; }          \
         static std::string plugin_description() { return description; }
 
 /**
  * All together now: TODO detail composition
  */
-#define PLUGGABLE_IMPL( class_name, description, ... ) \
-        PLUGGABLE_VARIABLES( __VA_ARGS__ )                   \
-        PLUGGABLE_CONSTRUCTOR( class_name, __VA_ARGS__ )     \
-        PLUGGABLE_IMPL_BASIC( class_name, description )      \
-        PLUGGABLE_STATIC_FROM_CONFIG( class_name, __VA_ARGS__ ) \
-        PLUGGABLE_STATIC_GET_DEFAULT( __VA_ARGS__ ) \
-        PLUGGABLE_SET_CONFIGURATION( class_name, __VA_ARGS__ ) \
-        PLUGGABLE_GET_CONFIGURATION( __VA_ARGS__ ) \
+#define PLUGGABLE_IMPL( class_name, description, ... )             \
+        PLUGGABLE_VARIABLES( __VA_ARGS__ )                         \
+        PLUGGABLE_CONSTRUCTOR( class_name, __VA_ARGS__ )           \
+        PLUGGABLE_IMPL_BASIC( class_name, description )            \
+        PLUGGABLE_STATIC_FROM_CONFIG( class_name, __VA_ARGS__ )    \
+        PLUGGABLE_STATIC_GET_DEFAULT( __VA_ARGS__ )                \
+        PLUGGABLE_SET_CONFIGURATION( class_name, __VA_ARGS__ )     \
+        PLUGGABLE_GET_CONFIGURATION( __VA_ARGS__ )                 \
 
 
 // ----------------------------------------------------------------------------
@@ -299,15 +300,10 @@ KwiverEmptyDeleter( T* p )
 
 } // namespace kwiver::vital::detail
 
-#define KWIVER_UNIQUE_PTR( type, name ) std::unique_ptr< type, \
-                                                         decltype( &kwiver:: \
-                                                                   vital:: \
-                                                                   detail:: \
-                                                                   KwiverEmptyDeleter \
-                                                                   < type > ) > \
-        name = { nullptr, kwiver::vital::detail::KwiverEmptyDeleter< type > }
-#define KWIVER_INITIALIZE_UNIQUE_PTR( type, \
-                                      name ) this->name = std::unique_ptr< type, decltype( &kwiver::vital::detail::KwiverDefaultDeleter< type > ) >( new type( *this ), kwiver::vital::detail::KwiverDefaultDeleter< type > )
+// UNCRUST-OFF
+#define KWIVER_UNIQUE_PTR( type, name ) std::unique_ptr< type,decltype( &kwiver::vital::detail::KwiverEmptyDeleter<type>)> name = { nullptr, kwiver::vital::detail::KwiverEmptyDeleter<type> }
+#define KWIVER_INITIALIZE_UNIQUE_PTR( type,  name ) this->name = std::unique_ptr< type, decltype( &kwiver::vital::detail::KwiverDefaultDeleter< type > ) >( new type( *this ), kwiver::vital::detail::KwiverDefaultDeleter< type > )
+// UNCRUST-ON
 // ----------------------------------------------------------------------------
 
 #endif // PLUGGABLE_MACRO_MAGIC_H
