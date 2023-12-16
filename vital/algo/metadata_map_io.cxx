@@ -7,7 +7,6 @@
 
 #include "metadata_map_io.h"
 
-#include <vital/algo/algorithm.txx>
 #include <vital/exceptions/io.h>
 #include <vital/vital_config.h>
 #include <vital/vital_types.h>
@@ -16,15 +15,7 @@
 
 #include <fstream>
 
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::metadata_map_io );
-/// \endcond
-
-namespace kwiver {
-
-namespace vital {
-
-namespace algo {
+namespace kwiver::vital::algo {
 
 // ----------------------------------------------------------------------------
 metadata_map_io
@@ -117,14 +108,14 @@ metadata_map_io
 // ----------------------------------------------------------------------------
 void
 metadata_map_io
-::set_configuration( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration( [[maybe_unused]] vital::config_block_sptr config )
 {
 }
 
 // ----------------------------------------------------------------------------
 bool
 metadata_map_io
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -132,7 +123,7 @@ metadata_map_io
 // ----------------------------------------------------------------------------
 std::ios_base::openmode
 metadata_map_io
-::load_open_mode( VITAL_UNUSED std::string const& filename ) const
+::load_open_mode( [[maybe_unused]] std::string const& filename ) const
 {
   return std::ios_base::in;
 }
@@ -140,13 +131,9 @@ metadata_map_io
 // ----------------------------------------------------------------------------
 std::ios_base::openmode
 metadata_map_io
-::save_open_mode( VITAL_UNUSED std::string const& filename ) const
+::save_open_mode( [[maybe_unused]] std::string const& filename ) const
 {
   return std::ios_base::out;
 }
 
-} // namespace algo
-
-} // namespace vital
-
-} // namespace kwiver
+} // namespace

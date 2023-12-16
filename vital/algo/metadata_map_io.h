@@ -33,14 +33,13 @@ namespace algo {
 /// This class represents an abstract interface for reading and writing video
 /// metadata.
 class VITAL_ALGO_EXPORT metadata_map_io
-  : public kwiver::vital::algorithm_def< metadata_map_io >
+  : public kwiver::vital::algorithm
 {
 public:
+  explicit metadata_map_io();
   virtual ~metadata_map_io() = default;
 
-  /// Return the name of this algorithm
-  static std::string static_type_name() { return "metadata_map_io"; }
-
+  PLUGGABLE_INTERFACE( metadata_map_io );
   /// Load metadata from the file.
   ///
   /// \throws kwiver::vital::path_not_exists
@@ -100,8 +99,6 @@ public:
   bool check_configuration( vital::config_block_sptr config ) const override;
 
 protected:
-  metadata_map_io();
-
   void set_capability( algorithm_capabilities::capability_name_t const& name,
                        bool val );
 

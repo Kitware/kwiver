@@ -8,6 +8,7 @@ set(public_headers
    buffered_metadata_filter.h
    image_io.h
    metadata_filter.h
+   metadata_map_io.h
    video_input.h
   )
 #
@@ -16,6 +17,7 @@ set(source_files
   buffered_metadata_filter.cxx
   image_io.cxx
   metadata_filter.cxx
+  metadata_map_io.cxx
   video_input.cxx
   )
 
