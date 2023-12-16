@@ -20,8 +20,8 @@
 #include <vital/types/timestamp.h>
 #include <vital/types/video_raw_image.h>
 #include <vital/types/video_raw_metadata.h>
-#include <vital/types/video_uninterpreted_data.h>
 #include <vital/types/video_settings.h>
+#include <vital/types/video_uninterpreted_data.h>
 
 #include <string>
 #include <vector>
@@ -113,12 +113,15 @@ class VITAL_ALGO_EXPORT video_input
 public:
   // Common capabilities
   // -- basic capabilities --
-  static const algorithm_capabilities::capability_name_t HAS_EOV; // has end of video indication
+  static const algorithm_capabilities::capability_name_t HAS_EOV; // has end of
+                                                                  // video
+                                                                  // indication
   static const algorithm_capabilities::capability_name_t HAS_FRAME_NUMBERS;
   static const algorithm_capabilities::capability_name_t HAS_FRAME_TIME;
   static const algorithm_capabilities::capability_name_t HAS_FRAME_DATA;
   static const algorithm_capabilities::capability_name_t HAS_FRAME_RATE;
-  static const algorithm_capabilities::capability_name_t HAS_ABSOLUTE_FRAME_TIME;
+  static const algorithm_capabilities::capability_name_t
+    HAS_ABSOLUTE_FRAME_TIME;
   static const algorithm_capabilities::capability_name_t HAS_METADATA;
   static const algorithm_capabilities::capability_name_t HAS_TIMEOUT;
   static const algorithm_capabilities::capability_name_t IS_SEEKABLE;
@@ -188,10 +191,12 @@ public:
   ///
   /// Get the number of frames available in the video stream.
   ///
-  /// \return the number of frames in the video stream, or 0 if the video stream
+  /// \return the number of frames in the video stream, or 0 if the video
+  /// stream
   /// is not seekable.
   ///
-  /// \throws video_stream_exception when there is an error in the video stream.
+  /// \throws video_stream_exception when there is an error in the video
+  /// stream.
   virtual size_t num_frames() const = 0;
 
   /// \brief Advance to next frame in video stream.
@@ -219,7 +224,8 @@ public:
   /// \return \b true if frame returned, \b false if end of video.
   ///
   /// \throws video_input_timeout_exception when the timeout expires.
-  /// \throws video_stream_exception when there is an error in the video stream.
+  /// \throws video_stream_exception when there is an error in the video
+  /// stream.
   virtual bool next_frame( kwiver::vital::timestamp& ts,
                            uint32_t timeout = 0 ) = 0;
 
@@ -251,7 +257,8 @@ public:
   /// \return \b true if frame returned, \b false if end of video.
   ///
   /// \throws video_input_timeout_exception when the timeout expires.
-  /// \throws video_stream_exception when there is an error in the video stream.
+  /// \throws video_stream_exception when there is an error in the video
+  /// stream.
   virtual bool seek_frame( kwiver::vital::timestamp& ts,
                            kwiver::vital::timestamp::frame_t frame_number,
                            uint32_t timeout = 0 ) = 0;
@@ -279,7 +286,8 @@ public:
   ///
   /// \return Pointer to image container.
   ///
-  /// \throws video_stream_exception when there is an error in the video stream.
+  /// \throws video_stream_exception when there is an error in the video
+  /// stream.
   virtual kwiver::vital::image_container_sptr frame_image() = 0;
 
   /// Return implementation-defined data for efficiently copying this frame's
@@ -332,7 +340,8 @@ public:
   ///
   /// @return Vector of metadata pointers.
   ///
-  /// \throws video_stream_exception when there is an error in the video stream.
+  /// \throws video_stream_exception when there is an error in the video
+  /// stream.
   virtual kwiver::vital::metadata_vector frame_metadata() = 0;
 
   /// Return implementation-defined data for efficiently copying this frame's
@@ -350,7 +359,8 @@ public:
   /// this frame.
   ///
   /// This method enables passage of miscellaneous data - such as audio,
-  /// unrecognized metadata, or secondary image streams - to a video output when
+  /// unrecognized metadata, or secondary image streams - to a video output
+  /// when
   /// transcoding.
   ///
   /// \return Pointer to uninterpreted data.
@@ -370,7 +380,8 @@ public:
   ///
   /// @return Map of vectors of metadata pointers.
   ///
-  /// \throws video_stream_exception when there is an error in the video stream.
+  /// \throws video_stream_exception when there is an error in the video
+  /// stream.
   virtual kwiver::vital::metadata_map_sptr metadata_map() = 0;
 
   /// \brief Get frame rate from the video.
