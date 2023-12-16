@@ -2,15 +2,13 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of a thread pool
- *
- * This design is modeled after an implementation by Jakob Progsch and
- * Vaclav Zeman found here:
- *
- * https://github.com/progschj/ThreadPool
- */
+/// \file
+/// \brief Implementation of a thread pool
+///
+/// This design is modeled after an implementation by Jakob Progsch and
+/// Vaclav Zeman found here:
+///
+/// https://github.com/progschj/ThreadPool
 
 #include "thread_pool.h"
 
@@ -123,4 +121,4 @@ thread_pool
 
 } // namespace vital
 
-} // namespace kwiver
+}     // end namespace

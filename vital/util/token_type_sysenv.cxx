@@ -8,14 +8,14 @@
 #include <sstream>
 
 #if defined( _WIN32 ) || defined( _WIN64 )
-# include <process.h>
-# define HOME_ENV_NAME "UserProfile"
-# define GETPID() _getpid()
+#include <process.h>
+#define HOME_ENV_NAME "UserProfile"
+#define GETPID() _getpid()
 #else
-# include <sys/types.h>
-# include <unistd.h>
-# define HOME_ENV_NAME "HOME"
-# define GETPID() getpid()
+#include <sys/types.h>
+#include <unistd.h>
+#define HOME_ENV_NAME "HOME"
+#define GETPID() getpid()
 #endif
 
 namespace kwiver {
@@ -24,7 +24,7 @@ namespace vital {
 
 typedef kwiversys::SystemTools ST;
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 token_type_sysenv
 ::token_type_sysenv()
   : token_type( "SYSENV" )
@@ -34,19 +34,18 @@ token_type_sysenv
   m_sysinfo.RunMemoryCheck();
 }
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 token_type_sysenv::
 ~token_type_sysenv()
 {}
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 token_type_sysenv
 ::lookup_entry( std::string const& name, std::string& result ) const
 {
   kwiversys::SystemInformation* SI(
-    const_cast< kwiversys::SystemInformation* >(
-      &m_sysinfo ) );
+    const_cast< kwiversys::SystemInformation* >( &m_sysinfo ) );
 
   if( "cwd" == name ) // current directory
   {
@@ -54,7 +53,7 @@ token_type_sysenv
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "numproc" == name )   // number of processors/cores
   {
     std::stringstream sval;
@@ -65,7 +64,7 @@ token_type_sysenv
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "totalvirtualmemory" == name )
   {
     std::stringstream sval;
@@ -74,7 +73,7 @@ token_type_sysenv
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "availablevirtualmemory" == name )
   {
     std::stringstream sval;
@@ -83,7 +82,7 @@ token_type_sysenv
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "totalphysicalmemory" == name )
   {
     std::stringstream sval;
@@ -92,7 +91,7 @@ token_type_sysenv
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "availablephysicalmemory" == name )
   {
     std::stringstream sval;
@@ -101,49 +100,49 @@ token_type_sysenv
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "hostname" == name )   // network name of system
   {
     result = SI->GetHostname();
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "domainname" == name )
   {
     result = SI->GetFullyQualifiedDomainName();
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "osname" == name )
   {
     result = SI->GetOSName();
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "osdescription" == name )
   {
     result = SI->GetOSDescription();
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "osplatform" == name )
   {
     result = SI->GetOSPlatform();
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "osversion" == name )
   {
     result = SI->GetOSVersion();
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "is64bits" == name )
   {
     if( 1 == SI->Is64Bits() )
@@ -158,7 +157,7 @@ token_type_sysenv
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "iswindows" == name )
   {
     if( 1 == SI->GetOSIsWindows() )
@@ -173,7 +172,7 @@ token_type_sysenv
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "islinux" == name )
   {
     if( 1 == SI->GetOSIsLinux() )
@@ -188,7 +187,7 @@ token_type_sysenv
     return true;
   }
 
-  // ----------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "isapple" == name )
   {
     if( 1 == SI->GetOSIsApple() )
@@ -203,7 +202,7 @@ token_type_sysenv
     return true;
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "homedir" == name )
   {
     std::string home;
@@ -217,14 +216,14 @@ token_type_sysenv
     return true;
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "curdir" == name )
   {
     result = ST::GetCurrentWorkingDirectory();
     return true;
   }
 
-  // ------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   if( "pid" == name )
   {
     const auto pid = GETPID();
@@ -241,4 +240,4 @@ token_type_sysenv
 
 } // namespace vital
 
-} // namespace kwiver
+}   // end namespace

@@ -2,27 +2,24 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Wrapper over C functions to get executable path and module path.
- */
+/// \file
+/// \brief Wrapper over C functions to get executable path and module path.
 
 #include <vital/util/get_paths.h>
 
-namespace kwiver::vital {
+namespace kwiver {
+
+namespace vital {
 
 // Code originally from https://github.com/gpakosz/whereami.git
 // and used unmodified
 
 // make support functions static
 #define WAI_FUNCSPEC static
-// This import order is intentional
-// UNCRUST-OFF
-#include <vital/util/whereami.h>
 #include "whereami.c"
-// UNCRUST-ON
+#include <vital/util/whereami.h>
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 get_executable_path()
 {
@@ -42,7 +39,7 @@ get_executable_path()
   return path;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 get_module_path()
 {
@@ -62,4 +59,6 @@ get_module_path()
   return path;
 }
 
-} // namespace kwiver::vital
+} // namespace vital
+
+} // namespace kwiver

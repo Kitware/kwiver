@@ -25,7 +25,7 @@ token_expand_editor::
 ~token_expand_editor()
 {}
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 token_expand_editor
 ::process( std::string& line )
@@ -35,7 +35,7 @@ token_expand_editor
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 token_expand_editor
 ::add_expander( kwiver::vital::token_type* tt )
@@ -47,4 +47,4 @@ token_expand_editor
 
 } // namespace vital
 
-} // namespace kwiver
+}     // end namespace

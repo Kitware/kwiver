@@ -7,20 +7,24 @@
 #include <vital/vital_config.h>
 
 #if VITAL_USE_ABI_DEMANGLE
-# include <cstdlib>
-# include <cxxabi.h>
+
+#include <cstdlib>
+#include <cxxabi.h>
+
 #endif
 
-namespace kwiver::vital {
+namespace kwiver {
 
-// ------------------------------------------------------------------
+namespace vital {
+
+// ----------------------------------------------------------------------------
 std::string
 demangle( std::string const& sym )
 {
   return demangle( sym.c_str() );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 demangle( char const* sym )
 {
@@ -45,4 +49,6 @@ demangle( char const* sym )
 #endif
 }
 
-} // namespace kwiver::vital
+} // namespace vital
+
+}   // end namespace

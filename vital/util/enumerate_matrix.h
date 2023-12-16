@@ -9,12 +9,13 @@
 
 #include <memory>
 
-namespace kwiver::vital {
+namespace kwiver {
 
-/**
- * @brief Adaptor to iterate over non-zero cells in a sparse matrix
- * \sa enumerate
- */
+namespace vital {
+
+/// Adaptor to iterate over non-zero cells in a sparse matrix
+///
+///  \sa enumerate
 template < typename ValueT, int Options, typename IndexT >
 class sparse_matrix_enumerator
 {
@@ -126,7 +127,7 @@ sparse_matrix_enumerator< ValueT, Options, IndexT >::iterator
 {
 }
 
-// ----------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 template < typename ValueT, int Options, typename IndexT >
 bool
 sparse_matrix_enumerator< ValueT, Options, IndexT >::iterator
@@ -146,7 +147,7 @@ sparse_matrix_enumerator< ValueT, Options, IndexT >::iterator
            this->m_inner->index() == other.m_inner->index() );
 }
 
-// ----------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 template < typename ValueT, int Options, typename IndexT >
 typename
 sparse_matrix_enumerator< ValueT, Options, IndexT >::iterator&
@@ -173,14 +174,11 @@ sparse_matrix_enumerator< ValueT, Options, IndexT >::iterator
 }
 
 // ----------------------------------------------------------------------------
-
-/**
- * @brief Create adaptor to iterate over non-zero cells in a sparse matrix
- *
- * This creates an adaptor () on an Eigen::SparseMatrix that can be iterated
- * over with e.g. a range-based for loop in order to visit each non-zero cell
- * in the matrix.
- */
+/// Create adaptor to iterate over non-zero cells in a sparse matrix
+///
+///  This creates an adaptor () on an Eigen::SparseMatrix that can be iterated
+///  over with e.g. a range-based for loop in order to visit each non-zero cell
+///  in the matrix.
 template < typename ValueT, int Options, typename IndexT >
 sparse_matrix_enumerator< ValueT, Options, IndexT >
 enumerate(
@@ -189,6 +187,8 @@ enumerate(
   return sparse_matrix_enumerator< ValueT, Options, IndexT >( mat );
 }
 
-} // namespace kwiver::vital
+} // namespace vital
+
+}   // end namespace
 
 #endif // VITAL_ENUMERATE_MATRIX_H_
