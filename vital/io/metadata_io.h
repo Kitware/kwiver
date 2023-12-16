@@ -13,34 +13,37 @@
 #define VITAL_METADATA_IO_H_
 
 #include <vital/types/metadata.h>
-#include <vital/vital_types.h>
 #include <vital/vital_export.h>
+#include <vital/vital_types.h>
 
 namespace kwiver {
+
 namespace vital {
 
 /// Extract an image file basename from metadata and (if needed) frame number
 ///
-/// The purpose of this function is to provide a standard way to get a base file
+/// The purpose of this function is to provide a standard way to get a base
+/// file
 /// name (no file extension) from metadata.  The caller of this function should
 /// append a file extenstion and can then use this file to store data relevant
 /// to the source frame.
 ///
 /// The generated base file name is determined as follows.  If a source image
 /// file name is provided in \c md then the basename (file extension removed)
-/// of the image is returned. Otherwise, if a source video file name is provided
+/// of the image is returned. Otherwise, if a source video file name is
+/// provided
 /// the video file basename is appended with the frame number and returned.
 /// If no source file name is provided, the base name is "frame" with the frame
 /// number appended.
 std::string
 VITAL_EXPORT
-basename_from_metadata(metadata_sptr md,
-                       frame_id_t frame);
+basename_from_metadata( metadata_sptr md,
+                        frame_id_t frame );
 
 std::string
 VITAL_EXPORT
-basename_from_metadata(kwiver::vital::metadata_vector const& mds,
-                       frame_id_t frame);
+basename_from_metadata( kwiver::vital::metadata_vector const& mds,
+                        frame_id_t frame );
 
 /// Read in a POS file, producing a metadata object
 ///
@@ -72,6 +75,8 @@ VITAL_EXPORT
 write_pos_file( metadata const& md,
                 path_t const& file_path );
 
-} } // end namespace
+} // namespace vital
+
+}   // end namespace
 
 #endif // VITAL_METADATA_IO_H_
