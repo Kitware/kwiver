@@ -9,10 +9,12 @@
 #define KWIVER_VITAL_METADATA_TAGS_H_
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------------------
-enum vital_metadata_tag {
+enum vital_metadata_tag
+{
   VITAL_META_UNKNOWN,
   VITAL_META_METADATA_ORIGIN,
   VITAL_META_UNIX_TIMESTAMP,
@@ -122,14 +124,14 @@ enum vital_metadata_tag {
 };
 
 // ----------------------------------------------------------------------------
-template< vital_metadata_tag Tag >
-struct metadata_tag_static_traits;
+template < vital_metadata_tag Tag > struct metadata_tag_static_traits;
 
 // ----------------------------------------------------------------------------
-template< vital_metadata_tag Tag >
+template < vital_metadata_tag Tag >
 using type_of_tag = typename metadata_tag_static_traits< Tag >::type;
 
-}
-}
+} // namespace vital
+
+} // namespace kwiver
 
 #endif

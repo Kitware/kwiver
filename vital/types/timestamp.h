@@ -5,14 +5,15 @@
 #ifndef _VITAL_TIMESTAMP_H_
 #define _VITAL_TIMESTAMP_H_
 
-#include <stdint.h>
-#include <ostream>
 #include <istream>
+#include <ostream>
+#include <stdint.h>
 
 #include <vital/vital_export.h>
 #include <vital/vital_types.h>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------------------
@@ -37,7 +38,7 @@ class VITAL_EXPORT timestamp
 {
 public:
   typedef kwiver::vital::frame_id_t frame_t;
-  typedef kwiver::vital::time_usec_t  time_t;
+  typedef kwiver::vital::time_usec_t time_t;
 
   /// \brief Default constructor.
   ///
@@ -50,7 +51,7 @@ public:
   ///
   /// @param t Time for timestamp in micro-seconds
   /// @param f Frame number for timestamp
-  explicit timestamp( time_usec_t t, frame_id_t f);
+  explicit timestamp( time_usec_t t, frame_id_t f );
 
   /// \brief Is timestamp valid.
   ///
@@ -58,21 +59,24 @@ public:
   /// valid.
   ///
   /// @return \b true if both time and frame are valid
-  bool is_valid() const { return m_valid_time && m_valid_frame; }
+  bool
+  is_valid() const { return m_valid_time && m_valid_frame; }
 
   /// \brief Timestamp has valid time.
   ///
   /// Indicates that the time has been set for this timestamp.
   ///
   /// @return \b true if time has been set
-  bool has_valid_time() const { return m_valid_time; }
+  bool
+  has_valid_time() const { return m_valid_time; }
 
   /// \brief Timestamp has valid frame number.
   ///
   /// Indicates that the frame number has been set for this timestamp.
   ///
   /// @return \b true if frame number has been set
-  bool has_valid_frame() const { return m_valid_frame; }
+  bool
+  has_valid_frame() const { return m_valid_frame; }
 
   /// \brief Get time from timestamp.
   ///
@@ -83,7 +87,8 @@ public:
   /// \sa has_valid_time()
   ///
   /// @return Frame time in micro-seconds
-  time_usec_t get_time_usec() const { return m_time; }
+  time_usec_t
+  get_time_usec() const { return m_time; }
 
   /// \brief Get time in seconds.
   ///
@@ -101,7 +106,8 @@ public:
   /// \sa has_valid_frame()
   ///
   /// @return Frame number.
-  frame_id_t get_frame() const { return m_frame; }
+  frame_id_t
+  get_frame() const { return m_frame; }
 
   /// \brief Set time portion of timestamp.
   ///
@@ -116,7 +122,7 @@ public:
   /// \brief Set frame portion of timestamp.
   ///
   /// @param f Frame number
-  timestamp& set_frame( frame_id_t f);
+  timestamp& set_frame( frame_id_t f );
 
   /// \brief Set timestamp totally invalid.
   ///
@@ -128,9 +134,10 @@ public:
   /// @param dom Time domain index
   ///
   /// @return Reference to this object.
-  timestamp& set_time_domain_index ( int dom );
+  timestamp& set_time_domain_index( int dom );
 
-  int get_time_domain_index() const { return m_time_domain_index; }
+  int
+  get_time_domain_index() const { return m_time_domain_index; }
 
   /// \brief Format object in a readable manner.
   ///
@@ -152,16 +159,18 @@ private:
   bool m_valid_frame;           ///< indicates valid frame number
 
   time_usec_t m_time;             ///< frame time in micro-seconds
-  frame_id_t  m_frame;          ///< frame number
+  frame_id_t m_frame;          ///< frame number
 
   // index used to determine the time domain for this timestamp.
   int m_time_domain_index;
-
 }; // end class timestamp
 
-inline std::ostream& operator<< ( std::ostream& str, timestamp const& obj )
+inline std::ostream&
+operator<<( std::ostream& str, timestamp const& obj )
 { str << obj.pretty_print().c_str(); return str; }
 
-} } // end namespace
+} // namespace vital
+
+}   // end namespace
 
 #endif // _VITAL_TIMESTAMP_H_

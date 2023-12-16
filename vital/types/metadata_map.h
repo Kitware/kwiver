@@ -10,16 +10,17 @@
 
 #include <vital/types/metadata.h>
 
-#include <vital/vital_types.h>
-#include <vital/vital_config.h>
 #include <vital/types/geo_point.h>
 #include <vital/types/metadata_traits.h>
+#include <vital/vital_config.h>
+#include <vital/vital_types.h>
 
 #include <map>
 #include <memory>
 #include <set>
 
 namespace kwiver {
+
 namespace vital {
 
 /// An abstract mapping between frame IDs and metadata vectors
@@ -46,8 +47,9 @@ public:
   ///
   /// \param tag the metadata tag
   /// \param fid the frame id
-  /// \returns true if the metadata item is present for the given tag and frame id
-  virtual bool has_item(vital_metadata_tag tag, frame_id_t fid) const = 0;
+  /// \returns true if the metadata item is present for the given tag and frame
+  /// id
+  virtual bool has_item( vital_metadata_tag tag, frame_id_t fid ) const = 0;
 
   /// Get a metadata item from the map according to its tag and the frame
   ///
@@ -55,21 +57,23 @@ public:
   /// \parma fid the frame id
   /// \returns the metadata item for the requested tag and frame id
   virtual metadata_item const&
-  get_item(vital_metadata_tag tag, frame_id_t fid) const = 0;
+  get_item( vital_metadata_tag tag, frame_id_t fid ) const = 0;
 
   /// Get a vector of all metadata available at a given frame id
   virtual metadata_vector
-  get_vector(frame_id_t fid) const = 0;
+  get_vector( frame_id_t fid ) const = 0;
 
   /// Templated version of has_item to match get method.
   ///
   /// \param tag the metadata tag
   /// \param fid the frame id
-  /// \returns true if the metadata item is present for the given tag and frame id
-  template <vital_metadata_tag tag>
-  bool has(frame_id_t fid)
+  /// \returns true if the metadata item is present for the given tag and frame
+  /// id
+  template < vital_metadata_tag tag >
+  bool
+  has( frame_id_t fid )
   {
-    return has_item(tag, fid);
+    return has_item( tag, fid );
   }
 
   /// Get value for a metadata item from the map for given tag and frame id
@@ -77,66 +81,68 @@ public:
   /// \param tag the metadata tag
   /// \param fid the frame id
   /// \returns the metadata value
-  template <vital_metadata_tag tag>
-  type_of_tag<tag>
-  get(frame_id_t fid) const
+  template < vital_metadata_tag tag >
+  type_of_tag< tag >
+  get( frame_id_t fid ) const
   {
     return this->get_item( tag, fid ).get< type_of_tag< tag > >();
   }
 
   /// Returns the frame ids that have associated metadata
-  virtual std::set<frame_id_t> frames() const = 0;
-
+  virtual std::set< frame_id_t > frames() const = 0;
 };
 
 /// typedef for a metadata shared pointer
 typedef std::shared_ptr< metadata_map > metadata_map_sptr;
 
 /// A concrete metadata_map that simply wraps a std::map.
-class simple_metadata_map :
-  public metadata_map
+class simple_metadata_map
+  : public metadata_map
 {
 public:
   /// Default Constructor
-  simple_metadata_map() { }
+  simple_metadata_map() {}
 
   /// Constructor from a std::map of metadata
   explicit simple_metadata_map( map_metadata_t const& metadata )
-    : data_( metadata ) { }
+    : data_( metadata ) {}
 
   /// Return the number of metadata in the map
-  virtual size_t size() const { return data_.size(); }
+  virtual size_t
+  size() const { return data_.size(); }
 
   /// Return a map from integer IDs to metadata shared pointers
-  virtual map_metadata_t metadata() const { return data_; }
+  virtual map_metadata_t
+  metadata() const { return data_; }
 
   /// Returns the frame ids that have associated metadata
-  virtual std::set<frame_id_t> frames() const
+  virtual std::set< frame_id_t >
+  frames() const
   {
-    std::set<frame_id_t> fids;
-    for (auto &m : data_)
+    std::set< frame_id_t > fids;
+    for(auto& m : data_)
     {
-      fids.insert(m.first);
+      fids.insert( m.first );
     }
     return fids;
   }
 
   /// get a metadata item from the map according to its tag and the frame
   virtual metadata_item const&
-  get_item(vital_metadata_tag tag, frame_id_t fid) const
+  get_item( vital_metadata_tag tag, frame_id_t fid ) const
   {
-    auto d_it = data_.find(fid);
-    if (d_it == data_.end())
+    auto d_it = data_.find( fid );
+    if( d_it == data_.end() )
     {
       std::stringstream msg;
       msg << "Metadata map does not contain frame " << fid;
       VITAL_THROW( metadata_exception, msg.str() );
     }
 
-    auto &mdv = d_it->second;
-    for (auto md : mdv)
+    auto& mdv = d_it->second;
+    for(auto md : mdv)
     {
-      if (auto const& item = md->find(tag))
+      if( auto const& item = md->find( tag ) )
       {
         return item;
       }
@@ -150,10 +156,10 @@ public:
 
   /// Get a vector of all metadata available at a given frame id
   virtual metadata_vector
-  get_vector(frame_id_t fid) const
+  get_vector( frame_id_t fid ) const
   {
-    auto const d_it = data_.find(fid);
-    if (d_it == data_.end())
+    auto const d_it = data_.find( fid );
+    if( d_it == data_.end() )
     {
       return {};
     }
@@ -161,18 +167,19 @@ public:
   }
 
   /// check if metadata item is in map for given tag and frame id
-  virtual bool has_item(vital_metadata_tag tag, frame_id_t fid) const
+  virtual bool
+  has_item( vital_metadata_tag tag, frame_id_t fid ) const
   {
-    auto d_it = data_.find(fid);
-    if (d_it == data_.end())
+    auto d_it = data_.find( fid );
+    if( d_it == data_.end() )
     {
       return false;
     }
 
-    auto &mdv = d_it->second;
-    for (auto md : mdv)
+    auto& mdv = d_it->second;
+    for(auto md : mdv)
     {
-      if (md->has(tag))
+      if( md->has( tag ) )
       {
         return true;
       }
@@ -182,12 +189,12 @@ public:
   }
 
 protected:
-
   /// The map from integer IDs to metadata shared pointers
   map_metadata_t data_;
 };
 
 } // end namespace vital
+
 } // end namespace kwiver
 
 #endif

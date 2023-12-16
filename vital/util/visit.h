@@ -8,9 +8,9 @@
 #ifndef KWIVER_VITAL_UTIL_VISIT_H_
 #define KWIVER_VITAL_UTIL_VISIT_H_
 
-#include <vital/vital_config.h>
-#include <vital/util/demangle.h>
 #include <vital/exceptions.h>
+#include <vital/util/demangle.h>
+#include <vital/vital_config.h>
 
 #include <map>
 #include <stdexcept>
@@ -60,7 +60,9 @@ template < class Visitor, class T >
 void
 invoke_visitor( Visitor&& visitor )
 {
+// UNCRUST-OFF
   visitor.template operator()< T >( );
+// UNCRUST-ON
 }
 
 // ----------------------------------------------------------------------------
@@ -68,7 +70,9 @@ template < class ReturnT, class Visitor, class T >
 ReturnT
 invoke_visitor_return( Visitor&& visitor )
 {
+// UNCRUST-OFF
   return static_cast< ReturnT >( visitor.template operator()< T >( ) );
+// UNCRUST-ON
 }
 
 // ----------------------------------------------------------------------------

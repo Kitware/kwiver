@@ -10,14 +10,14 @@
 #ifndef VITAL_EXCEPTIONS_H_
 #define VITAL_EXCEPTIONS_H_
 
-#include "exceptions/base.h"
 #include "exceptions/algorithm.h"
+#include "exceptions/base.h"
 #include "exceptions/gpu.h"
 #include "exceptions/image.h"
 #include "exceptions/io.h"
 #include "exceptions/math.h"
 #include "exceptions/metadata.h"
-#include "exceptions/video.h"
 #include "exceptions/serialize.h"
+#include "exceptions/video.h"
 
 #endif // VITAL_EXCEPTIONS_H_

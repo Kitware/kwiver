@@ -11,8 +11,8 @@
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
 #include <vital/types/metadata_tags.h>
-#include <vital/vital_types.h>
 #include <vital/vital_export.h>
+#include <vital/vital_types.h>
 
 #include <typeinfo>
 
@@ -20,12 +20,11 @@ namespace kwiver {
 
 namespace vital {
 
-
 // ----------------------------------------------------------------------------
 template < vital_metadata_tag Tag > struct metadata_tag_static_traits;
 
 #define TAG_TYPE( TAG, TYPE ) template <> \
-  struct metadata_tag_static_traits< TAG > { using type = TYPE; }
+        struct metadata_tag_static_traits< TAG > { using type = TYPE; }
 
 TAG_TYPE( VITAL_META_UNKNOWN, int );
 TAG_TYPE( VITAL_META_METADATA_ORIGIN, string_t );

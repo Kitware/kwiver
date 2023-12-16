@@ -10,124 +10,143 @@
 
 #include <vital/types/color.h>
 
+#include <vital/exceptions/image.h>
 #include <vital/vital_export.h>
 #include <vital/vital_types.h>
-#include <vital/exceptions/image.h>
 
-#include <memory>
 #include <limits>
+#include <memory>
 #include <stdexcept>
 
 #include <cstddef>
 
 namespace kwiver {
+
 namespace vital {
 
 /// A struct containing traits of the data type stored at each pixel
 struct VITAL_EXPORT image_pixel_traits
 {
   /// enumeration of the different type of pixel data
-  enum pixel_type {UNKNOWN = 0, UNSIGNED = 1, SIGNED = 2, FLOAT = 3, BOOL = 4};
+  enum pixel_type
+  {
+    UNKNOWN = 0, UNSIGNED = 1, SIGNED = 2, FLOAT = 3, BOOL = 4,
+  };
 
-  /// Constructor - defaults to unsigned char (uint8) traits
-  explicit image_pixel_traits( pixel_type t=UNSIGNED, size_t num_b=1 )
-  : type(t), num_bytes(num_b) {}
+/// Constructor - defaults to unsigned char (uint8) traits
+  explicit image_pixel_traits( pixel_type t = UNSIGNED, size_t num_b = 1 )
+    : type( t ), num_bytes( num_b ) {}
 
-  /// Equality operator
-  bool operator==( const image_pixel_traits& other ) const
+/// Equality operator
+  bool
+  operator==( const image_pixel_traits& other ) const
   {
     return this->type  == other.type &&
            this->num_bytes  == other.num_bytes;
   }
 
-  /// Inequality operator
-  bool operator!=( const image_pixel_traits& other ) const { return !(*this == other); }
+/// Inequality operator
+  bool
+  operator!=( const image_pixel_traits& other ) const
+  {
+    return !( *this == other );
+  }
 
-  /// how we interpret this pixel
+/// how we interpret this pixel
   pixel_type type;
 
-  /// the number of bytes need to represent pixel data
+/// the number of bytes need to represent pixel data
   size_t num_bytes;
 };
 
 /// Output stream operator for image_pixel_traits::pixel_type
-VITAL_EXPORT std::ostream& operator<<(std::ostream& os, image_pixel_traits::pixel_type pt);
+VITAL_EXPORT std::ostream& operator<<( std::ostream& os,
+                                       image_pixel_traits::pixel_type pt );
 
 /// Output stream operator for image_pixel_traits
-VITAL_EXPORT std::ostream& operator<<(std::ostream& os, image_pixel_traits const& pt);
+VITAL_EXPORT std::ostream& operator<<( std::ostream& os,
+                                       image_pixel_traits const& pt );
 
-/// Helper struct to determine pixel type at compile time using std::numeric_limits
-//  This struct is an implementation detail and should generally not be use directly
+/// Helper struct to determine pixel type at compile time using
+/// std::numeric_limits
+//  This struct is an implementation detail and should generally not be use
+// directly
 //  \tparam V indicates that the type has a valid numeric_limits specialization
 //  \tparam I indicates that this is an integer type
 //  \tparam S indicates that this is a signed type
-template <bool V, bool I, bool S>
-struct image_pixel_traits_helper;
+template < bool V, bool I, bool S > struct image_pixel_traits_helper;
 
 /// Specialization of helper class for unknown types
-template <bool I, bool S>
-struct image_pixel_traits_helper<false, I, S>
+template < bool I, bool S >
+struct image_pixel_traits_helper< false, I, S >
 {
-  const static image_pixel_traits::pixel_type type = image_pixel_traits::UNKNOWN;
+  const static image_pixel_traits::pixel_type type =
+    image_pixel_traits::UNKNOWN;
 };
 
 /// Specialization of helper class for signed types
 template <>
-struct image_pixel_traits_helper<true, true, true>
+struct image_pixel_traits_helper< true, true, true >
 {
-  const static image_pixel_traits::pixel_type type = image_pixel_traits::SIGNED;
+  const static image_pixel_traits::pixel_type type =
+    image_pixel_traits::SIGNED;
 };
 
 /// Specialization of helper class for unsigned types
 template <>
-struct image_pixel_traits_helper<true, true, false>
+struct image_pixel_traits_helper< true, true, false >
 {
-  const static image_pixel_traits::pixel_type type = image_pixel_traits::UNSIGNED;
+  const static image_pixel_traits::pixel_type type =
+    image_pixel_traits::UNSIGNED;
 };
 
 /// Specialization of helper class for floating point types
 template <>
-struct image_pixel_traits_helper<true, false, true>
+struct image_pixel_traits_helper< true, false, true >
 {
   const static image_pixel_traits::pixel_type type = image_pixel_traits::FLOAT;
 };
 
 /// This class is used to instantiate an image_pixel_traits class based on type
-//  This class also contains \p static_type for compile-time look-up of the pixel_type
+//  This class also contains \p static_type for compile-time look-up of the
+// pixel_type
 //  enum value by type.
-template <typename T>
+template < typename T >
 struct image_pixel_traits_of : public image_pixel_traits
 {
   VITAL_EXPORT
   const static image_pixel_traits::pixel_type static_type =
-    image_pixel_traits_helper<std::numeric_limits<T>::is_specialized,
-                              std::numeric_limits<T>::is_integer,
-                              std::numeric_limits<T>::is_signed>::type;
+    image_pixel_traits_helper< std::numeric_limits< T >::is_specialized,
+                               std::numeric_limits< T >::is_integer,
+                               std::numeric_limits< T >::is_signed >::type;
   image_pixel_traits_of()
-  : image_pixel_traits(static_type, sizeof(T)) {}
+    : image_pixel_traits( static_type, sizeof( T ) ) {}
 };
 
 /// Specialization of image_pixel_traits_of for bool
 template <>
-struct image_pixel_traits_of<bool> : public image_pixel_traits
+struct image_pixel_traits_of< bool >: public image_pixel_traits
 {
   VITAL_EXPORT
-  const static image_pixel_traits::pixel_type static_type = image_pixel_traits::BOOL;
-  image_pixel_traits_of<bool>()
-  : image_pixel_traits(static_type, sizeof(bool)) {}
+  const static image_pixel_traits::pixel_type static_type =
+    image_pixel_traits::BOOL;
+  image_pixel_traits_of< bool >()
+    : image_pixel_traits( static_type, sizeof( bool ) ) {}
 };
 
 // ----------------------------------------------------------------------------
 /// Provide compile-time look-up of data type from pixel_type enum and size
 //  This struct and its specializations provide compile-time mapping from
 //  image_pixel_traits properties (pixel_type and num_bytes) to a concrete type
-template <image_pixel_traits::pixel_type T, size_t S>
+template < image_pixel_traits::pixel_type T, size_t S >
 struct image_pixel_from_traits
-{ typedef void * type; };
+{ typedef void* type; };
 
 #define image_pixel_from_traits_macro( T ) \
-template <> struct VITAL_EXPORT \
-image_pixel_from_traits<image_pixel_traits_of<T>::static_type, sizeof(T)> { typedef T type; }
+        template <> \
+        struct VITAL_EXPORT \
+        image_pixel_from_traits< image_pixel_traits_of< T >::static_type, \
+                                 sizeof( T ) > { typedef T type; }
 
 image_pixel_from_traits_macro( uint8_t );
 image_pixel_from_traits_macro( int8_t );
@@ -184,7 +203,8 @@ public:
   virtual void* data();
 
   /// The number of bytes allocated
-  size_t size() const { return size_; }
+  size_t
+  size() const { return size_; }
 
 protected:
   /// The image data
@@ -202,7 +222,8 @@ typedef std::shared_ptr< image_memory > image_memory_sptr;
 ///
 /// This base image class represents an image with a dynamic data type.  The
 /// underlying data type can be queried using pixel_traits().  To properly
-/// access individual pixels the data type must be known.  The templated at<T>()
+/// access individual pixels the data type must be known.  The templated
+/// at<T>()
 /// member function provides direct access to pixels.  Alternatively, cast the
 /// image itself into an image_of object.  The typed image_of class is a bit
 /// easier to work with once the type is known, but this base class is useful
@@ -238,7 +259,7 @@ public:
   /// Default Constructor
   ///
   /// \param pt Change the pixel traits of the image
-  image( const image_pixel_traits& pt=image_pixel_traits() );
+  image( const image_pixel_traits& pt = image_pixel_traits() );
 
   /// Constructor that allocates image memory
   ///
@@ -251,7 +272,7 @@ public:
   /// \param interleave Set if the pixels are interleaved
   image( size_t width, size_t height, size_t depth = 1,
          bool interleave = false,
-         const image_pixel_traits& pt=image_pixel_traits());
+         const image_pixel_traits& pt = image_pixel_traits() );
 
   /// Constructor that points at existing memory
   ///
@@ -271,7 +292,7 @@ public:
   image( const void* first_pixel,
          size_t width, size_t height, size_t depth,
          ptrdiff_t w_step, ptrdiff_t h_step, ptrdiff_t d_step,
-         const image_pixel_traits& pt=image_pixel_traits() );
+         const image_pixel_traits& pt = image_pixel_traits() );
 
   /// Constructor that shares memory with another image
   ///
@@ -293,7 +314,7 @@ public:
          const void* first_pixel,
          size_t width, size_t height, size_t depth,
          ptrdiff_t w_step, ptrdiff_t h_step, ptrdiff_t d_step,
-         const image_pixel_traits& pt=image_pixel_traits() );
+         const image_pixel_traits& pt = image_pixel_traits() );
 
   /// Copy Constructor
   ///
@@ -307,7 +328,8 @@ public:
   /// Const access to the image memory
   ///
   /// \copydoc image::memory()
-  const image_memory_sptr& memory() const { return data_; }
+  const image_memory_sptr&
+  memory() const { return data_; }
 
   /// Access to the image memory
   ///
@@ -341,7 +363,8 @@ public:
   /// Const access to the pointer to first image pixel
   ///
   /// \copydoc image::first_pixel()
-  const void* first_pixel() const { return first_pixel_; }
+  const void*
+  first_pixel() const { return first_pixel_; }
 
   /// Access to the pointer to first image pixel
   ///
@@ -363,27 +386,35 @@ public:
   void* first_pixel() { return first_pixel_; }
 
   /// The width of the image in pixels
-  size_t width() const { return width_; }
+  size_t
+  width() const { return width_; }
 
   /// The height of the image in pixels
-  size_t height() const { return height_; }
+  size_t
+  height() const { return height_; }
 
   /// The depth (or number of channels) of the image
-  size_t depth() const { return depth_; }
+  size_t
+  depth() const { return depth_; }
 
   /// The trait of the pixel data type
-  const image_pixel_traits& pixel_traits() const { return pixel_traits_; }
+  const image_pixel_traits&
+  pixel_traits() const { return pixel_traits_; }
 
   /// The the step in memory to next pixel in the width direction
-  ptrdiff_t w_step() const { return w_step_; }
+  ptrdiff_t
+  w_step() const { return w_step_; }
 
   /// The the step in memory to next pixel in the height direction
-  ptrdiff_t h_step() const { return h_step_; }
+  ptrdiff_t
+  h_step() const { return h_step_; }
 
   /// The the step in memory to next pixel in the depth direction
-  ptrdiff_t d_step() const { return d_step_; }
+  ptrdiff_t
+  d_step() const { return d_step_; }
 
-  /// Return true if the pixels accessible in this image form a contiguous memory block
+  /// Return true if the pixels accessible in this image form a contiguous
+  /// memory block
   bool is_contiguous() const;
 
   /// Equality operator
@@ -392,7 +423,8 @@ public:
   ///
   /// \param other image to compare with
   ///
-  /// \note This function computes only "shallow" equality.  That is, the images
+  /// \note This function computes only "shallow" equality.  That is, the
+  /// images
   ///       are considered equal if they point to the same memory and have the
   ///       dimensions and pixel step sizes.  Deep equality testing requires
   ///       stepping through and testing that the values of each pixel are the
@@ -409,56 +441,68 @@ public:
   ///
   /// \note This function computes only "shallow" inequality.  Refer to the
   ///      equality operator (==) for details.
-  bool operator!=(image const& other) const
+  bool
+  operator!=( image const& other ) const
   {
-    return !(*this == other);
+    return !( *this == other );
   }
 
   /// Access pixels in the first channel of the image
   ///
   /// \param i width position (x)
   /// \param j height position (y)
-  template <typename T>
-  inline T& at( size_t i, size_t j )
+  template < typename T >
+  inline T&
+  at( size_t i, size_t j )
   {
     if( i >= width_ || j >= height_ )
     {
-      throw std::out_of_range("kwiver::vital::image::at<T>(size_t, size_t)");
+      throw std::out_of_range( "kwiver::vital::image::at<T>(size_t, size_t)" );
     }
-    return reinterpret_cast<T*>(first_pixel_)[w_step_ * i + h_step_ * j];
+    return reinterpret_cast< T* >( first_pixel_ )[ w_step_ * i + h_step_ * j ];
   }
 
   /// Const access pixels in the first channel of the image
-  template <typename T>
-  inline const T& at( size_t i, size_t j ) const
+  template < typename T >
+  inline const T&
+  at( size_t i, size_t j ) const
   {
     if( i >= width_ || j >= height_ )
     {
-      throw std::out_of_range("kwiver::vital::image::at<T>(size_t, size_t) const");
+      throw std::out_of_range(
+              "kwiver::vital::image::at<T>(size_t, size_t) const" );
     }
-    return reinterpret_cast<const T*>(first_pixel_)[w_step_ * i + h_step_ * j];
+    return reinterpret_cast< const T* >( first_pixel_ )[ w_step_ * i +
+                                                         h_step_ * j ];
   }
 
   /// Access pixels in the image (width, height, channel)
-  template <typename T>
-  inline T& at( size_t i, size_t j, size_t k )
+  template < typename T >
+  inline T&
+  at( size_t i, size_t j, size_t k )
   {
     if( i >= width_ || j >= height_ || k >= depth_ )
     {
-      throw std::out_of_range("kwiver::vital::image::at<T>(size_t, size_t, size_t)");
+      throw std::out_of_range(
+              "kwiver::vital::image::at<T>(size_t, size_t, size_t)" );
     }
-    return reinterpret_cast<T*>(first_pixel_)[w_step_ * i + h_step_ * j + d_step_ * k];
+    return reinterpret_cast< T* >( first_pixel_ )[ w_step_ * i + h_step_ * j +
+                                                   d_step_ * k ];
   }
 
   /// Const access pixels in the image (width, height, channel)
-  template <typename T>
-  inline const T& at( size_t i, size_t j, size_t k ) const
+  template < typename T >
+  inline const T&
+  at( size_t i, size_t j, size_t k ) const
   {
     if( i >= width_ || j >= height_ || k >= depth_ )
     {
-      throw std::out_of_range("kwiver::vital::image::at<T>(size_t, size_t, size_t) const");
+      throw std::out_of_range(
+              "kwiver::vital::image::at<T>(size_t, size_t, size_t) const" );
     }
-    return reinterpret_cast<const T*>(first_pixel_)[w_step_ * i + h_step_ * j + d_step_ * k];
+    return reinterpret_cast< const T* >( first_pixel_ )[ w_step_ * i +
+                                                         h_step_ * j +
+                                                         d_step_ * k ];
   }
 
   /// Deep copy the image data from another image into this one
@@ -481,7 +525,8 @@ public:
   /// \param y_offset start of the crop region in y (height)
   /// \param width width of the crop region
   /// \param height height of the crop region
-  image crop(size_t x_offset, size_t y_offset, size_t width, size_t height) const;
+  image crop( size_t x_offset, size_t y_offset, size_t width,
+              size_t height ) const;
 
 protected:
   /// Smart pointer to memory viewed by this class
@@ -524,13 +569,15 @@ protected:
 /// Once cast as an image_of() the operator()() is available to directly access
 /// pixels with a simpler syntax. For example
 /// \code
-/// image_of<float> my_img(100, 100);     // make a float image of size 100 x 100
+/// image_of<float> my_img(100, 100);     // make a float image of size 100 x
+/// 100
 /// float val = my_img(10, 10);           // get pixel at 10, 10
 ///    val = my_img.at<float>(10, 10); // image::at method does the same thing
 /// \endcode
 ///
 /// An image() can be directly assigned to an image_of() object and this will
-/// throw a image_type_mismatch_exception if the underlying type does not match.
+/// throw a image_type_mismatch_exception if the underlying type does not
+/// match.
 /// For example
 /// \code
 /// // make a 16-bit unsigned image with the base class
@@ -539,13 +586,13 @@ protected:
 /// image_of<uint16_t> my_img16 = my_img; // this works
 /// image_of<float> my_imgf = my_img;     // this throws an exception
 /// \endcode
-template <typename T>
+template < typename T >
 class image_of : public image
 {
 public:
   /// Default Constructor
   image_of()
-  : image(image_pixel_traits_of<T>()) {}
+    : image( image_pixel_traits_of< T >() ) {}
 
   // --------------------------------------------------------------------------
   /// Constructor that allocates image memory
@@ -556,8 +603,11 @@ public:
   /// \param height Number of pixel rows
   /// \param depth Number of image channels
   /// \param interleave Set if the pixels are interleaved
-  image_of( size_t width, size_t height, size_t depth = 1, bool interleave = false )
-  : image( width, height, depth, interleave, image_pixel_traits_of<T>() ) {}
+  image_of( size_t width, size_t height, size_t depth = 1,
+            bool interleave = false )
+    : image( width, height, depth, interleave, image_pixel_traits_of< T >() )
+  {
+  }
 
   // --------------------------------------------------------------------------
   /// Constructor that points at existing memory
@@ -576,8 +626,8 @@ public:
   /// \param d_step pointer increment to get to next image channel
   image_of( const T* first_pixel, size_t width, size_t height, size_t depth,
             ptrdiff_t w_step, ptrdiff_t h_step, ptrdiff_t d_step )
-  : image( first_pixel, width, height, depth,
-           w_step, h_step, d_step, image_pixel_traits_of<T>() ) {}
+    : image( first_pixel, width, height, depth,
+             w_step, h_step, d_step, image_pixel_traits_of< T >() ) {}
 
   // --------------------------------------------------------------------------
   /// Constructor that shares memory with another image
@@ -597,8 +647,8 @@ public:
   image_of( const image_memory_sptr& mem,
             const T* first_pixel, size_t width, size_t height, size_t depth,
             ptrdiff_t w_step, ptrdiff_t h_step, ptrdiff_t d_step )
-  : image( mem, first_pixel, width, height, depth,
-           w_step, h_step, d_step, image_pixel_traits_of<T>() ) {}
+    : image( mem, first_pixel, width, height, depth,
+             w_step, h_step, d_step, image_pixel_traits_of< T >() ) {}
 
   // --------------------------------------------------------------------------
   /// Constructor from base class
@@ -606,25 +656,26 @@ public:
   /// The new image will share the same memory as the old image
   /// \param other The other image.
   explicit image_of( const image& other )
-  : image(other)
+    : image( other )
   {
-    if ( other.pixel_traits() != image_pixel_traits_of<T>() )
+    if( other.pixel_traits() != image_pixel_traits_of< T >() )
     {
       VITAL_THROW( image_type_mismatch_exception,
-                   "kwiver::vital::image_of<T>(kwiver::vital::image)");
+                   "kwiver::vital::image_of<T>(kwiver::vital::image)" );
     }
   }
 
   // --------------------------------------------------------------------------
   /// Assignment operator
-  const image_of<T>& operator=( const image& other )
+  const image_of< T >&
+  operator=( const image& other )
   {
-    if ( other.pixel_traits() != image_pixel_traits_of<T>() )
+    if( other.pixel_traits() != image_pixel_traits_of< T >() )
     {
       VITAL_THROW( image_type_mismatch_exception,
-                   "kwiver::vital::image_of<T>::operator=(kwiver::vital::image)");
+                   "kwiver::vital::image_of<T>::operator=(kwiver::vital::image)" );
     }
-    image::operator=(other);
+    image::operator=( other );
     return *this;
   }
 
@@ -633,14 +684,15 @@ public:
   ///
   /// This may differ from \a data() if the image is a
   /// window into a large image memory chunk.
-  const T* first_pixel() const { return reinterpret_cast<const T*>(first_pixel_); }
+  const T*
+  first_pixel() const { return reinterpret_cast< const T* >( first_pixel_ ); }
 
   // --------------------------------------------------------------------------
   /// Access to the pointer to first image pixel
   ///
   /// This may differ from \a data() if the image is a
   /// window into a larger image memory chunk.
-  T* first_pixel() { return reinterpret_cast<T*>(first_pixel_); }
+  T* first_pixel() { return reinterpret_cast< T* >( first_pixel_ ); }
 
   // --------------------------------------------------------------------------
   /// Const access pixels in the image
@@ -654,23 +706,25 @@ public:
   ///
   /// \param i width position (x)
   /// \param j height position (y)
-  inline rgb_color at( size_t i, size_t j ) const
+  inline rgb_color
+  at( size_t i, size_t j ) const
   {
     if( i >= width_ || j >= height_ )
     {
-      throw std::out_of_range("kwiver::vital::image::at(size_t, size_t) const");
+      throw std::out_of_range(
+              "kwiver::vital::image::at(size_t, size_t) const" );
     }
 
     T const* data = this->first_pixel();
-    if ( depth_ < 3 )
+    if( depth_ < 3 )
     {
-      auto const v = data[w_step_ * i + h_step_ * j];
+      auto const v = data[ w_step_ * i + h_step_ * j ];
       return { v, v, v };
     }
 
-    auto const r = data[w_step_ * i + h_step_ * j + d_step_ * 0];
-    auto const g = data[w_step_ * i + h_step_ * j + d_step_ * 1];
-    auto const b = data[w_step_ * i + h_step_ * j + d_step_ * 2];
+    auto const r = data[ w_step_ * i + h_step_ * j + d_step_ * 0 ];
+    auto const g = data[ w_step_ * i + h_step_ * j + d_step_ * 1 ];
+    auto const b = data[ w_step_ * i + h_step_ * j + d_step_ * 2 ];
     return { r, g, b };
   }
 
@@ -679,32 +733,35 @@ public:
   ///
   /// \param i width position (x)
   /// \param j height position (y)
-  inline T& operator()( size_t i, size_t j )
+  inline T&
+  operator()( size_t i, size_t j )
   {
-    return image::at<T>(i,j);
+    return image::at< T >( i, j );
   }
 
   // --------------------------------------------------------------------------
   /// Const access pixels in the first channel of the image
-  inline const T& operator()( size_t i, size_t j ) const
+  inline const T&
+  operator()( size_t i, size_t j ) const
   {
-    return image::at<T>(i,j);
+    return image::at< T >( i, j );
   }
 
   // --------------------------------------------------------------------------
   /// Access pixels in the image (width, height, channel)
-  inline T& operator()( size_t i, size_t j, size_t k )
+  inline T&
+  operator()( size_t i, size_t j, size_t k )
   {
-    return image::at<T>(i,j,k);
+    return image::at< T >( i, j, k );
   }
 
   // --------------------------------------------------------------------------
   /// Const access pixels in the image (width, height, channel)
-  inline const T& operator()( size_t i, size_t j, size_t k ) const
+  inline const T&
+  operator()( size_t i, size_t j, size_t k ) const
   {
-    return image::at<T>(i,j,k);
+    return image::at< T >( i, j, k );
   }
-
 };
 
 /// Compare to images to see if the pixels have the same values.
@@ -715,6 +772,8 @@ public:
 /// \param img2 second image to compare
 VITAL_EXPORT bool equal_content( const image& img1, const image& img2 );
 
-} }   // end namespace vital
+} // namespace vital
+
+}     // end namespace vital
 
 #endif // VITAL_IMAGE_H_

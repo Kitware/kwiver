@@ -8,22 +8,25 @@
 #ifndef KWIVER_VITAL_GEO_POINT_H_
 #define KWIVER_VITAL_GEO_POINT_H_
 
+#include <vital/types/vector.h>
 #include <vital/vital_config.h>
 #include <vital/vital_export.h>
-#include <vital/types/vector.h>
 
 #include <unordered_map>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------------------
 /// Geo-coordinate.
 ///
-/// This class represents a geolocated point. The point is created by specifying
+/// This class represents a geolocated point. The point is created by
+/// specifying
 /// a raw location and a CRS. The original location and original CRS may be
 /// directly accessed, or the location in a specific CRS may be requested.
-/// Requests for a specific CRS are cached, so that CRS conversion does not need
+/// Requests for a specific CRS are cached, so that CRS conversion does not
+/// need
 /// to be performed every time.
 ///
 /// The CRS values shall correspond to geodetic CRS's as specified by the
@@ -86,12 +89,12 @@ public:
   bool is_empty() const;
 
 protected:
-
   int m_original_crs;
   mutable std::unordered_map< int, geo_3d_point_t > m_loc;
 };
 
-VITAL_EXPORT ::std::ostream& operator<< ( ::std::ostream& str, geo_point const& obj );
+VITAL_EXPORT::std::ostream& operator<<( ::std::ostream& str,
+                                        geo_point const& obj );
 
 VITAL_EXPORT
 bool operator==( geo_point const& lhs, geo_point const& rhs );
@@ -99,6 +102,8 @@ bool operator==( geo_point const& lhs, geo_point const& rhs );
 VITAL_EXPORT
 bool operator!=( geo_point const& lhs, geo_point const& rhs );
 
-} } // end namespace
+} // namespace vital
+
+}   // end namespace
 
 #endif

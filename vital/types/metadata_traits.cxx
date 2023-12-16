@@ -21,7 +21,7 @@ std::vector< metadata_tag_traits > const&
 tag_traits()
 {
 #define TRAITS_OF( X ) \
-VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
+        VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
   static auto const array = std::vector< metadata_tag_traits >{
     { TRAITS_OF( UNKNOWN ),
       "Unknown / Undefined Entry",

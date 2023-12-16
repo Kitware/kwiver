@@ -21,8 +21,10 @@ namespace vital {
 namespace {
 
 // ----------------------------------------------------------------------------
-struct equality_visitor {
-  bool operator()( double lhs, double rhs ) const
+struct equality_visitor
+{
+  bool
+  operator()( double lhs, double rhs ) const
   {
     return
       lhs == rhs ||
@@ -30,23 +32,27 @@ struct equality_visitor {
         ( std::signbit( lhs ) == std::signbit( rhs ) ) );
   }
 
-  template< class T >
-  bool operator()( T const& lhs, T const& rhs ) const
+  template < class T >
+  bool
+  operator()( T const& lhs, T const& rhs ) const
   {
     return lhs == rhs;
   }
 
-  template< class T1, class T2 >
-  bool operator()( T1 const&, T2 const& ) const
+  template < class T1, class T2 >
+  bool
+  operator()( T1 const&, T2 const& ) const
   {
     return false;
   }
 };
 
 // ----------------------------------------------------------------------------
-struct print_visitor {
-  template< class T >
-  std::ostream& operator()( T const& value ) const
+struct print_visitor
+{
+  template < class T >
+  std::ostream&
+  operator()( T const& value ) const
   {
     return os << value;
   }
@@ -55,9 +61,11 @@ struct print_visitor {
 };
 
 // ----------------------------------------------------------------------------
-struct convert_from_any_visitor {
-  template< class T >
-  metadata_value operator()() const
+struct convert_from_any_visitor
+{
+  template < class T >
+  metadata_value
+  operator()() const
   {
     return any_cast< T >( data );
   }
@@ -65,15 +73,15 @@ struct convert_from_any_visitor {
   any const& data;
 };
 
-
 } // namespace <anonymous>
 
 namespace metadata_detail {
 
 // ----------------------------------------------------------------------------
-template<>
+template <>
 metadata_value
-convert_data< any >( vital_metadata_tag tag, any const& data ) {
+convert_data< any >( vital_metadata_tag tag, any const& data )
+{
   auto const& type = tag_traits_by_tag( tag ).type();
   auto const visitor = convert_from_any_visitor{ data };
   return visit_metadata_types_return< metadata_value >( visitor, type );
@@ -209,11 +217,10 @@ metadata_item
   return new metadata_item{ *this };
 }
 
-
 // ----------------------------------------------------------------------------
 metadata
 ::metadata()
-{ }
+{}
 
 // ----------------------------------------------------------------------------
 metadata
@@ -247,7 +254,7 @@ metadata
 
   static auto const cmp =
     []( metadata_map_t::value_type const& lhs,
-        metadata_map_t::value_type const& rhs ) {
+        metadata_map_t::value_type const& rhs ){
       return lhs.first == rhs.first && *lhs.second == *rhs.second;
     };
   return std::equal( m_metadata_map.begin(), m_metadata_map.end(),
@@ -275,7 +282,7 @@ void
 metadata
 ::add( std::unique_ptr< metadata_item >&& item )
 {
-  if ( !item )
+  if( !item )
   {
     throw std::invalid_argument{ "null pointer" };
   }
@@ -291,9 +298,9 @@ metadata
 // ----------------------------------------------------------------------------
 void
 metadata
-::add_copy( std::shared_ptr<metadata_item const> const& item )
+::add_copy( std::shared_ptr< metadata_item const > const& item )
 {
-  if ( !item )
+  if( !item )
   {
     throw std::invalid_argument{ "null pointer" };
   }
@@ -311,9 +318,11 @@ metadata
 {
   if( tag_traits_by_tag( tag ).type() != data.type() )
   {
-    throw bad_any_cast{ data.type_name(), tag_traits_by_tag( tag ).type_name() };
+    throw bad_any_cast{ data.type_name(),
+                        tag_traits_by_tag( tag ).type_name() };
   }
-  this->add( std::unique_ptr< metadata_item >( new metadata_item{ tag, data } ) );
+  this->add( std::unique_ptr< metadata_item >( new metadata_item{ tag,
+                                                                  data } ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -332,12 +341,12 @@ metadata
   static metadata_item unknown_item{ VITAL_META_UNKNOWN, 0 };
 
   const_iterator_t it = m_metadata_map.find( tag );
-  if ( it == m_metadata_map.end() )
+  if( it == m_metadata_map.end() )
   {
     return unknown_item;
   }
 
-  return *(it->second);
+  return *( it->second );
 }
 
 // ----------------------------------------------------------------------------
@@ -427,12 +436,12 @@ metadata
   if( this->has( VITAL_META_VIDEO_FRAME_NUMBER ) )
   {
     timestamp_.set_frame(
-      this->find( VITAL_META_VIDEO_FRAME_NUMBER ).as_uint64() );
+        this->find( VITAL_META_VIDEO_FRAME_NUMBER ).as_uint64() );
   }
   if( this->has( VITAL_META_VIDEO_MICROSECONDS ) )
   {
     timestamp_.set_time_usec(
-      this->find( VITAL_META_VIDEO_MICROSECONDS ).as_uint64() );
+        this->find( VITAL_META_VIDEO_MICROSECONDS ).as_uint64() );
   }
   return timestamp_;
 }
@@ -442,17 +451,17 @@ std::string
 metadata
 ::format_string( std::string const& val )
 {
-  const char hex_chars[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                               '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+  const char hex_chars[ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                 '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
   const size_t len( val.size() );
-  bool unprintable_found(false);
+  bool unprintable_found( false );
   std::string ascii;
   std::string hex;
 
-  for (size_t i = 0; i < len; i++)
+  for(size_t i = 0; i < len; i++)
   {
-    char const l_byte = val[i];
-    if ( ! isprint( l_byte ) )
+    char const l_byte = val[ i ];
+    if( !isprint( l_byte ) )
     {
       ascii.append( 1, '.' );
       unprintable_found = true;
@@ -463,17 +472,16 @@ metadata
     }
 
     // format as hex
-    if (i > 0)
+    if( i > 0 )
     {
       hex += " ";
     }
 
     hex += hex_chars[ ( l_byte & 0xF0 ) >> 4 ];
     hex += hex_chars[ ( l_byte & 0x0F ) >> 0 ];
-
   } // end for
 
-  if (unprintable_found)
+  if( unprintable_found )
   {
     ascii += " (" + hex + ")";
   }
@@ -482,20 +490,21 @@ metadata
 }
 
 // ----------------------------------------------------------------------------
-std::ostream& print_metadata( std::ostream& str, metadata const& metadata )
+std::ostream&
+print_metadata( std::ostream& str, metadata const& metadata )
 {
   auto eix = metadata.end();
-  for ( auto ix = metadata.begin(); ix != eix; ix++)
+  for( auto ix = metadata.begin(); ix != eix; ix++)
   {
     // process metada items
-   std::string name = ix->second->name();
-   kwiver::vital::any data = ix->second->data();
+    std::string name = ix->second->name();
+    kwiver::vital::any data = ix->second->data();
 
-   str << "Metadata item: "
-       << name
-       << " <" << demangle( ix->second->type().name() ) << ">: "
-       << metadata::format_string (ix->second->as_string())
-       << std::endl;
+    str << "Metadata item: "
+        << name
+        << " <" << demangle( ix->second->type().name() ) << ">: "
+        << metadata::format_string( ix->second->as_string() )
+        << std::endl;
   } // end for
 
   return str;

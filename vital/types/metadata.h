@@ -31,6 +31,7 @@
 #include <vector>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------------------
@@ -43,7 +44,7 @@ using metadata_value =
 ///
 /// Simple wrapper around \c visit_variant_types specialized for the types of
 /// \c metadata_value.
-template< class Visitor >
+template < class Visitor >
 void visit_metadata_types( Visitor&& visitor, std::type_info const& type );
 
 // ----------------------------------------------------------------------------
@@ -51,35 +52,37 @@ void visit_metadata_types( Visitor&& visitor, std::type_info const& type );
 ///
 /// Simple wrapper around \c visit_variant_types_return specialized for the
 /// types of \c metadata_value.
-template< class ReturnT, class Visitor >
+template < class ReturnT, class Visitor >
 ReturnT visit_metadata_types_return( Visitor&& visitor,
                                      std::type_info const& type );
 
 // ----------------------------------------------------------------------------
-template< class Visitor >
-void visit_metadata_types( Visitor&& visitor, std::type_info const& type )
+template < class Visitor >
+void
+visit_metadata_types( Visitor&& visitor, std::type_info const& type )
 {
   visit_variant_types< metadata_value, Visitor >(
     std::forward< Visitor >( visitor ), type );
 }
 
 // ----------------------------------------------------------------------------
-template< class ReturnT, class Visitor >
-ReturnT visit_metadata_types_return( Visitor&& visitor,
-                                     std::type_info const& type )
+template < class ReturnT, class Visitor >
+ReturnT
+visit_metadata_types_return( Visitor&& visitor,
+                             std::type_info const& type )
 {
   return visit_variant_types_return< ReturnT, metadata_value, Visitor >(
     std::forward< Visitor >( visitor ), type );
 }
 
 namespace metadata_detail {
-// ----------------------------------------------------------------------------
-template< class T >
-metadata_value
-convert_data( [[maybe_unused]] vital_metadata_tag tag, T const& data );
 
 // ----------------------------------------------------------------------------
-template< class T >
+template < class T > metadata_value
+  convert_data( [[maybe_unused]] vital_metadata_tag tag, T const& data );
+
+// ----------------------------------------------------------------------------
+template < class T >
 metadata_value
 convert_data( [[maybe_unused]] vital_metadata_tag tag, T const& data )
 {
@@ -87,7 +90,7 @@ convert_data( [[maybe_unused]] vital_metadata_tag tag, T const& data )
 }
 
 // ----------------------------------------------------------------------------
-template<>
+template <>
 VITAL_EXPORT
 metadata_value
 convert_data< any >( vital_metadata_tag tag, any const& data );
@@ -99,7 +102,7 @@ class VITAL_EXPORT metadata_item
 {
 public:
   /// \throws logic_error If \p data's type does not match \p tag.
-  template< class T >
+  template < class T >
   metadata_item( vital_metadata_tag tag, T&& data )
     : m_tag{ tag },
       m_data{ metadata_detail::convert_data( tag, std::forward< T >( data ) ) }
@@ -108,9 +111,9 @@ public:
     if( trait.type() != this->type() )
     {
       std::stringstream ss;
-      ss << "metadata_item constructed with tag " << trait.enum_name()
-         << "expects type `" << trait.type_name() << "`; "
-         << "received type `" << this->type_name() << "`";
+      ss        << "metadata_item constructed with tag " << trait.enum_name()
+                << "expects type `" << trait.type_name() << "`; "
+                << "received type `" << this->type_name() << "`";
       throw std::invalid_argument( ss.str() );
     }
   }
@@ -128,11 +131,13 @@ public:
   std::string name() const;
 
   /// Get the metadata item's tag.
-  vital_metadata_tag tag() const { return m_tag; };
+  vital_metadata_tag
+  tag() const { return m_tag; }
 
   /// Test if the metadata item has type \c T.
-  template< class T >
-  bool has() const
+  template < class T >
+  bool
+  has() const
   {
     return this->type() == typeid( T );
   }
@@ -146,8 +151,10 @@ public:
   /// Get the value of this metadata item.
   metadata_value const& data() const;
 
-  template< class T >
-  T const& get() const {
+  template < class T >
+  T const&
+  get() const
+  {
     return std::get< T >( m_data );
   }
 
@@ -271,7 +278,7 @@ public:
   /// a copy of the item.
   ///
   /// \param item New metadata item to be copied into the collection.
-  void add_copy( std::shared_ptr<metadata_item const> const& item );
+  void add_copy( std::shared_ptr< metadata_item const > const& item );
 
   //@{
   /// \brief  Add metadata item to collection.
@@ -281,20 +288,28 @@ public:
   /// \tparam Tag Metadata tag value.
   /// \param data Metadata value.
   template < vital_metadata_tag Tag >
-  void add( type_of_tag< Tag >&& data )
+  void
+  add( type_of_tag< Tag >&& data )
   {
-    this->add( std::unique_ptr< metadata_item >( new metadata_item{ Tag, std::move( data ) } ) );
+    this->add( std::unique_ptr< metadata_item >( new metadata_item{ Tag,
+                                                                    std::move(
+                                                                      data ) } )
+               );
   }
 
   template < vital_metadata_tag Tag >
-  void add( type_of_tag< Tag > const& data )
+  void
+  add( type_of_tag< Tag > const& data )
   {
-    this->add( std::unique_ptr< metadata_item >( new metadata_item{ Tag, data } ) );
+    this->add( std::unique_ptr< metadata_item >( new metadata_item{ Tag,
+                                                                    data } ) );
   }
+
   //@}
 
-  template< class T >
-  void add( vital_metadata_tag tag, T&& data )
+  template < class T >
+  void
+  add( vital_metadata_tag tag, T&& data )
   {
     this->add( std::unique_ptr< metadata_item >(
                  new metadata_item{ tag, std::forward< T >( data ) } ) );
@@ -311,14 +326,16 @@ public:
   /// \tparam Tag Metadata tag value.
   /// \param data Metadata value.
   template < vital_metadata_tag Tag >
-  void add_any( any const& data )
+  void
+  add_any( any const& data )
   {
     this->add_any( Tag, data );
   }
 
   /// \brief Remove metadata item.
   ///
-  /// The metadata item that corresponds with the tag is deleted if it is in the
+  /// The metadata item that corresponds with the tag is deleted if it is in
+  /// the
   /// collection.
   ///
   /// \param tag Tag of metadata to delete.
@@ -432,11 +449,14 @@ private:
 using metadata_sptr = std::shared_ptr< metadata >;
 using metadata_vector = std::vector< metadata_sptr >;
 
-VITAL_EXPORT std::ostream& print_metadata( std::ostream& str, metadata const& metadata );
+VITAL_EXPORT std::ostream& print_metadata( std::ostream& str,
+                                           metadata const& metadata );
 VITAL_DEPRECATED_EXPORT
 bool test_equal_content( vital::metadata const& lhs,
                          vital::metadata const& rhs );
 
-} } // end namespace
+} // namespace vital
+
+}   // end namespace
 
 #endif

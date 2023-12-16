@@ -4,32 +4,36 @@
 
 #include "timestamp.h"
 
-#include <sstream>
-#include <string>
 #include <cstring>
 #include <ctime>
+#include <sstream>
+#include <string>
 
 namespace kwiver {
+
 namespace vital {
 
-timestamp::timestamp()
+timestamp
+::timestamp()
   : m_valid_time( false ),
     m_valid_frame( false ),
     m_time( 0 ),
     m_frame( 0 ),
     m_time_domain_index( 0 )
-{ }
+{}
 
-timestamp::timestamp( time_usec_t t, frame_id_t f )
+timestamp
+::timestamp( time_usec_t t, frame_id_t f )
   : m_valid_time( true ),
     m_valid_frame( true ),
     m_time( t ),
     m_frame( f ),
     m_time_domain_index( 0 )
-{ }
+{}
 
 // ----------------------------------------------------------------------------
-timestamp& timestamp
+timestamp&
+timestamp
 ::set_time_usec( time_usec_t t )
 {
   m_time = t;
@@ -39,18 +43,20 @@ timestamp& timestamp
 }
 
 // ----------------------------------------------------------------------------
-timestamp& timestamp
+timestamp&
+timestamp
 ::set_time_seconds( double t )
 {
-  m_time = static_cast< time_usec_t >(t * 1e6);     // Convert to usec
+  m_time = static_cast< time_usec_t >( t * 1e6 );     // Convert to usec
   m_valid_time = true;
 
   return *this;
 }
 
 // ----------------------------------------------------------------------------
-timestamp& timestamp
-::set_frame( frame_id_t f)
+timestamp&
+timestamp
+::set_frame( frame_id_t f )
 {
   m_frame = f;
   m_valid_frame = true;
@@ -59,7 +65,8 @@ timestamp& timestamp
 }
 
 // ----------------------------------------------------------------------------
-timestamp& timestamp
+timestamp&
+timestamp
 ::set_invalid()
 {
   m_valid_time = false;
@@ -69,7 +76,8 @@ timestamp& timestamp
 }
 
 // ----------------------------------------------------------------------------
-timestamp& timestamp
+timestamp&
+timestamp
 ::set_time_domain_index( int dom )
 {
   m_time_domain_index = dom;
@@ -77,10 +85,11 @@ timestamp& timestamp
 }
 
 // ----------------------------------------------------------------------------
-double timestamp
+double
+timestamp
 ::get_time_seconds() const
 {
-  return static_cast< double > (m_time) * 1e-6; // convert from usec to sec
+  return static_cast< double >( m_time ) * 1e-6; // convert from usec to sec
 }
 
 // ----------------------------------------------------------------------------
@@ -91,20 +100,30 @@ double timestamp
 ///
 /// \code
 ///
-/// times-valid | frames_valid | same_domain | time_condition | frame_condition | result
+/// times-valid | frames_valid | same_domain | time_condition | frame_condition
+/// | result
 /// ----------------------------------------------------------------------------
-///   -      |       -      |     F       |       -        |       -         |   F (incomparable)
-///   F      |       F      |     T       |       -        |       -         |   F (incomparable)
+///   -      |       -      |     F       |       -        |       -         |
+///   F (incomparable)
+///   F      |       F      |     T       |       -        |       -         |
+///   F (incomparable)
 ///          |              |             |                |                 |
-///   T      |       T      |     T       |       T        |       T         |   T (meets condition)
+///   T      |       T      |     T       |       T        |       T         |
+///   T (meets condition)
 ///          |              |             |                |                 |
-///   T      |       T      |     T       |       F        |       -         |   F
-///   T      |       T      |     T       |       -        |       F         |   F
+///   T      |       T      |     T       |       F        |       -         |
+///   F
+///   T      |       T      |     T       |       -        |       F         |
+///   F
 ///          |              |             |                |                 |
-///   T      |       F      |     T       |       F        |       -         |   F (time only compare)
-///   T      |       F      |     T       |       T        |       -         |   T (time only compare)
-///   F      |       T      |     T       |       -        |       F         |   F (frame only compare)
-///   F      |       T      |     T       |       -        |       T         |   T (frame only compare)
+///   T      |       F      |     T       |       F        |       -         |
+///   F (time only compare)
+///   T      |       F      |     T       |       T        |       -         |
+///   T (time only compare)
+///   F      |       T      |     T       |       -        |       F         |
+///   F (frame only compare)
+///   F      |       T      |     T       |       -        |       T         |
+///   T (frame only compare)
 ///
 /// \endcode
 ///
@@ -117,67 +136,73 @@ double timestamp
 ///                           -> T
 ///
 
-#define COMPARE(OP)                                                     \
-bool timestamp                                                          \
-::operator OP( timestamp const& rhs ) const                             \
-{                                                                       \
-  if ( this->m_time_domain_index != rhs.m_time_domain_index )           \
-  {                                                                     \
-    return false;                                                       \
-  }                                                                     \
+#define COMPARE( OP )                                                     \
+        bool \
+        timestamp                                                          \
+        ::operator OP( timestamp const& rhs ) const                             \
+        {                                                                       \
+          if( this->m_time_domain_index != rhs.m_time_domain_index )           \
+          {                                                                     \
+            return false;                                                       \
+          }                                                                     \
                                                                         \
-  const bool time_valid( this->has_valid_time() && rhs.has_valid_time() ); \
-  const bool frame_valid( this->has_valid_frame() && rhs.has_valid_frame() ); \
+          const bool time_valid( this->has_valid_time() && \
+                                 rhs.has_valid_time() ); \
+          const bool frame_valid( this->has_valid_frame() && \
+                                  rhs.has_valid_frame() ); \
                                                                         \
-  if ( (! time_valid) && (! frame_valid) )                              \
-  {                                                                     \
-    return false;                                                       \
-  }                                                                     \
+          if( ( !time_valid ) && ( !frame_valid ) )                              \
+          {                                                                     \
+            return false;                                                       \
+          }                                                                     \
                                                                         \
-  if ( time_valid  && !( this->get_time_usec() OP rhs.get_time_usec() ) ) \
-  {                                                                     \
-    return false;                                                       \
-  }                                                                     \
+          if( time_valid  && \
+              !( this->get_time_usec() OP rhs.get_time_usec() ) ) \
+          {                                                                     \
+            return false;                                                       \
+          }                                                                     \
                                                                         \
-  if ( frame_valid && !( this->get_frame() OP rhs.get_frame() ) )       \
-  {                                                                     \
-    return false;                                                       \
-  }                                                                     \
+          if( frame_valid && !( this->get_frame() OP rhs.get_frame() ) )       \
+          {                                                                     \
+            return false;                                                       \
+          }                                                                     \
                                                                         \
-  return true;                                                          \
-}
+          return true;                                                          \
+        }
 
 // ----------------------------------------------------------------------------
 // Instantiate relational operators
 //
-  COMPARE( == )
-  COMPARE( < )
-  COMPARE( > )
-  COMPARE( <= )
-  COMPARE( >= )
+COMPARE( == )
+COMPARE( < )
+COMPARE( > )
+COMPARE( <= )
+COMPARE( >= )
 
-bool timestamp
-::operator !=( timestamp const& rhs ) const
+bool
+timestamp
+::operator!=( timestamp const& rhs ) const
 {
-  return !operator == (rhs);
+  return !operator==( rhs );
 }
 
 // ----------------------------------------------------------------------------
-std::string timestamp
+std::string
+timestamp
 ::pretty_print() const
 {
   std::stringstream str;
   std::string c_tim( "" );
-  std::time_t tt = static_cast< std::time_t > ( this->get_time_seconds() );
+  std::time_t tt = static_cast< std::time_t >( this->get_time_seconds() );
 
   std::streamsize old_prec = str.precision();
-  str.precision(16);
+  str.precision( 16 );
 
   str << "ts(f: ";
 
-  if ( this->has_valid_frame() )
+  if( this->has_valid_frame() )
   {
-      str << this->get_frame();
+    str << this->get_frame();
   }
   else
   {
@@ -186,16 +211,16 @@ std::string timestamp
 
   str << ", t: ";
 
-  if ( this->has_valid_time() )
+  if( this->has_valid_time() )
   {
     char* p = ctime( &tt ); // this may return null if <tt> is out of range,
-    if ( p )
+    if( p )
     {
-      char buffer[128];
+      char buffer[ 128 ];
       c_tim = " (";
-      buffer[0] = 0;
+      buffer[ 0 ] = 0;
       strncpy( buffer, p, sizeof buffer );
-      buffer[std::strlen( buffer ) - 1] = 0; // remove NL
+      buffer[ std::strlen( buffer ) - 1 ] = 0; // remove NL
 
       c_tim = c_tim + buffer;
       c_tim = c_tim + ")";
@@ -218,4 +243,6 @@ std::string timestamp
   return str.str();
 }
 
-} } // end namespace
+} // namespace vital
+
+}   // end namespace
