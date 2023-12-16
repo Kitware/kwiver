@@ -19,11 +19,7 @@
 #include <vital/types/image_container.h>
 #include <vital/types/metadata.h>
 
-namespace kwiver {
-
-namespace vital {
-
-namespace algo {
+namespace kwiver::vital::algo {
 
 /// An abstract base class for reading and writing images
 ///
@@ -37,21 +33,22 @@ namespace algo {
 ///     available in the metadata for the image. If the timestamp
 ///     is not supplied, then the metadata will not have the timestamp set.
 class VITAL_ALGO_EXPORT image_io
-  : public kwiver::vital::algorithm_def< image_io >
+  : public kwiver::vital::algorithm
 {
 public:
   // Common capabilities
   // -- basic capabilities --
   static const algorithm_capabilities::capability_name_t HAS_TIME;
 
+  explicit image_io();
   virtual ~image_io() = default;
 
-  /// Return the name of this algorithm
-  static std::string static_type_name() { return "image_io"; }
+  PLUGGABLE_INTERFACE( image_io );
 
   /// Load image from the file
   ///
-  /// \throws kwiver::vital::path_not_exists Thrown when the given path does not
+  /// \throws kwiver::vital::path_not_exists Thrown when the given path does
+  /// not
   /// exist.
   ///
   /// \throws kwiver::vital::path_not_a_file Thrown when the given path does
@@ -80,7 +77,8 @@ public:
 
   /// Get the image metadata
   ///
-  /// \throws kwiver::vital::path_not_exists Thrown when the given path does not
+  /// \throws kwiver::vital::path_not_exists Thrown when the given path does
+  /// not
   /// exist.
   ///
   /// \throws kwiver::vital::path_not_a_file Thrown when the given path does
@@ -99,8 +97,6 @@ public:
   algorithm_capabilities const& get_implementation_capabilities() const;
 
 protected:
-  image_io();
-
   void set_capability( algorithm_capabilities::capability_name_t const& name,
                        bool val );
 
@@ -143,10 +139,6 @@ private:
 /// Shared pointer type for generic image_io definition type.
 typedef std::shared_ptr< image_io > image_io_sptr;
 
-} // namespace algo
-
-} // namespace vital
-
-} // namespace kwiver
+} // namespace
 
 #endif // VITAL_ALGO_IMAGE_IO_H_

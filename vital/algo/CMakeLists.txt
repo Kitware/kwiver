@@ -5,11 +5,13 @@
 set(public_headers
    algorithm.h
    algorithm.txx
+   image_io.h
    video_input.h
   )
 #
 set(source_files
   algorithm.cxx
+  image_io.cxx
   video_input.cxx
   )
 

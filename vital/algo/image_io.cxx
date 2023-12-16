@@ -14,17 +14,10 @@
 
 #include <kwiversys/SystemTools.hxx>
 
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::image_io );
-/// \endcond
+namespace kwiver::vital::algo {
 
-namespace kwiver {
-
-namespace vital {
-
-namespace algo {
-
-const algorithm_capabilities::capability_name_t image_io::HAS_TIME( "has-time" );
+const algorithm_capabilities::capability_name_t image_io::HAS_TIME(
+  "has-time" );
 
 image_io
 ::image_io()
@@ -104,14 +97,10 @@ image_io
 
 metadata_sptr
 image_io
-::load_metadata_( VITAL_UNUSED std::string const& filename ) const
+::load_metadata_( [[maybe_unused]] std::string const& filename ) const
 {
   // No metadata-only loading by default.
   return nullptr;
 }
 
-} // namespace algo
-
-} // namespace vital
-
-} // namespace kwiver
+} // namespace
