@@ -5,10 +5,11 @@
 #ifndef KWIVER_VITAL_TYPES_BOUNDING_BOX_H
 #define KWIVER_VITAL_TYPES_BOUNDING_BOX_H
 
-#include <vital/types/vector.h>
 #include <Eigen/Geometry>
+#include <vital/types/vector.h>
 
 namespace kwiver {
+
 namespace vital {
 
 // ----------------------------------------------------------------------------
@@ -32,7 +33,7 @@ public:
   bounding_box( vector_type const& upper_left,
                 vector_type const& lower_right )
     : m_bbox( upper_left, lower_right )
-  { }
+  {}
 
   /// @brief Create box from point and dimensions.
   ///
@@ -45,7 +46,7 @@ public:
     vector_type lr( upper_left );
     lr.x() += width;
     lr.y() += height;
-    m_bbox =  Eigen::AlignedBox< T, 2 >( upper_left, lr );
+    m_bbox = Eigen::AlignedBox< T, 2 >( upper_left, lr );
   }
 
   /// @brief Create a box from four coordinates.
@@ -58,7 +59,7 @@ public:
   {
     vector_type ul( xmin, ymin );
     vector_type lr( xmax, ymax );
-    m_bbox =  Eigen::AlignedBox< T, 2 >( ul, lr );
+    m_bbox = Eigen::AlignedBox< T, 2 >( ul, lr );
   }
 
   /// @brief Create default (invalid) box.
@@ -71,13 +72,15 @@ public:
   /// @brief Check to see if the two corner points are valid.
   ///
   /// @return true if the box is valid
-  bool is_valid() const
+  bool
+  is_valid() const
   {
     return !m_bbox.isEmpty();
   }
 
   /// @brief Reset the bounding box to an initial invalid state.
-  void reset()
+  void
+  reset()
   {
     m_bbox.setEmpty();
   }
@@ -85,42 +88,53 @@ public:
   /// @brief Get center coordinate of box.
   ///
   /// @return Center coordinate of box.
-  vector_type center() const { return m_bbox.center(); }
+  vector_type
+  center() const { return m_bbox.center(); }
 
   /// @brief Get upper left coordinate of box.
   ///
   /// @return Upper left coordinate of box.
-  vector_type upper_left() const { return m_bbox.min(); }
+  vector_type
+  upper_left() const { return m_bbox.min(); }
 
   /// @brief Get lower right coordinate of box.
   ///
   /// @return Lower right coordinate of box.
-  vector_type lower_right() const { return m_bbox.max(); }
+  vector_type
+  lower_right() const { return m_bbox.max(); }
 
-  T min_x() const { return this->upper_left()[0]; }
-  T min_y() const { return this->upper_left()[1]; }
-  T max_x() const { return this->lower_right()[0]; }
-  T max_y() const { return this->lower_right()[1]; }
+  T
+  min_x() const { return this->upper_left()[ 0 ]; }
+  T
+  min_y() const { return this->upper_left()[ 1 ]; }
+  T
+  max_x() const { return this->lower_right()[ 0 ]; }
+  T
+  max_y() const { return this->lower_right()[ 1 ]; }
 
   /// @brief Get width of box.
   ///
   /// @return Width of box.
-  T width() const { return m_bbox.sizes()[0]; }
+  T
+  width() const { return m_bbox.sizes()[ 0 ]; }
 
   /// @brief Get height of box.
   ///
   /// @return Height of box.
-  T height() const { return m_bbox.sizes()[1]; }
+  T
+  height() const { return m_bbox.sizes()[ 1 ]; }
 
   /// @brief Get area of box.
   ///
   /// @return Area of box.
-  double area() const { return m_bbox.volume(); }
+  double
+  area() const { return m_bbox.volume(); }
 
   /// @brief Check if point inside box.
   ///
   /// @return true if point is inside box
-  bool contains(vector_type const& pt) const { return m_bbox.contains(pt); }
+  bool
+  contains( vector_type const& pt ) const { return m_bbox.contains( pt ); }
 
 protected:
   //  @brief Obscure accessors for underlying data.
@@ -128,30 +142,32 @@ protected:
   //
   //  @return Underlying data type.
   Eigen::AlignedBox< T, 2 >& get_eabb()  { return m_bbox; }
-  Eigen::AlignedBox< T, 2 > get_eabb() const  { return m_bbox; }
+  Eigen::AlignedBox< T, 2 >
+  get_eabb() const { return m_bbox; }
 
 private:
   // Note that this class is implemented using Eigen types.
   // There is no guarantee of this in the future.
   bounding_box( Eigen::AlignedBox< T, 2 > const& b )
     : m_bbox( b )
-  { }
+  {}
 
   //  These operations are friends to allow them access to the
   //  underlying data type. They need access to the private data in
   //  order to use the methods on that type, an implementation
   //  convenience.
   template < typename T1 >
-  friend bounding_box<T1> & translate( bounding_box<T1>& bbox,
-                              typename bounding_box<T1>::vector_type const& pt );
+  friend bounding_box< T1 >& translate( bounding_box< T1 >& bbox,
+                                        typename bounding_box< T1 >::
+                                        vector_type const& pt );
 
   template < typename T1 >
-  friend bounding_box<T1> scale( bounding_box<T1> const& bbox,
-                                 double scale_factor );
+  friend bounding_box< T1 > scale( bounding_box< T1 > const& bbox,
+                                   double scale_factor );
 
-  template<typename T2>
-  friend bounding_box<T2> intersection( bounding_box<T2> const& one,
-                                        bounding_box<T2> const& other );
+  template < typename T2 >
+  friend bounding_box< T2 > intersection( bounding_box< T2 > const& one,
+                                          bounding_box< T2 > const& other );
 
   Eigen::AlignedBox< T, 2 > m_bbox;
 };
@@ -162,13 +178,13 @@ private:
 /// @param rhs The other box to check against
 ///
 /// @return \b true if boxes are identical
-template <typename T>
-bool operator== ( bounding_box<T> const& lhs, bounding_box<T> const& rhs )
+template < typename T >
+bool
+operator==( bounding_box< T > const& lhs, bounding_box< T > const& rhs )
 {
-  if ( ( &lhs == &rhs ) ||
-       ( lhs.upper_left() == rhs.upper_left()  &&
-         lhs.lower_right() == rhs.lower_right() )
-    )
+  if( ( &lhs == &rhs ) ||
+      ( lhs.upper_left() == rhs.upper_left()  &&
+        lhs.lower_right() == rhs.lower_right() ) )
   {
     return true;
   }
@@ -182,10 +198,11 @@ bool operator== ( bounding_box<T> const& lhs, bounding_box<T> const& rhs )
 /// @param rhs The other box to check against
 ///
 /// @return \b true if boxes are different
-template <typename T>
-bool operator!= ( bounding_box<T> const& lhs, bounding_box<T> const& rhs )
+template < typename T >
+bool
+operator!=( bounding_box< T > const& lhs, bounding_box< T > const& rhs )
 {
-  return !(lhs == rhs);
+  return !( lhs == rhs );
 }
 
 // Define for common types.
@@ -203,8 +220,9 @@ typedef bounding_box< double > bounding_box_d;
 /// @return The specified parameter box, updated with the new
 /// coordinates, is returned.
 template < typename T >
-bounding_box<T> & translate( bounding_box<T>& bbox,
-                             typename bounding_box<T>::vector_type const& pt )
+bounding_box< T >&
+translate( bounding_box< T >& bbox,
+           typename bounding_box< T >::vector_type const& pt )
 {
   bbox.get_eabb().translate( pt );
   return bbox;
@@ -220,12 +238,15 @@ bounding_box<T> & translate( bounding_box<T>& bbox,
 ///
 /// @return A new bounding box that has been scaled.
 template < typename T >
-bounding_box<T> scale( bounding_box<T> const& bbox,
-                       double scale_factor )
+bounding_box< T >
+scale( bounding_box< T > const& bbox,
+       double scale_factor )
 {
+// UNCRUST-OFF
   return bounding_box<T>(
     (bbox.upper_left().template cast<double>() * scale_factor).template cast<T>(),
     (bbox.lower_right().template cast<double>() * scale_factor).template cast<T>() );
+// UNCRUST-ON
 }
 
 /// @brief Determine intersection of two boxes.
@@ -239,13 +260,16 @@ bounding_box<T> scale( bounding_box<T> const& bbox,
 ///
 /// @return A new bounding_box specifying the intersection if the two
 /// parameters.
-template<typename T>
-bounding_box<T> intersection( bounding_box<T> const& one,
-                              bounding_box<T> const& other )
+template < typename T >
+bounding_box< T >
+intersection( bounding_box< T > const& one,
+              bounding_box< T > const& other )
 {
-  return bounding_box<T>( one.get_eabb().intersection( other.get_eabb() ) );
+  return bounding_box< T >( one.get_eabb().intersection( other.get_eabb() ) );
 }
 
-} }   // end namespace kwiver
+} // namespace vital
+
+}     // end namespace kwiver
 
 #endif // KWIVER_VITAL_TYPES_BOUNDING_BOX_H
