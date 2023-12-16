@@ -50,7 +50,7 @@ video_output
 ::add_image( video_raw_image const& image )
 {
   throw std::logic_error{
-    "video_output: This implementation does not support raw image data" };
+          "video_output: This implementation does not support raw image data" };
 }
 
 // ----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ video_output
 ::add_metadata( video_raw_metadata const& md )
 {
   throw std::logic_error{
-    "video_output: This implementation does not support raw metadata" };
+          "video_output: This implementation does not support raw metadata" };
 }
 
 // ----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ video_output
 ::add_uninterpreted_data( video_uninterpreted_data const& misc_data )
 {
   throw std::logic_error{
-    "video_output: This implementation does not support uninterpreted data" };
+          "video_output: This implementation does not support uninterpreted data" };
 }
 
 // ----------------------------------------------------------------------------
