@@ -8,7 +8,9 @@
 #include <vital/range/defs.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace range {
 
 // ----------------------------------------------------------------------------
@@ -54,12 +56,15 @@ public:
     iterator( iterator const& ) = default;
     iterator& operator=( iterator const& ) = default;
 
-    bool operator!=( iterator const& other ) const
+    bool
+    operator!=( iterator const& other ) const
     { return m_iter != other.m_iter; }
 
-    value_t operator*() const { return m_func( *m_iter ); }
+    value_t
+    operator*() const { return m_func( *m_iter ); }
 
-    iterator& operator++() { ++m_iter; return *this; }
+    iterator&
+    operator++() { ++m_iter; return *this; }
 
   protected:
     friend class transform_view;
@@ -74,8 +79,10 @@ public:
   transform_view( Range&& range, transform_function_t func )
     : m_range( std::forward< Range >( range ) ), m_func( func ) {}
 
-  iterator begin() const { return { m_range.begin(), m_func }; }
-  iterator end() const { return { m_range.end(), m_func }; }
+  iterator
+  begin() const { return { m_range.begin(), m_func }; }
+  iterator
+  end() const { return { m_range.end(), m_func }; }
 
 protected:
   range_ref< Range const > m_range;
@@ -87,7 +94,9 @@ protected:
 KWIVER_RANGE_ADAPTER_FUNCTION( transform )
 
 } // namespace range
+
 } // namespace vital
+
 } // namespace kwiver
 
 #endif

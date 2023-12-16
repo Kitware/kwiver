@@ -8,7 +8,9 @@
 #include <vital/range/defs.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace range {
 
 // ----------------------------------------------------------------------------
@@ -54,10 +56,12 @@ public:
     iterator( iterator const& ) = default;
     iterator& operator=( iterator const& ) = default;
 
-    bool operator!=( iterator const& other ) const
+    bool
+    operator!=( iterator const& other ) const
     { return m_iter != other.m_iter; }
 
-    value_t operator*() const { return *m_iter; }
+    value_t
+    operator*() const { return *m_iter; }
 
     iterator& operator++();
 
@@ -79,7 +83,8 @@ public:
 
   iterator begin() const;
 
-  iterator end() const
+  iterator
+  end() const
   { return { m_range.end(), m_range.end(), m_func }; }
 
 protected:
@@ -90,6 +95,7 @@ protected:
 // ----------------------------------------------------------------------------
 template < typename FilterFunction, typename Range >
 typename filter_view< FilterFunction, Range >::iterator
+
 filter_view< FilterFunction, Range >
 ::begin() const
 {
@@ -103,10 +109,10 @@ typename filter_view< FilterFunction, Range >::iterator&
 filter_view< FilterFunction, Range >::iterator
 ::operator++()
 {
-  while ( m_iter != m_end )
+  while( m_iter != m_end )
   {
     ++m_iter;
-    if ( m_iter != m_end && m_func( *m_iter ) ) break;
+    if( m_iter != m_end && m_func( *m_iter ) ) { break; }
   }
   return *this;
 }
@@ -116,7 +122,9 @@ filter_view< FilterFunction, Range >::iterator
 KWIVER_RANGE_ADAPTER_FUNCTION( filter )
 
 } // namespace range
+
 } // namespace vital
+
 } // namespace kwiver
 
 #endif

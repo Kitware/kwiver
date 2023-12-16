@@ -16,20 +16,21 @@
 using namespace kwiver::vital;
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_filter, empty)
+TEST ( range_filter, empty )
 {
   auto const empty_set = std::set< int >{};
   auto my_filter = []( int ){ return true; };
 
   int counter = 0;
-  for ( auto x : empty_set | range::filter( my_filter ) )
+  for( auto x : empty_set | range::filter( my_filter ) )
   {
     static_cast< void >( x );
     ++counter;
@@ -39,12 +40,12 @@ TEST(range_filter, empty)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_filter, always_true)
+TEST ( range_filter, always_true )
 {
   auto my_filter = []( int ){ return true; };
 
   int counter = 0;
-  for ( auto x : test_values | range::filter( my_filter ) )
+  for( auto x : test_values | range::filter( my_filter ) )
   {
     static_cast< void >( x );
     ++counter;
@@ -54,12 +55,12 @@ TEST(range_filter, always_true)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_filter, always_false)
+TEST ( range_filter, always_false )
 {
   auto my_filter = []( int ){ return false; };
 
   int counter = 0;
-  for ( auto x : test_values | range::filter( my_filter ) )
+  for( auto x : test_values | range::filter( my_filter ) )
   {
     static_cast< void >( x );
     ++counter;
@@ -69,12 +70,12 @@ TEST(range_filter, always_false)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_filter, specific_value)
+TEST ( range_filter, specific_value )
 {
   auto my_filter = []( int i ){ return i != 9; };
 
   int counter = 0;
-  for ( auto x : test_values | range::filter( my_filter ) )
+  for( auto x : test_values | range::filter( my_filter ) )
   {
     EXPECT_NE( 9, x ) << "At iteration " << counter;
     ++counter;
@@ -84,12 +85,12 @@ TEST(range_filter, specific_value)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_filter, no_match)
+TEST ( range_filter, no_match )
 {
   auto my_filter = []( int i ){ return i == 7; };
 
   int counter = 0;
-  for ( auto x : test_values | range::filter( my_filter ) )
+  for( auto x : test_values | range::filter( my_filter ) )
   {
     EXPECT_EQ( 7, x ) << "At iteration " << counter;
     ++counter;
@@ -99,12 +100,12 @@ TEST(range_filter, no_match)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_filter, evens)
+TEST ( range_filter, evens )
 {
   auto my_filter = []( int i ){ return ( i & 1 ) == 0; };
 
   int counter = 0;
-  for ( auto x : test_values | range::filter( my_filter ) )
+  for( auto x : test_values | range::filter( my_filter ) )
   {
     EXPECT_EQ( 0, ( x % 2 ) ) << "At iteration " << counter;
     ++counter;
@@ -114,12 +115,12 @@ TEST(range_filter, evens)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_filter, odds)
+TEST ( range_filter, odds )
 {
   auto my_filter = []( int i ){ return ( i & 1 ) != 0; };
 
   int counter = 0;
-  for ( auto x : test_values | range::filter( my_filter ) )
+  for( auto x : test_values | range::filter( my_filter ) )
   {
     EXPECT_NE( 0, ( x % 2 ) ) << "At iteration " << counter;
     ++counter;

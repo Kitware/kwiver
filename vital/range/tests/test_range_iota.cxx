@@ -23,12 +23,12 @@ main( int argc, char** argv )
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_iota, empty)
+TEST ( range_iota, empty )
 {
   auto test_values = std::vector< int >{};
 
   auto counter = int{ 0 };
-  for ( auto const x : range::iota( int{ 0 } ) )
+  for( auto const x : range::iota( int{ 0 } ) )
   {
     test_values.push_back( x );
     ++counter;
@@ -39,13 +39,13 @@ TEST(range_iota, empty)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_iota, basic)
+TEST ( range_iota, basic )
 {
   auto test_values = std::vector< int >{};
 
   auto counter = int{ 0 };
   auto accumulator = int{ 0 };
-  for ( auto const x : range::iota( int{ 5 } ) )
+  for( auto const x : range::iota( int{ 5 } ) )
   {
     test_values.push_back( x );
     ++counter;
@@ -64,12 +64,12 @@ TEST(range_iota, basic)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_iota, limit)
+TEST ( range_iota, limit )
 {
   constexpr auto limit = int{ 1 } << 20;
 
   auto counter = int{ 0 };
-  for ( auto const x : range::iota( limit ) )
+  for( auto const x : range::iota( limit ) )
   {
     static_cast< void >( x );
     ++counter;

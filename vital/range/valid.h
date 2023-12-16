@@ -8,7 +8,9 @@
 #include <vital/range/defs.h>
 
 namespace kwiver {
+
 namespace vital {
+
 namespace range {
 
 // ----------------------------------------------------------------------------
@@ -47,10 +49,12 @@ public:
     iterator( iterator const& ) = default;
     iterator& operator=( iterator const& ) = default;
 
-    bool operator!=( iterator const& other ) const
+    bool
+    operator!=( iterator const& other ) const
     { return m_iter != other.m_iter; }
 
-    value_ref_t operator*() const { return *m_iter; }
+    value_ref_t
+    operator*() const { return *m_iter; }
 
     iterator& operator++();
 
@@ -69,7 +73,8 @@ public:
 
   iterator begin() const;
 
-  iterator end() const
+  iterator
+  end() const
   { return { m_range.end(), m_range.end() }; }
 
 protected:
@@ -79,6 +84,7 @@ protected:
 // ----------------------------------------------------------------------------
 template < typename Range >
 typename valid_view< Range >::iterator
+
 valid_view< Range >
 ::begin() const
 {
@@ -92,10 +98,10 @@ typename valid_view< Range >::iterator&
 valid_view< Range >::iterator
 ::operator++()
 {
-  while ( m_iter != m_end )
+  while( m_iter != m_end )
   {
     ++m_iter;
-    if ( m_iter != m_end && !!( *m_iter ) ) break;
+    if( m_iter != m_end && !!( *m_iter ) ) { break; }
   }
   return *this;
 }
@@ -104,6 +110,10 @@ valid_view< Range >::iterator
 
 KWIVER_MUTABLE_RANGE_ADAPTER( valid )
 
-} } } // end namespace
+} // namespace range
+
+} // namespace vital
+
+}     // end namespace
 
 #endif

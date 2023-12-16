@@ -15,31 +15,39 @@ namespace range {
 /// \brief Utility to produce a half-open range of integers.
 
 // ----------------------------------------------------------------------------
-template < typename T > class iota_range
+template < typename T >
+class iota_range
 {
 public:
   class iterator;
 
   iota_range( T count ) : end_{ count } {}
 
-  iterator begin() const { return { T{ 0 } }; }
-  iterator end() const { return { end_ }; }
+  iterator
+  begin() const { return { T{ 0 } }; }
+  iterator
+  end() const { return { end_ }; }
 
 protected:
   T end_;
 };
 
 // ----------------------------------------------------------------------------
-template < typename T > class iota_range< T >::iterator
+template < typename T >
+class iota_range< T >::iterator
 {
 public:
-  T operator*() const { return value_; }
-  iterator& operator++() { ++value_; return *this; }
+  T
+  operator*() const { return value_; }
+  iterator&
+  operator++() { ++value_; return *this; }
 
-  bool operator==( iterator const& other ) const
+  bool
+  operator==( iterator const& other ) const
   { return value_ == other.value_; }
 
-  bool operator!=( iterator const& other ) const
+  bool
+  operator!=( iterator const& other ) const
   { return value_ != other.value_; }
 
 protected:

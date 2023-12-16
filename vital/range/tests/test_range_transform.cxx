@@ -14,22 +14,23 @@
 using namespace kwiver::vital;
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_transform, basic)
+TEST ( range_transform, basic )
 {
   auto my_transform = []( int x ){
-    return static_cast< double >( x ) / 16.0;
-  };
+                        return static_cast< double >( x ) / 16.0;
+                      };
 
   int counter = 0;
   auto sum = 0.0;
-  for ( auto x : test_values | range::transform( my_transform ) )
+  for( auto x : test_values | range::transform( my_transform ) )
   {
     sum += x;
 
@@ -44,19 +45,19 @@ TEST(range_transform, basic)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_transform, transitive)
+TEST ( range_transform, transitive )
 {
   auto my_transform_1 = []( int x ){
-    return x + 1;
-  };
+                          return x + 1;
+                        };
   auto my_transform_2 = []( int x ){
-    return static_cast< double >( x ) / 4.0;
-  };
+                          return static_cast< double >( x ) / 4.0;
+                        };
 
   int counter = 0;
   auto sum = 0.0;
-  for ( auto x : test_values | range::transform( my_transform_1 )
-                             | range::transform( my_transform_2 ) )
+  for( auto x : test_values | range::transform( my_transform_1 ) |
+       range::transform( my_transform_2 ) )
   {
     sum += x;
 
@@ -71,15 +72,17 @@ TEST(range_transform, transitive)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_transform, temporary)
+TEST ( range_transform, temporary )
 {
+
   class temporary_vector : public std::vector< int >
   {
   public:
     using std::vector< int >::vector;
+
     ~temporary_vector()
     {
-      for ( auto& x : *this )
+      for( auto& x : *this )
       {
         x = 0;
       }
@@ -87,19 +90,20 @@ TEST(range_transform, temporary)
   };
 
   auto make_temporary = []{
-    auto out = temporary_vector{};
-    std::copy( std::begin( test_values ), std::end( test_values ),
-               std::back_inserter( out ) );
-    return out;
-  };
+                          auto out = temporary_vector{};
+                          std::copy( std::begin( test_values ),
+                                     std::end( test_values ),
+                                     std::back_inserter( out ) );
+                          return out;
+                        };
 
   auto my_transform = []( int x ){
-    return static_cast< double >( x ) / 16.0;
-  };
+                        return static_cast< double >( x ) / 16.0;
+                      };
 
   int counter = 0;
   auto sum = 0.0;
-  for ( auto x : make_temporary() | range::transform( my_transform ) )
+  for( auto x : make_temporary() | range::transform( my_transform ) )
   {
     sum += x;
 

@@ -15,19 +15,20 @@
 using namespace kwiver::vital;
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_valid, empty)
+TEST ( range_valid, empty )
 {
   auto test_values = std::vector< int >{};
 
   auto counter = int{ 0 };
-  for ( auto x : test_values | range::valid )
+  for( auto x : test_values | range::valid )
   {
     static_cast< void >( x );
     ++counter;
@@ -37,12 +38,12 @@ TEST(range_valid, empty)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_valid, none)
+TEST ( range_valid, none )
 {
   auto test_values = std::vector< bool >{ false, false };
 
   auto counter = int{ 0 };
-  for ( auto x : test_values | range::valid )
+  for( auto x : test_values | range::valid )
   {
     static_cast< void >( x );
     ++counter;
@@ -52,7 +53,7 @@ TEST(range_valid, none)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_valid, basic)
+TEST ( range_valid, basic )
 {
   auto test_values = std::vector< std::shared_ptr< int > >{
     std::shared_ptr< int >{ nullptr },
@@ -64,11 +65,10 @@ TEST(range_valid, basic)
     std::shared_ptr< int >{ nullptr },
     std::shared_ptr< int >{ new int{ 4 } },
     std::shared_ptr< int >{ new int{ 5 } },
-    std::shared_ptr< int >{ nullptr }
-  };
+    std::shared_ptr< int >{ nullptr } };
 
   auto accumulator = int{ 0 };
-  for ( auto p : test_values | range::valid )
+  for( auto p : test_values | range::valid )
   {
     accumulator += *p;
   }
@@ -77,17 +77,17 @@ TEST(range_valid, basic)
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_valid, mutating)
+TEST ( range_valid, mutating )
 {
   auto test_values = std::vector< int >{ 1, 2, 3, 4, 5 };
 
-  for ( auto& x : test_values | range::valid )
+  for( auto& x : test_values | range::valid )
   {
-    if ( x == 3 )
+    if( x == 3 )
     {
       x = 42;
     }
   }
 
-  EXPECT_EQ( 42, test_values[2] );
+  EXPECT_EQ( 42, test_values[ 2 ] );
 }

@@ -27,10 +27,13 @@ public:
   iterator_range( Iterator&& begin, Iterator&& end )
     : m_begin{ std::move( begin ) }, m_end{ std::move( end ) } {}
 
-  Iterator begin() const { return m_begin; }
-  Iterator end() const { return m_end; }
+  Iterator
+  begin() const { return m_begin; }
+  Iterator
+  end() const { return m_end; }
 
-  bool empty() const { return m_begin == m_end; }
+  bool
+  empty() const { return m_begin == m_end; }
 
   typename std::iterator_traits< Iterator >::difference_type
   size() const { return std::distance( m_begin, m_end ); }

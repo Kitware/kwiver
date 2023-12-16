@@ -14,38 +14,39 @@
 using namespace kwiver::vital;
 
 // ----------------------------------------------------------------------------
-int main(int argc, char** argv)
+int
+main( int argc, char** argv )
 {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_indirect, mutating)
+TEST ( range_indirect, mutating )
 {
   auto test_values = std::vector< int >{ 1, 2, 3, 4, 5 };
 
-  for ( auto iter : test_values | range::indirect )
+  for( auto iter : test_values | range::indirect )
   {
-    if ( *iter == 3 )
+    if( *iter == 3 )
     {
       *iter = 42;
     }
   }
 
-  EXPECT_EQ( 42, test_values[2] );
+  EXPECT_EQ( 42, test_values[ 2 ] );
 }
 
 // ----------------------------------------------------------------------------
-TEST(range_indirect, assign_iterator)
+TEST ( range_indirect, assign_iterator )
 {
   auto const test_values = std::vector< int >{ 1, 2, 3, 4, 5 };
 
   auto out_iter = test_values.end();
 
-  for ( auto iter : test_values | range::indirect )
+  for( auto iter : test_values | range::indirect )
   {
-    if ( *iter == 3 )
+    if( *iter == 3 )
     {
       out_iter = iter;
     }
