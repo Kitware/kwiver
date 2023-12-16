@@ -94,12 +94,12 @@ thread_pool
 ::set_backend( std::string const& backend_name )
 {
 #define TRY_BACKEND( T )                  \
-  if( backend_name == T::static_name )    \
-  {                                     \
-    d_->backend.release();              \
-    d_->backend.reset( new T() );       \
-  }                                     \
-  else
+        if( backend_name == T::static_name )    \
+        {                                     \
+          d_->backend.release();              \
+          d_->backend.reset( new T() );       \
+        }                                     \
+        else
 
 #if __APPLE__
   TRY_BACKEND( thread_pool_gcd_backend )

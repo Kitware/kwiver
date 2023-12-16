@@ -81,17 +81,17 @@ protected:
 // Static-method Existence Helpers
 
 #define CREATE_HAS_CHECK( funcname ) \
-  template < typename T > \
-  class has_##funcname final \
-  { \
-  private: \
-    typedef char r1 [ 1 ]; \
-    typedef char r2 [ 2 ]; \
-    template < typename C > static r1& test( decltype( &C::funcname ) ); \
-    template < typename C > static r2& test( ... ); \
-  public: \
-    enum { value = sizeof( test< T >( nullptr ) ) == sizeof( r1 ), }; \
-  }
+        template < typename T > \
+        class has_##funcname final \
+        { \
+        private: \
+          typedef char r1 [ 1 ]; \
+          typedef char r2 [ 2 ]; \
+          template < typename C > static r1& test( decltype( &C::funcname ) ); \
+          template < typename C > static r2& test( ... ); \
+        public: \
+          enum { value = sizeof( test< T >( nullptr ) ) == sizeof( r1 ), }; \
+        }
 
 /**
  * Use SFINAE To check if the templated type has "interface_name" static
@@ -130,4 +130,4 @@ CREATE_HAS_CHECK( get_default_config );
 
 } // namespace kwiver::vital
 
-#endif //KWIVER_VITAL_PLUGGABLE_H_
+#endif // KWIVER_VITAL_PLUGGABLE_H_

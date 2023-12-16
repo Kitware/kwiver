@@ -32,11 +32,11 @@
 #define TEST_OPT_3( a, b, c ) a ## b ## c
 
 #define TEST_OPT_ARG( a, b, ... ) \
-  IF_ELSE( NOT( HAS_ARGS( __VA_ARGS__ ) ) ) \
-  (                               \
-    TEST_OPT_2( a, b ),            \
-    TEST_OPT_3( a, b, __VA_ARGS__ ) \
-  )
+        IF_ELSE( NOT( HAS_ARGS( __VA_ARGS__ ) ) ) \
+        (                               \
+          TEST_OPT_2( a, b ),            \
+          TEST_OPT_3( a, b, __VA_ARGS__ ) \
+        )
 
 int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 
@@ -57,11 +57,11 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  * true.
  */
 #define MAYBE_COMMENT( symbol, do_comment ) \
-  IF_ELSE( BOOL( do_comment ) )             \
-  (                                         \
-    /* symbol */,                           \
-    symbol                                  \
-  )
+        IF_ELSE( BOOL( do_comment ) )             \
+        (                                         \
+          /* symbol */,                           \
+          symbol                                  \
+        )
 
 // ----------------------------------------------------------------------------
 // Parameter declaration macros
@@ -79,33 +79,33 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  * Declare a parameter with no default value.
  */
 #define PARAM( name, type, description_str ) \
-  ( name, type, description_str, )
+        ( name, type, description_str, )
 
 /**
  * Declare a parameter *with* a default value.
  */
 #define PARAM_DEFAULT( name, type, description_str, default ) \
-  ( name, type, description_str, default )
+        ( name, type, description_str, default )
 
 // ----------------------------------------------------------------------------
 
 #define PARAM_VAR_DEF( tuple ) PARAM_VAR_DEF_ tuple
 #define PARAM_VAR_DEF_( name, type, description_str, default_value ) \
-  type CONFIG_VAR_NAME( name );
+        type CONFIG_VAR_NAME( name );
 
 #define PARAM_PUBLIC_GETTER( tuple ) PARAM_PUBLIC_GETTER_ tuple
 #define PARAM_PUBLIC_GETTER_( name, type, description_str, default_value ) \
-  type const& CAT( get_, name )( ) const                                   \
-  {                                                                        \
-    return this->CONFIG_VAR_NAME( name );                                  \
-  }
+        type const& CAT( get_, name )( ) const                                   \
+        {                                                                        \
+          return this->CONFIG_VAR_NAME( name );                                  \
+        }
 
 #define PARAM_PUBLIC_SETTER( tuple ) PARAM_PUBLIC_SETTER_ tuple
 #define PARAM_PUBLIC_SETTER_( name, type, description_str, default_value ) \
-  CAT( set_, name )( type value )                                          \
-  {                                                                        \
-    this->CONFIG_VAR_NAME( name ) = value;                                 \
-  }
+        CAT( set_, name )(type value)                                          \
+        {                                                                        \
+          this->CONFIG_VAR_NAME( name ) = value;                                 \
+        }
 
 /**
  * Produce a constructor parameter definition and optional default value
@@ -113,11 +113,11 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  */
 #define PARAM_CONSTRUCTOR_ARGS( tuple ) PARAM_CONSTRUCTOR_ARGS_ tuple
 #define PARAM_CONSTRUCTOR_ARGS_( name, type, description_str, default_value ) \
-  IF_ELSE( HAS_ARGS( default_value ) )                                        \
-  (                                                                           \
-    type name = ( default_value ),                                            \
-    type name                                                                 \
-  )
+        IF_ELSE( HAS_ARGS( default_value ) )                                        \
+        (                                                                           \
+          type name = ( default_value ),                                            \
+          type name                                                                 \
+        )
 
 /**
  * Produce a constructor default assignment, e.g. that placed after the ":" and
@@ -125,7 +125,7 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  */
 #define PARAM_CONSTRUCTOR_ASSN( tuple ) PARAM_CONSTRUCTOR_ASSN_ tuple
 #define PARAM_CONSTRUCTOR_ASSN_( name, type, description_str, default_value ) \
-  CONFIG_VAR_NAME( name )( name )
+        CONFIG_VAR_NAME( name )( name )
 
 /**
  * Produce an access call to the config_block (assumed variable `cb`) to get a
@@ -133,11 +133,11 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  */
 #define PARAM_CONFIG_GET( tuple ) PARAM_CONFIG_GET_ tuple
 #define PARAM_CONFIG_GET_( name, type, description_str, default ) \
-  IF_ELSE( HAS_ARGS( default ) )                                  \
-  (                                                               \
-    cb->get_value< type >( #name, default ),                      \
-    cb->get_value< type >( #name )                                \
-  )
+        IF_ELSE( HAS_ARGS( default ) )                                  \
+        (                                                               \
+          cb->get_value< type >( #name, default ),                      \
+          cb->get_value< type >( #name )                                \
+        )
 
 /**
  * Produce a set_value call on the config_block (assumed variable `cb`) to set
@@ -146,11 +146,11 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 #define PARAM_CONFIG_DEFAULT_SET( tuple ) PARAM_CONFIG_DEFAULT_SET_ tuple
 #define PARAM_CONFIG_DEFAULT_SET_( name, type, description_str, \
                                    default )                    \
-  IF_ELSE( HAS_ARGS( default ) )                                \
-  (                                                             \
-    cb.set_value( #name, default, description_str ); ,          \
-    cb.set_value( #name, type(), description_str );             \
-  )
+        IF_ELSE( HAS_ARGS( default ) )                                \
+        (                                                             \
+          cb.set_value( #name, default, description_str ); ,          \
+          cb.set_value( #name, type(), description_str );             \
+        )
 
 // ----------------------------------------------------------------------------
 
@@ -164,35 +164,37 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  * accessor methods that return const& variants of parameter types.
  */
 #define PLUGGABLE_VARIABLES( ... ) \
-private:                           \
-  MAP( PARAM_VAR_DEF, EMPTY, __VA_ARGS__ ) \
-public:                            \
-  MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ ) \
-  MAP( PARAM_PUBLIC_SETTER, EMPTY, __VA_ARGS__ )
+      private:                           \
+        MAP( PARAM_VAR_DEF, EMPTY, __VA_ARGS__ ) \
+      public:                            \
+        MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ ) \
+        MAP( PARAM_PUBLIC_SETTER, EMPTY, __VA_ARGS__ )
 
 #define PLUGGABLE_CONSTRUCTOR( class_name, ... ) \
-public:                                          \
-  explicit class_name( MAP( PARAM_CONSTRUCTOR_ARGS, COMMA, __VA_ARGS__ ) ) \
-  IF( HAS_ARGS( __VA_ARGS__ ) )(                 \
-    : MAP( PARAM_CONSTRUCTOR_ASSN, COMMA, __VA_ARGS__ )                    \
-    )                                            \
-  {}
+      public:                                          \
+        explicit class_name( MAP( PARAM_CONSTRUCTOR_ARGS, COMMA, \
+                                  __VA_ARGS__ ) ) \
+        IF( HAS_ARGS( __VA_ARGS__ ) )(                 \
+          : MAP( PARAM_CONSTRUCTOR_ASSN, COMMA, __VA_ARGS__ )                    \
+          )                                            \
+        {}
 
 #define PLUGGABLE_STATIC_FROM_CONFIG( class_name, ... ) \
-public:                                                          \
-  static pluggable_sptr from_config( ::kwiver::vital::config_block_sptr const cb ) \
-  {                                                              \
-    return std::make_shared< class_name >(                       \
-      MAP( PARAM_CONFIG_GET, COMMA, __VA_ARGS__ )             \
-      );                                                         \
-  }
+      public:                                                          \
+        static pluggable_sptr from_config( \
+          ::kwiver::vital::config_block_sptr const cb ) \
+        {                                                              \
+          return std::make_shared< class_name >(                       \
+            MAP( PARAM_CONFIG_GET, COMMA, __VA_ARGS__ )             \
+            );                                                         \
+        }
 
 #define PLUGGABLE_STATIC_GET_DEFAULT( ... ) \
-public:                                     \
-  static void get_default_config( ::kwiver::vital::config_block& cb ) \
-  {                                         \
-    MAP( PARAM_CONFIG_DEFAULT_SET, EMPTY, __VA_ARGS__ )               \
-  }
+      public:                                     \
+        static void get_default_config( ::kwiver::vital::config_block& cb ) \
+        {                                         \
+          MAP( PARAM_CONFIG_DEFAULT_SET, EMPTY, __VA_ARGS__ )               \
+        }
 
 // ----------------------------------------------------------------------------
 
@@ -203,27 +205,27 @@ public:                                     \
  * that will be used as the string name for this interface.
  */
 #define PLUGGABLE_INTERFACE( name ) \
-public:                             \
-  static std::string interface_name() { return #name; }
+      public:                             \
+        static std::string interface_name() { return #name; }
 
 /**
  * Basic implementation class helper macro for when you want to author your
  * own from_config and get_default_config static methods.
  */
 #define PLUGGABLE_IMPL_BASIC( class_name, description ) \
-public:                                                 \
-  static std::string plugin_name() { return #class_name; } \
-  static std::string plugin_description() { return description; }
+      public:                                                 \
+        static std::string plugin_name() { return #class_name; } \
+        static std::string plugin_description() { return description; }
 
 /**
  * All together now: TODO detail composition
  */
 #define PLUGGABLE_IMPL( class_name, description, ... ) \
-  PLUGGABLE_VARIABLES( __VA_ARGS__ )                   \
-  PLUGGABLE_CONSTRUCTOR( class_name, __VA_ARGS__ )     \
-  PLUGGABLE_IMPL_BASIC( class_name, description )      \
-  PLUGGABLE_STATIC_FROM_CONFIG( class_name, __VA_ARGS__ ) \
-  PLUGGABLE_STATIC_GET_DEFAULT( __VA_ARGS__ )
+        PLUGGABLE_VARIABLES( __VA_ARGS__ )                   \
+        PLUGGABLE_CONSTRUCTOR( class_name, __VA_ARGS__ )     \
+        PLUGGABLE_IMPL_BASIC( class_name, description )      \
+        PLUGGABLE_STATIC_FROM_CONFIG( class_name, __VA_ARGS__ ) \
+        PLUGGABLE_STATIC_GET_DEFAULT( __VA_ARGS__ )
 
 // ----------------------------------------------------------------------------
 
@@ -307,4 +309,4 @@ public:
 
 } // end namespace kwiver::vital
 
-#endif //PLUGGABLE_MACRO_MAGIC_H
+#endif // PLUGGABLE_MACRO_MAGIC_H

@@ -23,6 +23,7 @@ hex_dump( std::ostream& os,
     return os;
   }
 
+
   auto oldFormat = os.flags();
   auto oldFillChar = os.fill();
   constexpr std::size_t maxline { 8 };

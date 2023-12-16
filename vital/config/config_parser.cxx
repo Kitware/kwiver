@@ -131,7 +131,8 @@ public:
 
     // Get directory part of the input file
     config_path_t config_file_dir( kwiversys::SystemTools::GetFilenamePath( *
-                                                                            file_path_sptr ) );
+                                                                            file_path_sptr )
+                                   );
     // if file_path has no directory prefix then use "." for the current
     // directory
     if( "" == config_file_dir )
@@ -364,7 +365,8 @@ public:
         else
         {
           LOG_ERROR( m_logger, "Unrecognized flags: \"" << token.value
-                                                        << "\" at " << file_path << ":" <<
+                                                        << "\" at " <<
+                     file_path << ":" <<
                      m_line_number );
           m_parse_error = true;
         }
@@ -417,7 +419,8 @@ public:
       {
         // Unexpected token - syntax error
         LOG_ERROR( m_logger, "Invalid syntax in line \""        << m_last_line
-                                                                <<  "\" at " << file_path << ":" <<
+                                                                <<  "\" at " <<
+                   file_path << ":" <<
                    m_line_number );
         m_parse_error = true;
 
@@ -637,7 +640,8 @@ public:
     {
       config_path_t config_file_dir( kwiversys::SystemTools::GetFilenamePath( *
                                                                               *
-                                                                              it ) );
+                                                                              it )
+                                     );
       if( "" == config_file_dir )
       {
         config_file_dir = ".";

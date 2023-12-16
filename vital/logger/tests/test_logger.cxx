@@ -75,6 +75,7 @@ TEST ( logger, factory )
   _putenv( "VITAL_LOGGER_FACTORY=" );
 #else
   unsetenv( "VITAL_LOGGER_FACTORY" );
+
 #endif
 
   logger_handle_t log2 = get_logger( "main.logger" );

@@ -27,4 +27,4 @@ typedef std::shared_ptr< say > say_sptr;
 
 } // namespace kwiver::vital
 
-#endif //VITAL_TEST_INTERFACE_INTERFACE_H
+#endif // VITAL_TEST_INTERFACE_INTERFACE_H

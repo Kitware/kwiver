@@ -484,7 +484,8 @@ private:
    */
   void i_set_value( config_block_key_t const& key,
                     config_block_value_t const& value,
-                    config_block_description_t const& descr = config_block_key_t() );
+                    config_block_description_t const& descr =
+                    config_block_key_t() );
 
   /**
    * \brief Copies config entry to this config block.

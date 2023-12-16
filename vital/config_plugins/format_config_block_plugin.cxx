@@ -25,7 +25,7 @@ public:
   PLUGGABLE_IMPL_BASIC(
     format_config_block_markdown,
     "Format config block with markdown"
-  )
+    )
 
   PLUGGABLE_CONSTRUCTOR( format_config_block_markdown )
 
@@ -81,10 +81,11 @@ public:
     format_config_block_tree,
     "Format config block to output as a tree",
     PARAM( opt_prefix, std::string, "Optional prefix for output" ), \
-    PARAM_DEFAULT( opt_gen_source_loc, bool, "Provide information about config file.", false)
-  )
+    PARAM_DEFAULT( opt_gen_source_loc, bool,
+                   "Provide information about config file.", false )
+    )
 
-  void print( const config_block_sptr config,std::ostream& str ) override;
+  void print( const config_block_sptr config, std::ostream& str ) override;
 
 protected:
   void format_block( std::ostream& str,

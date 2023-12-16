@@ -219,11 +219,11 @@ private:
  * @param ... list of initialization pairs in the form { "name", value }, ...
  */
 #define ENUM_CONVERTER( CN, T, ... )                      \
-  struct CN : kwiver::vital::enum_converter< T > {       \
-    CN()                                                  \
-      : enum_converter( {                               \
+        struct CN : kwiver::vital::enum_converter< T > {       \
+          CN()                                                  \
+            : enum_converter( {                               \
       __VA_ARGS__ } ) {}                                        \
-    typedef T enum_type;                                  \
-  };
+          typedef T enum_type;                                  \
+        };
 
 #endif /* VITAL_UTIL_ENUM_CONVERTER_H */

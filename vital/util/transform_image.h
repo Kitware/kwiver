@@ -179,11 +179,11 @@ cast_image( image const& img_in, image_of< T >& img_out )
     return;
   }
 #define TRY_TYPE( in_T )                                         \
-  if( img_in.pixel_traits() == image_pixel_traits_of< in_T >() ) \
-  {                                                            \
-    cast_image( image_of< in_T >( img_in ), img_out );             \
-    return;                                                    \
-  }
+        if( img_in.pixel_traits() == image_pixel_traits_of< in_T >() ) \
+        {                                                            \
+          cast_image( image_of< in_T >( img_in ), img_out );             \
+          return;                                                    \
+        }
 
   TRY_TYPE( bool )
   TRY_TYPE( uint8_t )

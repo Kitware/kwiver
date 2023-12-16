@@ -14,14 +14,15 @@
 #include <gtest/gtest.h>
 
 #define TEST_LOAD_PLUGINS() \
-  class _test_plugin_helper : public ::testing::EmptyTestEventListener \
-  { \
-  public: \
-    virtual void OnTestProgramStart( ::testing::UnitTest const& ) override \
-    { kwiver::vital::plugin_manager::instance().load_all_plugins(); } \
-  }; \
-  ::testing::UnitTest::GetInstance()->listeners().Append( \
-    new _test_plugin_helper )
+        class _test_plugin_helper : public ::testing::EmptyTestEventListener \
+        { \
+        public: \
+          virtual void OnTestProgramStart( \
+            ::testing::UnitTest const& ) override \
+          { kwiver::vital::plugin_manager::instance().load_all_plugins(); } \
+        }; \
+        ::testing::UnitTest::GetInstance()->listeners().Append( \
+            new _test_plugin_helper )
 
 // ----------------------------------------------------------------------------
 
@@ -35,7 +36,7 @@
  * GET_ARG_EX if the latter condition does not hold.
  */
 #define GET_ARG( idx, var ) \
-  GET_ARG_EX( idx, var, decltype( var ) )
+        GET_ARG_EX( idx, var, decltype( var ) )
 
 // ----------------------------------------------------------------------------
 
@@ -47,21 +48,21 @@
  *   copy-assignable to \p var.
  */
 #define GET_ARG_EX( idx, var, conv )  \
-  do                                \
-  {                                 \
-    using namespace testing;        \
-    if( !GTEST_FLAG( list_tests ) )    \
-    {                               \
-      if( argc <= ( idx ) )            \
-      {                             \
-        EXPECT_GT( argc, ( idx ) )      \
+        do                                \
+        {                                 \
+          using namespace testing;        \
+          if( !GTEST_FLAG( list_tests ) )    \
+          {                               \
+            if( argc <= ( idx ) )            \
+            {                             \
+              EXPECT_GT( argc, ( idx ) )      \
                 << "Required argument "   \
                 << ( idx ) << " missing";   \
-        return EXIT_FAILURE;        \
-      }                             \
-      var = conv( argv[ idx ] );        \
-    }                               \
-  } while( false )
+              return EXIT_FAILURE;        \
+            }                             \
+            var = conv( argv[ idx ] );        \
+          }                               \
+        } while( false )
 
 // ----------------------------------------------------------------------------
 
@@ -73,8 +74,8 @@
  * @note The global variable must be named <code>g_ ## var</code>.
  */
 #define TEST_ARG( var ) \
-public: \
-  decltype( g_ ## var ) const& var = g_ ## var
+      public: \
+        decltype( g_ ## var ) const& var = g_ ## var
 
 namespace kwiver::testing {
 
@@ -106,12 +107,12 @@ is_in_inclusive_range(
 }
 
 #define EXPECT_WITHIN( lower, value, upper ) \
-  EXPECT_PRED_FORMAT3( ::kwiver::testing::is_in_inclusive_range, \
-                       value, lower, upper )
+        EXPECT_PRED_FORMAT3( ::kwiver::testing::is_in_inclusive_range, \
+                             value, lower, upper )
 
 #define ASSERT_WITHIN( lower, value, upper ) \
-  ASSERT_PRED_FORMAT3( ::kwiver::testing::is_in_inclusive_range, \
-                       value, lower, upper )
+        ASSERT_PRED_FORMAT3( ::kwiver::testing::is_in_inclusive_range, \
+                             value, lower, upper )
 
 } // namespace kwiver::testing
 

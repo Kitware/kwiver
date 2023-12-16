@@ -450,7 +450,8 @@ config_block
   if( m_parent )
   {
     location_t::const_iterator i = m_parent->m_def_store.find( m_name +
-                                                               config_block::block_sep() +
+                                                               config_block::
+                                                               block_sep() +
                                                                key );
     if( i != m_parent->m_def_store.end() )
     {

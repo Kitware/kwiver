@@ -115,7 +115,8 @@ config_block_get_value_cast( config_block_value_t const& value )
       if( in.fail() )
       {
         VITAL_THROW( bad_config_block_cast,
-                     "failed to convert from string representation \"" + value +
+                     "failed to convert from string representation \"" +
+                     value +
                      "\"" );
       }
     };

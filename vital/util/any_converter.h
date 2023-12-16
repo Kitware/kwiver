@@ -346,7 +346,8 @@ public:
   add_converter()
   {
     m_converter_list.push_back( converter_ptr( new any_convert::converter< T,
-                                                                           SRC >() ) );
+                                                                           SRC >()
+                                               ) );
   }
 
   /**

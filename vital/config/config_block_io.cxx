@@ -132,6 +132,7 @@ application_config_file_paths_helper( std::string const& application_name,
         config_path_t( home ) + "/Library/Application Support" );
   }
   data_paths.push_back( "/Library/Application Support" );
+
 # endif
 
   // Get the list of configuration data paths

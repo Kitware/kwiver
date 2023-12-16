@@ -44,8 +44,9 @@ bool
 token_type_sysenv
 ::lookup_entry( std::string const& name, std::string& result ) const
 {
-  kwiversys::SystemInformation* SI( const_cast< kwiversys::SystemInformation* >(
-                                      &m_sysinfo ) );
+  kwiversys::SystemInformation* SI(
+    const_cast< kwiversys::SystemInformation* >(
+      &m_sysinfo ) );
 
   if( "cwd" == name ) // current directory
   {

@@ -401,7 +401,8 @@ plugin_loader_impl
       }
       else
       {
-        LOG_WARN( m_parent->m_logger, "Encountered a directory entry " << file <<
+        LOG_WARN( m_parent->m_logger,
+                  "Encountered a directory entry " << file <<
                   " which ends with the expected suffix, but is not a file" );
       }
     }

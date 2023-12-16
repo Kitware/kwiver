@@ -22,7 +22,8 @@ metadata_exception
 {}
 
 metadata_buffer_overflow
-::metadata_buffer_overflow( std::string const& str ) : metadata_exception( str )
+::metadata_buffer_overflow( std::string const& str ) : metadata_exception(
+                                                         str )
 {}
 
 metadata_buffer_overflow
