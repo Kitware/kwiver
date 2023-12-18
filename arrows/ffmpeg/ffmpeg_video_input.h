@@ -27,6 +27,11 @@ class KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_input
   : public vital::algo::video_input
 {
 public:
+  enum seek_mode {
+    SEEK_MODE_EXACT,
+    SEEK_MODE_KEYFRAME_BEFORE,
+  };
+
   /// Constructor
   ffmpeg_video_input();
   virtual ~ffmpeg_video_input();
@@ -52,12 +57,17 @@ public:
 
   bool seekable() const override;
   size_t num_frames() const override;
+  double frame_rate() override;
 
   bool next_frame( ::kwiver::vital::timestamp& ts,
                    uint32_t timeout = 0 ) override;
   bool seek_frame( ::kwiver::vital::timestamp& ts,
                    ::kwiver::vital::timestamp::frame_t frame_number,
                    uint32_t timeout = 0 ) override;
+
+  bool seek_frame_( vital::timestamp& ts,
+                    vital::timestamp::frame_t frame_number,
+                    seek_mode mode, uint32_t timeout = 0 );
 
   ::kwiver::vital::timestamp frame_timestamp() const override;
   ::kwiver::vital::image_container_sptr frame_image() override;

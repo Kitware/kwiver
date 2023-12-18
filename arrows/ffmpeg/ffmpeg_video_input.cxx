@@ -291,14 +291,9 @@ ffmpeg_klv_stream
   klv_result.add< kv::VITAL_META_METADATA_ORIGIN >( "KLV" );
   klv_result.add< kv::VITAL_META_VIDEO_DATA_STREAM_INDEX >( stream->index );
 
-#if LIBAVCODEC_VERSION_MAJOR > 57
-  if( stream->codecpar->profile >= 0 )
-  {
-    klv_result.add< kv::VITAL_META_VIDEO_DATA_STREAM_SYNCHRONOUS >(
-      stream->codecpar->profile == FF_PROFILE_KLVA_SYNC
-    );
-  }
-#endif
+  klv_result.add< kv::VITAL_META_VIDEO_DATA_STREAM_SYNCHRONOUS >(
+    settings().type == klv::KLV_STREAM_TYPE_SYNC
+  );
 
   return result;
 }
@@ -414,8 +409,10 @@ public:
 
     bool try_codec();
     void init_filters( filter_parameters const& parameters );
-    bool advance();
-    void seek( kv::frame_id_t frame_number );
+    bool advance( bool is_first_frame_of_seek = false );
+    void clear_state_for_seek();
+    void seek_to_start();
+    void seek( kv::frame_id_t frame_number, seek_mode mode );
     void set_video_metadata( kv::metadata& md );
     double curr_time() const;
     double duration() const;
@@ -443,12 +440,15 @@ public:
 
     sws_context_uptr image_conversion_context;
 
+    std::optional< kv::frame_id_t > frame_count;
     int64_t start_ts;
+    AVRational maybe_frame_rate;
     std::map< int64_t, klv::misp_timestamp > pts_to_misp_ts;
     std::map< int64_t, int64_t > packet_pos_to_dts;
     int64_t prev_frame_dts;
     int64_t prev_video_dts;
     std::multimap< int64_t, packet_uptr > lookahead;
+    std::list< packet_uptr > raw_image_buffer;
 
     std::list< ffmpeg_klv_stream > klv_streams;
     kv::metadata_map_sptr all_metadata;
@@ -916,12 +916,15 @@ ffmpeg_video_input::priv::open_video_state
     filter_sink_context{ nullptr },
     filter_source_context{ nullptr },
     image_conversion_context{ nullptr },
+    frame_count{},
     start_ts{ 0 },
+    maybe_frame_rate{ 0, 0 },
     pts_to_misp_ts{},
     packet_pos_to_dts{},
     prev_frame_dts{ AV_NOPTS_VALUE },
     prev_video_dts{ AV_NOPTS_VALUE },
     lookahead{},
+    raw_image_buffer{},
     klv_streams{},
     all_metadata{ nullptr },
     audio_streams{},
@@ -1189,24 +1192,14 @@ ffmpeg_video_input::priv::open_video_state
       }
       av_packet_unref( tmp_packet.get() );
     } while( send_err || recv_err );
+    auto const duration_q =
+      AVRational{ static_cast< int >( tmp_frame->pkt_duration ), 1 };
+    maybe_frame_rate =
+      av_inv_q( av_mul_q( duration_q, video_stream->time_base ) );
     start_ts = tmp_frame->best_effort_timestamp;
   }
 
-  // Seek back to start
-  auto seek_err =
-    av_seek_frame(
-      format_context.get(), -1, INT64_MIN,
-      AVSEEK_FLAG_BYTE | AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY );
-  if( seek_err < 0 )
-  {
-    // Sometimes seeking by byte position is not allowed, so try by timestamp
-    throw_error_code(
-      av_seek_frame(
-        format_context.get(), -1, INT64_MIN,
-        AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY ),
-      "Could not seek to beginning of video" );
-  }
-  avcodec_flush_buffers( codec_context.get() );
+  seek_to_start();
 
   return true;
 }
@@ -1297,7 +1290,7 @@ ffmpeg_video_input::priv::open_video_state
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input::priv::open_video_state
-::advance()
+::advance( bool is_first_frame_of_seek )
 {
   if( at_eof )
   {
@@ -1314,6 +1307,7 @@ ffmpeg_video_input::priv::open_video_state
   frame.reset();
 
   // Run through video until we can assemble a frame image
+  std::vector< int64_t > video_pos_list;
   while( !frame.has_value() && !at_eof )
   {
     // We need at least one video packet before we could expect another frame
@@ -1500,14 +1494,14 @@ ffmpeg_video_input::priv::open_video_state
       packet = std::move( first_video_it->second );
       lookahead.erase( first_video_it );
       first_video_it = lookahead.end();
+      video_pos_list.emplace_back( packet->pos );
 
       // Record packet as raw image
-      new_frame.get_raw_image().packets.emplace_back(
+      raw_image_buffer.emplace_back(
         throw_error_null(
           av_packet_alloc(), "Could not allocate packet" ) );
       throw_error_code(
-        av_packet_ref(
-          new_frame.get_raw_image().packets.back().get(), packet.get() ),
+        av_packet_ref( raw_image_buffer.back().get(), packet.get() ),
         "Could not give packet to raw image cache" );
       packet_pos_to_dts.emplace( packet->pos, packet->dts );
 
@@ -1544,11 +1538,31 @@ ffmpeg_video_input::priv::open_video_state
       case 0:
         // Success
         frame = std::move( new_frame );
+        if( frame_count )
+        {
+          ++( *frame_count );
+        }
 
         // Look up the dts of the packet that contained this frame
         if( auto const it = packet_pos_to_dts.find( frame->frame->pkt_pos );
             it != packet_pos_to_dts.end() )
         {
+          for( auto jt = raw_image_buffer.begin();
+               jt != raw_image_buffer.end(); )
+          {
+            if( ( *jt )->dts <= it->second ||
+                ( *jt )->dts <= frame->frame->pkt_dts )
+            {
+              auto const next_jt = std::next( jt );
+              frame->get_raw_image().packets.splice(
+                frame->get_raw_image().packets.end(), raw_image_buffer, jt );
+              jt = next_jt;
+            }
+            else
+            {
+              ++jt;
+            }
+          }
           frame->get_raw_image().frame_dts = it->second;
           prev_frame_dts = it->second;
           packet_pos_to_dts.erase( it );
@@ -1603,17 +1617,35 @@ ffmpeg_video_input::priv::open_video_state
     // Give the non-video streams all packets up to this new frame image
     for( auto it = lookahead.begin(); it != lookahead.end(); )
     {
-      if( av_rescale_q(
-            it->second->pts,
-            format_context->streams[ it->second->stream_index ]->time_base,
-            AVRational{ 1, AV_TIME_BASE } ) >
-          av_rescale_q(
-            frame->frame->best_effort_timestamp,
-            video_stream->time_base,
-            AVRational{ 1, AV_TIME_BASE } ) )
+      auto const packet_pts =
+        av_rescale_q(
+          it->second->pts,
+          format_context->streams[ it->second->stream_index ]->time_base,
+          AVRational{ 1, AV_TIME_BASE } );
+      auto const frame_pts =
+        av_rescale_q(
+          frame->frame->best_effort_timestamp,
+          video_stream->time_base,
+          AVRational{ 1, AV_TIME_BASE } );
+      auto const frame_minus_one_pts =
+        av_rescale_q(
+          frame->frame->best_effort_timestamp - frame->frame->pkt_duration,
+          video_stream->time_base,
+          AVRational{ 1, AV_TIME_BASE } );
+      auto const frame_plus_one_pts =
+        av_rescale_q(
+          frame->frame->best_effort_timestamp + frame->frame->pkt_duration,
+          video_stream->time_base,
+          AVRational{ 1, AV_TIME_BASE } );
+
+      int64_t min_pos = AV_NOPTS_VALUE;
+      if( auto const pos_it =
+            std::lower_bound(
+              video_pos_list.begin(), video_pos_list.end(),
+              frame->frame->pkt_pos );
+          pos_it != video_pos_list.end() && pos_it != video_pos_list.begin() )
       {
-        ++it;
-        continue;
+        min_pos = *std::prev( pos_it );
       }
 
       auto found = false;
@@ -1625,7 +1657,19 @@ ffmpeg_video_input::priv::open_video_state
         }
 
         found = true;
-        stream.send_packet( it->second.get() );
+        if( packet_pts > frame_pts )
+        {
+          ++it;
+          break;
+        }
+
+        if( !is_first_frame_of_seek || this->frame_number() == 0 ||
+            packet_pts >= frame_minus_one_pts ||
+            ( it->second->pts == AV_NOPTS_VALUE &&
+              it->second->pos >= min_pos ) )
+        {
+          stream.send_packet( it->second.get() );
+        }
         it = lookahead.erase( it );
         break;
       }
@@ -1643,8 +1687,17 @@ ffmpeg_video_input::priv::open_video_state
         }
 
         found = true;
-        frame->get_uninterpreted_data().audio_packets.emplace_back(
-          std::move( it->second ) );
+        if( packet_pts > frame_plus_one_pts )
+        {
+          ++it;
+          break;
+        }
+
+        if( !is_first_frame_of_seek || this->frame_number() == 0 )
+        {
+          frame->get_uninterpreted_data().audio_packets.emplace_back(
+            std::move( it->second ) );
+        }
         it = lookahead.erase( it );
         break;
       }
@@ -1683,7 +1736,55 @@ ffmpeg_video_input::priv::open_video_state
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_input::priv::open_video_state
-::seek( kv::frame_id_t frame_number )
+::clear_state_for_seek()
+{
+  // Clear current state
+  frame_count.reset();
+  prev_frame_dts = AV_NOPTS_VALUE;
+  prev_video_dts = AV_NOPTS_VALUE;
+  lookahead.clear();
+  raw_image_buffer.clear();
+  lookahead_at_eof = false;
+  at_eof = false;
+  frame.reset();
+  for( auto& stream : klv_streams )
+  {
+    stream.reset();
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_input::priv::open_video_state
+::seek_to_start()
+{
+  clear_state_for_seek();
+  frame_count.emplace( -1 );
+
+  auto const err =
+    av_seek_frame(
+      format_context.get(), -1, INT64_MIN,
+      AVSEEK_FLAG_BYTE | AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY );
+  if( err < 0 )
+  {
+    // Sometimes seeking by byte position is not allowed, so try by timestamp
+    throw_error_code(
+      av_seek_frame(
+        format_context.get(), -1, INT64_MIN,
+        AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY ),
+      "Could not seek to beginning of video" );
+  }
+
+  if( codec_context )
+  {
+    avcodec_flush_buffers( codec_context.get() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_input::priv::open_video_state
+::seek( kv::frame_id_t frame_number, seek_mode mode )
 {
   if( frame_number == this->frame_number() )
   {
@@ -1697,35 +1798,20 @@ ffmpeg_video_input::priv::open_video_state
   // more frames than that.
   auto const backstep_size =
     codec_context->gop_size ? codec_context->gop_size : 12;
-  constexpr size_t maximum_attempts = 5;
-  for( size_t i = 0; i < maximum_attempts; ++i )
+  constexpr size_t maximum_attempts = 7;
+  for( size_t i = 0; i < maximum_attempts && frame_rate().num > 0; ++i )
   {
-    // Clear current state
-    prev_frame_dts = AV_NOPTS_VALUE;
-    prev_video_dts = AV_NOPTS_VALUE;
-    lookahead.clear();
-    lookahead_at_eof = false;
-    at_eof = false;
-    frame.reset();
-    for( auto& stream : klv_streams )
-    {
-      stream.reset();
-    }
-
     // Increasing backstep intervals on further tries
-    size_t const backstep = i ? ( ( 1 << ( i - 1 ) ) * backstep_size ) : 1;
+    size_t const backstep = i ? ( ( 1 << ( i - 1 ) ) * backstep_size ) : 0;
 
     // Determine timestamp from frame number
-    int64_t converted_timestamp = frame_number - backstep;
-    converted_timestamp =
-      av_rescale( converted_timestamp, frame_rate().den, frame_rate().num );
-    converted_timestamp =
-      av_rescale(
-        converted_timestamp,
-        video_stream->time_base.den, video_stream->time_base.num );
-    converted_timestamp += start_ts;
+    auto converted_timestamp =
+      av_rescale_q(
+        frame_number - backstep, av_inv_q( frame_rate() ),
+        video_stream->time_base ) + start_ts;
 
     // Do the seek
+    clear_state_for_seek();
     throw_error_code(
       av_seek_frame(
         format_context.get(), video_stream->index, converted_timestamp,
@@ -1737,31 +1823,156 @@ ffmpeg_video_input::priv::open_video_state
     }
 
     // Move forward through frames until we get to the desired frame
+    size_t advance_count = 0;
     do
     {
-      advance();
+      advance( advance_count == 0 );
+      ++advance_count;
       if( at_eof )
       {
         throw_error(
           "Could not seek to frame ", frame_number + 1, ": "
           "End of file reached" );
       }
-    } while( this->frame_number() < frame_number );
+    } while( mode == SEEK_MODE_EXACT && this->frame_number() < frame_number );
 
     // Check for success
-    if( this->frame_number() == frame_number )
+    if( ( mode == SEEK_MODE_EXACT && this->frame_number() == frame_number ) ||
+        ( mode != SEEK_MODE_EXACT && frame && frame->frame->key_frame &&
+          this->frame_number() <= frame_number ) )
     {
-      break;
+      if( parent->klv_enabled && advance_count <= 1 && false )
+      {
+        auto const chosen_frame_number = this->frame_number();
+        converted_timestamp =
+          av_rescale_q(
+            frame_number - backstep - 1, av_inv_q( frame_rate() ),
+            video_stream->time_base ) + start_ts;
+
+        clear_state_for_seek();
+        throw_error_code(
+          av_seek_frame(
+            format_context.get(), video_stream->index, converted_timestamp,
+            AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY ),
+          "Could not seek to frame ", frame_number );
+        if( codec_context )
+        {
+          avcodec_flush_buffers( codec_context.get() );
+        }
+
+        advance_count = 0;
+        do
+        {
+          advance( advance_count == 0 );
+          ++advance_count;
+          if( at_eof || this->frame_number() > chosen_frame_number )
+          {
+            throw_error(
+              "Could not seek to frame ", frame_number + 1, ": "
+              "KLV re-seek failed" );
+          }
+        } while( this->frame_number() < chosen_frame_number );
+
+        if( advance_count <= 1 )
+        {
+          LOG_WARN(
+            parent->logger,
+            "KLV re-seek failed; "
+            "KLV reported for first frame may be incomplete" );
+        }
+      }
+
+      if( mode != SEEK_MODE_EXACT )
+      {
+        auto& image_packets = frame->get_raw_image().packets;
+        for( auto it = image_packets.begin(); it != image_packets.end(); )
+        {
+          if( !( ( *it )->flags & AV_PKT_FLAG_KEY ) )
+          {
+            it = image_packets.erase( it );
+          }
+          else
+          {
+            ++it;
+          }
+        }
+      }
+
+      return;
     }
   }
 
-  // Check for failure
-  if( this->frame_number() > frame_number )
+  // Backup slow strategy
+  if( !frame_count || *frame_count > frame_number ||
+      mode == SEEK_MODE_KEYFRAME_BEFORE )
   {
-    LOG_WARN(
-      kv::get_logger( "klv" ),
-      "Could not seek exactly to frame " << ( frame_number + 1 ) << ": "
-      "Ended up on frame " << ( this->frame_number() + 1 ) );
+    seek_to_start();
+    advance();
+  }
+
+  int64_t last_keyframe_pts = AV_NOPTS_VALUE;
+  int64_t last_keyframe_dts = AV_NOPTS_VALUE;
+  for( kv::frame_id_t i = *frame_count; i < frame_number; ++i )
+  {
+    advance();
+
+    if( mode == SEEK_MODE_KEYFRAME_BEFORE && frame && frame->frame->key_frame )
+    {
+      last_keyframe_dts = frame->get_raw_image().frame_dts;
+      last_keyframe_pts = frame->frame->pts;
+    }
+
+    if( at_eof )
+    {
+      throw_error(
+        "Could not seek to frame ", frame_number + 1, ": End of file reached" );
+    }
+  }
+
+  if( mode == SEEK_MODE_KEYFRAME_BEFORE )
+  {
+    auto success = false;
+    for( auto const last_keyframe_ts :
+         { last_keyframe_pts, last_keyframe_dts } )
+    {
+      if( last_keyframe_ts == AV_NOPTS_VALUE && frame_number > 0 )
+      {
+        continue;
+      }
+
+      clear_state_for_seek();
+      throw_error_code(
+        av_seek_frame(
+          format_context.get(), video_stream->index, last_keyframe_ts,
+          AVSEEK_FLAG_BACKWARD ),
+        "Could not seek to frame ", frame_number + 1 );
+
+      if( codec_context )
+      {
+        avcodec_flush_buffers( codec_context.get() );
+      }
+
+      do
+      {
+        advance();
+      } while(
+        frame_number > 0 && frame && !frame->frame->key_frame &&
+        frame->frame->pts < last_keyframe_pts );
+
+      if( frame_number <= 0 || ( frame && frame->frame->key_frame ) )
+      {
+        success = true;
+        break;
+      }
+    }
+
+    if( !success )
+    {
+      throw_error(
+        "Could not seek to keyframe before frame ", frame_number + 1 );
+    }
+
+    frame_count.emplace( frame_number );
   }
 }
 
@@ -1915,9 +2126,13 @@ double
 ffmpeg_video_input::priv::open_video_state
 ::duration() const
 {
-  return
-    ( video_stream->start_time + video_stream->duration - start_ts ) *
-    av_q2d( video_stream->time_base );
+  if( video_stream->start_time != AV_NOPTS_VALUE && video_stream->duration > 0 )
+  {
+    return
+      ( video_stream->start_time + video_stream->duration - start_ts ) *
+      av_q2d( video_stream->time_base );
+  }
+  return 0.0;
 }
 
 // ----------------------------------------------------------------------------
@@ -1925,12 +2140,11 @@ AVRational
 ffmpeg_video_input::priv::open_video_state
 ::frame_rate() const
 {
-  auto result = video_stream->avg_frame_rate;
-  if( !result.num )
+  if( video_stream->avg_frame_rate.num )
   {
-    result = video_stream->r_frame_rate;
+    return video_stream->avg_frame_rate;
   }
-  return result;
+  return maybe_frame_rate;
 }
 
 // ----------------------------------------------------------------------------
@@ -1938,6 +2152,11 @@ size_t
 ffmpeg_video_input::priv::open_video_state
 ::num_frames() const
 {
+  if( video_stream->nb_frames > 0 )
+  {
+    return static_cast< size_t >( video_stream->nb_frames );
+  }
+
   return static_cast< size_t >( duration() * av_q2d( frame_rate() ) + 0.5 );
 }
 
@@ -1946,8 +2165,18 @@ kv::frame_id_t
 ffmpeg_video_input::priv::open_video_state
 ::frame_number() const
 {
-  if( !frame.has_value() ||
-      frame->frame->best_effort_timestamp == AV_NOPTS_VALUE )
+  if( !frame.has_value() )
+  {
+    return -1;
+  }
+
+  if( frame_count )
+  {
+    return *frame_count;
+  }
+
+  if( frame->frame->best_effort_timestamp == AV_NOPTS_VALUE ||
+      frame_rate().num <= 0 )
   {
     return -1;
   }
@@ -1965,9 +2194,20 @@ ffmpeg_video_input::priv::open_video_state
   {
     return {};
   }
-  return kv::timestamp{
-    static_cast< kv::time_usec_t >( curr_time() * 1000000.0 + 0.5 ),
-    frame_number() + 1 };
+
+  kv::timestamp ts;
+  if( frame->frame->best_effort_timestamp != AV_NOPTS_VALUE )
+  {
+    ts.set_time_usec(
+      static_cast< kv::time_usec_t >( curr_time() * 1000000.0 + 0.5 ) );
+  }
+
+  if( frame_rate().num > 0 )
+  {
+    ts.set_frame( frame_number() + 1 );
+  }
+
+  return ts;
 }
 
 // ----------------------------------------------------------------------------
@@ -2233,6 +2473,16 @@ ffmpeg_video_input
               kv::timestamp::frame_t frame_number,
               uint32_t timeout )
 {
+  return seek_frame_( ts, frame_number, SEEK_MODE_EXACT, timeout );
+}
+
+// ----------------------------------------------------------------------------
+bool
+ffmpeg_video_input
+::seek_frame_(
+  kv::timestamp& ts, kv::timestamp::frame_t frame_number,
+  ffmpeg_video_input::seek_mode mode, uint32_t timeout )
+{
   d->assert_open( "seek_frame()" );
 
   ts = frame_timestamp();
@@ -2251,7 +2501,7 @@ ffmpeg_video_input
 
   try
   {
-    d->video->seek( frame_number - 1 );
+    d->video->seek( frame_number - 1, mode );
     ts = frame_timestamp();
     return true;
   }
@@ -2409,6 +2659,22 @@ ffmpeg_video_input
   d->assert_open( "num_frames()" );
 
   return d->video->num_frames();
+}
+
+// ----------------------------------------------------------------------------
+double
+ffmpeg_video_input
+::frame_rate()
+{
+  d->assert_open( "frame_rate()" );
+
+  auto const result = d->video->frame_rate();
+  if( result.num > 0 && result.den > 0 )
+  {
+    return av_q2d( result );
+  }
+
+  return -1.0;
 }
 
 // ----------------------------------------------------------------------------
