@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <type_traits>
+#include <vital/config/config_block.h>
 
 namespace kwiver::vital {
 
