@@ -37,6 +37,19 @@ public:
   PLUGGABLE_INTERFACE( format_config_block )
 
   virtual void print( const config_block_sptr config, std::ostream& str ) = 0;
+
+  virtual void set_configuration( [[maybe_unused]] config_block_sptr ) {}
+
+  virtual void
+  set_configuration_internal( [[maybe_unused]] config_block_sptr )
+  {
+  }
+
+  virtual config_block_sptr
+  get_configuration() const { return nullptr; }
+
+protected:
+  virtual void initialize() {}
 }; // end class format_config_block
 
 using format_config_block_sptr = std::shared_ptr< format_config_block >;

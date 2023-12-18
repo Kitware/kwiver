@@ -24,9 +24,9 @@ public:
   stop_iteration_exception( std::string const& container ) noexcept;
 
   /// Destructor
-  virtual ~stop_iteration_exception() noexcept = default;
+  virtual ~stop_iteration_exception() noexcept= default;
 };
 
 } // namespace kwiver::vital
 
-#endif //KWIVER_VITAL_EXCEPTIONS_ITERATION_H_
+#endif // KWIVER_VITAL_EXCEPTIONS_ITERATION_H_

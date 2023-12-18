@@ -9,21 +9,23 @@
 
 #include <string>
 
-namespace kwiver::vital {
+namespace kwiver {
 
-/**
- * @brief Compute the md5 of a file
- *
- * Compute the md5 sum of the named file
- *
- * @param fn Path to the file
- *
- * @return MD5 sum as a string; empty if an error ocurred.
- */
+namespace vital {
+
+/// @brief Compute the md5 of a file
+///
+/// Compute the md5 sum of the named file
+///
+/// @param fn Path to the file
+///
+/// @return MD5 sum as a string; empty if an error ocurred.
 
 VITAL_UTIL_EXPORT std::string
 file_md5( const std::string& fn );
 
-} // namespace kwiver::vital
+} // ...vital
+
+} // ...kwiver
 
 #endif

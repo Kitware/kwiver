@@ -2,20 +2,18 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of a thread pool backend using Apple Grand Central
- * Dispatch
- */
+/// \file
+/// \brief Implementation of a thread pool backend using Apple Grand Central
+/// Dispatch
 
 #ifdef __APPLE__
 
 #ifndef KWIVER_VITAL_THREAD_POOL_GCD_BACKEND_H_
-# define KWIVER_VITAL_THREAD_POOL_GCD_BACKEND_H_
+#define KWIVER_VITAL_THREAD_POOL_GCD_BACKEND_H_
 
-# include <vital/util/thread_pool.h>
+#include <vital/util/thread_pool.h>
 
-# include <dispatch/dispatch.h>
+#include <dispatch/dispatch.h>
 
 namespace kwiver {
 
@@ -33,8 +31,8 @@ public:
   void
   enqueue_task( std::function< void() > func )
   {
-    dispatch_queue_t queue = dispatch_get_global_queue(
-      DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 );
+    dispatch_queue_t queue =
+      dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 );
     std::function< void() >* f = new std::function< void() >( func );
     dispatch_async_f( queue, f,
                       [](void* ctx){
@@ -64,7 +62,7 @@ public:
 
 } // namespace vital
 
-} // namespace kwiver
+}     // end namespace
 
 #endif
 

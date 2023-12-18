@@ -148,9 +148,9 @@ logger_handle_t VITAL_LOGGER_EXPORT get_logger( std::string const& name );
  * @param msg the message string to log.
  */
 #define LOG_ERROR( logger, msg ) do {                        \
-    if( logger->is_error_enabled() ) {                      \
-      std::stringstream _oss_; _oss_ << msg;                 \
-      logger->log_error( _oss_.str(), KWIVER_LOGGER_SITE ); } \
+          if( logger->is_error_enabled() ) {                      \
+            std::stringstream _oss_; _oss_ << msg;                 \
+            logger->log_error( _oss_.str(), KWIVER_LOGGER_SITE ); } \
 } while( 0 )
 
 /**
@@ -159,9 +159,9 @@ logger_handle_t VITAL_LOGGER_EXPORT get_logger( std::string const& name );
  * @param msg the message string to log.
  */
 #define LOG_WARN( logger, msg ) do {                        \
-    if( logger->is_warn_enabled() ) {                      \
-      std::stringstream _oss_; _oss_ << msg;                \
-      logger->log_warn( _oss_.str(), KWIVER_LOGGER_SITE ); } \
+          if( logger->is_warn_enabled() ) {                      \
+            std::stringstream _oss_; _oss_ << msg;                \
+            logger->log_warn( _oss_.str(), KWIVER_LOGGER_SITE ); } \
 } while( 0 )
 
 /**
@@ -170,9 +170,9 @@ logger_handle_t VITAL_LOGGER_EXPORT get_logger( std::string const& name );
  * @param msg the message string to log.
  */
 #define LOG_INFO( logger, msg ) do {                        \
-    if( logger->is_info_enabled() ) {                      \
-      std::stringstream _oss_; _oss_ << msg;                \
-      logger->log_info( _oss_.str(), KWIVER_LOGGER_SITE ); } \
+          if( logger->is_info_enabled() ) {                      \
+            std::stringstream _oss_; _oss_ << msg;                \
+            logger->log_info( _oss_.str(), KWIVER_LOGGER_SITE ); } \
 } while( 0 )
 
 /**
@@ -181,9 +181,9 @@ logger_handle_t VITAL_LOGGER_EXPORT get_logger( std::string const& name );
  * @param msg the message string to log.
  */
 #define LOG_DEBUG( logger, msg ) do {                        \
-    if( logger->is_debug_enabled() ) {                      \
-      std::stringstream _oss_; _oss_ << msg;                 \
-      logger->log_debug( _oss_.str(), KWIVER_LOGGER_SITE ); } \
+          if( logger->is_debug_enabled() ) {                      \
+            std::stringstream _oss_; _oss_ << msg;                 \
+            logger->log_debug( _oss_.str(), KWIVER_LOGGER_SITE ); } \
 } while( 0 )
 
 /**
@@ -192,9 +192,9 @@ logger_handle_t VITAL_LOGGER_EXPORT get_logger( std::string const& name );
  * @param msg the message string to log.
  */
 #define LOG_TRACE( logger, msg ) do {                        \
-    if( logger->is_trace_enabled() ) {                      \
-      std::stringstream _oss_; _oss_ << msg;                 \
-      logger->log_trace( _oss_.str(), KWIVER_LOGGER_SITE ); } \
+          if( logger->is_trace_enabled() ) {                      \
+            std::stringstream _oss_; _oss_ << msg;                 \
+            logger->log_trace( _oss_.str(), KWIVER_LOGGER_SITE ); } \
 } while( 0 )
 
 /**
@@ -207,11 +207,11 @@ logger_handle_t VITAL_LOGGER_EXPORT get_logger( std::string const& name );
  * @param msg the message string to log.
  */
 #define LOG_ASSERT( logger, cond, msg ) do {                   \
-    if( !( cond ) ) {                                        \
-      std::stringstream _oss_;                                 \
-      _oss_ << "ASSERTION FAILED: (" << #cond ")\n"  << msg; \
-      logger->log_error( _oss_.str(), KWIVER_LOGGER_SITE );    \
-    }                                                          \
+          if( !( cond ) ) {                                        \
+            std::stringstream _oss_;                                 \
+            _oss_ << "ASSERTION FAILED: (" << #cond ")\n"  << msg; \
+            logger->log_error( _oss_.str(), KWIVER_LOGGER_SITE );    \
+          }                                                          \
 } while( 0 )
 
 // Test for debugging level being enabled

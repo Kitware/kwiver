@@ -145,10 +145,13 @@ add_subdirectory( config )
 add_subdirectory( types )
 # -- Creates library "vital_vpm"
 # Requires: vital_exceptions, vital_logger, vital_util
-# Uses common headers: typedefs.h
+# Uses common headers: vital_types.h
 add_subdirectory( plugin_management )
 # -- Created library "vital_applets"
 add_subdirectory( applets )
+
+# -- Creates library "vital_algo"
+add_subdirectory( algo )
 
 # ==============================================================================
 # Vital Library
@@ -161,11 +164,10 @@ set( vital_public_headers
 # Shared pure headers with above "deps"
   bitflags.h
   noncopyable.h
-  typedefs.h
 
   algorithm_capabilities.h
 
-#  vital_types.h
+  vital_types.h
 #  attribute_set.h
 #  context.h
 #  exceptions.h
@@ -181,7 +183,7 @@ set( vital_public_headers
 #  io/eigen_io.h
 #  io/landmark_map_io.h
 #  io/mesh_io.h
-#  io/metadata_io.h
+  io/metadata_io.h
 #  io/track_set_io.h
 #
 #  types/activity.h
@@ -266,7 +268,7 @@ set( vital_sources
 #  io/camera_map_io.cxx
 #  io/landmark_map_io.cxx
 #  io/mesh_io.cxx
-#  io/metadata_io.cxx
+  io/metadata_io.cxx
 #  io/track_set_io.cxx
 #
 #  types/activity.cxx
@@ -386,7 +388,7 @@ add_subdirectory( applets_plugins )
 ####
 ##
 #add_subdirectory( algo )
-#add_subdirectory( range )
+add_subdirectory( range )
 #add_subdirectory( bindings )
 #
 #if (KWIVER_ENABLE_TOOLS)

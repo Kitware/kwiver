@@ -99,6 +99,8 @@ template <> VITAL_EXPORT config_block_value_t config_block_set_value_cast(
 VITAL_EXPORT::std::ostream& operator<<( ::std::ostream& str,
                                         geo_polygon const& obj );
 
+VITAL_EXPORT bool operator==( geo_polygon const& a, geo_polygon const& b );
+
 } // namespace vital
 
 } // namespace kwiver

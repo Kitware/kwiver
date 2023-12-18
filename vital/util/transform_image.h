@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief templated image transformation functions
- */
+/// \file
+/// \brief templated image transformation functions
 
 #ifndef VITAL_TRANSFORM_IMAGE_H_
 #define VITAL_TRANSFORM_IMAGE_H_
@@ -17,44 +15,41 @@ namespace kwiver {
 
 namespace vital {
 
-/**
- * @bried Transform a given image in place given a unary function
- *
- * Apply a given unary function to all pixels in the image. This is guaranteed
- * to traverse the pixels in an optimal order, i.e. in-memory-order traversal.
- *
- * Example:
- *  \code
- *  static
- *  kwiver::vital::image::byte
- *  invert_mask_pixel( kwiver::vital::image::byte const &b )
- *  { return !b; }
- *
- *  kwiver::vital::image   mask_img( mask->get_image() );
- *  kwiver::vital::transform_image( mask_img, invert_mask_pixel );
- *
- *  // or as a functor
- *  class multiply_by {
- *  private:
- *   int factor;
- *
- *  public:
- *   multiply_by(int x) : factor(x) { }
- *
- *   kwiver::vital::image::byte
- *   operator () (kwiver::vital::image::byte const& other) const
- *   {
- *       return factor * other;
- *   }
- *  };
- *
- *  kwiver::vital::transform_image( mask_img, multiply_by( 5 ) );
- *
- *  \endcode
- *
- * \param img Input image reference to transform the data of
- * \param op Unary function which takes a const byte& and returns a byte
- */
+/// Transform a given image in place given a unary function
+///
+/// Apply a given unary function to all pixels in the image. This is guarateed
+/// to traverse the pixels in an optimal order, i.e. in-memory-order traversal.
+///
+/// Example:
+/// \code
+/// static kwiver::vital::image::byte invert_mask_pixel(
+/// kwiver::vital::image::byte const &b )
+/// { return !b; }
+///
+/// kwiver::vital::image   mask_img( mask->get_image() );
+/// kwiver::vital::transform_image( mask_img, invert_mask_pixel );
+///
+/// // or as a functor
+/// class multiply_by {
+/// private:
+///  int factor;
+///
+/// public:
+///  multiply_by(int x) : factor(x) { }
+///
+///  kwiver::vital::image::byte   operator () (kwiver::vital::image::byte
+/// const& other) const
+///  {
+///      return factor * other;
+///  }
+/// };
+///
+/// kwiver::vital::transform_image( mask_img, multiply_by( 5 ) );
+///
+/// \endcode
+///
+/// \param img Input image reference to transform the data of
+/// \param op Unary function which takes a const byte& and returns a byte
 template < typename T, typename OP >
 void
 transform_image( image_of< T >& img, OP op )
@@ -98,15 +93,16 @@ transform_image( image_of< T >& img, OP op )
   }
 }
 
-/**
- * @brief Transform an input image to an output image given a unary function
- *
- * This function is similar to the inplace variant except it copies the
- * transformed data from one const image to another.  The input and ouput
- * images must have the same dimensions but can have different types and memory
- * layouts.  If the output image does not have the correct dimensions its
- * memory will be reallocated to match the dimensions of the input image.
- */
+/// Transform an input image to an output image given a unary function
+///
+/// This function is similar to the inplace variant except it copies the
+/// transformed data
+/// from one const image to another.  The input and ouput images must have the
+/// same dimensions
+/// but can have different types and memory layouts.  If the output image does
+/// not have the
+/// correct dimensions its memory will be reallocated to match the dimensions
+/// of the input image.
 template < typename T1, typename T2, typename OP >
 void
 transform_image( image_of< T1 > const& img_in, image_of< T2 >& img_out, OP op )
@@ -179,11 +175,11 @@ cast_image( image const& img_in, image_of< T >& img_out )
     return;
   }
 #define TRY_TYPE( in_T )                                         \
-  if( img_in.pixel_traits() == image_pixel_traits_of< in_T >() ) \
-  {                                                            \
-    cast_image( image_of< in_T >( img_in ), img_out );             \
-    return;                                                    \
-  }
+        if( img_in.pixel_traits() == image_pixel_traits_of< in_T >() ) \
+        {                                                            \
+          cast_image( image_of< in_T >( img_in ), img_out );             \
+          return;                                                    \
+        }
 
   TRY_TYPE( bool )
   TRY_TYPE( uint8_t )
@@ -203,27 +199,25 @@ cast_image( image const& img_in, image_of< T >& img_out )
                "kwiver::vital::cast_image() cannot cast unknown type" );
 }
 
-/**
- * @brief Call a unary function on every pixel in a const image
- *
- * Apply a given unary function to all pixels in the image. This is guarateed
- * to traverse the pixels in an optimal order, i.e. in-memory-order traversal.
- *
- * Example:
- *  \code
- *  kwiver::vital::image_of<uint_8>my_image( img->get_image() );
- *  uint8_t max_v = 0;
- *  // using a lambda function to get the maximum pixel value
- *  kwiver::vital::foreach_pixel( my_image, [&max_v](uint8_t p)
- *  {
- *    max_v = std::max(max_v, p)
- *  });
- *
- *  \endcode
- *
- * \param img Input image reference
- * \param op Unary function which takes the pixel type
- */
+/// Call a unary function on every pixel in a const image
+///
+/// Apply a given unary function to all pixels in the image. This is guarateed
+/// to traverse the pixels in an optimal order, i.e. in-memory-order traversal.
+///
+/// Example:
+/// \code
+/// kwiver::vital::image_of<uint_8>my_image( img->get_image() );
+/// uint8_t max_v = 0;
+/// // using a lambda function to get the maximum pixel value
+/// kwiver::vital::foreach_pixel( my_image, [&max_v](uint8_t p)
+/// {
+/// max_v = std::max(max_v, p)
+/// });
+///
+/// \endcode
+///
+/// \param img Input image reference
+/// \param op Unary function which takes the pixel type
 template < typename T, typename OP >
 void
 foreach_pixel( image_of< T > const& img, OP op )
@@ -269,6 +263,6 @@ foreach_pixel( image_of< T > const& img, OP op )
 
 } // namespace vital
 
-} // namespace kwiver
+}     // end namespace vital
 
 #endif // VITAL_TRANSFORM_IMAGE_H_

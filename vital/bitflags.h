@@ -8,18 +8,18 @@
 #include <type_traits>
 
 #define KWIVER_DECLARE_BITFLAGS( _flags, _enum ) \
-  using _flags = ::kwiver::vital::bitflags< _enum >
+        using _flags = ::kwiver::vital::bitflags< _enum >
 
 #define KWIVER_DECLARE_OPERATORS_FOR_BITFLAGS( _flags ) \
-  inline _flags operator|( _flags::enum_t f1, _flags::enum_t f2 ) \
-  { return _flags{ f1 } | f2; } \
-  inline _flags \
-  operator|( _flags::enum_t f1, _flags f2 ) \
-  { return f2 | f1; } \
-  inline ::kwiver::vital::incompatible_flag \
-  operator|( \
-    _flags::enum_t f1, int f2 ) \
-  { return {}; }
+        inline _flags operator|( _flags::enum_t f1, _flags::enum_t f2 ) \
+        { return _flags{ f1 } | f2; } \
+        inline _flags \
+        operator|( _flags::enum_t f1, _flags f2 ) \
+        { return f2 | f1; } \
+        inline ::kwiver::vital::incompatible_flag \
+        operator|( \
+          _flags::enum_t f1, int f2 ) \
+        { return {}; }
 
 namespace kwiver::vital {
 

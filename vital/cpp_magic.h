@@ -167,8 +167,10 @@
 #define DEFER4( id ) id EMPTY EMPTY EMPTY EMPTY()( )( )( )
 #define DEFER5( id ) id EMPTY EMPTY EMPTY EMPTY EMPTY()( )( )( )( )
 #define DEFER6( id ) id EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY()( )( )( )( )( )
-#define DEFER7( id ) id EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY()( )( )( )( )( )( )
-#define DEFER8( id ) id EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY()( )( )( )( )( )( )( )
+#define DEFER7( \
+          id ) id EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY()( )( )( )( )( )( )
+#define DEFER8( \
+          id ) id EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY EMPTY()( )( )( )( )( )( )( )
 
 /**
  * Indirection around the standard ## concatenation operator. This simply
@@ -373,12 +375,13 @@
  *   future productions of itself.
  */
 #define MAP( op, sep, ... ) \
-  IF( HAS_ARGS( __VA_ARGS__ ) )( EVAL( MAP_INNER( op, sep, __VA_ARGS__ ) ) )
+        IF( HAS_ARGS( __VA_ARGS__ ) )( EVAL( MAP_INNER( op, sep, \
+                                                        __VA_ARGS__ ) ) )
 #define MAP_INNER( op, sep, cur_val, ... ) \
-  op( cur_val ) \
-  IF( HAS_ARGS( __VA_ARGS__ ) )( \
-    sep() DEFER2( _MAP_INNER )( )( op, sep, __VA_ARGS__ ) \
-    )
+        op( cur_val ) \
+        IF( HAS_ARGS( __VA_ARGS__ ) )( \
+          sep() DEFER2( _MAP_INNER )( )( op, sep, __VA_ARGS__ ) \
+          )
 #define _MAP_INNER() MAP_INNER
 
 /**
@@ -406,13 +409,14 @@
  * The mechanism is analogous to the MAP macro.
  */
 #define MAP_WITH_ID( op, sep, ... ) \
-  IF( HAS_ARGS( __VA_ARGS__ ) )( EVAL( MAP_WITH_ID_INNER( op, sep, I, \
-                                                          __VA_ARGS__ ) ) )
+        IF( HAS_ARGS( __VA_ARGS__ ) )( EVAL( MAP_WITH_ID_INNER( op, sep, I, \
+                                                                __VA_ARGS__ ) ) )
 #define MAP_WITH_ID_INNER( op, sep, id, cur_val, ... ) \
-  op( cur_val, id ) \
-  IF( HAS_ARGS( __VA_ARGS__ ) )( \
-    sep() DEFER2( _MAP_WITH_ID_INNER )( )( op, sep, CAT( id, I ), __VA_ARGS__ ) \
-    )
+        op( cur_val, id ) \
+        IF( HAS_ARGS( __VA_ARGS__ ) )( \
+          sep() DEFER2( _MAP_WITH_ID_INNER )( )( op, sep, CAT( id, I ), \
+                                                 __VA_ARGS__ ) \
+          )
 #define _MAP_WITH_ID_INNER() MAP_WITH_ID_INNER
 
 /**
@@ -436,13 +440,13 @@
  * The mechanism is analogous to the MAP macro.
  */
 #define MAP_PAIRS( op, sep, ... ) \
-  IF( HAS_ARGS( __VA_ARGS__ ) )( EVAL( MAP_PAIRS_INNER( op, sep, \
-                                                        __VA_ARGS__ ) ) )
+        IF( HAS_ARGS( __VA_ARGS__ ) )( EVAL( MAP_PAIRS_INNER( op, sep, \
+                                                              __VA_ARGS__ ) ) )
 #define MAP_PAIRS_INNER( op, sep, cur_val_1, cur_val_2, ... ) \
-  op( cur_val_1, cur_val_2 ) \
-  IF( HAS_ARGS( __VA_ARGS__ ) )( \
-    sep() DEFER2( _MAP_PAIRS_INNER )( )( op, sep, __VA_ARGS__ ) \
-    )
+        op( cur_val_1, cur_val_2 ) \
+        IF( HAS_ARGS( __VA_ARGS__ ) )( \
+          sep() DEFER2( _MAP_PAIRS_INNER )( )( op, sep, __VA_ARGS__ ) \
+          )
 #define _MAP_PAIRS_INNER() MAP_PAIRS_INNER
 
 /**
@@ -472,20 +476,20 @@
  * The mechanism is analogous to the MAP macro.
  */
 #define MAP_SLIDE( op, last_op, sep, ... ) \
-  IF( HAS_ARGS( __VA_ARGS__ ) )( EVAL( MAP_SLIDE_INNER( op, last_op, sep, \
-                                                        __VA_ARGS__ ) ) )
+        IF( HAS_ARGS( __VA_ARGS__ ) )( EVAL( MAP_SLIDE_INNER( op, last_op, sep, \
+                                                              __VA_ARGS__ ) ) )
 #define MAP_SLIDE_INNER( op, last_op, sep, cur_val, ... ) \
-  IF( HAS_ARGS( __VA_ARGS__ ) )( op( cur_val, FIRST( __VA_ARGS__ ) ) ) \
-  IF( NOT( HAS_ARGS( __VA_ARGS__ ) ) )( last_op( cur_val ) ) \
-  IF( HAS_ARGS( __VA_ARGS__ ) )( \
-    sep() DEFER2( _MAP_SLIDE_INNER )( )( op, last_op, sep, __VA_ARGS__ ) \
-    )
+        IF( HAS_ARGS( __VA_ARGS__ ) )( op( cur_val, FIRST( __VA_ARGS__ ) ) ) \
+        IF( NOT( HAS_ARGS( __VA_ARGS__ ) ) )( last_op( cur_val ) ) \
+        IF( HAS_ARGS( __VA_ARGS__ ) )( \
+          sep() DEFER2( _MAP_SLIDE_INNER )( )( op, last_op, sep, __VA_ARGS__ ) \
+          )
 #define _MAP_SLIDE_INNER() MAP_SLIDE_INNER
 
 /**
  * Strip any excess commas from a set of arguments.
  */
 #define REMOVE_TRAILING_COMMAS( ... ) \
-  MAP( PASS, COMMA, __VA_ARGS__ )
+        MAP( PASS, COMMA, __VA_ARGS__ )
 
 #endif

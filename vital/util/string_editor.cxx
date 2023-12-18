@@ -8,7 +8,7 @@ namespace kwiver {
 
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 string_editor
 ::string_editor()
 {}
@@ -17,7 +17,7 @@ string_editor::
 ~string_editor()
 {}
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 string_editor
 ::add( string_edit_operation* op )
@@ -25,7 +25,7 @@ string_editor
   m_editor_list.push_back( std::shared_ptr< string_edit_operation >( op ) );
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 string_editor
 ::edit( std::string& str )
@@ -46,4 +46,4 @@ string_editor
 
 } // namespace vital
 
-} // namespace kwiver
+}     // end namespace

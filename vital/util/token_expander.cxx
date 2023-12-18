@@ -12,12 +12,9 @@ namespace kwiver {
 
 namespace vital {
 
-// ----------------------------------------------------------------
-
-/** Constructor.
- *
- *
- */
+// ----------------------------------------------------------------------------
+/// Constructor.
+///
 token_expander
 ::token_expander()
   : m_logger( kwiver::vital::get_logger( "vital.token_expander" ) )
@@ -27,10 +24,10 @@ token_expander::
 ~token_expander()
 {}
 
-// ----------------------------------------------------------------
-
-/* Add token type to expander.
- */
+// ----------------------------------------------------------------------------
+// Add token type to expander.
+//
+//
 bool
 token_expander
 ::add_token_type( kwiver::vital::token_type* tt )
@@ -41,19 +38,17 @@ token_expander
   return true;
 }
 
-// ----------------------------------------------------------------
-
-/* Look for tokens to expand.
- *
- * The syntax of the token is "$TYPE{name}".  The \c TYPE string is
- * used to locate the token type object that can provide the desired
- * text.  The \c name string, if present, is passed to the token typ
- * object to specify what result is desired.
- *
- * @param initial_string - string with token specifications embedded
- *
- * @return A string with all token references filled in.
- */
+// ----------------------------------------------------------------------------
+// Look for tokens to expand.
+//
+//  The syntax of the token is "$TYPE{name}".  The \c TYPE string is
+//  used to locate the token type object that can provide the desired
+//  text.  The \c name string, if present, is passed to the token typ
+//  object to specify what result is desired.
+//
+//  @param initial_string - string with token specifications embedded
+//
+//  @return A string with all token references filled in.
 std::string
 token_expander
 ::expand_token( std::string const& initial_string )
@@ -86,8 +81,9 @@ token_expander
       std::string result;
       if( ix->second->lookup_entry( exp.match( 2 ), result ) )
       {
-        LOG_DEBUG( m_logger, "Substituting: " << "\"" << exp.match(
-                     0 ) << "\" -> \"" << result << "\"" );
+        LOG_DEBUG( m_logger,
+                   "Substituting: " << "\"" << exp.match( 0 ) << "\" -> \"" <<
+                   result << "\"" );
 
         // append everything up to the match
         new_value.append( start, start + exp.start( 0 ) );
@@ -128,7 +124,7 @@ token_expander
   return new_value;
 } // expand_token
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 token_expander
 ::handle_missing_entry( [[maybe_unused]] std::string const& provider,
@@ -138,7 +134,7 @@ token_expander
   return true;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 token_expander
 ::handle_missing_provider( [[maybe_unused]] std::string const& provider,
@@ -150,4 +146,4 @@ token_expander
 
 } // namespace vital
 
-} // namespace kwiver
+}   // end namespace

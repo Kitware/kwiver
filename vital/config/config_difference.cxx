@@ -79,7 +79,8 @@ config_difference
   if( !key_list.empty() )
   {
     // This may be considered an error in some cases
-    LOG_WARN( logger, "Additional parameters found in config block that are not required or desired: "
+    LOG_WARN( logger,
+              "Additional parameters found in config block that are not required or desired: "
               << kwiver::vital::join( key_list,
                                       ", " ) );
     return true;
@@ -96,7 +97,8 @@ config_difference
   const auto key_list = this->unspecified_keys();
   if( !key_list.empty() )
   {
-    LOG_WARN( logger, "Parameters that were not supplied in the config, using default values: "
+    LOG_WARN( logger,
+              "Parameters that were not supplied in the config, using default values: "
               << kwiver::vital::join( key_list,
                                       ", " ) );
     return true;

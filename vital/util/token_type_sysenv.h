@@ -15,10 +15,9 @@ namespace kwiver {
 
 namespace vital {
 
-// ----------------------------------------------------------------
-
-/** System attributes resolver.
- */
+// ----------------------------------------------------------------------------
+/// System attributes resolver.
+///
 class VITAL_UTIL_EXPORT token_type_sysenv
   : public token_type
 {
@@ -26,8 +25,7 @@ public:
   token_type_sysenv();
   virtual ~token_type_sysenv();
 
-  /** Lookup name in token type resolver.
-   */
+  /// Lookup name in token type resolver.
   virtual bool lookup_entry( std::string const& name,
                              std::string& result ) const;
 
@@ -35,8 +33,8 @@ private:
   kwiversys::SystemInformation m_sysinfo;
 }; // end class token_type_sysenv
 
-} // namespace vital
+} // end namespace
 
-} // namespace kwiver
+} // end namespace
 
-#endif /* _TOKEN_TYPE_SYSENV_H_ */
+#endif // _TOKEN_TYPE_SYSENV_H_

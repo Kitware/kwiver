@@ -33,10 +33,10 @@ typedef std::string testname_t;
  * @param msg The message to report.
  */
 #define TEST_ERROR( msg )                         \
-  do                                            \
-  {                                             \
-    std::cerr << "Error: " << msg << std::endl; \
-  } while( false )
+        do                                            \
+        {                                             \
+          std::cerr << "Error: " << msg << std::endl; \
+        } while( false )
 
 // ------------------------------------------------------------------
 
@@ -49,43 +49,43 @@ typedef std::string testname_t;
  *                the expected exception.
  */
 #define EXPECT_EXCEPTION( ex, code, action )  \
-  do                                        \
-  {                                         \
-    bool got_exception = false;             \
+        do                                        \
+        {                                         \
+          bool got_exception = false;             \
                                             \
-    try                                     \
-    {                                       \
-      code;                                 \
-    }                                       \
-    catch ( ex const& e )                     \
-    {                                       \
-      got_exception = true;                 \
+          try                                     \
+          {                                       \
+            code;                                 \
+          }                                       \
+          catch ( ex const& e )                     \
+          {                                       \
+            got_exception = true;                 \
                                             \
-      std::cerr << "Expected exception: "   \
-                << e.what()                 \
-                << std::endl;               \
-    }                                       \
-    catch ( std::exception const& e )         \
-    {                                       \
-      TEST_ERROR( "Unexpected exception: "   \
-                  << e.what() );              \
+            std::cerr   << "Expected exception: "   \
+                        << e.what()                 \
+                        << std::endl;               \
+          }                                       \
+          catch ( std::exception const& e )         \
+          {                                       \
+            TEST_ERROR( "Unexpected exception: "   \
+                        << e.what() );              \
                                             \
-      got_exception = true;                 \
-    }                                       \
-    catch ( ... )                             \
-    {                                       \
-      TEST_ERROR( "Non-standard exception" ); \
+            got_exception = true;                 \
+          }                                       \
+          catch ( ... )                             \
+          {                                       \
+            TEST_ERROR( "Non-standard exception" ); \
                                             \
-      got_exception = true;                 \
-    }                                       \
+            got_exception = true;                 \
+          }                                       \
                                             \
-    if( !got_exception )                     \
-    {                                       \
-      TEST_ERROR( "Did not get "             \
-                  "expected exception when " \
-                  << action );                \
-    }                                       \
-  } while( false )
+          if( !got_exception )                     \
+          {                                       \
+            TEST_ERROR( "Did not get "             \
+                        "expected exception when " \
+                        << action );                \
+          }                                       \
+        } while( false )
 
 // ------------------------------------------------------------------
 
@@ -105,32 +105,32 @@ typedef std::string testname_t;
  *  \endcode
  */
 #define DECLARE_TEST_MAP()                                    \
-  namespace                                                   \
-  {                                                           \
-  typedef std::function< void TEST_ARGS > test_function_t;    \
-  typedef std::map< testname_t, test_function_t > test_map_t; \
-  }                                                           \
-  test_map_t __all_tests;                                     \
-  struct __add_test                                           \
-  {                                                           \
-    __add_test( testname_t const& name,                        \
-                test_function_t const& func )                   \
-    {                                                         \
-      __all_tests[ name ] = func;                               \
-    }                                                         \
-  }                                                           \
+        namespace                                                   \
+        {                                                           \
+        typedef std::function< void TEST_ARGS > test_function_t;    \
+        typedef std::map< testname_t, test_function_t > test_map_t; \
+        }                                                           \
+        test_map_t __all_tests;                                     \
+        struct __add_test                                           \
+        {                                                           \
+          __add_test( testname_t const& name,                        \
+                      test_function_t const& func )                   \
+          {                                                         \
+            __all_tests[ name ] = func;                               \
+          }                                                         \
+        }                                                           \
 
 // ------------------------------------------------------------------
 /// Macro for displaying tests available
 #define DISPLAY_AVAILABLE_TESTS()                                       \
-  do                                                                    \
-  {                                                                     \
-    std::cerr << "Available tests:" << std::endl;                       \
-    for( test_map_t::value_type const& p : __all_tests )       \
-    {                                                                   \
-      std::cerr << "\t" << p.first << std::endl;                        \
-    }                                                                   \
-  } while( false )
+        do                                                                    \
+        {                                                                     \
+          std::cerr << "Available tests:" << std::endl;                       \
+          for( test_map_t::value_type const& p : __all_tests )       \
+          {                                                                   \
+            std::cerr << "\t" << p.first << std::endl;                        \
+          }                                                                   \
+        } while( false )
 
 // ------------------------------------------------------------------
 
@@ -158,12 +158,12 @@ typedef std::string testname_t;
  * @sa TEST_PROPERTY
  */
 #define IMPLEMENT_TEST( testname )                       \
-  static void                                          \
-  test_##testname TEST_ARGS;                           \
-  static __add_test const                              \
-  __add_test_##testname(#testname, test_##testname ); \
-  void                                                 \
-  test_##testname TEST_ARGS
+        static void                                          \
+        test_##testname TEST_ARGS;                           \
+        static __add_test const                              \
+        __add_test_##testname(#testname, test_##testname ); \
+        void                                                 \
+        test_##testname TEST_ARGS
 
 // ------------------------------------------------------------------
 
@@ -175,21 +175,21 @@ typedef std::string testname_t;
  *                executable.
  */
 #define CHECK_ARGS( numargs )     \
-  do                            \
-  {                             \
-    if( argc != ( numargs + 1 ) )  \
-    {                           \
-      TEST_ERROR( "Expected "    \
-                  #numargs       \
-                  " arguments" ); \
+        do                            \
+        {                             \
+          if( argc != ( numargs + 1 ) )  \
+          {                           \
+            TEST_ERROR( "Expected "    \
+                        #numargs       \
+                        " arguments" ); \
                                 \
-      std::cerr << std::endl;   \
-      DISPLAY_AVAILABLE_TESTS(); \
-      std::cerr << std::endl;   \
+            std::cerr << std::endl;   \
+            DISPLAY_AVAILABLE_TESTS(); \
+            std::cerr << std::endl;   \
                                 \
-      return EXIT_FAILURE;      \
-    }                           \
-  } while( false )
+            return EXIT_FAILURE;      \
+          }                           \
+        } while( false )
 
 // ------------------------------------------------------------------
 
@@ -205,38 +205,38 @@ typedef std::string testname_t;
  * @sa DECLARE_TEST_MAP(), IMPLEMENT_TEST(), CHECK_ARGS()
  */
 #define RUN_TEST( testname, ... )                 \
-  do                                            \
-  {                                             \
-    test_map_t::const_iterator const i =        \
-      __all_tests.find( testname );               \
+        do                                            \
+        {                                             \
+          test_map_t::const_iterator const i =        \
+            __all_tests.find( testname );               \
                                                 \
-    if( i == __all_tests.end() )                 \
-    {                                           \
-      TEST_ERROR( "Unknown test: " << testname ); \
+          if( i == __all_tests.end() )                 \
+          {                                           \
+            TEST_ERROR( "Unknown test: " << testname ); \
                                                 \
-      std::cerr << std::endl;                   \
-      DISPLAY_AVAILABLE_TESTS();                \
-      std::cerr << std::endl;                   \
+            std::cerr << std::endl;                   \
+            DISPLAY_AVAILABLE_TESTS();                \
+            std::cerr << std::endl;                   \
                                                 \
-      return EXIT_FAILURE;                      \
-    }                                           \
+            return EXIT_FAILURE;                      \
+          }                                           \
                                                 \
-    test_function_t const& func = i->second;    \
+          test_function_t const& func = i->second;    \
                                                 \
-    try                                         \
-    {                                           \
-      func( __VA_ARGS__ );                        \
-    }                                           \
-    catch ( std::exception const& e )             \
-    {                                           \
-      TEST_ERROR( "Unexpected exception: "       \
-                  << e.what() );                  \
+          try                                         \
+          {                                           \
+            func( __VA_ARGS__ );                        \
+          }                                           \
+          catch ( std::exception const& e )             \
+          {                                           \
+            TEST_ERROR( "Unexpected exception: "       \
+                        << e.what() );                  \
                                                 \
-      return EXIT_FAILURE;                      \
-    }                                           \
+            return EXIT_FAILURE;                      \
+          }                                           \
                                                 \
-    return EXIT_SUCCESS;                        \
-  } while( false )
+          return EXIT_SUCCESS;                        \
+        } while( false )
 
 // ------------------------------------------------------------------
 //
@@ -262,16 +262,18 @@ is_almost( double const& value,
 // ------------------------------------------------------------------
 /// \copydoc kwiver::testing::test_equal
 #define TEST_EQUAL( name, value, expected )                       \
-  do                                                            \
-  {                                                             \
-    if( ( value ) != ( expected ) )                                   \
-    {                                                           \
-      TEST_ERROR( "TEST_EQUAL check '"  << name << "' failed:\n"  \
-                                        << "    Expected: ``" << ( expected ) << "``\n"  \
-                                        << "    Got     : ``" << ( value ) << \
-                  "``" );     \
-    }                                                           \
-  } while( false )
+        do                                                            \
+        {                                                             \
+          if( ( value ) != ( expected ) )                                   \
+          {                                                           \
+            TEST_ERROR( "TEST_EQUAL check '"    << name << "' failed:\n"  \
+                                                << "    Expected: ``" << \
+                        ( expected ) << "``\n"  \
+                                                << "    Got     : ``" << \
+                        ( value ) << \
+                        "``" );     \
+          }                                                           \
+        } while( false )
 
 // ------------------------------------------------------------------
 
@@ -294,7 +296,8 @@ test_equal( char const* name, ActualType const& value,
   if( value != expected )
   {
     TEST_ERROR( "test_equal check '"    << name << "' failed:\n"
-                                        << "    Expected: ``" << expected << "``\n"
+                                        << "    Expected: ``" << expected <<
+                "``\n"
                                         << "    Got     : ``" << value <<
                 "``" );
     return false;
@@ -323,7 +326,8 @@ test_bound( char const* name, ValueType const& value,
   if( ( value < lower ) || ( upper < value ) )
   {
     TEST_ERROR( "test_bound check '"    << name << "' failed:\n"
-                                        << "    Expected: in [``" << lower << "``, ``"
+                                        << "    Expected: in [``" << lower <<
+                "``, ``"
                                         << upper << "``]\n"
                                         << "    Got     : ``" << value <<
                 "``" );
@@ -342,16 +346,19 @@ test_bound( char const* name, ValueType const& value,
  * @param epsilon The allowed varience.
  */
 #define TEST_NEAR( name, value, target, epsilon )                  \
-  do                                                             \
-  {                                                              \
-    if( !kwiver::testing::is_almost( value, target, epsilon ) )      \
-    {                                                            \
-      TEST_ERROR( "TEST_NEAR check '"   << name                     \
-                                        << "' failed: (epsilon: " << ( epsilon ) << ")\n" \
-                                        << "    Expected: " << ( target ) << "\n"         \
-                                        << "    Got     : " << ( value ) );                \
-    }                                                            \
-  }while( false )
+        do                                                             \
+        {                                                              \
+          if( !kwiver::testing::is_almost( value, target, epsilon ) )      \
+          {                                                            \
+            TEST_ERROR( "TEST_NEAR check '"     << name                     \
+                                                << "' failed: (epsilon: " << \
+                        ( epsilon ) << ")\n" \
+                                                << "    Expected: " << \
+                        ( target ) << "\n"         \
+                                                << "    Got     : " << \
+                        ( value ) );                \
+          }                                                            \
+        }while( false )
 
 } // namespace kwiver::testing
 

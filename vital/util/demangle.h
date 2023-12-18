@@ -10,21 +10,21 @@
 #include <string>
 #include <typeinfo>
 
-namespace kwiver::vital {
+namespace kwiver {
+
+namespace vital {
 
 VITAL_UTIL_EXPORT std::string demangle( char const* name );
 VITAL_UTIL_EXPORT std::string demangle( std::string const& name );
 
-/**
- * @brief Demangle type name from a specific type.
- *
- * Usage:
- *  \code
- *  struct foo { };
- *  foo* foo_ptr = new foo;
- *  std::cout << type_name( foo_ptr ) << std::endl;
- *  \endcode
- */
+/// @brief Demangle type name from a specific type.
+///
+/// Usage:
+/// \code
+/// struct foo { };
+/// foo* foo_ptr = new foo;
+/// std::cout << type_name( foo_ptr ) << std::endl;
+/// \endcode
 template < class T >
 std::string
 type_name( const T& t )
@@ -32,6 +32,8 @@ type_name( const T& t )
   return demangle( typeid( t ).name() );
 }
 
-} // namespace kwiver::vital
+} // namespace vital
 
-#endif /* KWIVER_VITAL_DEMANGLE_H */
+}   // end namespace
+
+#endif // KWIVER_VITAL_DEMANGLE_H

@@ -9,18 +9,18 @@ namespace kwiver {
 
 namespace vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 token_type_env
 ::token_type_env()
   : token_type( "ENV" )
 {}
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 token_type_env::
 ~token_type_env()
 {}
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 bool
 token_type_env
 ::lookup_entry( std::string const& name, std::string& result ) const
@@ -42,6 +42,6 @@ token_type_env
   return retcode;
 }
 
-} // namespace vital
+} // end namespace
 
-} // namespace kwiver
+} // end namespace

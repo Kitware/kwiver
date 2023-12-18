@@ -23,7 +23,8 @@ validate_required_input_file( std::string const& name,
       config.get_value< std::string >( name ) == "" )
   {
     LOG_ERROR( logger, "Configuration value for "       << name
-                                                        << " is missing but required" );
+                                                        <<
+               " is missing but required" );
     return false;
   }
 
@@ -62,7 +63,8 @@ validate_required_output_file( std::string const& name,
       config.get_value< std::string >( name ) == "" )
   {
     LOG_ERROR( logger, "Configuration value for "       << name
-                                                        << " is missing but required" );
+                                                        <<
+               " is missing but required" );
     return false;
   }
 
@@ -90,7 +92,8 @@ validate_optional_output_file( std::string const& name,
         if( !ST::MakeDirectory( parent_dir ) )
         {
           LOG_ERROR( logger, "unable to create directory "      << parent_dir
-                                                                << " for configuration option " <<
+                                                                <<
+                     " for configuration option " <<
                      name );
           return false;
         }
@@ -109,8 +112,10 @@ validate_optional_output_file( std::string const& name,
       std::ofstream ofs( path.c_str() );
       if( !ofs )
       {
-        LOG_ERROR( logger, "Could not open file "       << path << " for writing "
-                                                        << "as required by configuration option " <<
+        LOG_ERROR( logger,
+                   "Could not open file "       << path << " for writing "
+                                                <<
+                   "as required by configuration option " <<
                    name );
         return false;
       }
@@ -152,7 +157,8 @@ validate_required_output_dir( std::string const& name,
       config.get_value< std::string >( name ) == "" )
   {
     LOG_ERROR( logger, "Configuration value for "       << name
-                                                        << " is missing but required" );
+                                                        <<
+               " is missing but required" );
     return false;
   }
   return validate_optional_output_dir( name, config, logger, make_directory );
@@ -182,7 +188,8 @@ validate_optional_output_dir( std::string const& name,
         if( !ST::MakeDirectory( path ) )
         {
           LOG_ERROR( logger, "unable to create directory "      << path
-                                                                << " for configuration option " <<
+                                                                <<
+                     " for configuration option " <<
                      name );
           return false;
         }

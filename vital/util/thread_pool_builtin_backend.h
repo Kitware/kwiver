@@ -2,15 +2,13 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of a simple built-in thread pool
- *
- * This design is modeled after an implementation by Jakob Progsch and
- * Vaclav Zeman found here:
- *
- * https://github.com/progschj/ThreadPool
- */
+/// \file
+/// \brief Implementation of a simple built-in thread pool
+///
+/// This design is modeled after an implementation by Jakob Progsch and
+/// Vaclav Zeman found here:
+///
+/// https://github.com/progschj/ThreadPool
 
 #ifndef KWIVER_VITAL_THREAD_POOL_BUILTIN_BACKEND_H_
 #define KWIVER_VITAL_THREAD_POOL_BUILTIN_BACKEND_H_
@@ -38,7 +36,7 @@ public:
     size_t num_threads = std::thread::hardware_concurrency() )
     : stop( false )
   {
-    for( size_t i = 0; i < num_threads; ++i )
+    for(size_t i = 0; i < num_threads; ++i)
     {
       workers.emplace_back( [ this ]{ thread_worker_loop(); } );
     }
@@ -52,7 +50,7 @@ public:
       stop = true;
     }
     condition.notify_all();
-    for( std::thread& worker : workers )
+    for(std::thread& worker : workers)
     {
       worker.join();
     }
@@ -142,6 +140,6 @@ thread_pool_builtin_backend
 
 } // namespace vital
 
-} // namespace kwiver
+}     // end namespace
 
 #endif

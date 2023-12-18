@@ -186,7 +186,8 @@ TEST_F ( config_block_io, include_files )
   EXPECT_EQ( "val",
              config->get_value< std::string >( "outer_block:b:key" ) );
   EXPECT_EQ( "on",
-             config->get_value< std::string >( "outer_block:general:logging" ) );
+             config->get_value< std::string >(
+               "outer_block:general:logging" ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -194,6 +195,7 @@ TEST_F ( config_block_io, include_files_in_path )
 {
 #if defined( _WIN32 ) && !defined( __CYGWIN__ )
   char const* pathSep = ";";
+
 #else
   char const* pathSep = ":";
 #endif
@@ -202,6 +204,7 @@ TEST_F ( config_block_io, include_files_in_path )
   kwiversys::SystemTools::PutEnv(
     "KWIVER_CONFIG_PATH=" + data_dir + "/test_config-standard-dir-first" +
     pathSep + data_dir + "/test_config-standard-dir-second" );
+
   auto config_a =
     kwiver::vital::read_config_file(
       data_dir + "/test_config-include_files_in_path.txt" );
@@ -214,6 +217,7 @@ TEST_F ( config_block_io, include_files_in_path )
   kwiversys::SystemTools::PutEnv(
     "KWIVER_CONFIG_PATH=" + data_dir + "/test_config-standard-dir-second" +
     pathSep + data_dir + "/test_config-standard-dir-first" );
+
   auto config_b =
     kwiver::vital::read_config_file(
       data_dir + "/test_config-include_files_in_path.txt" );
@@ -392,6 +396,7 @@ TEST_F ( config_block_io, write_config_simple_success )
 TEST_F ( config_block_io, invalid_directory_write )
 {
   using namespace kwiver;
+
   config_block_sptr config = config_block::empty_config( "empty" );
   config->set_value( "foo", "bar" );
   EXPECT_THROW(
@@ -430,6 +435,7 @@ test_standard_paths( kwiver::vital::config_path_t const& data_dir )
 {
 #if defined( _WIN32 ) && !defined( __CYGWIN__ )
   char const* pathSep = ";";
+
 #else
   char const* pathSep = ":";
 #endif
@@ -447,6 +453,7 @@ TEST_F ( config_block_io, standard_config_read_without_merge )
   std::cerr     << "Current working directory: "
                 << kwiversys::SystemTools::GetCurrentWorkingDirectory()
                 << std::endl;
+
   auto const config =
     kwiver::vital::read_config_file( "test_config-standard.txt",
                                      "vital", {}, {}, false );
@@ -492,6 +499,7 @@ TEST_F ( config_block_io, standard_config_read_with_merge )
   std::cerr     << "Current working directory: "
                 << kwiversys::SystemTools::GetCurrentWorkingDirectory()
                 << std::endl;
+
   auto const config =
     kwiver::vital::read_config_file( "test_config-standard.txt",
                                      "vital", {}, {}, true );

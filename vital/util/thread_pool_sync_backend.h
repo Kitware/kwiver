@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of a thread pool backend that runs jobs synchronously
- */
+/// \file
+/// \brief Implementation of a thread pool backend that runs jobs synchronously
 
 #ifndef KWIVER_VITAL_THREAD_POOL_SYNC_BACKEND_H_
 #define KWIVER_VITAL_THREAD_POOL_SYNC_BACKEND_H_
@@ -48,6 +46,6 @@ public:
 
 } // namespace vital
 
-} // namespace kwiver
+}     // end namespace
 
 #endif

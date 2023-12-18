@@ -54,7 +54,7 @@ public:
     auto ret_val = std::make_shared< cpp_they_say >();
     ret_val->m_speaker =
       implementation_factory_by_name< say >().create(
-        cb->get_value( "speaker" , std::string("cpp") ), cb );
+          cb->get_value( "speaker", std::string( "cpp" ) ), cb );
 
     return ret_val;
   }
@@ -70,8 +70,6 @@ private:
 };
 
 } // namespace kwiver::vital
-
-
 
 // ----------------------------------------------------------------------------
 namespace kv = kwiver::vital;

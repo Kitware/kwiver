@@ -41,7 +41,7 @@ register_factories( ::kv::plugin_loader& vpl )
 {
   ::kv::logger_handle_t log = ::kv::get_logger(
     "python.kwiver.vital.plugins.register_factories"
-  );
+    );
 
   // TODO: Hook to skip python plugin registration.
   //   !!! This would explicitly be before potentially starting the
@@ -79,15 +79,16 @@ register_factories( ::kv::plugin_loader& vpl )
 
   py::list python_concrete_vec =
     mod_discovery.attr( "_get_concrete_pluggable_types" )();
-  for( size_t i=0; i < python_concrete_vec.size(); ++i )
+  for( size_t i = 0; i < python_concrete_vec.size(); ++i )
   {
-    py::object o = python_concrete_vec[i];
+    py::object o = python_concrete_vec[ i ];
     LOG_DEBUG( log,
                "Registering factory for python impl for interface \"" <<
-               o.attr("interface_name")().cast< std::string >() << "\": \"" <<
-               o.attr("__name__").cast<std::string>() << "\"");
-    auto *fact = new kv::python::python_plugin_factory( o );
-    vpl.add_factory( fact );
+               o.attr("interface_name")().cast< std::string > () << "\": \"" <<
+                 o.attr("__name__").cast< std::string > () << "\"");
+
+               auto* fact = new kv::python::python_plugin_factory( o );
+               vpl.add_factory( fact );
   }
 }
 

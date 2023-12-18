@@ -13,7 +13,7 @@ namespace kwiver {
 
 namespace vital {
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 wrap_text_block
 ::wrap_text_block()
   : m_line_length( 80 )
@@ -24,7 +24,7 @@ wrap_text_block::
 ~wrap_text_block()
 {}
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 wrap_text_block
 ::set_indent_string( const std::string& indent )
@@ -32,7 +32,7 @@ wrap_text_block
   m_indent = indent;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void
 wrap_text_block
 ::set_line_length( size_t len )
@@ -40,7 +40,7 @@ wrap_text_block
   m_line_length = len;
 }
 
-// ------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 std::string
 wrap_text_block
 ::wrap_text( const std::string& text )
@@ -107,4 +107,4 @@ wrap_text_block
 
 } // namespace vital
 
-} // namespace kwiver
+}   // end namespace

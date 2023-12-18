@@ -109,9 +109,9 @@ public:
  * @param ...     exception parameters
  */
 #define VITAL_THROW( E, ... ) do {                \
-    E except{ __VA_ARGS__ };                    \
-    except.set_location( __FILE__, __LINE__ );  \
-    throw except;                               \
+          E except{ __VA_ARGS__ };                    \
+          except.set_location( __FILE__, __LINE__ );  \
+          throw except;                               \
 } while( 0 )
 
 #endif // VITAL_CORE_EXCEPTIONS_BASE_H

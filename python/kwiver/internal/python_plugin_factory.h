@@ -21,14 +21,15 @@ public:
   explicit python_plugin_factory( py::object const& python_type )
     : m_python_type( python_type )
   {
-
     this->add_attribute( plugin_factory::INTERFACE_TYPE,
                          python_type.attr( "interface_name" )()
-                         .cast< std::string >() )
-      .add_attribute( plugin_factory::CONCRETE_TYPE,
-                      python_type.attr( "__name__" ).cast< std::string >() )
-      .add_attribute( plugin_factory::PLUGIN_NAME,
-                      python_type.attr( "__name__" ).cast< std::string >() );
+                           .cast< std::string > () )
+                         .add_attribute( plugin_factory::CONCRETE_TYPE,
+                                         python_type.attr( "__name__" ).cast<
+                                             std::string > () )
+                           .add_attribute( plugin_factory::PLUGIN_NAME,
+                                           python_type.attr( "__name__" ).cast<
+                                               std::string > () );
   }
 
   ~python_plugin_factory() override = default;
@@ -52,4 +53,4 @@ private:
 
 } // namespace
 
-#endif //PYTHON_PLUGIN_FACTORY_H
+#endif // PYTHON_PLUGIN_FACTORY_H

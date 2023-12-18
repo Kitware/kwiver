@@ -135,6 +135,8 @@ private:
   std::vector< point_t > m_polygon;
 }; // end class polygon
 
+bool operator==( polygon const& a, polygon const& b );
+
 // Types for managing polygons
 typedef std::shared_ptr< polygon > polygon_sptr;
 typedef std::vector< polygon_sptr >  polygon_sptr_list;

@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Implementation of the tokenize function.
- */
+/// \file
+/// \brief Implementation of the tokenize function.
 
 #ifndef VITAL_TOKENIZE_H
 #define VITAL_TOKENIZE_H
@@ -22,23 +20,21 @@ enum
   TokenizeTrimEmpty = 1,
 };
 
-/**
- * @brief Split string into set of tokens.
- *
- * Split the input string based on the set of supplied characters. The
- * detected tokens are added to the end of the \c tokens container,
- * which means the container can start with some contents and the new
- * tokens will be added.
- *
- * If \c trimEmpty is set to \b false (the default state), consecutive
- * delimiters will create empty tokens in the container.
- *
- * @param[in] str String to split
- * @param[in,out] tokens Container tokens are added to
- * @param[in] delimiters List of delimiters used for splitting
- * @param[in] trimEmpty \b false will add empty tokens to container
- * @tparam ContainerT Any container that supports push_back()
- */
+/// @brief Split string into set of tokens.
+///
+/// Split the input string based on the set of supplied characters. The
+/// detected tokens are added to the end of the \c tokens container,
+/// which means the container can start with some contents and the new
+/// tokens will be added.
+///
+/// If \c trimEmpty is set to \b false (the default state), consecutive
+/// delimiters will create empty tokens in the container.
+///
+/// @param[in] str String to split
+/// @param[in,out] tokens Container tokens are added to
+/// @param[in] delimiters List of delimiters used for splitting
+/// @param[in] trimEmpty \b false will add empty tokens to container
+/// @tparam ContainerT Any container that supports push_back()
 template < class ContainerT >
 void
 tokenize( std::string const& str, // i: string to tokenize
@@ -81,6 +77,6 @@ tokenize( std::string const& str, // i: string to tokenize
 
 } // namespace vital
 
-} // namespace kwiver
+}   // end namespace
 
-#endif /* VITAL_TOKENIZE_H */
+#endif // VITAL_TOKENIZE_H

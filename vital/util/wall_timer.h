@@ -2,10 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-/**
- * \file
- * \brief Interface and implementation of WALL timer classes
- */
+/// \file
+/// \brief Interface and implementation of WALL timer classes
 
 #ifndef KWIVER_VITAL_WALL_TIMER_H
 #define KWIVER_VITAL_WALL_TIMER_H
@@ -20,13 +18,10 @@ namespace kwiver {
 
 namespace vital {
 
-// ----------------------------------------------------------------
-
-/**
- * @brief Interval wall clock timer class.
- *
- * This class represents an interval timer that measures wall clock time.
- */
+// ----------------------------------------------------------------------------
+/// @brief Interval wall clock timer class.
+///
+/// This class represents an interval timer that measures wall clock time.
 class wall_timer
   : public timer
 {
@@ -41,11 +36,9 @@ public:
 
   virtual bool timer_available() { return true; }
 
-  /**
-   * @brief Start the timer.
-   *
-   * The clock time when this timer is started is saved.
-   */
+  /// @brief Start the timer.
+  ///
+  /// The clock time when this timer is started is saved.
   virtual void
   start()
   {
@@ -53,12 +46,10 @@ public:
     m_start = std::chrono::steady_clock::now();
   }
 
-  /**
-   * @brief Stop the timer.
-   *
-   * The time this clock was stopped is saved. This value is used to
-   * determine the elapsed time.
-   */
+  /// @brief Stop the timer.
+  ///
+  /// The time this clock was stopped is saved. This value is used to
+  /// determine the elapsed time.
   virtual void
   stop()
   {
@@ -66,14 +57,12 @@ public:
     m_end = std::chrono::steady_clock::now();
   }
 
-  /**
-   * @brief Calculate elapsed time.
-   *
-   * The elapsed time of this timer is returned. This method works if
-   * the timer is stopped or still running.
-   *
-   * @return Seconds since the timer was started.
-   */
+  /// @brief Calculate elapsed time.
+  ///
+  /// The elapsed time of this timer is returned. This method works if
+  /// the timer is stopped or still running.
+  ///
+  /// @return Seconds since the timer was started.
   virtual double
   elapsed() const
   {
@@ -101,6 +90,6 @@ typedef scoped_timer< wall_timer > scoped_wall_timer;
 
 } // namespace vital
 
-} // namespace kwiver
+}     // end namespace
 
-#endif /* KWIVER_VITAL_SCOPED_TIMER_H */
+#endif // KWIVER_VITAL_SCOPED_TIMER_H
