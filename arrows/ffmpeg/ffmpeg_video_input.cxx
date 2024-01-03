@@ -1005,7 +1005,17 @@ ffmpeg_video_input::priv::open_video_state
         parent.audio_enabled &&
         params->codec_type == AVMEDIA_TYPE_AUDIO )
       {
-        audio_streams.emplace_back( stream );
+        if( stream->codecpar->frame_size > 0 )
+        {
+          audio_streams.emplace_back( stream );
+        }
+        else
+        {
+          LOG_WARN(
+            logger,
+            "Ignoring audio stream " << stream->index
+            << " due to unknown codec parameters" );
+        }
       }
     }
 
