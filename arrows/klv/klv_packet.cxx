@@ -277,6 +277,14 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
                  klv_uds_key::prefix, klv_uds_key::prefix + 4 );
   if( search_result == data + max_length )
   {
+    // Set read position to the first byte that could possibly be the start of
+    // a currently-incomplete UDS key. This is three bytes before the end, since
+    // a UDS prefix is four bytes.
+    if( max_length > 3 )
+    {
+      data = search_result - 3;
+    }
+
     VITAL_THROW( kv::metadata_buffer_overflow,
                  "universal key not found in data buffer" );
   }
