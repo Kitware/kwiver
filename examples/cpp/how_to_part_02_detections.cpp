@@ -50,8 +50,7 @@ void how_to_part_02_detections()
   cv::Mat hough_mat = kwiver::arrows::ocv::image_container::vital_to_ocv(hough_img->get_image(), kwiver::arrows::ocv::image_container::RGB_COLOR);
   cv::namedWindow("Hough Detections", cv::WINDOW_AUTOSIZE);// Create a window for display.
   cv::imshow("Hough Detections", hough_mat);                     // Show our image inside it.
-  cv::waitKey(5);
-  kwiversys::SystemTools::Delay(2000);                                       // Wait for 2s
+  cv::waitKey(2000);                                       // Wait for 2s
   cv::destroyWindow("Hough Detections");
 
   // Next, let's look at the detection data structures and we can make them
@@ -116,8 +115,7 @@ void how_to_part_02_detections()
   cv::Mat mat = kwiver::arrows::ocv::image_container::vital_to_ocv(img_detections->get_image(), kwiver::arrows::ocv::image_container::RGB_COLOR);
   cv::namedWindow("Detections", cv::WINDOW_AUTOSIZE);// Create a window for display.
   cv::imshow("Detections", mat);                     // Show our image inside it.
-  cv::waitKey(5);
-  kwiversys::SystemTools::Delay(2000);                                       // Wait for 2s
+  cv::waitKey(2000);                                       // Wait for 2s
   cv::destroyWindow("Detections");
 
   kwiver::vital::algo::detected_object_set_output_sptr kpf_writer = kwiver::vital::algo::detected_object_set_output::create("kpf_output");

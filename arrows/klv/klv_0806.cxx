@@ -199,7 +199,7 @@ klv_0806_local_set_format
 // ----------------------------------------------------------------------------
 klv_checksum_packet_format const*
 klv_0806_local_set_format
-::checksum_format() const
+::packet_checksum_format() const
 {
   return &m_checksum_format;
 }

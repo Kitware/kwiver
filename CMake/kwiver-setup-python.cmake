@@ -134,14 +134,17 @@ set(__prev_kwiver_pyversion "${KWIVER_PYTHON_MAJOR_VERSION}" CACHE INTERNAL
 #
 if (KWIVER_PYTHON_MAJOR_VERSION STREQUAL "3")
   # note, 3.4 is a minimum version
-  find_package(PythonInterp 3.4 REQUIRED)
-  find_package(PythonLibs 3.4 REQUIRED)
+  find_package(Python 3.4 COMPONENTS Interpreter Development REQUIRED)
 else()
-  find_package(PythonInterp 2.7 REQUIRED)
-  find_package(PythonLibs 2.7 REQUIRED)
+  find_package(Python 2.7 COMPONENTS Interpreter Development REQUIRED)
 endif()
-include_directories(SYSTEM ${PYTHON_INCLUDE_DIR})
 
+set(PYTHON_EXECUTABLE ${Python_EXECUTABLE} CACHE FILEPATH "Path to Python executable")
+set(PYTHON_INCLUDE_DIR ${Python_INCLUDE_DIRS} CACHE STRING "Paths to Python include directories")
+set(PYTHON_LIBRARY ${Python_LIBRARIES} CACHE STRING "Paths to Python libraries")
+set(PYTHON_LIBRARY_DEBUG PYTHON_LIBRARY_DEBUG_NOT_FOUND CACHE FILEPATH "Path to Python debug libraries")
+
+include_directories(SYSTEM ${PYTHON_INCLUDE_DIR})
 
 ###
 # Python site-packages

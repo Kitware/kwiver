@@ -164,6 +164,7 @@ video_input_metadata_filter
   copy_capability( vi::IS_SEEKABLE );
   copy_capability( vi::HAS_RAW_IMAGE );
   copy_capability( vi::HAS_RAW_METADATA );
+  copy_capability( vi::HAS_UNINTERPRETED_DATA );
 }
 
 // ----------------------------------------------------------------------------
@@ -242,6 +243,19 @@ video_input_metadata_filter
     return nullptr;
   }
   return m_d->video_input->raw_frame_image();
+}
+
+// ----------------------------------------------------------------------------
+kv::video_uninterpreted_data_sptr
+video_input_metadata_filter
+::uninterpreted_frame_data()
+{
+  if( !m_d->video_input )
+  {
+    return nullptr;
+  }
+
+  return m_d->video_input->uninterpreted_frame_data();
 }
 
 // ----------------------------------------------------------------------------

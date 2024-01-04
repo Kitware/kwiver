@@ -43,40 +43,7 @@ std::ostream&
 operator<<( std::ostream& os, klv_lengthy< T > const& value );
 
 // ----------------------------------------------------------------------------
-template < class T >
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs );
-
-// ----------------------------------------------------------------------------
-template < class T >
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator>( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs );
-
-// ----------------------------------------------------------------------------
-template < class T >
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator<=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs );
-
-// ----------------------------------------------------------------------------
-template < class T >
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator>=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs );
-
-// ----------------------------------------------------------------------------
-template < class T >
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator==( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs );
-
-// ----------------------------------------------------------------------------
-template < class T >
-KWIVER_ALGO_KLV_EXPORT
-bool
-operator!=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs );
+DECLARE_TEMPLATE_CMP( klv_lengthy< T > )
 
 } // namespace klv
 

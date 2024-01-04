@@ -16,6 +16,7 @@
 #include <limits>
 
 #include <cctype>
+#include <cfloat>
 
 namespace kwiver {
 
@@ -121,6 +122,14 @@ csv_writer
     else if constexpr( std::is_integral_v< T > && std::is_unsigned_v< T > )
     {
       m_ss << static_cast< uint64_t >( value );
+    }
+    else if constexpr( std::is_same_v< T, float > )
+    {
+      m_ss << std::setprecision( FLT_DIG + 1 ) << value;
+    }
+    else if constexpr( std::is_same_v< T, double > )
+    {
+      m_ss << std::setprecision( DBL_DIG + 1 ) << value;
     }
     else
     {
@@ -338,6 +347,52 @@ struct str_to_int64< true >
     return std::stoll( std::forward< Args >( args )... ); };
 };
 
+// ----------------------------------------------------------------------------
+template< class T >
+struct is_optional : std::false_type
+{};
+
+// ----------------------------------------------------------------------------
+template< class T >
+struct is_optional< std::optional< T > > : std::true_type
+{};
+
+// ----------------------------------------------------------------------------
+template< class T >
+constexpr bool is_optional_v = is_optional< T >::value;
+
+// ----------------------------------------------------------------------------
+template< class T >
+struct decay_optional
+{
+  using type = T;
+};
+
+// ----------------------------------------------------------------------------
+template< class T >
+struct decay_optional< std::optional< T > >
+{
+  using type = T;
+};
+
+// ----------------------------------------------------------------------------
+template< class T >
+using decay_optional_t = typename decay_optional< T >::type;
+
+// ----------------------------------------------------------------------------
+template< class T >
+T bad_parse( std::string const& s )
+{
+  if constexpr( is_optional_v< T > )
+  {
+    return std::nullopt;
+  }
+  else
+  {
+    throw csv_reader::parse_error( s, typeid( T ) );
+  }
+}
+
 }
 
 // ----------------------------------------------------------------------------
@@ -374,7 +429,8 @@ csv_reader
   if constexpr(
     std::is_arithmetic_v< T > ||
     std::is_same_v< T, std::string > ||
-    std::is_same_v< T, csv::skipf_t > )
+    std::is_same_v< T, csv::skipf_t > ||
+    is_optional_v< T > )
   {
     if( !m_first_field && m_is.peek() == m_delim )
     {
@@ -384,6 +440,7 @@ csv_reader
     m_first_field = false;
 
     auto are_in_quotes = m_is.peek() == m_quote;
+    auto const were_in_quotes = are_in_quotes;
     if( are_in_quotes )
     {
       // Skip opening quote character
@@ -501,15 +558,27 @@ csv_reader
       return {};
     }
 
-    // If all we wanted was a string, just return that
+    // Get unquoted field text
     std::string s = ss.str();
-    if constexpr( std::is_same_v< T, std::string > )
+
+    // Check for empty field
+    if constexpr( is_optional_v< T > )
+    {
+      if( s.empty() && !were_in_quotes )
+      {
+        return std::nullopt;
+      }
+    }
+    using decayed_t = decay_optional_t< T >;
+
+    // If all we wanted was a string, just return that
+    if constexpr( std::is_same_v< decayed_t, std::string > )
     {
       return s;
     }
 
     // Convert string to boolean
-    if constexpr( std::is_same_v< T, bool > )
+    if constexpr( std::is_same_v< decayed_t, bool > )
     {
       if( s == "0" || s == "false" )
       {
@@ -520,23 +589,23 @@ csv_reader
         return true;
       }
 
-      throw parse_error( s, typeid( T ) );
+      return bad_parse< T >( s );
     }
 
     // Numbers should not have leading whitespace
-    if constexpr( std::is_arithmetic_v< T > )
+    if constexpr( std::is_arithmetic_v< decayed_t > )
     {
       if( s.empty() || std::isspace( s[ 0 ] ) )
       {
-        throw parse_error( s, typeid( T ) );
+        return bad_parse< T >( s );
       }
     }
 
     // Convert string to integer
-    if constexpr( std::is_integral_v< T > )
+    if constexpr( std::is_integral_v< decayed_t > )
     {
       // Parse into a 64-bit integer
-      using parser_t = str_to_int64< std::is_signed_v< T > >;
+      using parser_t = str_to_int64< std::is_signed_v< decayed_t > >;
       parser_t parser;
       typename parser_t::type value = 0;
       size_t offset = 0;
@@ -546,15 +615,15 @@ csv_reader
       }
       catch( std::exception const& )
       {
-        throw parse_error( s, typeid( T ) );
+        return bad_parse< T >( s );
       }
 
       // Check if reducing to the desired integer size would overflow
-      if( value < std::numeric_limits< T >::lowest() ||
-          value > std::numeric_limits< T >::max() ||
+      if( value < std::numeric_limits< decayed_t >::lowest() ||
+          value > std::numeric_limits< decayed_t >::max() ||
           !offset || offset != s.size() )
       {
-        throw parse_error( s, typeid( T ) );
+        return bad_parse< T >( s );
       }
 
       // Downcast to correct type
@@ -563,14 +632,16 @@ csv_reader
 
     // Parse to floating point
     // Didn't use std::is_floating_point_v because we don't handle long double
-    if constexpr( std::is_same_v< T, float > || std::is_same_v< T, double > )
+    if constexpr(
+      std::is_same_v< decayed_t, float > ||
+      std::is_same_v< decayed_t, double > )
     {
-      T ( *parser )( char const*, char** ) = nullptr;
-      if constexpr( std::is_same_v< T, float > )
+      decayed_t ( *parser )( char const*, char** ) = nullptr;
+      if constexpr( std::is_same_v< decayed_t, float > )
       {
         parser = &std::strtof;
       }
-      if constexpr( std::is_same_v< T, double > )
+      if constexpr( std::is_same_v< decayed_t, double > )
       {
         parser = &std::strtod;
       }
@@ -580,7 +651,7 @@ csv_reader
       auto const value = parser( begin, &end );
       if( end == begin || end != &*s.end() )
       {
-        throw parse_error( s, typeid( T ) );
+        return bad_parse< T >( s );
       }
       return value;
     }
@@ -709,18 +780,31 @@ csv_reader
   template KWIVER_ALGO_CORE_EXPORT T csv_reader::read< T >();
 
 INSTANTIATE_READ( std::string )
+INSTANTIATE_READ( std::optional< std::string > )
 INSTANTIATE_READ( bool )
+INSTANTIATE_READ( std::optional< bool > )
 INSTANTIATE_READ( char )
+INSTANTIATE_READ( std::optional< char > )
 INSTANTIATE_READ( uint8_t )
+INSTANTIATE_READ( std::optional< uint8_t > )
 INSTANTIATE_READ( uint16_t )
+INSTANTIATE_READ( std::optional< uint16_t > )
 INSTANTIATE_READ( uint32_t )
+INSTANTIATE_READ( std::optional< uint32_t > )
 INSTANTIATE_READ( uint64_t )
+INSTANTIATE_READ( std::optional< uint64_t > )
 INSTANTIATE_READ( int8_t )
+INSTANTIATE_READ( std::optional< int8_t > )
 INSTANTIATE_READ( int16_t )
+INSTANTIATE_READ( std::optional< int16_t > )
 INSTANTIATE_READ( int32_t )
+INSTANTIATE_READ( std::optional< int32_t > )
 INSTANTIATE_READ( int64_t )
+INSTANTIATE_READ( std::optional< int64_t > )
 INSTANTIATE_READ( float )
+INSTANTIATE_READ( std::optional< float > )
 INSTANTIATE_READ( double )
+INSTANTIATE_READ( std::optional< double > )
 INSTANTIATE_READ( csv::skipf_t )
 INSTANTIATE_READ( csv::endl_t )
 INSTANTIATE_READ( csv::comment_t )

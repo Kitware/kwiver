@@ -335,7 +335,8 @@ klv_write_float( double value, klv_write_iter_t& data, size_t length );
 /// \returns Floating-point number decoded from \p data buffer.
 ///
 /// \throws metadata_type_overflow When \p length is greater than the size of a
-/// \c uint64_t or the span of \p interval is too large for a \c double to hold.
+/// \c uint64_t, or the span of \p interval is too large for a \c double to
+/// hold, or the result value would fall outside \p interval.
 KWIVER_ALGO_KLV_EXPORT
 double
 klv_read_imap(

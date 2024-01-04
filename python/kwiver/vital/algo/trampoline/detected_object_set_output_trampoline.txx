@@ -71,10 +71,10 @@ class detected_object_set_output_trampoline :
     void complete() override
     {
       PYBIND11_OVERLOAD(
-          void,
-          kwiver::vital::algo::detected_object_set_output,
-          complete,
-          );
+        void,
+        kwiver::vital::algo::detected_object_set_output,
+        complete,
+        );
     }
 
     void

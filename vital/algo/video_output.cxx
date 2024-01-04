@@ -28,6 +28,10 @@ const algorithm_capabilities::capability_name_t
 video_output::SUPPORTS_METADATA( "supports-metadata" );
 
 // ----------------------------------------------------------------------------
+const algorithm_capabilities::capability_name_t
+video_output::SUPPORTS_UNINTERPRETED_DATA( "supports-uninterpreted-data" );
+
+// ----------------------------------------------------------------------------
 video_output
 ::video_output()
 {
@@ -56,6 +60,15 @@ video_output
 {
   throw std::logic_error{
     "video_output: This implementation does not support raw metadata" };
+}
+
+// ----------------------------------------------------------------------------
+void
+video_output
+::add_uninterpreted_data( video_uninterpreted_data const& misc_data )
+{
+  throw std::logic_error{
+    "video_output: This implementation does not support uninterpreted data" };
 }
 
 // ----------------------------------------------------------------------------

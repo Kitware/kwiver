@@ -136,9 +136,26 @@ transcode_applet
     std::cerr << "Failed to initialize video input." << std::endl;
     exit( EXIT_FAILURE );
   }
-  input->open( input_filename );
+
+  try
+  {
+    input->open( input_filename );
+  }
+  catch( kv::video_runtime_exception const& e )
+  {
+    std::cerr << e.what() << std::endl;
+    exit( EXIT_FAILURE );
+  }
+  catch( kv::file_not_found_exception const& e )
+  {
+    std::cerr << e.what() << std::endl;
+    exit( EXIT_FAILURE );
+  }
   check_input( input, cmd_args );
 
+  // Acquire first frame, which may help produce more accurate video settings
+  kv::timestamp timestamp;
+  input->next_frame( timestamp );
   auto const video_settings = input->implementation_settings();
 
   // Setup video output
@@ -151,10 +168,7 @@ transcode_applet
   output->open( output_filename, video_settings.get() );
 
   // Transcode frames
-  kv::timestamp timestamp;
-  for( input->next_frame( timestamp );
-       !input->end_of_video();
-       input->next_frame( timestamp ) )
+  for( ; !input->end_of_video(); input->next_frame( timestamp ) )
   {
     // Transcode metadata
     if( cmd_args.count( "copy-metadata" ) )
@@ -174,6 +188,13 @@ transcode_applet
       {
         output->add_metadata( *metadata );
       }
+    }
+
+    // Transcode uninterpreted data
+    auto const misc_data = input->uninterpreted_frame_data();
+    if( misc_data )
+    {
+      output->add_uninterpreted_data( *misc_data );
     }
 
     // Transcode image

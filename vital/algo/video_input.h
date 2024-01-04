@@ -20,6 +20,7 @@
 #include <vital/types/timestamp.h>
 #include <vital/types/video_raw_image.h>
 #include <vital/types/video_raw_metadata.h>
+#include <vital/types/video_uninterpreted_data.h>
 #include <vital/types/video_settings.h>
 
 #include <string>
@@ -123,6 +124,7 @@ public:
   static const algorithm_capabilities::capability_name_t IS_SEEKABLE;
   static const algorithm_capabilities::capability_name_t HAS_RAW_IMAGE;
   static const algorithm_capabilities::capability_name_t HAS_RAW_METADATA;
+  static const algorithm_capabilities::capability_name_t HAS_UNINTERPRETED_DATA;
 
   virtual ~video_input();
 
@@ -343,6 +345,16 @@ public:
   ///
   /// \return Pointer to raw metadata.
   virtual video_raw_metadata_sptr raw_frame_metadata();
+
+  /// Return an implementation-defined representation of uninterpreted data in
+  /// this frame.
+  ///
+  /// This method enables passage of miscellaneous data - such as audio,
+  /// unrecognized metadata, or secondary image streams - to a video output when
+  /// transcoding.
+  ///
+  /// \return Pointer to uninterpreted data.
+  virtual video_uninterpreted_data_sptr uninterpreted_frame_data();
 
   /// \brief Get metadata map for video.
   ///

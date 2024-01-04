@@ -14,6 +14,9 @@
 
 extern "C" {
 #include <libavcodec/avcodec.h>
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(58, 87, 100)
+#include <libavcodec/bsf.h>
+#endif
 #include <libavfilter/avfilter.h>
 #include <libavformat/avformat.h>
 #include <libavutil/hwcontext.h>
@@ -92,6 +95,7 @@ DECLARE_PTRS( filter_graph, AVFilterGraph )
 DECLARE_PTRS( filter_in_out, AVFilterInOut )
 DECLARE_PTRS( sws_context, SwsContext )
 DECLARE_PTRS( hardware_device_context, AVBufferRef )
+DECLARE_PTRS( bsf_context, AVBSFContext )
 
 #undef DECLARE_PTRS
 

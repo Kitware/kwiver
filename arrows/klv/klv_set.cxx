@@ -375,6 +375,15 @@ klv_set_format< Key >
 
 // ----------------------------------------------------------------------------
 template < class Key >
+klv_tag_traits_lookup const&
+klv_set_format< Key >
+::traits() const
+{
+  return m_traits;
+}
+
+// ----------------------------------------------------------------------------
+template < class Key >
 klv_set< Key >
 klv_set_format< Key >
 ::read_typed( klv_read_iter_t& data, size_t length ) const

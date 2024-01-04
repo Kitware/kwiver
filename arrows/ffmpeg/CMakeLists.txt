@@ -18,14 +18,17 @@ if (NOT FFMPEG_FOUND_SEVERAL)
 endif()
 
 set(ffmpeg_headers_public
+  ffmpeg_audio_stream_settings.h
   ffmpeg_cuda.h
   ffmpeg_init.h
   ffmpeg_util.h
   ffmpeg_video_input.h
+  ffmpeg_video_input_clip.h
   ffmpeg_video_output.h
   ffmpeg_video_raw_image.cxx
   ffmpeg_video_raw_metadata.cxx
   ffmpeg_video_settings.h
+  ffmpeg_video_uninterpreted_data.h
   )
 
 kwiver_install_headers(
@@ -39,14 +42,17 @@ kwiver_install_headers(
   )
 
 set(ffmpeg_sources
+  ffmpeg_audio_stream_settings.cxx
   ffmpeg_cuda.cxx
   ffmpeg_init.cxx
   ffmpeg_util.cxx
   ffmpeg_video_input.cxx
+  ffmpeg_video_input_clip.cxx
   ffmpeg_video_output.cxx
   ffmpeg_video_raw_image.cxx
   ffmpeg_video_raw_metadata.cxx
   ffmpeg_video_settings.cxx
+  ffmpeg_video_uninterpreted_data.cxx
   )
 
 if(KWIVER_ENABLE_CUDA)

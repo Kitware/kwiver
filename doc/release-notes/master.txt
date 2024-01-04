@@ -6,3 +6,63 @@ over the previous v1.8.0 release.
 
 Updates
 -------
+
+Vital: Types
+
+* Added interfaces for copying uninterpreted video data.
+
+Arrows: Core
+
+* Implemented the csv_reader reading std::optional fields.
+
+* Increased the precision of written floats and doubles in the csv_writer.
+
+* Made the transcode applet's failure to open a video result in a more graceful exit.
+
+* Made the transcode applet ask for video settings slightly later, when they
+  might be more accurate.
+
+* Added pass-throughs for uninterpreted video data in the metadata_filter and
+  buffered_metadata_filter video inputs.
+
+Arrows: FFmpeg
+
+* Added check for incoming raw video packets' timestamps and stream indices.
+
+* Added functionality to copy the input video's start timestamp when transcoding.
+
+* Removed imagery_enabled option from ffmpeg_video_input.
+
+* Added proper handling for changing size or pixel format mid-video.
+
+* Improved probing behavior and increased duration.
+
+* Ensured proper clearing of video state even when seek attempts fail.
+
+* Exposed codec options in ffmpeg_video_settings.
+
+* Optimized copying behavior when encoding frames.
+
+* Implemented packet lookahead to ensure stream synchronization.
+
+* Implemented copy of audio streams from input to output.
+
+* Fixed bugs causing invalid output when transcoding between .mp4 and .ts files.
+
+Arrows: KLV
+
+* Ensured that NaN comparisons happen consistently across all data structures.
+
+* Throw an exception when reading an out-of-bounds IMAP value.
+
+* Made the compare-klv applet's failure to open a video result in a more graceful exit.
+
+* Disabled initialization of image writer in dump-klv if no images are to be written.
+
+* Accounted for missing or extra frames in compare-klv.
+
+* Implemented metadata_map_io_csv.load_().
+
+* Modified flint, IMAP, and integer behavior to print a warning when writing
+  values with incorrect lengths instead of correcting the length and possibly
+  losing data.

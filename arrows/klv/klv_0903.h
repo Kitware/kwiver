@@ -73,7 +73,7 @@ public:
   description_() const override;
 
   klv_checksum_packet_format const*
-  checksum_format() const override;
+  packet_checksum_format() const override;
 
 private:
   klv_running_sum_16_packet_format m_checksum_format;

@@ -86,9 +86,18 @@ public:
   std::string
   description() const;
 
-  /// Optionally the checksum format for this data format.
+  /// Return the checksum format for the packet key and length only, or
+  /// `nullptr`.
   virtual klv_checksum_packet_format const*
-  checksum_format() const;
+  prefix_checksum_format() const;
+
+  /// Return the checksum format for the packet payload only, or `nullptr`.
+  virtual klv_checksum_packet_format const*
+  payload_checksum_format() const;
+
+  /// Return the checksum format for the entire packet, or `nullptr`.
+  virtual klv_checksum_packet_format const*
+  packet_checksum_format() const;
 
   /// Return the constraints on the length of this format.
   klv_length_constraints const&

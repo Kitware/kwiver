@@ -86,11 +86,67 @@ operator<<( std::ostream& os, std::set< T > const& value )
 }
 
 // ----------------------------------------------------------------------------
+template< class T >
+struct wrap_cmp_nan
+{
+  explicit wrap_cmp_nan( T const& value ) : value{ value } {}
+
+  bool operator<( wrap_cmp_nan< T > const& other ) const
+  {
+    if constexpr( std::is_floating_point_v< T > )
+    {
+      return value < other.value ||
+             ( std::isnan( value ) && !std::isnan( other.value ) );
+    }
+    else
+    {
+      return value < other.value;
+    }
+  }
+
+  bool operator>( wrap_cmp_nan< T > const& other ) const
+  {
+    return other < *this;
+  }
+
+  bool operator<=( wrap_cmp_nan< T > const& other ) const
+  {
+    return !( other < *this );
+  }
+
+  bool operator>=( wrap_cmp_nan< T > const& other ) const
+  {
+    return !( *this < other );
+  }
+
+  bool operator==( wrap_cmp_nan< T > const& other ) const
+  {
+    if constexpr( std::is_floating_point_v< T > )
+    {
+      return value == other.value ||
+             ( std::isnan( value ) && std::isnan( other.value ) );
+    }
+    else
+    {
+      return value == other.value;
+    }
+  }
+
+  bool operator!=( wrap_cmp_nan< T > const& other ) const
+  {
+    return !( *this == other );
+  }
+
+  T const& value;
+};
+
+// ----------------------------------------------------------------------------
 template< class T, class... Args >
 bool
 struct_lt( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) < std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) <
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -98,7 +154,8 @@ template< class T, class... Args >
 bool
 struct_gt( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) > std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) >
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -106,7 +163,8 @@ template< class T, class... Args >
 bool
 struct_le( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) <= std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) <=
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -114,7 +172,8 @@ template< class T, class... Args >
 bool
 struct_ge( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) >= std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) >=
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -122,7 +181,8 @@ template< class T, class... Args >
 bool
 struct_eq( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) == std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) ==
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -130,7 +190,8 @@ template< class T, class... Args >
 bool
 struct_ne( T const& lhs, T const& rhs, Args T::*... args )
 {
-  return std::tie( ( lhs.*args )... ) != std::tie( ( rhs.*args )... );
+  return std::make_tuple( wrap_cmp_nan( lhs.*args )... ) !=
+         std::make_tuple( wrap_cmp_nan( rhs.*args )... );
 }
 
 // ----------------------------------------------------------------------------
@@ -186,27 +247,54 @@ public:
     : m_begin( it ), m_length{ length }, m_it( it )
   {
     static_assert(
-      std::is_same< typename std::decay< decltype( *it ) >::type,
-                    uint8_t >::value, "iterator must point to uint8_t" );
+      std::is_same_v< std::decay_t< decltype( *it ) >, uint8_t >,
+      "iterator must point to uint8_t" );
   }
 
-  size_t verify( size_t count ) const
+  template<
+    class Int,
+    std::enable_if_t< std::is_unsigned_v< std::decay_t< Int > >, bool > = true >
+  size_t verify( Int count ) const
   {
     if( count > remaining() )
     {
       m_it = m_begin;
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+      VITAL_THROW( vital::metadata_buffer_overflow,
                    "tried to read or write past end of data buffer" );
     }
     return count;
   }
 
+  template<
+    class Int,
+    std::enable_if_t< std::is_signed_v< std::decay_t< Int > >, bool > = true >
+  size_t verify( Int count ) const
+  {
+    if( count < 0 )
+    {
+      m_it = m_begin;
+      VITAL_THROW( vital::metadata_buffer_overflow,
+                   "tried to read or write a value of negative length" );
+    }
+
+    return verify( static_cast< size_t >( count ) );
+  }
+
   size_t traversed() const
   {
     auto const distance = std::distance( m_begin, m_it );
-    if( distance > m_length )
+
+    if( distance < 0 )
     {
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
+      m_it = m_begin;
+      VITAL_THROW( vital::metadata_buffer_overflow,
+                   "read or written before beginning of data buffer" );
+    }
+
+    if( static_cast< size_t >( distance ) > m_length )
+    {
+      m_it = m_begin;
+      VITAL_THROW( vital::metadata_buffer_overflow,
                    "read or written past end of data buffer" );
     }
 

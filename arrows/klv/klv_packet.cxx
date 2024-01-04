@@ -80,86 +80,188 @@ operator<<( std::ostream& os, klv_packet const& packet )
 namespace {
 
 // ----------------------------------------------------------------------------
-size_t
+using data_range_t = vital::range::iterator_range< klv_read_iter_t >;
+
+// ----------------------------------------------------------------------------
+data_range_t
 verify_checksum(
   klv_tag_traits const& traits,
-  iterator_tracker< klv_read_iter_t > const& tracker,
-  size_t value_size )
+  klv_checksum_packet_format const& format,
+  data_range_t data_range,
+  std::vector< data_range_t > wrong_ranges )
 {
-  auto const format = traits.format().checksum_format();
-  if( !format )
+  auto const logger = kv::get_logger( "klv" );
+
+  // Get the checksum written at the end of the range
+  auto const checksum_size = *format.length_constraints().fixed();
+  if( data_range.size() < 0 ||
+      checksum_size > static_cast< size_t >( data_range.size() ) )
   {
-    // This format doesn't have a checksum
-    return 0;
+    LOG_ERROR(
+      logger,
+      traits.name() << ": checksum not present (data range too small)" );
+    return data_range;
+  }
+  uint64_t written_checksum = 0;
+  try
+  {
+    auto it = data_range.end() - checksum_size;
+    written_checksum = format.read_( it, checksum_size );
+  }
+  catch( vital::metadata_exception const& e )
+  {
+    LOG_ERROR(
+      logger,
+      traits.name() << ": could not read checksum: " << e.what() );
+    return data_range;
   }
 
-  // Get the checksum written at the end of the packet
-  auto const packet_size = tracker.traversed() + value_size;
-  auto const checksum_size = *format->length_constraints().fixed();
-  auto it = tracker.begin() + packet_size - checksum_size;
-  auto const written_checksum = format->read_( it, checksum_size );
-
-  // Calculate our own checksum over the packet
-  using range_t = vital::range::iterator_range< klv_read_iter_t >;
-  auto const header_size = format->header().size();
-  range_t const checked_range{
-    tracker.begin(),
-    tracker.begin() + packet_size - checksum_size + header_size };
+  // Calculate our own checksum over the range
+  auto const header_size = format.header().size();
+  auto const checked_size = data_range.size() - checksum_size + header_size;
   auto const actual_checksum =
-    format->evaluate( checked_range.begin(), checked_range.size() );
+    format.evaluate( data_range.begin(), checked_size );
 
   // Check for match
+  data_range_t const result{
+    data_range.begin(), data_range.end() - checksum_size };
   if( written_checksum == actual_checksum )
   {
-    return checksum_size;
+    return result;
   }
 
   // Then check that the mismatch isn't the result of computing the checksum
   // over the wrong range of data. If so, this doesn't merit a full ERROR log.
-  for( auto const alt_begin_offset :
-       { int64_t{ 0 }, static_cast< int64_t >( packet_size - value_size ) } )
+  for( auto const& wrong_range : wrong_ranges )
   {
-    for( auto const alt_end_offset :
-         { int64_t{ 0 }, -static_cast< int64_t >( header_size ) } )
+    auto const wrong_checksum =
+      format.evaluate( wrong_range.begin(), wrong_range.size() );
+
+    if( written_checksum == wrong_checksum )
     {
-      if( !alt_begin_offset && !alt_end_offset )
-      {
-        // Correct algorithm
-        continue;
-      }
-
-      // Compute the checksum of the alternate data range
-      range_t const alt_range{
-        checked_range.begin() + alt_begin_offset,
-        checked_range.end() + alt_end_offset };
-      auto const alt_checksum =
-        format->evaluate( alt_range.begin(), alt_range.size() );
-
-      // Check if they implemented it wrong
-      if( written_checksum == alt_checksum )
-      {
-        LOG_DEBUG(
-          kv::get_logger( "klv" ),
-          traits.name() << ": "
-          << "the producer of this data implemented the checksum incorrectly"
-        );
-        return checksum_size;
-      }
+      LOG_DEBUG(
+        logger,
+        traits.name() << ": "
+        << "the producer of this data implemented the checksum incorrectly"
+      );
+      return result;
     }
   }
 
   // Checksum is incorrect for some unknown reason.
   // Possibly actual packet corruption or a different misimplementation
   LOG_ERROR(
-    kv::get_logger( "klv" ),
+    logger,
     traits.name() << ": "
     << "calculated checksum "
-    << "(" << format->to_string( actual_checksum ) << ") "
+    << "(" << format.to_string( actual_checksum ) << ") "
     << "does not equal checksum contained in packet "
-    << "(" << format->to_string( written_checksum ) << ")" );
+    << "(" << format.to_string( written_checksum ) << ")" );
 
-  return checksum_size;
+  return result;
 }
+
+// ----------------------------------------------------------------------------
+data_range_t
+verify_checksum(
+  klv_tag_traits const& traits,
+  iterator_tracker< klv_read_iter_t > const& tracker,
+  size_t value_size )
+{
+  auto const key_it = tracker.begin();
+  auto value_it = tracker.it();
+  auto end_it = value_it + value_size;
+
+  // Prefix first, to ensure we have the right value_size
+  if( auto const format = traits.format().prefix_checksum_format() )
+  {
+    auto const checksum_size = *format->length_constraints().fixed();
+    data_range_t data_range{ key_it, value_it + checksum_size };
+    auto const result_range =
+      verify_checksum( traits, *format, data_range, { { key_it, value_it } } );
+    if( result_range.end() == data_range.end() )
+    {
+      // Failure. Since the value size could be wrong, we have to abort here.
+      return { value_it, value_it };
+    }
+    value_it = data_range.end();
+  }
+
+  // Only after we check that the prefix is intact should we actually try to
+  // read the next value_size bytes
+  tracker.verify( value_size );
+
+  // Then entire packet
+  if( auto const format = traits.format().packet_checksum_format() )
+  {
+    auto const checksum_size = *format->length_constraints().fixed();
+    auto const header_size = format->header().size();
+    auto const right_end_it = end_it - ( checksum_size - header_size );
+    auto const wrong_end_it = end_it - checksum_size;
+    data_range_t data_range{ key_it, end_it };
+    auto const result_range =
+      verify_checksum(
+        traits, *format, data_range,
+        { { key_it, wrong_end_it },
+          { value_it, right_end_it },
+          { value_it, wrong_end_it } } );
+    end_it = result_range.end();
+  }
+
+  // Then payload (value)
+  if( auto const format = traits.format().payload_checksum_format() )
+  {
+    auto const checksum_size = *format->length_constraints().fixed();
+    data_range_t data_range{ value_it, end_it };
+    auto const result_range =
+      verify_checksum(
+        traits, *format, data_range,
+        { { value_it, end_it - checksum_size } } );
+    end_it = result_range.end();
+  }
+
+  // Return value range with checksums removed
+  return { value_it, end_it };
+}
+
+// ----------------------------------------------------------------------------
+size_t
+all_checksums_length( klv_data_format const& format )
+{
+  size_t result = 0;
+  for( auto const checksum_format :
+       { format.prefix_checksum_format(),
+         format.payload_checksum_format(),
+         format.packet_checksum_format() } )
+  {
+    if( checksum_format )
+    {
+      result += *checksum_format->length_constraints().fixed();
+    }
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+write_checksum(
+  klv_checksum_packet_format const* format,
+  klv_write_iter_t begin, klv_write_iter_t& data )
+{
+  if( !format )
+  {
+    return;
+  }
+
+  auto const header = format->header();
+  std::copy( header.begin(), header.end(), data );
+  auto const checksum =
+    format->evaluate(
+      begin, static_cast< size_t >( data - begin ) + header.size() );
+  format->write_( checksum, data, *format->length_constraints().fixed() );
+}
+
 
 } // namespace <anonymous>
 
@@ -195,26 +297,27 @@ klv_read_packet( klv_read_iter_t& data, size_t max_length )
   {
     // This might be an encoding error, or maybe we falsely detected a prefix
     // in the data between the packets
-    VITAL_THROW( kwiver::vital::metadata_exception, "invalid universal key" );
+    VITAL_THROW( kv::metadata_exception, "invalid universal key" );
   }
 
   // Read length
   auto const length_of_value =
     klv_read_ber< size_t >( data, tracker.remaining() );
-  tracker.verify( length_of_value );
+  auto const value_begin = data;
 
   // Verify checksum
   auto const& traits = klv_lookup_packet_traits().by_uds_key( key );
   auto const& format = traits.format();
-  auto const checksum_length =
+  auto const value_range =
     verify_checksum( traits, tracker, length_of_value );
 
   // Read value
+  data = value_range.begin();
   auto const value =
-    format.read( data, tracker.verify( length_of_value - checksum_length ) );
+    format.read( data, tracker.verify( value_range.size() ) );
 
   // Ensure iterator ends correctly
-  data += checksum_length;
+  data = value_begin + length_of_value;
 
   return { key, value };
 }
@@ -228,32 +331,23 @@ klv_write_packet( klv_packet const& packet, klv_write_iter_t& data,
 
   auto const& format =
     klv_lookup_packet_traits().by_uds_key( packet.key ).format();
-  auto const checksum_format = format.checksum_format();
-  auto const length = format.length_of( packet.value );
+  auto const value_length = format.length_of( packet.value );
+  auto const checksums_length = all_checksums_length( format );
   auto const packet_length = klv_packet_length( packet );
-  auto const checksum_length =
-    checksum_format ? *checksum_format->length_constraints().fixed() : 0;
-  if( max_length < length + checksum_length )
-  {
-    VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                 "writing klv packet overflows buffer" );
-  }
+  tracker.verify( packet_length );
 
+  // Write prefix
   klv_write_uds_key( packet.key, data, tracker.remaining() );
-  klv_write_ber( length + checksum_length, data, tracker.remaining() );
-  format.write( packet.value, data, length );
+  klv_write_ber( value_length + checksums_length, data, tracker.remaining() );
 
-  if( checksum_format )
-  {
-    tracker.verify( checksum_length );
-    auto const header = checksum_format->header();
-    std::copy( header.begin(), header.end(), data );
-    auto const checksum =
-      checksum_format->evaluate(
-        tracker.begin(),
-        packet_length - checksum_length + header.size() );
-    checksum_format->write_( checksum, data, checksum_length );
-  }
+  write_checksum( format.prefix_checksum_format(), tracker.begin(), data );
+  auto const value_begin = data;
+
+  // Write value
+  format.write( packet.value, data, value_length );
+
+  write_checksum( format.payload_checksum_format(), value_begin, data );
+  write_checksum( format.packet_checksum_format(), tracker.begin(), data );
 }
 
 // ----------------------------------------------------------------------------
@@ -262,15 +356,15 @@ klv_packet_length( klv_packet const& packet )
 {
   auto const& format =
     klv_lookup_packet_traits().by_uds_key( packet.key ).format();
-  auto const checksum_format = format.checksum_format();
+
   auto const length_of_key = packet.key.length;
   auto const length_of_value = format.length_of( packet.value );
-  auto const length_of_checksum =
-    checksum_format ? *checksum_format->length_constraints().fixed() : 0;
+  auto const length_of_checksums = all_checksums_length( format );
   auto const length_of_length =
-    klv_ber_length( length_of_value + length_of_checksum );
+    klv_ber_length( length_of_value + length_of_checksums );
+
   return length_of_key + length_of_length + length_of_value +
-         length_of_checksum;
+         length_of_checksums;
 }
 
 // ----------------------------------------------------------------------------
