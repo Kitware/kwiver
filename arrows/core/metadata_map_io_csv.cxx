@@ -173,7 +173,7 @@ special_column_names()
     { { kv::VITAL_META_FRAME_CENTER, 0 },
       "Geodetic Frame Center Longitude (EPSG:4326)" },
     { { kv::VITAL_META_FRAME_CENTER, 1 },
-      "Geodetic Frame Center Longitude (EPSG:4326)" },
+      "Geodetic Frame Center Latitude (EPSG:4326)" },
     { { kv::VITAL_META_FRAME_CENTER, 2 },
       "Geodetic Frame Center Altitude (meters)" },
 
