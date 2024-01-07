@@ -1,10 +1,10 @@
 set( vital_config_python_headers
-     config_module_helpers.h
+     module_config_helpers.h
     )
 
 set( vital_config_python_sources
-     config_module.cxx
-     config_module_helpers.cxx
+     module_config.cxx
+     module_config_helpers.cxx
    )
 
 kwiver_add_python_library( _config

@@ -2,7 +2,7 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <python/kwiver/vital/config/config_module_helpers.h>
+#include <python/kwiver/vital/config/module_config_helpers.h>
 #include <vital/types/geo_polygon.h>
 
 
