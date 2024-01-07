@@ -1,5 +1,10 @@
 ###
 # Configure setup scripts.
+#
+# These scripts are provided and configured to be sourced before using the
+# build-tree. The setup script may optionally also be installed into the
+# install-tree.
+#
 
 # Create initial setup shell script
 set(KWIVER_SETUP_SCRIPT_FILE    "${KWIVER_BINARY_DIR}/setup_KWIVER.sh" )

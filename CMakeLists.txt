@@ -60,7 +60,9 @@ endif()
 # prepend our CMake resources
 list(INSERT CMAKE_MODULE_PATH 0 ${KWIVER_CMAKE_DIR})
 
-# import CMake future modules
+# Import other CMake modules that are back-ports from "future" versions.
+# "Future" generally meaning versions of CMake that are greater than the one
+# currently used.
 include(kwiver-cmake-future)
 
 # ===========================================================================================
@@ -86,8 +88,10 @@ include_directories( SYSTEM ${CMAKE_CURRENT_SOURCE_DIR} )
 # User options
 include(CMakeDependentOption)
 
+# TODO: Add a comment documenting why we have a separate build-shared flag.
 OPTION(KWIVER_BUILD_SHARED     "Build KWIVER components shared or not" TRUE )
 MARK_AS_ADVANCED( KWIVER_BUILD_SHARED )
+set(BUILD_SHARED_LIBS ${KWIVER_BUILD_SHARED})
 
 OPTION(KWIVER_EXPORT_COMPILE_COMMANDS "Export compile commands to support LSP development." FALSE )
 MARK_AS_ADVANCED( KWIVER_EXPORT_COMPILE_COMMANDS )
@@ -95,6 +99,7 @@ if (KWIVER_EXPORT_COMPILE_COMMANDS )
   set(CMAKE_EXPORT_COMPILE_COMMANDS ${KWIVER_EXPORT_COMPILE_COMMANDS})
 endif()
 
+# TODO: Enable-* flags will need clean-up with reorganization.
 OPTION(KWIVER_ENABLE_TESTS                "Enable testing" OFF )
 OPTION(KWIVER_ENABLE_ARROWS               "Enable building arrows" OFF )
 OPTION(KWIVER_ENABLE_TOOLS                "Enable tools" OFF )
@@ -168,7 +173,7 @@ set( kwiver_plugin_applets_subdir                 ${kwiver_plugin_subdir}/applet
 set( kwiver_config_subdir                         share/kwiver/${KWIVER_VERSION}/config)
 
 ##
-# System specific compiler flags
+# System specific compiler flags and support
 include( kwiver-flags )
 
 ##
@@ -181,6 +186,9 @@ set( kwiver_export_name      kwiver_exports )
 ###
 # External Dependencies and Modules - Most Will be supplied by Fletch
 include( kwiver-depends )
+# TODO: devise something more clear than this pattern: dependencies are too far
+#   detached from what requires them. This makes it very unclear what depends
+#   on what. Easy to create wild global flags.
 
 ###
 # Configure setup scripts
@@ -225,15 +233,10 @@ endif ()
 
 # =============================================================================================
 
-###
-# Generate vital/version.h. This file is needed by sprokit so must be generated here, before sprokit is included
-#---------------------------------------------------------------------
-#
-
-
 set( LIB_SUFFIX "" CACHE STRING
   "Library directory suffix. e.g. suffix=\"kwiver\" will install libraries in \"libkwiver\" rather than \"lib\"")
 mark_as_advanced( LIB_SUFFIX )
+# Descend into project directories noq.
 
 if (KWIVER_ENABLE_TRACK_ORACLE)
   add_subdirectory( track_oracle )
@@ -263,13 +266,16 @@ if (KWIVER_ENABLE_PYTHON)
   add_subdirectory(python)
 endif()
 ###
+# Descend into project directories now.
 # include as the last subdir
 add_subdirectory( vital )
 
 # this is where the algorithm default configuration files live
 add_subdirectory(config)
 
-
+###
+# Generate vital/version.h. This file is needed by sprokit so must be generated here, before sprokit is included
+#
 # Use Git (if available) to add Git hash info to the version header
 set(kwiver_configure_with_git on)
 kwiver_configure_file(version.h
@@ -282,8 +288,6 @@ kwiver_configure_file(version.h
   KWIVER_SOURCE_DIR
   )
 set(kwiver_configure_with_git)
-
-
 
 if(MSVC)
   # Generate files to inform msvc of the kwiver runtime environment
@@ -310,12 +314,21 @@ get_property(kwiver_libs GLOBAL PROPERTY kwiver_libraries)
 string(REPLACE ";" " " kwiver_libs "${kwiver_libs}")
 
 # setup general paths to includes and libs for packages we use/provide
-list(APPEND KWIVER_INCLUDE_DIRS "${EIGEN3_INCLUDE_DIR}")
+set( KWIVER_INCLUDE_DIRS "")
 set( KWIVER_LIBRARY_DIRS "")
 
+# TODO: use global property to capture found, external-to-fletch eigen dep
+if ( NOT fletch_ENABLED_Eigen )
+  list(APPEND KWIVER_INCLUDE_DIRS "${EIGEN3_INCLUDE_DIR}")
+endif ()
+
+# TODO: use global property to capture found, external-to-fletch boost dep
 if ( NOT fletch_ENABLED_Boost)
-  list( APPEND KWIVER_INCLUDE_DIRS "${BOOST_ROOT_ARG}/include")
-  list( APPEND KWIVER_LIBRARY_DIRS "${BOOST_ROOT_ARG}/lib")
+  # define which boost we are using
+  if (DEFINED BOOST_ROOT_ARG)
+    list( APPEND KWIVER_INCLUDE_DIRS "${BOOST_ROOT_ARG}/include")
+    list( APPEND KWIVER_LIBRARY_DIRS "${BOOST_ROOT_ARG}/lib")
+  endif()
 endif()
 
 if (fletch_FOUND)
@@ -363,11 +376,20 @@ if ( CMAKE_EXPORT_COMPILE_COMMANDS )
 endif()
 
 # --------------------------------------------------------------------------------------
+# Configure header file defining plugin path defaults.
+#
 # Build a default set of plugin path dirs
 # Provide that list as the default value for the path option.
 #
 # By this point, all eligible paths should have been added to the kwiver_plugin_path
-# property
+# property via calls to the `kwiver_add_module_path` cmake function.
+#
+# This is here at the project level because it is currently assumed that more
+# than VITAL will add paths.
+#
+# TODO: Revisit the above assumption.
+#       If no longer true, this may be moved into the vital sub-project.
+#
 if (WIN32)
   set(path_sep "\\073")
 else()  # Other Unix systems

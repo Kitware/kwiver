@@ -133,9 +133,9 @@ set(__prev_kwiver_pyversion "${KWIVER_PYTHON_MAJOR_VERSION}" CACHE INTERNAL
 # Python interpreter and libraries
 #
 if (KWIVER_PYTHON_MAJOR_VERSION STREQUAL "3")
-  # note, 3.4 is a minimum version
-  find_package(PythonInterp 3.4 REQUIRED)
-  find_package(PythonLibs 3.4 REQUIRED)
+  # note, 3.6 is a minimum version
+  find_package(PythonInterp 3.6 REQUIRED)
+  find_package(PythonLibs 3.6 REQUIRED)
 else()
   find_package(PythonInterp 2.7 REQUIRED)
   find_package(PythonLibs 2.7 REQUIRED)
@@ -222,8 +222,8 @@ endif()
 #
 #
 #
-  set(pybind11_library     python)
-  find_package(pybind11)
+set(pybind11_library     python)
+find_package(pybind11)
 
 
 ###
