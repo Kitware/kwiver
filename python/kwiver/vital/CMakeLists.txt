@@ -23,3 +23,4 @@ endif()
 
 add_subdirectory( config )
 add_subdirectory( plugins )
+add_subdirectory( test_interface )
