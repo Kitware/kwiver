@@ -10,6 +10,7 @@
 
 #include <vital/applets/cxxopts.hpp>
 #include <vital/config/config_block.h>
+#include <vital/plugin_management/pluggable.h>
 
 #include <ostream>
 #include <memory>
@@ -107,6 +108,11 @@ m_cmd_options.add_option("group")
    * This is managed by unique pointer to delay creation.
    */
   std::unique_ptr< cxxopts::Options > m_cmd_options;
+
+  // It is expected that implementations will not be constructed meaningfully
+  // from config blocks but instead use the input provided by command-line args.
+  template< typename T>
+  static vital::pluggable_sptr from_config( vital::config_block const& cb ) { return std::make_shared<T>()(); }
 
 protected:
 

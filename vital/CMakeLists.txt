@@ -271,6 +271,7 @@ target_link_libraries( vital
                   vital_logger
                   vital_util
                   vital_vpm
+                  vital_applets
                   Eigen3::Eigen
   )
 
@@ -313,6 +314,8 @@ add_subdirectory( logger )
 # -- Creates library "vital_vpm"
 # Requires: vital_exceptions, vital_logger, vital_util
 add_subdirectory( plugin_management )
+# -- Created library "vital_applets"
+add_subdirectory( applets )
 
 # ==============================================================================
 # Built-in plugin modules
@@ -325,6 +328,7 @@ add_subdirectory( plugin_management )
 #
 add_subdirectory( logger_plugins )
 add_subdirectory( config_plugins )
+add_subdirectory( applets_plugins )
 
 if (KWIVER_ENABLE_TOOLS)
   add_subdirectory( applets )
