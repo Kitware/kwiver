@@ -266,23 +266,23 @@ class test_impl_parameterized : public test_interface
 {
 public:
 //  // Define an x-macro to enumerate parameter structures.
-//#define PARAM_SET() \
-//  PARAM( a, int, "some integer" ), \
-//  PARAM_DEFAULT( b, std::string, "some string", "foo" )
+// #define PARAM_SET() \
+//   PARAM( a, int, "some integer" ), \
+//   PARAM_DEFAULT( b, std::string, "some string", "foo" )
 //
-//  // Expand x-macro contents into the thing that wants parameter structures.
-//  PLUGGABLE_IMPL(
-//    test_impl_parameterized,
-//    "This is a test plugin using nesting",
-//    PARAM_SET()
-//    )
+//   // Expand x-macro contents into the thing that wants parameter structures.
+//   PLUGGABLE_IMPL(
+//     test_impl_parameterized,
+//     "This is a test plugin using nesting",
+//     PARAM_SET()
+//     )
 
   // or just do it inline if we're only providing it once anyway...
   PLUGGABLE_IMPL(
     test_impl_parameterized,
     "This is a test plugin using nesting",
     // parameters
-    PARAM( a, int, "some integer" ), \
+    PARAM( a, int, "some integer" ),
     PARAM_DEFAULT( b, std::string, "some string", "foo" )
     )
 

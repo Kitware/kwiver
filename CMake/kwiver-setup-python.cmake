@@ -216,6 +216,7 @@ mark_as_advanced(PYTHON_ABIFLAGS)
 #
 #
 set(pybind11_library     python)
+set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION}")
 find_package(pybind11)
 
 

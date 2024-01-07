@@ -85,7 +85,7 @@ public:
 
 private:
   std::vector< std::shared_ptr< string_edit_operation > > m_editor_list;
-};// end class string_editor
+}; // end class string_editor
 
 namespace edit_operation {
 
