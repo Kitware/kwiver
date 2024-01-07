@@ -291,14 +291,31 @@ configure_file(
 
 ###
 # Subdirectory entries
+# -- Creates library "vital_exceptions"
 add_subdirectory( exceptions )
 add_subdirectory( algo )
-add_subdirectory( util )      # -- Creates library "vital_util"
+# -- Creates library "vital_util"
+add_subdirectory( util )
 add_subdirectory( range )
 add_subdirectory( bindings )
+# -- Creates library "vital_config"
+# Requires: vital_logger, vital_util
 add_subdirectory( config )
-add_subdirectory( logger )    # -- Created library "vital_logger", requires util
+# -- Creates library "vital_logger"
+# Requires: vital_util
+add_subdirectory( logger )
 add_subdirectory( plugin_loader )
+
+# ==============================================================================
+# Built-in plugin modules
+#
+# This is specifically after the Vital library definition as some of these
+# require the vital library for parts and utility.
+# And, you know, the plugin management stuff (except for the logger, which works
+# independently from the main plugin management so that it can have logging
+# itself).
+#
+add_subdirectory( logger_plugins )
 
 if (KWIVER_ENABLE_TOOLS)
   add_subdirectory( applets )

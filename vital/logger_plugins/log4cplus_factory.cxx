@@ -2,9 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include "kwiver_logger_factory.h"
+#include "vital/logger/kwiver_logger_factory.h"
 #include <kwiversys/SystemTools.hxx>
-#include <vital/logger/vital_log4cplus_logger_export.h>
+#include <vital/logger_plugins/vital_log4cplus_logger_export.h>
 #include <vital/util/get_paths.h>
 
 #include <log4cplus/configurator.h>
