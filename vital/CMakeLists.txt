@@ -346,3 +346,5 @@ endif()
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )
 endif()
+
+add_subdirectory( test_interface )
