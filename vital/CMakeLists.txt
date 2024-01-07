@@ -293,11 +293,11 @@ configure_file(
 # Subdirectory entries
 add_subdirectory( exceptions )
 add_subdirectory( algo )
-add_subdirectory( util )
+add_subdirectory( util )      # -- Creates library "vital_util"
 add_subdirectory( range )
 add_subdirectory( bindings )
 add_subdirectory( config )
-add_subdirectory( logger )
+add_subdirectory( logger )    # -- Created library "vital_logger", requires util
 add_subdirectory( plugin_loader )
 
 if (KWIVER_ENABLE_TOOLS)
