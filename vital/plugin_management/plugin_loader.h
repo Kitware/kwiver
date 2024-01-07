@@ -24,7 +24,7 @@ class plugin_factory;
 using plugin_factory_handle_t = std::shared_ptr< plugin_factory >;
 using plugin_factory_vector_t = std::vector< plugin_factory_handle_t >;
 using plugin_map_t            = std::map< std::string, plugin_factory_vector_t >;
-using plugin_module_map_t     = std::map< std::string, path_t >;
+//using plugin_module_map_t     = std::map< std::string, path_t >;
 
 class plugin_loader_impl;
 
@@ -135,24 +135,40 @@ public:
   }
 
   /**
-   * @brief Add factory to manager.
+   * @brief Register a factory to generate the CONCRETE class type, specifically
+   * in relation to the given INTERFACE type.
    *
-   * This method adds the specified plugin factory to the plugin
-   * manager. This method is usually called from the plugin
-   * registration function in the loadable module to self-register all
-   * plugins in a module.
+   * A plugin name must also be provided. This is to succinctly describe the
+   * concrete type in relation to the interface type.
+   * The factory created from this will check that the given interface descends
+   * from \ref pluggable and that the concrete class descends from the interface
+   * class.
    *
-   * Plugin factory objects are grouped under the interface type name,
-   * so all factories that create the same interface are together.
+   * Plugin factory objects are grouped under an identifier of the interface
+   * type so all factories that create implementations of the same interface are
+   * grouped together.
    *
-   * By adding a factory, we set the PLUGIN_FILE_NAME attribute to be the name
-   * of library module it was added from.
+   * Factories are created with the PLUGIN_FILE_NAME attribute set to be the
+   * name of library module it was added from.
    *
    * A factory may fail to be added if:
    *   * It already exists in this loader based on the combo of INTERFACE_TYPE,
    *     CONCRETE_TYPE and PLUGIN_NAME attributes.
    *
-   * @param fact Plugin factory object to register
+   * This method is the primary method plugin module registration functions
+   * self-register all plugins in a module.
+   *
+   * Example:
+   \code
+   void add_factories( plugin_loader* pm )
+   {
+     plugin_factory_handle_t fact = pm->add_factory<SomeInterface, SomeDerived>( "derived" );
+     fact->add_attribute( "file-type", "xml mit" );
+   }
+   \endcode
+   *
+   * @param plugin_name String name to describe the concrete type that
+   * implements the interface type.
    *
    * @return A pointer is returned to the added factory in case
    * attributes need to be added to the factory.
@@ -160,20 +176,12 @@ public:
    * @throws plugin_already_exists
    * If the factory being added looks to already have been added before.
    *
-   * Example:
-   \code
-   void add_factories( plugin_loader* pm )
-   {
-     plugin_factory_handle_t fact = pm->add_factory( new foo_factory() );
-     fact->add_attribute( "file-type", "xml mit" );
-   }
-   \endcode
    */
-  plugin_factory_handle_t add_factory( plugin_factory* fact );
-
   template< typename INTERFACE, typename CONCRETE >
   plugin_factory_handle_t add_factory( std::string const& plugin_name )
   {
+    // Call protected factory add method with the standard concrete plugin
+    // factory.
     return add_factory(
       new concrete_plugin_factory<INTERFACE, CONCRETE>( plugin_name )
     );
@@ -183,17 +191,6 @@ public:
   // template interface/concrete, also take in "category" label?
 
   // Map Accessors =============================================================
-  /**
-   * @brief Get list of loaded modules.
-   *
-   * This method returns a map of modules that have been marked as
-   * loaded by the mark_module_as_loaded() method along with the name
-   * of the plugin file where the call was made.
-   *
-   * @return Map of modules loaded and the source file.
-   */
-  [[nodiscard]]
-  plugin_module_map_t const& get_module_map() const;
 
   /**
    * @brief Get map of known plugins.
@@ -241,6 +238,18 @@ public:
 //   */
 //  bool is_module_loaded( std::string const& name) const;
 
+//  /**
+//   * @brief Get list of loaded modules.
+//   *
+//   * This method returns a map of modules that have been marked as
+//   * loaded by the mark_module_as_loaded() method along with the name
+//   * of the plugin file where the call was made.
+//   *
+//   * @return Map of modules loaded and the source file.
+//   */
+//  [[nodiscard]]
+//  plugin_module_map_t const& get_module_map() const;
+
 //  void clear_filters();
 //  void add_filter( plugin_filter_handle_t f );
 
@@ -248,6 +257,43 @@ protected:
   friend class plugin_loader_impl;  // is this needed? I clearly don't remember what friend classes are.
 
   kwiver::vital::logger_handle_t m_logger;
+
+  /**
+   * @brief Add factory to manager.
+   *
+   * This method adds the specified plugin factory to the plugin
+   * manager. This method is usually called from the plugin
+   * registration function in the loadable module to self-register all
+   * plugins in a module.
+   *
+   * Plugin factory objects are grouped under the interface type name,
+   * so all factories that create the same interface are together.
+   *
+   * By adding a factory, we set the PLUGIN_FILE_NAME attribute to be the name
+   * of library module it was added from.
+   *
+   * A factory may fail to be added if:
+   *   * It already exists in this loader based on the combo of INTERFACE_TYPE,
+   *     CONCRETE_TYPE and PLUGIN_NAME attributes.
+   *
+   * @param fact Plugin factory object to register
+   *
+   * @return A pointer is returned to the added factory in case
+   * attributes need to be added to the factory.
+   *
+   * @throws plugin_already_exists
+   * If the factory being added looks to already have been added before.
+   *
+   * Example:
+   \code
+   void add_factories( plugin_loader* pm )
+   {
+     plugin_factory_handle_t fact = pm->add_factory( new foo_factory() );
+     fact->add_attribute( "file-type", "xml mit" );
+   }
+   \endcode
+   */
+  plugin_factory_handle_t add_factory( plugin_factory* fact );
 
 private:
 

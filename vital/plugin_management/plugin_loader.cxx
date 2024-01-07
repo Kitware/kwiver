@@ -73,14 +73,14 @@ public:
   typedef std::map< std::string, DL::LibraryHandle > library_map_t;
   library_map_t m_library_map;
 
-  /**
-   * \brief Maps module name to source file.
-   *
-   * This map is used to keep track of which modules have been
-   * loaded. For diagnostic purposes, we also record the file that
-   * registered the module.
-   */
-  plugin_module_map_t m_module_map;
+//  /**  Deprecated?
+//   * \brief Maps module name to source file.
+//   *
+//   * This map is used to keep track of which modules have been
+//   * loaded. For diagnostic purposes, we also record the file that
+//   * registered the module.
+//   */
+//  plugin_module_map_t m_module_map;
 
   // Name of current module file we are processing
   std::string m_current_filename;
@@ -175,15 +175,15 @@ plugin_loader
   fact->add_attribute( plugin_factory::PLUGIN_FILE_NAME, m_impl->m_current_filename );
 
   // Get the interface and concrete type naming, which ought to be that as
-  // returned by \`typeid().name()`
+  // returned by `typeid().name()`. Also, the human-readable plugin name.
   std::string interface_type, concrete_type, plugin_name;
   fact->get_attribute( plugin_factory::INTERFACE_TYPE, interface_type );
   fact->get_attribute( plugin_factory::CONCRETE_TYPE, concrete_type );
   fact->get_attribute( plugin_factory::PLUGIN_NAME, plugin_name );
 
+  auto & fact_list = m_impl->m_plugin_map[interface_type];
   // Don't save this factory if we have already loaded it.
-  auto fact_list = m_impl->m_plugin_map[interface_type];
-  if( fact_list.size() > 0 )
+  if( ! fact_list.empty() )
   {
     for( auto const& afact : fact_list )
     {
@@ -229,12 +229,6 @@ plugin_loader
 }
 
 // Map Accessors ===============================================================
-plugin_module_map_t const&
-plugin_loader
-::get_module_map() const
-{
-  return m_impl->m_module_map;
-}
 
 plugin_map_t const&
 plugin_loader
@@ -287,6 +281,13 @@ plugin_loader
 //{
 //  f->m_loader = this;
 //  m_impl->m_filters.push_back( f );
+//}
+//// ----------------------------------------------------------------------------
+//plugin_module_map_t const&
+//plugin_loader
+//::get_module_map() const
+//{
+//  return m_impl->m_module_map;
 //}
 
 // ==================================================================

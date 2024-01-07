@@ -52,7 +52,7 @@ public:
   path_list_t m_search_paths;
 };
 
-// ==================================================================
+// Singleton Instance Accessor =================================================
 plugin_manager&
 plugin_manager::
 instance()
@@ -74,7 +74,7 @@ instance()
   return *s_instance;
 }
 
-// ------------------------------------------------------------------
+// Protected construct/destruct ================================================
 plugin_manager::
 plugin_manager()
   : m_priv( new priv() )
@@ -104,7 +104,52 @@ plugin_manager
 ::~plugin_manager()
 { }
 
+// Search path stuff ===========================================================
+void plugin_manager::
+add_search_path( path_t const& dirpath )
+{
+  path_list_t path_list;
+
+  ST::Split( dirpath, path_list, PATH_SEPARATOR_CHAR );
+
+  m_priv->m_loader->add_search_path( path_list );
+}
+
 // ------------------------------------------------------------------
+void plugin_manager::
+add_search_path( path_list_t const& dirpath )
+{
+  m_priv->m_loader->add_search_path( dirpath );
+}
+
+// ------------------------------------------------------------------
+void plugin_manager::
+add_path_from_environment( std::string env_var)
+{
+  // Check env variable for path specification
+  const char * env_ptr = kwiversys::SystemTools::GetEnv( env_var );
+  if ( 0 != env_ptr )
+  {
+    LOG_DEBUG( logger(), "Adding path(s) \"" << env_ptr << "\" from environment" );
+    std::string const extra_module_dirs(env_ptr);
+
+    // Split supplied path into separate items using PATH_SEPARATOR_CHAR as delimiter
+    ST::Split( extra_module_dirs, m_priv->m_search_paths, PATH_SEPARATOR_CHAR );
+  }
+  else
+  {
+    LOG_DEBUG( logger(), "No additional paths on " << env_var );
+  }
+}
+
+// ------------------------------------------------------------------
+path_list_t const& plugin_manager::
+search_path() const
+{
+  return m_priv->m_loader->get_search_path();
+}
+
+// Loading Plugins ===========================================================
 void
 plugin_manager
 ::load_all_plugins( plugin_types types )
@@ -181,48 +226,18 @@ load_plugins( path_list_t const& dirpath )
 
 // ------------------------------------------------------------------
 void plugin_manager::
-add_search_path( path_t const& dirpath )
+reload_plugins()
 {
-  path_list_t path_list;
+  m_priv->m_loaded = plugin_types{};
+  m_priv->m_loader.reset( new plugin_loader( register_function_name, shared_library_suffix ) );
 
-  ST::Split( dirpath, path_list, PATH_SEPARATOR_CHAR );
+  // Add paths to the real loader
+  m_priv->m_loader->add_search_path( m_priv->m_search_paths );
 
-  m_priv->m_loader->add_search_path( path_list );
+  load_all_plugins();
 }
 
-// ------------------------------------------------------------------
-void plugin_manager::
-add_search_path( path_list_t const& dirpath )
-{
-  m_priv->m_loader->add_search_path( dirpath );
-}
-
-// ------------------------------------------------------------------
-void plugin_manager::
-add_path_from_environment( std::string env_var)
-{
-  // Check env variable for path specification
-  const char * env_ptr = kwiversys::SystemTools::GetEnv( env_var );
-  if ( 0 != env_ptr )
-  {
-    LOG_DEBUG( logger(), "Adding path(s) \"" << env_ptr << "\" from environment" );
-    std::string const extra_module_dirs(env_ptr);
-
-    // Split supplied path into separate items using PATH_SEPARATOR_CHAR as delimiter
-    ST::Split( extra_module_dirs, m_priv->m_search_paths, PATH_SEPARATOR_CHAR );
-  }
-  else
-  {
-    LOG_DEBUG( logger(), "No additional paths on " << env_var );
-  }
-}
-
-// ------------------------------------------------------------------
-path_list_t const& plugin_manager::
-search_path() const
-{
-  return m_priv->m_loader->get_search_path();
-}
+// Deprecated? =================================================================
 
 //// ------------------------------------------------------------------
 //plugin_factory_handle_t plugin_manager::
@@ -231,12 +246,13 @@ search_path() const
 //  return m_priv->m_loader->add_factory( fact );
 //}
 
-// ------------------------------------------------------------------
-plugin_factory_vector_t const& plugin_manager::
-get_factories( std::string const& type_name )
-{
-  return m_priv->m_loader->get_factories( type_name );
-}
+//// ------------------------------------------------------------------
+//kwiver::vital::plugin_loader*
+//plugin_manager::
+//get_loader()
+//{
+//  return m_priv->m_loader.get();
+//}
 
 //// ------------------------------------------------------------------
 //plugin_map_t const& plugin_manager::
@@ -251,19 +267,6 @@ get_factories( std::string const& type_name )
 //{
 //  return m_priv->m_loader->get_file_list();
 //}
-
-// ------------------------------------------------------------------
-void plugin_manager::
-reload_plugins()
-{
-  m_priv->m_loaded = plugin_types{};
-  m_priv->m_loader.reset( new plugin_loader( register_function_name, shared_library_suffix ) );
-
-  // Add paths to the real loader
-  m_priv->m_loader->add_search_path( m_priv->m_search_paths );
-
-  load_all_plugins();
-}
 
 //// ------------------------------------------------------------------
 //bool plugin_manager::
@@ -286,19 +289,46 @@ reload_plugins()
 //  return m_priv->m_loader->get_module_map();
 //}
 
-// ------------------------------------------------------------------
+// Protected ===================================================================
+
+plugin_factory_vector_t const& plugin_manager::
+get_factories( std::string const& type_name )
+{
+  return m_priv->m_loader->get_factories( type_name );
+}
+
+std::vector<std::string>
+plugin_manager
+::_impl_names( std::string const& interface_type_name ) const
+{
+  auto & fact_vec = m_priv->m_loader->get_plugin_map().at( interface_type_name );
+  std::vector<std::string> plugin_name_vec;
+  std::string cur_name;
+  for( auto const& fact : fact_vec )
+  {
+    // A plugin factory should *always* have a PLUGIN_NAME since it is a
+    // required part of adding a factory, however technically the registrant
+    // has the ability to "unset" it, so let's be cautious and guard against
+    // that. In this case we choose
+    if( ! fact->get_attribute( plugin_factory::PLUGIN_NAME, cur_name )
+        || cur_name.empty() )
+    {
+      plugin_name_vec.emplace_back( "<UNNAMED>" );
+    }
+    else
+    {
+      plugin_name_vec.push_back( cur_name );
+    }
+  }
+  return plugin_name_vec;
+}
+
+// Private =====================================================================
+
 kwiver::vital::logger_handle_t plugin_manager::
 logger()
 {
   return m_priv->m_logger;
 }
-
-//// ------------------------------------------------------------------
-//kwiver::vital::plugin_loader*
-//plugin_manager::
-//get_loader()
-//{
-//  return m_priv->m_loader.get();
-//}
 
 } } // end namespace kwiver

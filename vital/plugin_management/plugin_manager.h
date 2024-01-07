@@ -157,6 +157,8 @@ public:
    */
   void reload_plugins();
 
+  // Getting at Factories ======================================================
+
   /**
    * @brief Get list of factories for interface type.
    *
@@ -171,6 +173,28 @@ public:
   plugin_factory_vector_t const& get_factories()
   {
     return get_factories( typeid( T ).name() );
+  }
+
+  /**
+   * Get the vector of plugin implementation names registered for a given
+   * interface type.
+   *
+   * If a plugin has not registered a non-empty name, we will represent those
+   * here as "<UNNAMED>" entries.
+   *
+   * @tparam INTERFACE Type of the interface to check for plugin implementations
+   * of.
+   *
+   * @throws std::out_if_range - If there are no implementations registered for
+   * the given interface.
+   *
+   * @return Vector of plugin implementation names.
+   */
+  template< typename INTERFACE >
+  [[nodiscard]]
+  std::vector<std::string> impl_names() const
+  {
+    return _impl_names( typeid( INTERFACE ).name() );
   }
 
   // Deprecated? ===============================================================
@@ -229,6 +253,7 @@ public:
 
 protected:
 
+  // Protected constructor/destructor to enforce use of singleton instance.
   plugin_manager();
   ~plugin_manager();
 
@@ -249,9 +274,23 @@ protected:
    */
   plugin_factory_vector_t const& get_factories( std::string const& type_name );
 
+  /**
+   * @brief Protected accessor of interface implementation names given the
+   * interface type name.
+   *
+   * @param interface_type_name String type name of the interface to check for
+   * plugin implementations of.
+   *
+   * @throws std::out_if_range - If there are no implementations registered for
+   * the given interface name.
+   */
+  [[nodiscard]]
+  std::vector<std::string> _impl_names( std::string const& interface_type_name) const;
+
   // Deprecated? ===============================================================
-  // Some of these are used by the explorer. Maybe reinstate or maybe determine
-  // alternative to having an "internal" subclass impl to expose what is needed.
+  // Some of these are used by the explorer via the "internal" subclass.
+  // Maybe reinstate or maybe determine alternative to having an "internal"
+  // subclass impl to expose what is needed.
   // Some of it seemed to be access to things registered under certain
   // categories?
 

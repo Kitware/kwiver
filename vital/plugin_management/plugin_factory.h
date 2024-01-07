@@ -177,6 +177,9 @@ class concrete_plugin_factory
   : public plugin_factory
 {
 public:
+  static_assert( std::is_base_of<pluggable, INTERFACE>::value,
+                 "The given interface class did not descend from the pluggable "
+                 "type." );
   static_assert( std::is_base_of<INTERFACE, CONCRETE>::value,
                  "The given concrete class type is not based on the given "
                  "interface type." );
@@ -212,14 +215,5 @@ public:
 };
 
 } // end namespace
-
-// ==================================================================
-// Support for adding factories
-// ??? Why anymore? Was used in conjunction with loader/manager.
-//     Could the concrete_factory_above just take in two template types,
-//     interface and concrete and do the appropriate things with typeid name
-//     dangling in the constructor?
-#define ADD_FACTORY( interface_T, conc_T)                               \
-  add_factory( new kwiver::vital::plugin_factory_0< conc_T >( typeid( interface_T ).name() ) )
 
 #endif /* KWIVER_VITAL_PLUGIN_FACTORY_H */
