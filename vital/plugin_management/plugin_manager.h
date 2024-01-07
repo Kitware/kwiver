@@ -12,12 +12,12 @@
 
 #include <vital/plugin_management/vital_vpm_export.h>
 
+#include <vital/bitflags.h>
 #include <vital/exceptions/plugin.h>
 #include <vital/logger/logger.h>
 #include <vital/noncopyable.h>
 #include <vital/plugin_management/plugin_loader.h>
 #include <vital/plugin_management/plugin_factory.h>
-#include <vital/types/bitflags.h>
 #include <vital/util/demangle.h>
 
 #include <memory>

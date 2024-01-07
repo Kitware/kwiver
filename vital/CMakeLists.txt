@@ -301,12 +301,12 @@ add_subdirectory( util )
 add_subdirectory( range )
 add_subdirectory( bindings )
 # -- Creates library "vital_config"
-# Requires: vital_logger, vital_util
+# Requires: vital_logger, vital_util (vital_types)
 add_subdirectory( config )
 # -- Creates library "vital_logger"
 # Requires: vital_util
 add_subdirectory( logger )
-# -- Creates library "vital_pm"
+# -- Creates library "vital_vpm"
 # Requires: vital_exceptions, vital_logger, vital_util
 add_subdirectory( plugin_management )
 
