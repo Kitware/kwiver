@@ -80,8 +80,6 @@ set( CMAKE_CXX_FLAGS ${save_flags} )
 # These headers are installed
 #
 set( vital_public_headers
-  vital_types.h
-
   algorithm_capabilities.h
   any.h
   attribute_set.h
@@ -94,6 +92,7 @@ set( vital_public_headers
   optional.h
   set.h
   signal.h
+  typedefs.h
 
   io/camera_from_metadata.h
   io/camera_io.h
@@ -270,6 +269,7 @@ target_link_libraries( vital
                   vital_exceptions
                   vital_logger
                   vital_util
+                  vital_types
                   vital_vpm
                   vital_applets
                   Eigen3::Eigen
@@ -298,8 +298,6 @@ configure_file(
 # Subdirectory entries
 # -- Creates library "vital_exceptions"
 add_subdirectory( exceptions )
-# -- NO LIBRARY YET -- (will) Creates library "vital_types"
-add_subdirectory( types )
 add_subdirectory( algo )
 # -- Creates library "vital_util"
 add_subdirectory( util )
@@ -311,8 +309,12 @@ add_subdirectory( config )
 # -- Creates library "vital_logger"
 # Requires: vital_util
 add_subdirectory( logger )
+# -- Creates library "vital_types"
+# Requires: vital_config
+add_subdirectory( types )
 # -- Creates library "vital_vpm"
 # Requires: vital_exceptions, vital_logger, vital_util
+# Uses common headers: typedefs.h
 add_subdirectory( plugin_management )
 # -- Created library "vital_applets"
 add_subdirectory( applets )
