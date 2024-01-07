@@ -55,6 +55,6 @@ target_link_libraries(vital_vpm
 
 ###
 # Add tests if enbled
-#if (KWIVER_ENABLE_TESTS)
-#  add_subdirectory( tests )
-#endif()
+if (KWIVER_ENABLE_TESTS)
+  add_subdirectory( tests )
+endif()
