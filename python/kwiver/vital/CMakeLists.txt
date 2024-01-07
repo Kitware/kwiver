@@ -22,3 +22,4 @@ if(KWIVER_ENABLE_TESTS)
 endif()
 
 add_subdirectory( config )
+add_subdirectory( plugins )
