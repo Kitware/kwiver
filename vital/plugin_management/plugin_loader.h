@@ -131,8 +131,50 @@ public:
   template< typename INTERFACE >
   [[nodiscard]]
   plugin_factory_vector_t const& get_factories() const {
-    return get_factories( typeid( INTERFACE ).name() );
+    return get_factories( get_interface_name<INTERFACE>() );
   }
+
+  /**
+   * @brief Add plugin_factory instance to this loader.
+   *
+   * This method adds the specified plugin factory instance to the plugin
+   * manager. This method is usually called from the plugin
+   * registration function in the loadable module to self-register all
+   * plugins in a module.
+   *
+   * Factory instances provide *MUST* have the following attributes set
+   * - INTERFACE_TYPE
+   * - CONCRETE_TYPE
+   * - PLUGIN_NAME
+   *
+   * Plugin factory objects are grouped under the interface type name,
+   * so all factories that create the same interface are together.
+   *
+   * By adding a factory, we set the PLUGIN_FILE_NAME attribute to be the name
+   * of library module it was added from.
+   *
+   * A factory may fail to be added if:
+   *   * It already exists in this loader based on the combo of INTERFACE_TYPE,
+   *     CONCRETE_TYPE and PLUGIN_NAME attributes.
+   *
+   * @param fact Plugin factory object to register
+   *
+   * @return A pointer is returned to the added factory. This may be used to set
+   * additional attributes to the factory.
+   *
+   * @throws plugin_already_exists
+   * If the factory being added looks to already have been added before.
+   *
+   * Example:
+   \code
+   void add_factories( plugin_loader* pm )
+   {
+     plugin_factory_handle_t fact = pm->add_factory( new foo_factory() );
+     fact->add_attribute( "file-type", "xml mit" );
+   }
+   \endcode
+   */
+  plugin_factory_handle_t add_factory( plugin_factory* fact );
 
   /**
    * @brief Register a factory to generate the CONCRETE class type, specifically
@@ -257,43 +299,6 @@ protected:
   friend class plugin_loader_impl;  // is this needed? I clearly don't remember what friend classes are.
 
   kwiver::vital::logger_handle_t m_logger;
-
-  /**
-   * @brief Add factory to manager.
-   *
-   * This method adds the specified plugin factory to the plugin
-   * manager. This method is usually called from the plugin
-   * registration function in the loadable module to self-register all
-   * plugins in a module.
-   *
-   * Plugin factory objects are grouped under the interface type name,
-   * so all factories that create the same interface are together.
-   *
-   * By adding a factory, we set the PLUGIN_FILE_NAME attribute to be the name
-   * of library module it was added from.
-   *
-   * A factory may fail to be added if:
-   *   * It already exists in this loader based on the combo of INTERFACE_TYPE,
-   *     CONCRETE_TYPE and PLUGIN_NAME attributes.
-   *
-   * @param fact Plugin factory object to register
-   *
-   * @return A pointer is returned to the added factory in case
-   * attributes need to be added to the factory.
-   *
-   * @throws plugin_already_exists
-   * If the factory being added looks to already have been added before.
-   *
-   * Example:
-   \code
-   void add_factories( plugin_loader* pm )
-   {
-     plugin_factory_handle_t fact = pm->add_factory( new foo_factory() );
-     fact->add_attribute( "file-type", "xml mit" );
-   }
-   \endcode
-   */
-  plugin_factory_handle_t add_factory( plugin_factory* fact );
 
 private:
 

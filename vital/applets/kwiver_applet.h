@@ -35,6 +35,8 @@ public:
   kwiver_applet();
   virtual ~kwiver_applet();
 
+  static std::string interface_name() { return "kwiver_applet"; }
+
   void initialize( kwiver::tools::applet_context* ctxt );
 
   /**

@@ -227,7 +227,7 @@ load_plugins( path_list_t const& dirpath )
 
 // ------------------------------------------------------------------
 void plugin_manager::
-reload_plugins()
+reload_all_plugins()
 {
   m_priv->m_loaded = plugin_types{};
   m_priv->m_loader.reset( new plugin_loader( register_function_name, shared_library_suffix ) );

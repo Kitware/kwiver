@@ -5,6 +5,46 @@
 /**
  * \file
  * \brief Interface for plugin manager.
+ *
+ * This header exposes the following functionality:
+ *   - plugin_manager class (with singleton accessor)
+ *   - implementation_factory
+ *   - implementation_factory_by_name
+ *
+ * The `plugin_manager` provides a front-end API to perform high-level actions
+ * with plugins and loading.
+ * These actions include:
+ *   - get at the singleton instance
+ *   - add to the search path
+ *   - (re)load some or all plugins based on a standard suite of module locations
+ *   - get the plugin names of available implementations for some interface type
+ *   - get factories for some interface type
+ *
+ * Also provided here are some structures to facilitate the instantiation of
+ * registered plugin types.
+ *
+ * The broad, general helper is `implementation_factory` structure.
+ * This base structure is flexible in what interface type to base on, as well as
+ * what attribute field to base implementation selection on.
+ * @code{.cxx}
+ *  implementation_factory<MyInterface> impl_fact( plugin_factory::PLUGIN_NAME );
+ *  std::shared_ptr<MyInterface> inst_sptr = impl_fact.create( "my_impl" );
+ *  assert inst_sptr != nullptr
+ *  inst_sptr->interface_api_method();
+ * @endcode
+ *
+ * We also provide a helper that is already setup to use the plugin name
+ * attribute as the basis of select, reducing the constructor call required:
+ * @code{.cxx}
+ *  implementation_factory_by_name<MyInterface> impl_fact;
+ *  std::shared_ptr<MyInterface> inst_sptr = impl_fact.create( "my_impl" );
+ *  assert inst_sptr != nullptr
+ *  inst_sptr->interface_api_method();
+ * @endcode
+ * This helper is likely the version to used the vast majority of the time as
+ * the plugin name attribute is intended to be the primary selection criterion,
+ * as well as is constrained to be unique upon registration per interface
+ * category.
  */
 
 #ifndef KWIVER_VITAL_PLUGIN_MANAGER_H
@@ -124,7 +164,7 @@ public:
    *
    * The first call to this method will load all known
    * plugins. Subsequent calls will not load anything. If the plugins
-   * need to be reloaded, call the reload_plugins() method. if an
+   * need to be reloaded, call the reload_all_plugins() method. if an
    * additional directory list must be scanned after plugins are
    * loaded, call load_plugins() with a list of directories to add
    * more plugins to the manager.
@@ -155,7 +195,7 @@ public:
    *
    * This effectively resets the singleton.
    */
-  void reload_plugins();
+  void reload_all_plugins();
 
   // Getting at Factories ======================================================
 
@@ -169,10 +209,11 @@ public:
    *
    * @return Vector of factories. (vector may be empty)
    */
-  template <class T>
+  template <class INTERFACE>
+  [[nodiscard]]
   plugin_factory_vector_t const& get_factories()
   {
-    return get_factories( typeid( T ).name() );
+    return get_factories( get_interface_name<INTERFACE>() );
   }
 
   /**
@@ -194,7 +235,7 @@ public:
   [[nodiscard]]
   std::vector<std::string> impl_names() const
   {
-    return _impl_names( typeid( INTERFACE ).name() );
+    return _impl_names( get_interface_name<INTERFACE>() );
   }
 
   // Deprecated? ===============================================================
@@ -259,14 +300,20 @@ protected:
 
   // Factory Stuff =============================================================
   /**
-   * @brief Get list of factories for interface type.
+   * @brief Get list of factories for some interface type name.
    *
-   * This method returns a list of pointer to factory methods that
-   * create objects of the desired interface type.
+   * This method returns a vector of shared pointers to factory instances that
+   * can create instances of the desired interface type.
    *
-   * The input here is expected to be the name of a type T as returned from
-   * `typeid(T).name()`. Due to this being pretty specific and important, this
-   * method is marked private.
+   * The input here is expected to be the interface name of a type T as returned
+   * from `get_interface_name<T>()`, which should be a human-readable string that
+   * has defined.
+   * For clarity, we consider a class an "interface type" as a class type that
+   * defines one or more pure-virtual functions for derived classes to
+   * implement.
+   *
+   * This method is private so as to not expose this for arbitrary use, but only
+   * for the public, templated method defined above to call this appropriately.
    *
    * @param type_name Type name of the interface required
    *
@@ -347,6 +394,8 @@ private:
 
 }; // end class plugin_manager
 
+KWIVER_DECLARE_OPERATORS_FOR_BITFLAGS( plugin_manager::plugin_types )
+
 // ==================================================================
 /**
  * \brief Typed implementation factory.
@@ -387,7 +436,11 @@ public:
   { }
 
   /**
-   * @brief Find object factory based on attribute value.
+   * @brief Find object factory based on attribute value.\
+   *
+   * This form is used when it is desired to get at an implementation's factory
+   * in order to access other factory attributes of that plugin, e.g. it's
+   * description.
    *
    * @param attr Attribute value string.
    *
@@ -402,7 +455,7 @@ public:
     kwiver::vital::plugin_manager& pm = kwiver::vital::plugin_manager::instance();
 
     auto fact_list = pm.get_factories<I>();
-    // Scan fact_list for CONCRETE_TYPE
+    // Scan fact_list for factory to instantiate from.
     for( kwiver::vital::plugin_factory_handle_t a_fact : fact_list )
     {
       std::string attr_val;
@@ -414,7 +467,7 @@ public:
 
     std::stringstream str;
     str << "Could not find factory where attr \"" << m_attr << "\" is \"" << value
-        << "\" for interface type \"" << demangle( typeid(I).name() )
+        << "\" for interface type \"" << get_interface_name<I>()
         << "\"";
 
     VITAL_THROW( kwiver::vital::plugin_factory_not_found, str.str() );
@@ -474,8 +527,6 @@ public:
     : implementation_factory<T>( kwiver::vital::plugin_factory::PLUGIN_NAME )
   { }
 };
-
-KWIVER_DECLARE_OPERATORS_FOR_BITFLAGS( plugin_manager::plugin_types )
 
 } // end namespace
 

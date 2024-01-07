@@ -64,9 +64,9 @@ public:
   /// Paths in which to search for module libraries
   path_list_t m_search_paths;
 
-  // Map from interface type name to vector of class loaders
-  // For consistency, "interface type name" refers to the name resulting from
-  // `typeid(T).name()`.
+  // Map from interface name to vector of plugin_factory instances.
+  // For consistency, "interface name" refers to the name resulting from
+  // `get_interface_name<T>()`.
   plugin_map_t m_plugin_map;
 
   // Map to keep track of the modules we have opened and loaded.
@@ -174,9 +174,11 @@ plugin_loader
   // `m_impl->m_current_filename` value.
   fact->add_attribute( plugin_factory::PLUGIN_FILE_NAME, m_impl->m_current_filename );
 
-  // Get the interface and concrete type naming, which ought to be that as
-  // returned by `typeid().name()`. Also, the human-readable plugin name.
+  // Get the interface type naming, which ought to be that as returned by `get_interface_name<T>()`.
+  // The concrete type is expected to be the mangled `get_concrete_name<T>` and is used in log messaging.
+  // Also, the human-readable plugin name.
   std::string interface_type, concrete_type, plugin_name;
+  // TODO: Error if any of these are not set.
   fact->get_attribute( plugin_factory::INTERFACE_TYPE, interface_type );
   fact->get_attribute( plugin_factory::CONCRETE_TYPE, concrete_type );
   fact->get_attribute( plugin_factory::PLUGIN_NAME, plugin_name );
@@ -187,26 +189,41 @@ plugin_loader
   {
     for( auto const& afact : fact_list )
     {
-      std::string interf, inst, name;
+      std::string interf, inst, name, prev_file;
       afact->get_attribute( plugin_factory::INTERFACE_TYPE, interf );
       afact->get_attribute( plugin_factory::CONCRETE_TYPE, inst );
       afact->get_attribute( plugin_factory::PLUGIN_NAME, name );
+      afact->get_attribute( plugin_factory::PLUGIN_FILE_NAME, prev_file );
 
-      if ( (interface_type == interf) &&
-           (concrete_type == inst) &&
-           (plugin_name == name) )
+      if ( (interface_type == interf) && (plugin_name == name) )
       {
-        std::string old_file;
-        afact->get_attribute( plugin_factory::PLUGIN_FILE_NAME, old_file );
-
         std::stringstream str;
-        str << "Factory for \"" << demangle( interface_type ) << "\" : \""
-            << demangle( concrete_type ) << "\" already has been registered by "
-            << old_file << ".  This factory from "
-            << m_impl->m_current_filename << " will not be registered.";
+        if( concrete_type == inst )
+        {
+          // EXACTLY the same concrete type is being registered.
+          str << "Factory for \"" << interface_type << "\" : \""
+              << demangle( concrete_type ) << "\" already has been registered by "
+              << prev_file << ".  This factory from "
+              << m_impl->m_current_filename << " will not be registered.";
 
-        VITAL_THROW( plugin_already_exists, str.str() );
-        // TODO: Maybe just don't add it and NOT error?
+          VITAL_THROW( plugin_already_exists, str.str() );
+          // TODO: Maybe just don't add it and NOT error? What do we return then?
+        }
+        else
+        {
+          // A DIFFERENT concrete type is being registered for the same
+          // PLUGIN_NAME, which should be unique among plugin factories
+          // registered.
+          str << "Another factory for interface \"" << interf << "\" has "
+              << "already been registered under the same plugin name \""
+              << name << "\". "
+              << "The existing plugin type (\"" << demangle( concrete_type )
+              << "\") is was registered from file \"" << prev_file << "\"."
+              << "The current type being registered (\"" << demangle( inst )
+              << "\") is being registered from file \""
+              << m_impl->m_current_filename << "\".";
+          VITAL_THROW( plugin_already_exists, str.str() );
+        }
       }
     } // end foreach
   }

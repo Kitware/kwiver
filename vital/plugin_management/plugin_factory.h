@@ -29,6 +29,34 @@ class plugin_factory;
 typedef std::shared_ptr< plugin_factory >         plugin_factory_handle_t;
 typedef std::vector< plugin_factory_handle_t >    plugin_factory_vector_t;
 
+/**
+ * Common accessor to get an interface type's name.
+ * @tparam T Interface type.
+ * @return String name of the interface type.
+ */
+template< typename T >
+std::string
+get_interface_name()
+{
+  // See pluggable.h for static method description.
+  // This is intentionally using an accessor vs. typeid(T).name() in order to
+  // allow being able to get this information from a python object.
+  // (of course, not through this function in that case...)
+  static_assert( has_interface_name<T>::value,
+                 "The given interface type must define the static method "
+                 "`interface_name` in order to know how to get at, or set, "
+                 "it's factories." );
+  return T::interface_name();
+}
+
+/// Common accessor to get a concrete type's name.
+template< typename T >
+std::string
+get_concrete_name()
+{
+  return typeid( T ).name();
+}
+
 // ==================================================================
 /**
  * @brief Abstract base class for plugin factory.
@@ -43,6 +71,37 @@ class VITAL_VPM_EXPORT plugin_factory
   , private kwiver::vital::noncopyable
 {
 public:
+  /// Default destructor
+  ~plugin_factory() override = default;
+
+  // This is the list of the global attributes that are available to
+  // all customers. It is not required to have all attributes
+  // present. Applications can use additional attributes that are
+  // specific to the application in the application wrapper for this
+  // plugin factory/manager. Do not add local scope attributes to this
+  // list.
+  static const std::string INTERFACE_TYPE;  // typeid name of the interface type
+  static const std::string CONCRETE_TYPE;  // typeid name of the concrete type
+  static const std::string PLUGIN_FILE_NAME;  // filesystem path from which this factory was registered from.
+  static const std::string PLUGIN_NAME;  // Human-readable name for plugin implementation.
+  static const std::string PLUGIN_CATEGORY;  // like if this is an algo, process, etc.
+  static const std::string PLUGIN_PROCESS_PROPERTIES;
+
+  // User settable
+  static const std::string PLUGIN_DESCRIPTION;
+  static const std::string PLUGIN_VERSION;
+  static const std::string PLUGIN_MODULE_NAME; // logical module name
+  static const std::string PLUGIN_FACTORY_TYPE; // typename of factory class
+  static const std::string PLUGIN_AUTHOR;
+  static const std::string PLUGIN_ORGANIZATION;
+  static const std::string PLUGIN_LICENSE;
+
+  // plugin categories
+  static const std::string APPLET_CATEGORY;
+  static const std::string PROCESS_CATEGORY;
+  static const std::string ALGORITHM_CATEGORY;
+  static const std::string CLUSTER_CATEGORY;
+
   /**
    * @brief Factory encapsulating how to construct concrete types from
    *    configurations.
@@ -74,37 +133,6 @@ public:
    * @param cb config block instance to write to.
    */
   virtual void get_default_config( config_block & cb ) const = 0;
-
-  /// Default destructor
-  ~plugin_factory() override = default;
-
-  // This is the list of the global attributes that are available to
-  // all customers. It is not required to have all attributes
-  // present. Applications can use additional attributes that are
-  // specific to the application in the application wrapper for this
-  // plugin factory/manager. Do not add local scope attributes to this
-  // list.
-  static const std::string INTERFACE_TYPE;  // typeid name of the interface type
-  static const std::string CONCRETE_TYPE;  // typeid name of the concrete type
-  static const std::string PLUGIN_FILE_NAME;  // filesystem path from which this factory was registered from.
-  static const std::string PLUGIN_NAME;  // Human-readable name for plugin implementation.
-  static const std::string PLUGIN_CATEGORY;  // like if this is an algo, process, etc.
-  static const std::string PLUGIN_PROCESS_PROPERTIES;
-
-  // User settable
-  static const std::string PLUGIN_DESCRIPTION;
-  static const std::string PLUGIN_VERSION;
-  static const std::string PLUGIN_MODULE_NAME; // logical module name
-  static const std::string PLUGIN_FACTORY_TYPE; // typename of factory class
-  static const std::string PLUGIN_AUTHOR;
-  static const std::string PLUGIN_ORGANIZATION;
-  static const std::string PLUGIN_LICENSE;
-
-  // plugin categories
-  static const std::string APPLET_CATEGORY;
-  static const std::string PROCESS_CATEGORY;
-  static const std::string ALGORITHM_CATEGORY;
-  static const std::string CLUSTER_CATEGORY;
 
   /**
    * @brief Get attribute from factory
@@ -195,8 +223,8 @@ public:
   explicit concrete_plugin_factory( std::string const& plugin_name )
   {
     // Set some standard attributes
-    this->add_attribute( INTERFACE_TYPE, typeid( INTERFACE ).name() )
-         .add_attribute( CONCRETE_TYPE, typeid( CONCRETE ).name() )
+    this->add_attribute( INTERFACE_TYPE, get_interface_name<INTERFACE>() )
+         .add_attribute( CONCRETE_TYPE, get_concrete_name<CONCRETE>() )
          .add_attribute( PLUGIN_NAME, plugin_name );
   }
 

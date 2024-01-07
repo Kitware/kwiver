@@ -34,6 +34,8 @@ public:
   // -- CONSTRUCTORS --
   virtual ~format_config_block() = default;
 
+  static std::string interface_name() { return "format-config-block"; }
+
   virtual void print( std::ostream& str ) = 0;
 
   // Options that are passed from the main calling context
