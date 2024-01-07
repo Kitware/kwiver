@@ -89,6 +89,7 @@ endfunction()
 #
 
 # Respect the PYTHON_VERSION_MAJOR version if it is set
+# TODO: When is PYTHON_VERSION_MAJOR ever set? It currently does not show up.
 if (PYTHON_VERSION_MAJOR)
   set(DEFAULT_PYTHON_MAJOR ${PYTHON_VERSION_MAJOR})
 else()
@@ -132,14 +133,9 @@ set(__prev_kwiver_pyversion "${KWIVER_PYTHON_MAJOR_VERSION}" CACHE INTERNAL
 ###
 # Python interpreter and libraries
 #
-if (KWIVER_PYTHON_MAJOR_VERSION STREQUAL "3")
-  # note, 3.6 is a minimum version
-  find_package(PythonInterp 3.6 REQUIRED)
-  find_package(PythonLibs 3.6 REQUIRED)
-else()
-  find_package(PythonInterp 2.7 REQUIRED)
-  find_package(PythonLibs 2.7 REQUIRED)
-endif()
+# note, 3.6 is a minimum version
+find_package(PythonInterp 3.6 REQUIRED)
+find_package(PythonLibs 3.6 REQUIRED)
 include_directories(SYSTEM ${PYTHON_INCLUDE_DIR})
 
 
@@ -147,7 +143,7 @@ include_directories(SYSTEM ${PYTHON_INCLUDE_DIR})
 # Python site-packages
 #
 # Get canonical directory for python site packages (relative to install
-# location).  It varys from system to system.
+# location). It varies from system to system.
 #
 _pycmd(python_site_packages "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))")
 message(STATUS "python_site_packages = ${python_site_packages}")
@@ -183,13 +179,8 @@ endif()
 # See PEP 3149 - ABI (application binary interface) version tagged .so files
 # https://www.python.org/dev/peps/pep-3149/
 #
-if (KWIVER_PYTHON_MAJOR_VERSION STREQUAL "3")
-  # In python 3, we can determine what the ABI flags are
-  _pycmd(_python_abi_flags "from distutils import sysconfig; print(sysconfig.get_config_var('ABIFLAGS'))")
-else()
-  # Not sure if ABI flags are easilly found (or are even used in python2)
-  set(_python_abi_flags, "")
-endif()
+# In python 3, we can determine what the ABI flags are
+_pycmd(_python_abi_flags "from distutils import sysconfig; print(sysconfig.get_config_var('ABIFLAGS'))")
 set(PYTHON_ABIFLAGS "${_python_abi_flags}"
   CACHE STRING "The ABI flags for the version of Python being used")
 mark_as_advanced(PYTHON_ABIFLAGS)
@@ -201,20 +192,22 @@ mark_as_advanced(PYTHON_ABIFLAGS)
 # Add python packages needed to execute the bindings
 # to requirements.txt file
 #
-list(APPEND PYTHON_REQS "numpy>=1.13.0,<=1.19.0" "six>=1.10.0,<=1.13.0")
-
-if(SKBUILD)
-  list(APPEND PYTHON_REQS "scikit-build<=0.11.1")
-endif()
-
-if(KWIVER_ENABLE_PYTORCH)
-  list(APPEND PYTHON_REQS "opencv-python>=3.4.2.17,<=4.0.0"
-                          "pillow>=7.0.0,<=7.1.2"
-                          "scipy>=1.2,<=1.5"
-                          "torch==1.4.0"
-                          "torchvision==0.5.0"
-                        )
-endif()
+# TODO: Just copy the requirements/* stuff into the build tree? Why is this necessary?
+#
+#list(APPEND PYTHON_REQS "numpy>=1.13.0,<=1.19.0")
+#
+#if(SKBUILD)
+#  list(APPEND PYTHON_REQS "scikit-build<=0.11.1")
+#endif()
+#
+#if(KWIVER_ENABLE_PYTORCH)
+#  list(APPEND PYTHON_REQS "opencv-python>=3.4.2.17,<=4.0.0"
+#                          "pillow>=7.0.0,<=7.1.2"
+#                          "scipy>=1.2,<=1.5"
+#                          "torch==1.4.0"
+#                          "torchvision==0.5.0"
+#                        )
+#endif()
 
 
 ###
@@ -239,15 +232,16 @@ if (KWIVER_ENABLE_TESTS)
 
   message(STATUS "KWIVER_PYTHON and KWIVER_TESTING enabled.")
   message(STATUS "Python tests will be added to CTest.")
-  message(STATUS "Tests are executed by PYTEST, for sucessful test execution, please install the appropriate pytest for your python distribution.")
+  message(STATUS "Tests are executed by PYTEST, for successful test execution, please install the appropriate pytest for your python distribution.")
   message(STATUS "Testing dependencies will be added to Python requirements.")
   set(PYTHON_TEST 1)
-  set(PYTHON_REQS "${PYTHON_REQS};nose>1.2;coverage>=4.4.1,<5.0.0;pytest>=4.6,<=6.0;multimethod>=1.2,<=1.4")
+#  set(PYTHON_REQS "${PYTHON_REQS};nose>1.2;coverage>=4.4.1,<5.0.0;pytest>=4.6,<=6.0;multimethod>=1.2,<=1.4")
 
 endif()
 
-string(REPLACE ";" "\n" PYTHON_REQS "${PYTHON_REQS}")
-file(WRITE ${KWIVER_BINARY_DIR}/python/requirements.txt "${PYTHON_REQS}")
+#string(REPLACE ";" "\n" PYTHON_REQS "${PYTHON_REQS}")
+#file(WRITE ${KWIVER_BINARY_DIR}/python/requirements.txt "${PYTHON_REQS}")
+
 ###
 # Python package build locations
 #

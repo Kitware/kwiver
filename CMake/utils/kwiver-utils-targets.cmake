@@ -350,6 +350,7 @@ endfunction()
 #-
 function(kwiver_install_headers)
   if(SKBUILD)
+    # Do not install headers when building python package with scikit-build.
     return()
   endif()
   set(options NOPATH)
