@@ -10,6 +10,9 @@
 namespace kwiver {
 namespace vital {
 
+/**
+ * Mixin class for making a class non-copyable.
+ */
 class noncopyable
 {
 protected:

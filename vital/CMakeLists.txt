@@ -5,6 +5,12 @@ project( vital )
 set(CMAKE_FOLDER "Vital")
 
 ###
+# Vital requirements
+# TODO: Eigen (find_package_once? kwiver_find_package?
+#       - to allow the creation of standard "depends" like current, but avoid
+#         monolithic include at the project root.)
+
+# ==============================================================================
 # KWSys
 #---------------------------------------------------------------------
 # Create the kwsys library for vital.
@@ -62,6 +68,12 @@ endif()
 
 # restore old CXX flags for our code.
 set( CMAKE_CXX_FLAGS ${save_flags} )
+
+# ==============================================================================
+# Other VITAL-specific setup and flags
+
+# ==============================================================================
+# Vital Library
 
 # ==================================================================
 ###
@@ -278,7 +290,7 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vital_config.h" )
 
 ###
-#
+# Subdirectory entries
 add_subdirectory( exceptions )
 add_subdirectory( algo )
 add_subdirectory( util )

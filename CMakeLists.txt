@@ -204,6 +204,9 @@ endif()
 add_definitions(-DKWIVER_DEFAULT_PLUGIN_ORGANIZATION="Kitware Inc.")
 
 # This regex stuff is to support CentOS with broken std::regex
+# - VITAL_USE_STD_REGEX is the product of a compile check, see
+#   ``CMake/kwiver-configcheck.cmake`` ~L68.
+# - This was introduced for being able to CXXOPTS, found in ``vital/applets/``.
 if ( NOT VITAL_USE_STD_REGEX )
   set( VITAL_BOOST_REGEX ${Boost_REGEX_LIBRARY})
   add_definitions( -DKWIVER_USE_BOOST_REGEX )
