@@ -58,15 +58,6 @@ target_link_libraries( vital_config
                        vital_util
   )
 
-kwiver_add_plugin( format_config
-  SOURCES          format_config_block_plugin.cxx
-  PRIVATE          vital_config
-                   vital_vpm
-                   vital_util
-                   vital_exceptions
-  SUBDIR           ${kwiver_plugin_module_subdir}
-  )
-
 ###
 # Add tests if enbled
 if (KWIVER_ENABLE_TESTS)

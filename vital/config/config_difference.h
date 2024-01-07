@@ -11,6 +11,7 @@
 
 #include <vital/config/vital_config_export.h>
 #include <vital/config/config_block.h>
+#include <vital/logger/kwiver_logger.h>
 #include <vital/vital_types.h>
 
 namespace kwiver {
