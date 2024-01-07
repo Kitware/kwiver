@@ -5,7 +5,7 @@
 #include <iostream>
 #include <test_gtest.h>
 #include <vital/algo/image_io.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/types/image.h>
 #include <vital/types/image_container.h>
 

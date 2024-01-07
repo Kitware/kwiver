@@ -5,7 +5,7 @@
 #ifndef VITAL_PLUGIN_MANAGER_INTERNAL_H
 #define VITAL_PLUGIN_MANAGER_INTERNAL_H
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 namespace kwiver {
 namespace vital {
 

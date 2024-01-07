@@ -5,7 +5,7 @@
 #include <python/kwiver/vital/modules/module_helpers.h>
 
 #include <python/kwiver/vital/util/python.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 #include <kwiversys/SystemTools.hxx>
 
 #include <pybind11/pybind11.h>

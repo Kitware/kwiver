@@ -4,7 +4,7 @@
 
 #include "plugin_factory.h"
 #include "plugin_loader.h"
-#include "plugin_loader_filter.h"
+//#include "plugin_loader_filter.h"
 
 #include <vital/exceptions/plugin.h>
 #include <vital/logger/logger.h>
@@ -16,6 +16,7 @@
 #include <kwiversys/SystemTools.hxx>
 
 #include <sstream>
+#include <utility>
 
 namespace kwiver {
 namespace vital {
@@ -38,23 +39,25 @@ class plugin_loader_impl
 {
 public:
   plugin_loader_impl( plugin_loader* parent,
-                      std::string const& init_function,
-                      std::string const& shared_lib_suffix )
+                      std::string  init_function,
+                      std::string  shared_lib_suffix )
     : m_parent( parent )
-    , m_init_function( init_function )
-    , m_shared_lib_suffix( shared_lib_suffix )
+    , m_init_function(std::move( init_function ))
+    , m_shared_lib_suffix(std::move( shared_lib_suffix ))
   { }
 
-  ~plugin_loader_impl()
-  { }
+  ~plugin_loader_impl() = default;
 
+  /// Load all modules in the currently set search path
   void load_known_modules();
-  void look_in_directory( std::string const& directory);
+  /// Load discovered module libraries in the given filesystem directory path.
+  void look_in_directory( std::string const& dir_path);
+  /// Attempt loading the module library file given as a filesystem path.
   void load_from_module( std::string const& path);
 
-  void print( std::ostream& str ) const;
-
+  // Parent loader instance this impl inst is for.
   plugin_loader* m_parent;
+  // Name of the function to dynamically load from the
   const std::string m_init_function;
   const std::string m_shared_lib_suffix;
 
@@ -71,7 +74,7 @@ public:
   /**
    * \brief Maps module name to source file.
    *
-   * This map is used to keep track of whch modules have been
+   * This map is used to keep track of which modules have been
    * loaded. For diagnostic purposes, we also record the file that
    * registered the module.
    */
@@ -79,8 +82,6 @@ public:
 
   // Name of current module file we are processing
   std::string m_current_filename;
-
-  std::vector< plugin_filter_handle_t > m_filters;
 
 }; // end class plugin_loader_impl
 
@@ -93,75 +94,9 @@ plugin_loader
 { }
 
 plugin_loader
-::~plugin_loader()
-{ }
+::~plugin_loader() = default;
 
-// ------------------------------------------------------------------
-plugin_factory_vector_t const&
-plugin_loader
-::get_factories( std::string const& type_name ) const
-{
-  static plugin_factory_vector_t empty; // needed for error case
-
-  auto const it = m_impl->m_plugin_map.find(type_name);
-  if ( it == m_impl->m_plugin_map.end() )
-  {
-    return empty;
-  }
-
-  return it->second;
-}
-
-// ------------------------------------------------------------------
-plugin_factory_handle_t
-plugin_loader
-::add_factory( plugin_factory* fact )
-{
-  plugin_factory_handle_t fact_handle( fact );
-
-  // Add the current file name as an attribute.
-  fact->add_attribute( plugin_factory::PLUGIN_FILE_NAME, m_impl->m_current_filename );
-
-  std::string interface_type;
-  fact->get_attribute( plugin_factory::INTERFACE_TYPE, interface_type );
-
-  std::string concrete_type;
-  fact->get_attribute( plugin_factory::CONCRETE_TYPE, concrete_type );
-
-  // If the hook has declined to register the factory, just return.
-  for ( auto & filt : m_impl->m_filters )
-  {
-    if ( ! filt->add_factory( fact_handle ) )
-    {
-      LOG_TRACE( m_logger, "Factory filter() declined to have this factory registered"
-                 << " from file \"" << m_impl->m_current_filename << "\""
-                 << "\"" << demangle( interface_type )
-                 << "\" for derived type: \"" << demangle( concrete_type ) << "\""
-        );
-      return fact_handle;
-    }
-  }
-
-  // Add factory to rest of its family
-  m_impl->m_plugin_map[interface_type].push_back( fact_handle );
-
-  LOG_TRACE( m_logger,
-             "Adding plugin to create interface: \"" << demangle( interface_type )
-             << "\" from derived type: \"" << demangle( concrete_type )
-             << "\" from file: " << m_impl->m_current_filename );
-
-  return fact_handle;
-}
-
-// ------------------------------------------------------------------
-plugin_map_t const&
-plugin_loader
-::get_plugin_map() const
-{
-  return m_impl->m_plugin_map;
-}
-
-// ------------------------------------------------------------------
+// Search path stuff ===========================================================
 void
 plugin_loader
 ::add_search_path( path_list_t const& path)
@@ -180,46 +115,7 @@ plugin_loader
   return this->m_impl->m_search_paths;
 }
 
-// ------------------------------------------------------------------
-std::vector< std::string >
-plugin_loader
-::get_file_list() const
-{
-  std::vector< std::string > retval;
-
-  for( auto const& it : m_impl->m_library_map )
-  {
-    retval.push_back( it.first );
-  } // end foreach
-
-  return retval;
-}
-
-  // ------------------------------------------------------------------
-bool
-plugin_loader
-::is_module_loaded( std::string const& name) const
-{
-  return (0 != m_impl->m_module_map.count( name ));
-}
-
-// ------------------------------------------------------------------
-void
-plugin_loader
-::mark_module_as_loaded( std::string const& name )
-{
-  m_impl->m_module_map.insert( std::pair< std::string, std::string >(name, m_impl->m_current_filename ) );
-}
-
-// ------------------------------------------------------------------
-plugin_module_map_t const&
-plugin_loader
-::get_module_map() const
-{
-  return m_impl->m_module_map;
-}
-
-// ------------------------------------------------------------------
+// Loading Factories ===========================================================
 void
 plugin_loader
 ::load_plugins()
@@ -246,6 +142,150 @@ plugin_loader
 {
   m_impl->load_from_module( file );
 }
+
+// Factory Stuff ===============================================================
+plugin_factory_vector_t const&
+plugin_loader
+::get_factories( std::string const& type_name ) const
+{
+  static plugin_factory_vector_t empty; // needed for error case
+
+  auto const it = m_impl->m_plugin_map.find(type_name);
+  if ( it == m_impl->m_plugin_map.end() )
+  {
+    return empty;
+  }
+
+  return it->second;
+}
+
+// ------------------------------------------------------------------
+plugin_factory_handle_t
+plugin_loader
+::add_factory( plugin_factory* fact )
+{
+  plugin_factory_handle_t fact_handle( fact );
+
+  // Add the current file name as an attribute.
+  // This method will inherently be invoked *after* calling the
+  // ``plugin_loader_impl::load_from_module`` method which sets the
+  // `m_impl->m_current_filename` value.
+  fact->add_attribute( plugin_factory::PLUGIN_FILE_NAME, m_impl->m_current_filename );
+
+  // Get the interface and concrete type naming, which ought to be that as
+  // returned by \`typeid().name()`
+  std::string interface_type, concrete_type, plugin_name;
+  fact->get_attribute( plugin_factory::INTERFACE_TYPE, interface_type );
+  fact->get_attribute( plugin_factory::CONCRETE_TYPE, concrete_type );
+  fact->get_attribute( plugin_factory::PLUGIN_NAME, plugin_name );
+
+  // Don't save this factory if we have already loaded it.
+  auto fact_list = m_impl->m_plugin_map[interface_type];
+  if( fact_list.size() > 0 )
+  {
+    for( auto const& afact : fact_list )
+    {
+      std::string interf, inst, name;
+      afact->get_attribute( plugin_factory::INTERFACE_TYPE, interf );
+      afact->get_attribute( plugin_factory::CONCRETE_TYPE, inst );
+      afact->get_attribute( plugin_factory::PLUGIN_NAME, name );
+
+      if ( (interface_type == interf) &&
+          (concrete_type == inst) &&
+          (plugin_name == name) )
+      {
+        std::string old_file;
+        afact->get_attribute( plugin_factory::PLUGIN_FILE_NAME, old_file );
+
+        std::stringstream str;
+        str << "Factory for \"" << demangle( interface_type ) << "\" : \""
+            << demangle( concrete_type ) << "\" already has been registered by "
+            << old_file << ".  This factory from "
+            << m_impl->m_current_filename << " will not be registered.";
+
+        VITAL_THROW( plugin_already_exists, str.str() );
+        // TODO: Maybe just don't add it and NOT error?
+      }
+    } // end foreach
+  }
+  // There used to be a filter step here that was never effectively utilized.
+  // This filter had been a check on if the factory should be registered.
+  // If this feature is desired again, we can follow a similar pattern to the
+  // config stuff and defer to a static function on the implementation class.
+  // Since this would likely want to return `true` most of the time the base
+  // `pluggable` type could have a default static function implementation.
+
+  // Add factory to rest of its family
+  m_impl->m_plugin_map[interface_type].push_back( fact_handle );
+
+  LOG_TRACE( m_logger,
+             "Adding plugin to create interface: \"" << demangle( interface_type )
+             << "\" from derived type: \"" << demangle( concrete_type )
+             << "\" from file: " << m_impl->m_current_filename );
+
+  return fact_handle;
+}
+
+// Map Accessors ===============================================================
+plugin_module_map_t const&
+plugin_loader
+::get_module_map() const
+{
+  return m_impl->m_module_map;
+}
+
+plugin_map_t const&
+plugin_loader
+::get_plugin_map() const
+{
+  return m_impl->m_plugin_map;
+}
+
+// Deprecated? =================================================================
+//std::vector< std::string >
+//plugin_loader
+//::get_file_list() const
+//{
+//  std::vector< std::string > retval;
+//
+//  for( auto const& it : m_impl->m_library_map )
+//  {
+//    retval.push_back( it.first );
+//  } // end foreach
+//
+//  return retval;
+//}
+//
+//  // ------------------------------------------------------------------
+//bool
+//plugin_loader
+//::is_module_loaded( std::string const& name) const
+//{
+//  return (0 != m_impl->m_module_map.count( name ));
+//}
+//
+//// ------------------------------------------------------------------
+//void
+//plugin_loader
+//::mark_module_as_loaded( std::string const& name )
+//{
+//  m_impl->m_module_map.insert( std::pair< std::string, std::string >(name, m_impl->m_current_filename ) );
+//}
+//
+//// ----------------------------------------------------------------------------
+//void plugin_loader
+//::clear_filters()
+//{
+//  m_impl->m_filters.clear();
+//}
+//
+//// ----------------------------------------------------------------------------
+//void plugin_loader
+//::add_filter( plugin_filter_handle_t f )
+//{
+//  f->m_loader = this;
+//  m_impl->m_filters.push_back( f );
+//}
 
 // ==================================================================
 /**
@@ -332,6 +372,9 @@ plugin_loader_impl
 {
   DL::LibraryHandle lib_handle;
 
+  // Utilized in the `add_factory` method when used within the module
+  // registration function to set the plugin_factory::PLUGIN_FILE_NAME
+  // attribute.
   m_current_filename = path;
 
   LOG_DEBUG( m_parent->m_logger, "Loading plugins from: " << path );
@@ -344,9 +387,8 @@ plugin_loader_impl
     return;
   }
 
-  DL::SymbolPointer fp =
-    DL::GetSymbolAddress( lib_handle, m_init_function );
-  if ( 0 == fp )
+  DL::SymbolPointer fp = DL::GetSymbolAddress( lib_handle, m_init_function );
+  if ( fp == nullptr )
   {
     std::string str("Unknown error");
     char const* last_error = DL::LastError();
@@ -362,16 +404,8 @@ plugin_loader_impl
     return;
   }
 
-  // Check with the load hook to see if there are any last minute
-  // objections to loading this plugin.
-  for ( auto filter : m_filters )
-  {
-    if ( ! filter->load_plugin( path, lib_handle ) )
-    {
-      DL::CloseLibrary( lib_handle );
-      return;
-    }
-  }
+  // There used to be a filter step here that was never effectively utilized.
+  // This filter had been a check if the library should be loaded at all.
 
   // Save currently opened library in map
   m_library_map[path] = lib_handle;
@@ -381,21 +415,6 @@ plugin_loader_impl
   reg_fp_t reg_fp = reinterpret_cast< reg_fp_t > ( fp );
 
   ( *reg_fp )( m_parent ); // register plugins
-}
-
-// ----------------------------------------------------------------------------
-void plugin_loader
-::clear_filters()
-{
-  m_impl->m_filters.clear();
-}
-
-// ----------------------------------------------------------------------------
-void plugin_loader
-::add_filter( plugin_filter_handle_t f )
-{
-  f->m_loader = this;
-  m_impl->m_filters.push_back( f );
 }
 
 } } // end namespace

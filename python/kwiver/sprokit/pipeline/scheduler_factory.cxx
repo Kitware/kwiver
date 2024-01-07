@@ -16,7 +16,7 @@
 #include <python/kwiver/vital/util/pybind11.h>
 #include <python/kwiver/vital/util/python_exceptions.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <pybind11/stl_bind.h>
 

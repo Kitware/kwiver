@@ -14,7 +14,7 @@
 
 #include <vital/algo/algorithm_factory.h>
 #include <vital/io/metadata_io.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/vital_config.h>
 
 #include <memory>

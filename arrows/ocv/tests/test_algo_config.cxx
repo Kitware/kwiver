@@ -29,7 +29,7 @@
 #include <vital/exceptions.h>
 #include <vital/logger/logger.h>
 #include <vital/vital_types.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <opencv2/core/core.hpp>
 

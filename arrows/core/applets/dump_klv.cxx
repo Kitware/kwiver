@@ -14,7 +14,7 @@
 #include <vital/algo/metadata_map_io.h>
 #include <vital/algo/video_input.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <vital/config/config_block.h>
 #include <vital/config/config_block_io.h>

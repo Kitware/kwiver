@@ -7,10 +7,10 @@
 
 #include <vital/applets/applet_registrar.h>
 #include <vital/exceptions/base.h>
-#include <vital/plugin_loader/plugin_factory.h>
-#include <vital/plugin_loader/plugin_filter_category.h>
-#include <vital/plugin_loader/plugin_filter_default.h>
-#include <vital/plugin_loader/plugin_manager_internal.h>
+#include <vital/plugin_management/plugin_factory.h>
+#include <vital/plugin_management/plugin_filter_category.h>
+#include <vital/plugin_management/plugin_filter_default.h>
+#include <vital/plugin_management/plugin_manager_internal.h>
 #include <vital/util/get_paths.h>
 
 #include <algorithm>

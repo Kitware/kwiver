@@ -4,7 +4,7 @@
 
 #include <arrows/ocv/estimate_fundamental_matrix.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <gtest/gtest.h>
 

@@ -4,8 +4,7 @@
 
 #include "plugin_factory.h"
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 const std::string plugin_factory::INTERFACE_TYPE( "interface-type" );
 const std::string plugin_factory::CONCRETE_TYPE( "concrete-type" );
@@ -25,18 +24,6 @@ const std::string plugin_factory::APPLET_CATEGORY( "kwiver-applet" );
 const std::string plugin_factory::PROCESS_CATEGORY( "process" );
 const std::string plugin_factory::ALGORITHM_CATEGORY( "algorithm" );
 const std::string plugin_factory::CLUSTER_CATEGORY( "cluster" );
-
-// ------------------------------------------------------------------
-plugin_factory::
-plugin_factory( std::string const& itype )
-{
-  m_interface_type = itype; // Optimize and store locally
-  add_attribute( INTERFACE_TYPE, itype );
-}
-
-plugin_factory::
-~plugin_factory()
-{ }
 
 // ------------------------------------------------------------------
 bool plugin_factory::
@@ -63,4 +50,4 @@ add_attribute( std::string const& attr, std::string const& val )
   return *this;
 }
 
-} } // end namespace
+} // end namespace

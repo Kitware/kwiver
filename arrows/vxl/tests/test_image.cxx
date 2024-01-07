@@ -14,7 +14,7 @@
 #include <arrows/vxl/image_container.h>
 #include <arrows/vxl/image_io.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/util/transform_image.h>
 
 #include <vil/vil_crop.h>

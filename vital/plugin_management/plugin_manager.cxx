@@ -11,8 +11,6 @@
 
 #include <vital/kwiver-include-paths.h>
 #include <vital/logger/logger.h>
-#include <vital/plugin_loader/plugin_filter_category.h>
-#include <vital/plugin_loader/plugin_filter_default.h>
 
 #include <kwiversys/SystemTools.hxx>
 
@@ -45,9 +43,6 @@ public:
     : m_loader( new plugin_loader( register_function_name, shared_library_suffix ) )
     , m_logger( kwiver::vital::get_logger( "vital.plugin_manager" ) )
   {
-    // Add the default filter which checks for duplicate plugins
-    plugin_filter_handle_t filt = std::make_shared<kwiver::vital::plugin_filter_default>();
-    m_loader->add_filter( filt );
   }
 
   plugin_types m_loaded; // bitmask of modules loaded
@@ -64,13 +59,13 @@ instance()
 {
   static std::mutex local_lock;          // synchronization lock
 
-  if (0 != s_instance)
+  if (s_instance != nullptr)
   {
     return *s_instance;
   }
 
   std::lock_guard<std::mutex> lock(local_lock);
-  if (0 == s_instance)
+  if (s_instance == nullptr)
   {
     // create new object
     s_instance = new plugin_manager();
@@ -229,12 +224,12 @@ search_path() const
   return m_priv->m_loader->get_search_path();
 }
 
-// ------------------------------------------------------------------
-plugin_factory_handle_t plugin_manager::
-add_factory( plugin_factory* fact )
-{
-  return m_priv->m_loader->add_factory( fact );
-}
+//// ------------------------------------------------------------------
+//plugin_factory_handle_t plugin_manager::
+//add_factory( plugin_factory* fact )
+//{
+//  return m_priv->m_loader->add_factory( fact );
+//}
 
 // ------------------------------------------------------------------
 plugin_factory_vector_t const& plugin_manager::
@@ -243,19 +238,19 @@ get_factories( std::string const& type_name )
   return m_priv->m_loader->get_factories( type_name );
 }
 
-// ------------------------------------------------------------------
-plugin_map_t const& plugin_manager::
-plugin_map()
-{
-  return m_priv->m_loader->get_plugin_map();
-}
+//// ------------------------------------------------------------------
+//plugin_map_t const& plugin_manager::
+//plugin_map()
+//{
+//  return m_priv->m_loader->get_plugin_map();
+//}
 
-// ------------------------------------------------------------------
-std::vector< std::string > plugin_manager::
-file_list()
-{
-  return m_priv->m_loader->get_file_list();
-}
+//// ------------------------------------------------------------------
+//std::vector< std::string > plugin_manager::
+//file_list()
+//{
+//  return m_priv->m_loader->get_file_list();
+//}
 
 // ------------------------------------------------------------------
 void plugin_manager::
@@ -270,26 +265,26 @@ reload_plugins()
   load_all_plugins();
 }
 
-// ------------------------------------------------------------------
-bool plugin_manager::
-is_module_loaded( std::string const& name) const
-{
-  return m_priv->m_loader->is_module_loaded( name );
-}
+//// ------------------------------------------------------------------
+//bool plugin_manager::
+//is_module_loaded( std::string const& name) const
+//{
+//  return m_priv->m_loader->is_module_loaded( name );
+//}
+//
+//// ------------------------------------------------------------------
+//void plugin_manager::
+//mark_module_as_loaded( std::string const& name )
+//{
+//  m_priv->m_loader->mark_module_as_loaded( name );
+//}
 
-// ------------------------------------------------------------------
-void plugin_manager::
-mark_module_as_loaded( std::string const& name )
-{
-  m_priv->m_loader->mark_module_as_loaded( name );
-}
-
-// ------------------------------------------------------------------
-std::map< std::string, std::string > const& plugin_manager::
-module_map() const
-{
-  return m_priv->m_loader->get_module_map();
-}
+//// ------------------------------------------------------------------
+//std::map< std::string, std::string > const& plugin_manager::
+//module_map() const
+//{
+//  return m_priv->m_loader->get_module_map();
+//}
 
 // ------------------------------------------------------------------
 kwiver::vital::logger_handle_t plugin_manager::
@@ -298,12 +293,12 @@ logger()
   return m_priv->m_logger;
 }
 
-// ------------------------------------------------------------------
-kwiver::vital::plugin_loader*
-plugin_manager::
-get_loader()
-{
-  return m_priv->m_loader.get();
-}
+//// ------------------------------------------------------------------
+//kwiver::vital::plugin_loader*
+//plugin_manager::
+//get_loader()
+//{
+//  return m_priv->m_loader.get();
+//}
 
 } } // end namespace kwiver

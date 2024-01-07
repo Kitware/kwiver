@@ -13,7 +13,7 @@
 #include <arrows/tests/test_video_input.h>
 #include <vital/algo/algorithm_factory.h>
 #include <vital/io/metadata_io.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <memory>
 #include <string>

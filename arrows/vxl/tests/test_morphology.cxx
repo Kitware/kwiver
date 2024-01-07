@@ -11,7 +11,7 @@
 #include <vil/algo/vil_threshold.h>
 #include <vil/vil_convert.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <gtest/gtest.h>
 

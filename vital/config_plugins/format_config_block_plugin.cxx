@@ -6,7 +6,7 @@
 
 #include <vital/config/format_config_export.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/util/wrap_text_block.h>
 #include <vital/util/string.h>
 

@@ -11,7 +11,7 @@
 
 #include <arrows/gdal/image_io.h>
 #include <arrows/tests/test_image.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/types/metadata.h>
 #include <vital/types/metadata_traits.h>
 

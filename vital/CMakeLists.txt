@@ -306,8 +306,9 @@ add_subdirectory( config )
 # -- Creates library "vital_logger"
 # Requires: vital_util
 add_subdirectory( logger )
-add_subdirectory( plugin_loader )
-#add_subdirectory( plugin_management )
+# -- Creates library "vital_pm"
+# Requires: vital_exceptions, vital_logger, vital_util
+add_subdirectory( plugin_management )
 
 # ==============================================================================
 # Built-in plugin modules

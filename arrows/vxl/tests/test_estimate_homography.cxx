@@ -12,7 +12,7 @@
 
 #include <arrows/vxl/estimate_homography.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 using namespace kwiver::vital;
 using namespace kwiver::arrows;

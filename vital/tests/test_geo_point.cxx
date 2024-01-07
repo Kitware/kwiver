@@ -12,7 +12,7 @@
 
 #include <vital/types/geo_point.h>
 #include <vital/types/geodesy.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <sstream>
 

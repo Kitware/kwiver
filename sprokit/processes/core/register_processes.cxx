@@ -5,7 +5,7 @@
 #include <sprokit/processes/core/kwiver_processes_export.h>
 
 #include <sprokit/pipeline/process_factory.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 
 // -- list processes to register --
 #include "associate_detections_to_tracks_process.h"

@@ -4,7 +4,7 @@
 
 #include <sprokit/processes/ocv/kwiver_processes_ocv_export.h>
 #include <sprokit/pipeline/process_factory.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 
 // -- list processes to register --
 #include "image_viewer_process.h"

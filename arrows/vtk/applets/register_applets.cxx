@@ -8,7 +8,7 @@
  */
 
 #include <arrows/vtk/applets/kwiver_algo_vtk_applets_export.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 #include <vital/applets/applet_registrar.h>
 
 #include <arrows/vtk/applets/color_mesh.h>

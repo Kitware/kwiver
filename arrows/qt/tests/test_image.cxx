@@ -14,7 +14,7 @@
 #include <arrows/qt/image_container.h>
 #include <arrows/qt/image_io.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/util/transform_image.h>
 
 #include <vital/range/iota.h>

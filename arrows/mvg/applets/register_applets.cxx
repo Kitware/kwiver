@@ -8,7 +8,7 @@
  */
 
 #include <arrows/mvg/applets/kwiver_algo_mvg_applets_export.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 #include <vital/applets/applet_registrar.h>
 
 #include <arrows/mvg/applets/init_cameras_landmarks.h>

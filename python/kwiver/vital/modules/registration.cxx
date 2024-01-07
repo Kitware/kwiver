@@ -8,7 +8,7 @@
 #include <python/kwiver/vital/util/pybind11.h>
 #include <python/kwiver/vital/util/python_exceptions.h>
 #include <python/kwiver/vital/util/python.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 #include <kwiversys/SystemTools.hxx>
 
 #include <pybind11/stl.h>

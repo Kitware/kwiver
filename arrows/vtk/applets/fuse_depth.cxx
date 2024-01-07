@@ -20,7 +20,7 @@
 #include <vital/io/camera_io.h>
 #include <vital/io/landmark_map_io.h>
 #include <vital/io/track_set_io.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/types/camera_perspective.h>
 #include <vital/types/bounding_box.h>
 #include <vital/util/get_paths.h>

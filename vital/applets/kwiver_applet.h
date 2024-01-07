@@ -6,7 +6,7 @@
 #define KWIVER_TOOLS_KWIVER_APPLET_H
 
 #include <vital/applets/kwiver_tools_applet_export.h>
-#include <vital/plugin_loader/plugin_info.h>
+#include <vital/plugin_management/plugin_info.h>
 
 #include <vital/applets/cxxopts.hpp>
 #include <vital/config/config_block.h>

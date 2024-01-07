@@ -7,7 +7,7 @@
 #include "timing_process_instrumentation.h"
 
 #include <vital/tools/explorer_plugin.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 #include <vital/util/wrap_text_block.h>
 #include <vital/util/string.h>
 

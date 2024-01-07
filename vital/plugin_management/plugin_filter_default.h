@@ -5,9 +5,9 @@
 #ifndef KWIVER_FITAL_PLUGIN_FILTER_DEFAULT_H
 #define KWIVER_FITAL_PLUGIN_FILTER_DEFAULT_H
 
-#include <vital/plugin_loader/vital_vpm_export.h>
+#include <vital/plugin_management/vital_vpm_export.h>
 
-#include <vital/plugin_loader/plugin_loader_filter.h>
+#include <vital/plugin_management/plugin_loader_filter.h>
 
 namespace kwiver {
 namespace vital {

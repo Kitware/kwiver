@@ -7,7 +7,7 @@
 
 #include <arrows/vxl/estimate_similarity_transform.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <vital/exceptions.h>
 #include <vital/types/rotation.h>
