@@ -452,7 +452,7 @@ endforeach(p)
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vital/kwiver-include-paths.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vital/kwiver-include-paths.h" )
-
+# END -- possible move to vital sub-directory
 
 # ===========================================================================================
 # CPack Packaging
