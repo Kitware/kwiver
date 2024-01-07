@@ -46,9 +46,6 @@ public:
   // The config block to format.
   config_block_sptr m_config;
 
-protected:
-  format_config_block() { }
-
 }; // end class format_config_block
 
 using format_config_block_sptr = std::shared_ptr< format_config_block >;

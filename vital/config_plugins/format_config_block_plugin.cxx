@@ -12,7 +12,7 @@
 
 namespace kwiver::vital {
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /**
  * @brief Formats config block using markdown
  *
@@ -93,7 +93,7 @@ get_default_config( config_block & /* cb */ )
   // No constructor parameters, so nothing to set in the config block.
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 /**
  * @brief Formats config block in a tree structure
  *
@@ -228,8 +228,8 @@ get_default_config( config_block & /* cb */ )
   // No constructor parameters, so nothing to set in the config block.
 }
 
-// ============================================================================
-  extern "C"
+// ----------------------------------------------------------------------------
+extern "C"
 FORMAT_CONFIG_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpl )

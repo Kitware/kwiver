@@ -67,7 +67,7 @@
 
 namespace kwiver::vital {
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /**
  * @brief Vital plugin manager.
  *
@@ -97,7 +97,7 @@ public:
 
   static plugin_manager& instance();  // singleton interface
 
-  // Search path stuff =========================================================
+  // Search path stuff --------------------------------------------------------
   /**
    * @brief Add an additional directories to search for plugins in.
    *
@@ -154,7 +154,7 @@ public:
   [[nodiscard]]
   path_list_t const& search_path() const;
 
-  // Loading Plugins ===========================================================
+  // Loading Plugins -----------------------------------------------------------
   /**
    * @brief Load all reachable plugins.
    *
@@ -197,7 +197,7 @@ public:
    */
   void reload_all_plugins();
 
-  // Getting at Factories ======================================================
+  // Getting at Factories ------------------------------------------------------
 
   /**
    * @brief Get list of factories for interface type.
@@ -238,7 +238,7 @@ public:
     return _impl_names( get_interface_name<INTERFACE>() );
   }
 
-  // Deprecated? ===============================================================
+  // Deprecated? ---------------------------------------------------------------
 
 //  /**
 //   * @brief Add factory to manager.
@@ -298,7 +298,7 @@ protected:
   plugin_manager();
   ~plugin_manager();
 
-  // Factory Stuff =============================================================
+  // Factory Stuff -------------------------------------------------------------
   /**
    * @brief Get list of factories for some interface type name.
    *
@@ -336,7 +336,7 @@ protected:
   [[nodiscard]]
   std::vector<std::string> _impl_names( std::string const& interface_type_name) const;
 
-  // Deprecated? ===============================================================
+  // Deprecated? ---------------------------------------------------------------
   // Some of these are used by the explorer via the "internal" subclass.
   // Maybe reinstate or maybe determine alternative to having an "internal"
   // subclass impl to expose what is needed.
@@ -396,7 +396,7 @@ private:
 
 KWIVER_DECLARE_OPERATORS_FOR_BITFLAGS( plugin_manager::plugin_types )
 
-// ==================================================================
+// ----------------------------------------------------------------------------
 /**
  * \brief Typed implementation factory.
  *
@@ -499,7 +499,7 @@ private:
   std::string m_attr; // Name of the attribute
 };
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /**
  * @brief Implementation factory that uses name attribute.
  *

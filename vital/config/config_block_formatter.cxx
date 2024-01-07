@@ -4,11 +4,8 @@
 
 #include "config_block_formatter.h"
 
-#include "format_config_block.h"
-
 #include <vital/util/string.h>
 
-#include <sstream>
 #include <iostream>
 
 namespace kwiver {
