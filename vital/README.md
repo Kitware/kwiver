@@ -56,7 +56,7 @@ Did not carry over yet the "internal" sub-class just yet, also pending exposure
 of a reason for existence.
 
 ## Plugin How-To
-### Using Tools
+### Loading Plugins
 Register plugins by running
 ```c++
 kwiver::vital::plugin_manager::instance()->load_all_plugins();
@@ -69,12 +69,42 @@ by your system's usual PATH-separator.
 
 ### Registering Plugins
 In your CMake, use `kwiver_add_plugin` to create shared plugin libraries.
-This library should be given at least a source file that defines an exter-C
-function `void register_factories( kwiver::vital::plugin_loader& vpl )` that
-adds factories to the given loader instance.
-<< EXPAND >>
+This library should be given at least a source file that defines an extern-C
+function `extern "C" void register_factories( kwiver::vital::plugin_loader& vpl )`
+that adds implementation factories to the given loader instance.
+The header ``<vital/plugin_management/plugin_loader.h>`` should be included to
+support implementing the above function.
+This function signature is constant and is defined by the vital plugin
+manager/loader.
 
-When registering plugins, the most common method of doing so is by
+It is _**important**_ that this function be attributed with the appropriate
+export method, otherwise this function symbol will not be visible when
+dynamically loading the plugin library.
+When using the KWIVER cmake utility `kwiver_add_plugin`, a `<NAME>_export.h`
+header file will automatically be generated in the build tree, where `<NAME>` is
+the plugin library name provided to the CMake function.
+For example, if calling `kwiver_add_plugin( foo ... )`, then the header file
+`foo_export.h` will be generated.
+The `register_factories` function implementation signature might then look like
 ```c++
-vpl->add_factory<INTERFACE, CONCRETE>( "plugin-name" );
+#include <.../foo_export.h>
+
+extern "C"
+FOO_EXPORT
+void
+register_factories( kwiver::vital::plugin_loader& vpl )
+{
+  // ...
+}
 ```
+
+When implementing the above function, the most common method of registering C++
+concrete types is via the method:
+```c++
+vpl->add_factory<INTERFACE, CONCRETE>( "my-concrete-plugin-name" );
+```
+Where `INTERFACE` is the type of the interface being implemented and `CONCRETE`
+is the concrete implementation type implementing that interface.
+This may raise compilation errors if the interface and concrete types do not
+implement the appropriate static methods for plugin support, documented in
+`vital/plugin_management/pluggable.h`.

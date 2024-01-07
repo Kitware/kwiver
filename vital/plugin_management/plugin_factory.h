@@ -206,11 +206,12 @@ class concrete_plugin_factory
 {
 public:
   static_assert( std::is_base_of<pluggable, INTERFACE>::value,
-                 "The given interface class did not descend from the pluggable "
+                 "The given interface type did not descend from the pluggable "
                  "type." );
   static_assert( std::is_base_of<INTERFACE, CONCRETE>::value,
-                 "The given concrete class type is not based on the given "
+                 "The given concrete type is not based on the given "
                  "interface type." );
+
 
   /**
    * @brief Create concrete factory instance.
@@ -230,11 +231,19 @@ public:
 
   pluggable_sptr from_config(config_block const& cb) const override
   {
+    static_assert( has_from_config<CONCRETE>::value,
+                   "The given concrete type does not implement the "
+                   "`from_config` static method. See pluggable.h for more "
+                   "details.");
     return CONCRETE::from_config( cb );
   }
 
   void get_default_config( config_block & cb ) const override
   {
+    static_assert( has_get_default_config<CONCRETE>::value,
+                   "The given concrete type does not implement the "
+                   "`get_default_config` static method. See pluggable.h for "
+                   "more details." );
     CONCRETE::get_default_config( cb );
   }
 
