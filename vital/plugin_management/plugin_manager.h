@@ -23,6 +23,7 @@
 #include <memory>
 #include <sstream>
 #include <utility>
+#include <iostream>
 
 namespace kwiver::vital {
 
@@ -49,7 +50,7 @@ public:
     EXPLORER   = 0x0008,
     OTHERS     = 0x0020,
     LEGACY     = 0x0040,
-    DEFAULT    = 0x00f7,
+    DEFAULT    = 0x00f7,  // sum of the above.
     ALL        = 0xffff
   };
   KWIVER_DECLARE_BITFLAGS( plugin_types, plugin_type );
@@ -156,19 +157,6 @@ public:
    */
   void reload_plugins();
 
-  // Factory Stuff =============================================================
-  /**
-   * @brief Get list of factories for interface type.
-   *
-   * This method returns a list of pointer to factory methods that
-   * create objects of the desired interface type.
-   *
-   * @param type_name Type name of the interface required
-   *
-   * @return Vector of factories. (vector may be empty)
-   */
-  plugin_factory_vector_t const& get_factories( std::string const& type_name );
-
   /**
    * @brief Get list of factories for interface type.
    *
@@ -243,6 +231,23 @@ protected:
 
   plugin_manager();
   ~plugin_manager();
+
+  // Factory Stuff =============================================================
+  /**
+   * @brief Get list of factories for interface type.
+   *
+   * This method returns a list of pointer to factory methods that
+   * create objects of the desired interface type.
+   *
+   * The input here is expected to be the name of a type T as returned from
+   * `typeid(T).name()`. Due to this being pretty specific and important, this
+   * method is marked private.
+   *
+   * @param type_name Type name of the interface required
+   *
+   * @return Vector of factories. (vector may be empty)
+   */
+  plugin_factory_vector_t const& get_factories( std::string const& type_name );
 
   // Deprecated? ===============================================================
   // Some of these are used by the explorer. Maybe reinstate or maybe determine
@@ -355,7 +360,7 @@ public:
     // Get singleton plugin manager
     kwiver::vital::plugin_manager& pm = kwiver::vital::plugin_manager::instance();
 
-    auto fact_list = pm.get_factories( typeid( I ).name() );
+    auto fact_list = pm.get_factories<I>();
     // Scan fact_list for CONCRETE_TYPE
     for( kwiver::vital::plugin_factory_handle_t a_fact : fact_list )
     {
@@ -392,7 +397,7 @@ public:
   std::shared_ptr<I> create( const std::string& value, config_block const& cb )
   {
     plugin_factory_handle_t a_fact = this->find_factory( value );
-    return a_fact->from_config(cb);
+    return std::dynamic_pointer_cast<I>( a_fact->from_config( cb ) );
   }
 
 private:

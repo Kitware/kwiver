@@ -261,12 +261,16 @@ kwiver_add_library( vital
   ${CMAKE_CURRENT_BINARY_DIR}/vital_config.h
   )
 
+# Make sure the configuration targets flush before building this library.
+add_dependencies (vital kwiver_configure)
+
 target_link_libraries( vital
   PRIVATE         kwiversys
   PUBLIC          vital_config
                   vital_exceptions
                   vital_logger
                   vital_util
+                  vital_vpm
                   Eigen3::Eigen
   )
 
@@ -320,7 +324,7 @@ add_subdirectory( plugin_management )
 # itself).
 #
 add_subdirectory( logger_plugins )
-#add_subdirectory( config_plugins )  # TODO: uncomment on revision of plugin management
+add_subdirectory( config_plugins )
 
 if (KWIVER_ENABLE_TOOLS)
   add_subdirectory( applets )

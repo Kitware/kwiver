@@ -65,6 +65,8 @@ public:
   path_list_t m_search_paths;
 
   // Map from interface type name to vector of class loaders
+  // For consistency, "interface type name" refers to the name resulting from
+  // `typeid(T).name()`.
   plugin_map_t m_plugin_map;
 
   // Map to keep track of the modules we have opened and loaded.
@@ -191,8 +193,8 @@ plugin_loader
       afact->get_attribute( plugin_factory::PLUGIN_NAME, name );
 
       if ( (interface_type == interf) &&
-          (concrete_type == inst) &&
-          (plugin_name == name) )
+           (concrete_type == inst) &&
+           (plugin_name == name) )
       {
         std::string old_file;
         afact->get_attribute( plugin_factory::PLUGIN_FILE_NAME, old_file );

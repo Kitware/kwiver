@@ -4,14 +4,13 @@
 
 #include "vital/config/format_config_block.h"
 
-#include <vital/config/format_config_export.h>
+#include <vital/config_plugins/format_config_export.h>
 
 #include <vital/plugin_management/plugin_manager.h>
 #include <vital/util/wrap_text_block.h>
 #include <vital/util/string.h>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 // ============================================================================
 /**
@@ -27,6 +26,10 @@ public:
   virtual ~format_config_block_markdown() = default;
 
   void print( std::ostream& str ) override;
+
+  // Plugin support
+  static pluggable_sptr from_config( config_block const& cb );
+  static void get_default_config( config_block & cb );
 
 }; // end class format_config_block_markdown
 
@@ -75,6 +78,21 @@ print( std::ostream& str )
   }
 }
 
+pluggable_sptr
+format_config_block_markdown::
+from_config( config_block const& /* cb */ )
+{
+  // No parameter constructor, just return new instance
+  return std::make_shared<format_config_block_markdown>();
+}
+
+void
+format_config_block_markdown::
+get_default_config( config_block & /* cb */ )
+{
+  // No constructor parameters, so nothing to set in the config block.
+}
+
 // ============================================================================
 /**
  * @brief Formats config block in a tree structure
@@ -89,6 +107,10 @@ public:
   virtual ~format_config_block_tree() = default;
 
   void print( std::ostream& str ) override;
+
+  // Plugin support
+  static pluggable_sptr from_config( config_block const& cb );
+  static void get_default_config( config_block & cb );
 
 protected:
   void format_block( std::ostream& str,
@@ -191,41 +213,49 @@ format_block( std::ostream& str,
   } // end for
 }
 
+pluggable_sptr
+format_config_block_tree::
+from_config( config_block const& /* cb */ )
+{
+  // No parameter constructor, just return new instance
+  return std::make_shared<format_config_block_tree>();
+}
+
+void
+format_config_block_tree::
+get_default_config( config_block & /* cb */ )
+{
+  // No constructor parameters, so nothing to set in the config block.
+}
+
 // ============================================================================
   extern "C"
 FORMAT_CONFIG_EXPORT
 void
-register_factories( kwiver::vital::plugin_loader& vpm )
+register_factories( kwiver::vital::plugin_loader& vpl )
 {
   static auto const module_name = kwiver::vital::plugin_manager::module_t( "format-config-block" );
 
-  if ( vpm.is_module_loaded( module_name ) )
-  {
-    return;
-  }
+  // common handle, so we can add attributes to factories as we add them.
+  kwiver::vital::plugin_factory_handle_t fact;
 
-  kwiver::vital::plugin_factory_handle_t
-  fact = vpm.ADD_FACTORY( kwiver::vital::format_config_block, kwiver::vital::format_config_block_markdown );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "markdown")
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
-                       "Formats the config block using markdown.")
+  fact = vpl.add_factory<
+      kwiver::vital::format_config_block,
+      kwiver::vital::format_config_block_markdown>( "markdown" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION ,
+                    "Formats the config block using markdown." )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
-    ;
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." );
 
-  fact = vpm.ADD_FACTORY( kwiver::vital::format_config_block, kwiver::vital::format_config_block_tree );
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "tree")
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+  fact = vpl.add_factory<
+      kwiver::vital::format_config_block,
+      kwiver::vital::format_config_block_tree>( "tree" );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
-                       "Formats the config block in an indented tree format.")
+                    "Formats the config block in an indented tree format." )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." )
-    ;
-
-  // - - - - - - - - - - - - - - - - - - - - - - -
-  vpm.mark_module_as_loaded( module_name );
-
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_ORGANIZATION, "Kitware Inc." );
 }
 
-} } // end namespace
+} // end namespace

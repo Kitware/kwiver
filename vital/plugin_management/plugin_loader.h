@@ -9,6 +9,7 @@
 
 #include <vital/types/core.h>
 #include <vital/logger/logger.h>
+#include <vital/plugin_management/plugin_factory.h>
 
 #include <vector>
 #include <string>
@@ -19,13 +20,11 @@ namespace kwiver::vital {
 
 // base class of factory hierarchy
 class plugin_factory;
-//class plugin_loader_filter;
 
 using plugin_factory_handle_t = std::shared_ptr< plugin_factory >;
 using plugin_factory_vector_t = std::vector< plugin_factory_handle_t >;
 using plugin_map_t            = std::map< std::string, plugin_factory_vector_t >;
 using plugin_module_map_t     = std::map< std::string, path_t >;
-//using plugin_filter_handle_t  = std::shared_ptr< plugin_loader_filter >;
 
 class plugin_loader_impl;
 
@@ -131,7 +130,9 @@ public:
 
   template< typename INTERFACE >
   [[nodiscard]]
-  plugin_factory_vector_t const& get_factories() const { return get_factories( typeid( INTERFACE ).name() ); }
+  plugin_factory_vector_t const& get_factories() const {
+    return get_factories( typeid( INTERFACE ).name() );
+  }
 
   /**
    * @brief Add factory to manager.
@@ -169,6 +170,14 @@ public:
    \endcode
    */
   plugin_factory_handle_t add_factory( plugin_factory* fact );
+
+  template< typename INTERFACE, typename CONCRETE >
+  plugin_factory_handle_t add_factory( std::string const& plugin_name )
+  {
+    return add_factory(
+      new concrete_plugin_factory<INTERFACE, CONCRETE>( plugin_name )
+    );
+  }
 
   // Alternative factory addition methods?
   // template interface/concrete, also take in "category" label?

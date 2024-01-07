@@ -11,12 +11,12 @@
 #define VITAL_CONFIG_FORMAT_CONFIG_BLOCK_H
 
 #include <vital/config/config_block.h>
+#include <vital/plugin_management/pluggable.h>
 
 #include <ostream>
 #include <string>
 
-namespace kwiver {
-namespace vital {
+namespace kwiver::vital {
 
 /// Config block printer plugin interface.
 // ----------------------------------------------------------------
@@ -24,8 +24,11 @@ namespace vital {
  * This class defines the abstract interface for all implementations
  * of the config block formatting plugin.
  *
+ * TODO: This likely should be an "algorithm" and not be located in the config
+ *       module since there is no inbuilt use of this -- It seems to only be
+ *       used in down-stream libraries/tools.
  */
-class format_config_block
+class format_config_block : public pluggable
 {
 public:
   // -- CONSTRUCTORS --
@@ -48,6 +51,6 @@ protected:
 
 using format_config_block_sptr = std::shared_ptr< format_config_block >;
 
-} } // end namespace
+} // end namespace
 
 #endif /* VITAL_CONFIG_FORMAT_CONFIG_BLOCK_H */
