@@ -488,7 +488,8 @@ public:
    *
    * @throws kwiver::vital::plugin_factory_not_found
    */
-  std::shared_ptr<I> create( const std::string& value, config_block const& cb )
+  std::shared_ptr< I >
+  create( const std::string& value, config_block_sptr const cb )
   {
     plugin_factory_handle_t a_fact = this->find_factory( value );
     return std::dynamic_pointer_cast<I>( a_fact->from_config( cb ) );

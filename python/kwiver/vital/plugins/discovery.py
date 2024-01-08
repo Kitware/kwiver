@@ -22,7 +22,7 @@ from kwiver.vital.plugins import Pluggable
 # the python version 3.10+ `importlib.metadata.entry_points`.
 # This comparison IS NOT CHAINED on purpose to support mypy compatibility.
 # noinspection PyChainedComparisons
-if sys.version_info >= (3, 8) and sys.version_info < (3, 10):
+if sys.version_info >= (3, 8):
     import importlib.metadata as metadata
 
     def get_ns_entrypoints(ns: str) -> Iterable["metadata.EntryPoint"]:

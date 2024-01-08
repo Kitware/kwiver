@@ -34,7 +34,7 @@ public:
   ~python_plugin_factory() override = default;
 
   pluggable_sptr
-  from_config( const config_block& cb ) const override
+  from_config( const config_block_sptr cb ) const override
   {
     py::object instance = m_python_type.attr( "from_config" )( cb );
     return instance.cast< pluggable_sptr >();

@@ -100,6 +100,13 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
     return this->CONFIG_VAR_NAME( name );                                  \
   }
 
+#define PARAM_PUBLIC_SETTER( tuple ) PARAM_PUBLIC_SETTER_ tuple
+#define PARAM_PUBLIC_SETTER_( name, type, description_str, default_value ) \
+  CAT( set_, name )( type value )                                          \
+  {                                                                        \
+    this->CONFIG_VAR_NAME( name ) = value;                                 \
+  }
+
 /**
  * Produce a constructor parameter definition and optional default value
  * assignment.
@@ -128,8 +135,8 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 #define PARAM_CONFIG_GET_( name, type, description_str, default ) \
   IF_ELSE( HAS_ARGS( default ) )                                  \
   (                                                               \
-    cb.get_value< type >( #name, default ),                       \
-    cb.get_value< type >( #name )                                 \
+    cb->get_value< type >( #name, default ),                      \
+    cb->get_value< type >( #name )                                \
   )
 
 /**
@@ -160,7 +167,8 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 private:                           \
   MAP( PARAM_VAR_DEF, EMPTY, __VA_ARGS__ ) \
 public:                            \
-  MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ )
+  MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ ) \
+  MAP( PARAM_PUBLIC_SETTER, EMPTY, __VA_ARGS__ )
 
 #define PLUGGABLE_CONSTRUCTOR( class_name, ... ) \
 public:                                          \
@@ -172,7 +180,7 @@ public:                                          \
 
 #define PLUGGABLE_STATIC_FROM_CONFIG( class_name, ... ) \
 public:                                                          \
-  static pluggable_sptr from_config( ::kwiver::vital::config_block const& cb ) \
+  static pluggable_sptr from_config( ::kwiver::vital::config_block_sptr const cb ) \
   {                                                              \
     return std::make_shared< class_name >(                       \
       MAP( PARAM_CONFIG_GET, COMMA, __VA_ARGS__ )             \

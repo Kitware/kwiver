@@ -39,7 +39,7 @@ main_config_formatter_load_example()
   auto impl_name = "markdown"; // "tree"
   auto fact =
     ::kv::implementation_factory_by_name< kv::format_config_block >();
-  auto inst = fact.create( impl_name, *cb_empty );
+  auto inst = fact.create( impl_name, cb_empty );
 
   LOG_INFO( LOG, kv::type_name( inst ) );
   LOG_INFO( LOG, "Inst is nullptr? " << inst );
@@ -49,8 +49,7 @@ main_config_formatter_load_example()
   cb_new->set_value( "b", "2" );
   cb_new->set_value( "b:c", "other" );
 
-  inst->m_config = cb_new;
-  inst->print( std::cout );
+  inst->print( cb_new, std::cout );
 
   return 0;
 }
@@ -58,7 +57,7 @@ main_config_formatter_load_example()
 // ----------------------------------------------------------------------------
 
 void
-main_say_example()
+main_say_example(std::string impl_name)
 {
   auto& vpm = kv::plugin_manager::instance();
   vpm.load_all_plugins();
@@ -75,18 +74,44 @@ main_say_example()
     LOG_INFO( LOG, "  - " << name );
   }
 
-  std::string impl_name{ "cpp" };
-
   // simulation configuration -- known to be empty for test interface impls.
   kv::config_block_sptr cb = kv::config_block::empty_config();
 
   // Create an implementation instance in the plugin-way -- via configuration.
   // Implementation handles currying config block into its own constructor.
   kv::say_sptr inst = kv::implementation_factory_by_name< kv::say >().create(
-                        impl_name, *cb );
+                        impl_name, cb );
 
   std::cout << "The implementation says:" << std::endl;
   std::cout << inst->says() << std::endl;
+}
+
+// ----------------------------------------------------------------------------
+
+void
+main_they_say_example()
+{
+  auto& vpm = kv::plugin_manager::instance();
+  vpm.load_all_plugins();
+
+  std::vector< std::string > they_names = { "cpp_they", "PythonTheyImpl" };
+  std::vector< std::string > speaker_names = { "cpp", "PythonImpl" };
+
+  std::cout << "Testing composite implementations" << std::endl;
+  for ( auto t_name: they_names )
+  {
+    for ( auto s_name: speaker_names )
+    {
+      kv::config_block_sptr cb = kv::config_block::empty_config();
+      cb->set_value( "speaker", s_name );
+
+      kv::say_sptr inst = kv::implementation_factory_by_name< kv::say >().create(
+                            t_name, cb );
+
+      std::cout << inst->says() << std::endl;
+    }
+  }
+  std::cout << std::endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -104,7 +129,7 @@ main_macro_magic()
 
   kv::test_interface_sptr i =
     std::dynamic_pointer_cast< kv::test_interface >(
-      kv::test_impl_parameterized::from_config( *cb )
+      kv::test_impl_parameterized::from_config( cb )
       );
 
   std::cout << i->test() << std::endl;
@@ -123,9 +148,16 @@ main()
 
   std::cout << std::endl;
 
-  main_say_example();
+  std::vector< std::string > impl_names = {"cpp", "PythonImpl"};
 
-  std::cout << std::endl;
+  for ( auto name: impl_names )
+  {
+    std::cout << "Testing say implementation: " << name << std::endl;
+    main_say_example(name);
+    std::cout << std::endl;
+  }
+
+  main_they_say_example();
 
   main_macro_magic();
 

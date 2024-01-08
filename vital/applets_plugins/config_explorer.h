@@ -26,8 +26,10 @@ public:
   int run() override;
   void add_command_options() override;
 
-  // Plugin things =============================================================
-  static vital::pluggable_sptr from_config( vital::config_block const& /*cb*/ )
+  // Plugin things
+  // =============================================================
+  static vital::pluggable_sptr
+  from_config( vital::config_block_sptr const /*cb*/ )
   {
     return std::make_shared<config_explorer>();
   }
