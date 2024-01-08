@@ -55,6 +55,20 @@ public:
 };
 
 // ------------------------------------------------------------------
+/// Unable to register a plugin factory due to it missing one or more required
+/// attributes.
+class VITAL_EXCEPTIONS_EXPORT plugin_factory_missing_required_attrs
+  : public plugin_exception
+{
+public:
+  /// Constructor
+  plugin_factory_missing_required_attrs( std::string const& msg ) noexcept;
+
+  /// Destructor
+  virtual ~plugin_factory_missing_required_attrs() noexcept;
+};
+
+// ------------------------------------------------------------------
 /// Plugin already registered
 class VITAL_EXCEPTIONS_EXPORT plugin_already_exists
   : public plugin_exception

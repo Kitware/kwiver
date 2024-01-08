@@ -48,6 +48,19 @@ plugin_factory_type_creation_error
 }
 
 // ------------------------------------------------------------------
+/// Unable to create desired type.
+plugin_factory_missing_required_attrs
+::plugin_factory_missing_required_attrs( std::string const& msg ) noexcept
+{
+  m_what = msg;
+}
+
+plugin_factory_missing_required_attrs
+::~plugin_factory_missing_required_attrs() noexcept
+{
+}
+
+// ------------------------------------------------------------------
 plugin_already_exists
 ::plugin_already_exists( std::string const& msg) noexcept
 {

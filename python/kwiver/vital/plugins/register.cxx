@@ -69,18 +69,23 @@ void register_factories( ::kv::plugin_loader & vpl )
     py::module::import( "kwiver.vital.plugins.discovery" );
 
   // DEBUG IMPORT FOR CONCRETE
+  // because its currently not in a separate package using entrypoints
   py::object const mod_debug_impls =
     py::module::import( "kwiver.vital.test_interface.python_say" );
   // DEBUG IMPORT FOR CONCRETE
 
   py::list python_concrete_vec =
     mod_discovery.attr( "_get_concrete_pluggable_types" )();
-  for( auto const& o : python_concrete_vec )
+  for( size_t i=0; i < python_concrete_vec.size(); ++i )
   {
-    LOG_DEBUG( log, o.attr("__name__").cast<std::string>() );
-//    kv::python::python_plugin_factory
+    py::object o = python_concrete_vec[i];
+    LOG_DEBUG( log,
+               "Registering factory for python impl for interface \"" <<
+               o.attr("interface_name")().cast< std::string >() << "\": \"" <<
+               o.attr("__name__").cast<std::string>() << "\"");
+    auto *fact = new kv::python::python_plugin_factory( o );
+    vpl.add_factory( fact );
   }
-
 }
 
 // ----------------------------------------------------------------------------

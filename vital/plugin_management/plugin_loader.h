@@ -162,6 +162,8 @@ public:
    * @return A pointer is returned to the added factory. This may be used to set
    * additional attributes to the factory.
    *
+   * @throws plugin_factory_missing_required_attrs
+   * One or more required attributes are not set in the given factory.
    * @throws plugin_already_exists
    * If the factory being added looks to already have been added before.
    *
