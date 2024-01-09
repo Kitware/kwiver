@@ -19,6 +19,8 @@ KWIVER, modulo "fixes" and minor updates for clarity and documentation.
 # Dangling TODOs
 * Change `vital_vpm` naming to something more redundant, e.g. `vital_pm`, or
   `vital_plugins`
+* Use python poetry.
+  * Use with scikit-build potential: https://github.com/tueda/test-poetry-scikit-build
 
 
 # NEXT STEPS
@@ -27,6 +29,7 @@ Figure out plugin stuff for python
 * probably want to expose "pluggable" type.
 * expose plugin manager singleton? just methods?
 
+## notes on upstream python binding contents
 `modules.cxx` is pybind11 exposing singleton instance methods.
 
 `registration.cxx` is for creating a plugin library (à la `register_factories`)
@@ -42,7 +45,7 @@ that ... FIGURE THIS OUT.
 * THIS IS LIKELY THE MAIN REPLACEMENT AREA FOR SMQTK METHOD
 * this currently *does* use entrypoint stuff to some extent
 
-
+## sketch of python plugin loading
 0. [load-all-plugins (python)]
 1. load-all-plugins (c++)
 2. load .so modules
@@ -51,3 +54,17 @@ that ... FIGURE THIS OUT.
         1. setup python, etc. ...
         2. call into python to discover ... impls ... so I also need to know the
            interface "name" with the current registration schema
+           1. get modules (entry-points) under set namespace
+           2. get modules from env var
+           3. retain those that are "not abstract"
+           4. for each...
+              1. wrap in PythonFactory subclass
+                 * sets INTERFACE_TYPE to attr("interface_name")()
+                 * sets CONCRETE_TYPE to `__module__ + __name__`
+                 * sets PLUGIN_NAME to `__name__`
+                 * sets PLUGIN_DESCRIPTION to `__doc__` maybe?
+              2. register with vpl via python factory subclass.
+
+Could really use some modification of Pluggable base-class binding to
+expose/require "abstract" instance/class-methods.
+- trouble/cannot inject abc.ABCMeta metaclass in bindings layer

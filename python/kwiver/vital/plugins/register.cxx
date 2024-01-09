@@ -14,8 +14,9 @@
 #include <vital/plugin_management/plugin_loader.h>
 
 #include <python/kwiver/internal/python.h>
+#include <python/kwiver/internal/python_plugin_factory.h>
 
-#include "plugins_from_python_export.h"
+#include <python/kwiver/vital/plugins/plugins_from_python_export.h>
 
 
 namespace kv = ::kwiver::vital;
@@ -38,6 +39,16 @@ extern "C"
 [[maybe_unused]] PLUGINS_FROM_PYTHON_EXPORT
 void register_factories( ::kv::plugin_loader & vpl )
 {
+  ::kv::logger_handle_t log = ::kv::get_logger(
+    "python.kwiver.vital.plugins.register_factories"
+  );
+
+  // TODO: Hook to skip python plugin registration.
+  //   !!! This would explicitly be before potentially starting the
+  //       interpreter. Base on the presence of an environment variable.
+  //       Was previously "SPROKIT_NO_PYTHON_MODULES", should be something more
+  //       applicable (this isn't sprokit specific).
+
   // Make sure there is an interpreter running.
   check_and_initialize_python_interpreter();
 
@@ -54,7 +65,22 @@ void register_factories( ::kv::plugin_loader & vpl )
   //   * Modify local version of KWSYS to also pass the `RTLD_GLOBAL` flag?
 
   // Generate factories to add to `vpl`.
-  // TODO
+  py::object const mod_discovery =
+    py::module::import( "kwiver.vital.plugins.discovery" );
+
+  // DEBUG IMPORT FOR CONCRETE
+  py::object const mod_debug_impls =
+    py::module::import( "kwiver.vital.test_interface.python_say" );
+  // DEBUG IMPORT FOR CONCRETE
+
+  py::list python_concrete_vec =
+    mod_discovery.attr( "_get_concrete_pluggable_types" )();
+  for( auto const& o : python_concrete_vec )
+  {
+    LOG_DEBUG( log, o.attr("__name__").cast<std::string>() );
+//    kv::python::python_plugin_factory
+  }
+
 }
 
 // ----------------------------------------------------------------------------

@@ -195,7 +195,7 @@ private:
  * runtime.
  *
  * This should be used to create a real factory that can create instances of the
- * templated 
+ * templated concrete type.
  *
  * @tparam INTERFACE Type of the interface the concrete class is based on.
  * @tparam CONCRETE Type of the concrete class created.

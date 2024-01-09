@@ -18,5 +18,8 @@ PYBIND11_MODULE(_pluggable, m)
     // provide NotImplementedError raising class methods for expected
     // static/class methods that implementations are expected to provide.
     // TODO: See above, pair with motivating use-case/unit-test.
+    // TODO: Would love to implement classmethods defining default
+    //       implementations...
+    //       Try? https://github.com/pybind/pybind11/issues/1693
     ;
 }
