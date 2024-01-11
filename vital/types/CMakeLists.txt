@@ -16,6 +16,7 @@ set( vital_types_public_headers
   metadata.h
   metadata_map.h
   metadata_traits.h
+  metadata_stream.h
   polygon.h
   timestamp.h
   vector.h
@@ -32,6 +33,7 @@ set( vital_type_sources
   image.cxx
   metadata.cxx
   metadata_traits.cxx
+  metadata_stream.cxx
   polygon.cxx
   timestamp.cxx
   video_raw_image.cxx
