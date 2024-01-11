@@ -155,32 +155,13 @@ apply_segment(
   return { begin_it, end_it };
 }
 
-// ----------------------------------------------------------------------------
-apply_child_klv
-::apply_child_klv()
-{}
 
 // ----------------------------------------------------------------------------
 apply_child_klv
 ::~apply_child_klv()
 {}
 
-// ----------------------------------------------------------------------------
-vital::config_block_sptr
-apply_child_klv
-::get_configuration() const
-{
-  return algorithm::get_configuration();
-}
 
-// ----------------------------------------------------------------------------
-void
-apply_child_klv
-::set_configuration( vital::config_block_sptr config )
-{
-  auto existing_config = algorithm::get_configuration();
-  existing_config->merge_config( config );
-}
 
 // ----------------------------------------------------------------------------
 bool
