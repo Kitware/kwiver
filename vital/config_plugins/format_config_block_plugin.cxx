@@ -2,10 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include "vital/config/format_config_block.h"
-
+#include <vital/config/config_helpers.txx>
+#include <vital/config/format_config_block.h>
 #include <vital/config_plugins/format_config_export.h>
-
 #include <vital/plugin_management/plugin_manager.h>
 #include <vital/util/wrap_text_block.h>
 #include <vital/util/string.h>
@@ -19,17 +18,18 @@ class FORMAT_CONFIG_NO_EXPORT format_config_block_markdown
   : public format_config_block
 {
 public:
-  PLUGGABLE_IMPL_BASIC(
+  PLUGGABLE_IMPL(
     format_config_block_markdown,
     "Format config block with markdown"
   )
 
-  PLUGGABLE_CONSTRUCTOR( format_config_block_markdown )
-
-  PLUGGABLE_STATIC_FROM_CONFIG( format_config_block_markdown )
-  PLUGGABLE_STATIC_GET_DEFAULT()
-
   void print( const config_block_sptr config, std::ostream& str ) override;
+
+protected:
+  void
+  set_configuration_internal( [[maybe_unused]] config_block_sptr ) override {}
+  void
+  initialize() override {}
 }; // end class format_config_block_markdown
 
 // ----------------------------------------------------------------------------
