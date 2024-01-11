@@ -143,6 +143,8 @@ set( sources
   write_track_descriptor_set.cxx
 )
 
+###
+## Install header files
 kwiver_install_headers(
   ${public_headers}
   SUBDIR   vital/algo
@@ -167,6 +169,7 @@ target_link_libraries( vital_algo
   PUBLIC          vital
                   vital_config
                   vital_logger
+                  vital_types
                   vital_vpm
   )
 
