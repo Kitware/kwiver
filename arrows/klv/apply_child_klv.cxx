@@ -185,7 +185,7 @@ apply_child_klv
 // ----------------------------------------------------------------------------
 bool
 apply_child_klv
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -195,7 +195,7 @@ vital::metadata_vector
 apply_child_klv
 ::filter(
   vital::metadata_vector const& input_metadata,
-  VITAL_UNUSED vital::image_container_scptr const& input_image )
+  [[maybe_unused]] vital::image_container_scptr const& input_image )
 {
   vital::metadata_vector results;
   for( auto const& src_md : input_metadata )
