@@ -50,14 +50,19 @@ public:
     kv::vital_metadata_tag tag,
     kv::metadata_value const& value );
 
-  bool write_remaining_columns{ true };
-  bool write_enum_names{ false };
-  std::string names_string;
+  priv(metadata_map_io_csv& par)
+  :parent(par)
+  {}
+  
+  metadata_map_io_csv& parent;
+  bool write_remaining_columns() { return parent.c_write_remaining_columns; }
+  bool write_enum_names() { return parent.c_write_enum_names; }
+  std::string names_string() { return parent.c_column_names; }
   std::vector< std::string > column_names;
-  std::string overrides_string;
+  std::string overrides_string() {return parent.c_column_overrides; }
   std::vector< std::string > column_overrides;
-  uint64_t every_n_microseconds{ 0 };
-  uint64_t every_n_frames{ 0 };
+  uint64_t every_n_microseconds() { return parent.c_every_n_microseconds; }
+  uint64_t every_n_frames() { return parent.c_every_n_frames; } 
 };
 
 namespace {
@@ -453,10 +458,9 @@ metadata_map_io_csv::priv
 }
 
 // ----------------------------------------------------------------------------
-metadata_map_io_csv
-::metadata_map_io_csv()
-  : d_{ new priv }
+void metadata_map_io_csv::initialize()
 {
+  KWIVER_INITIALIZE_UNIQUE_PTR(priv, d_);
   attach_logger( "arrows.core.metadata_map_io" );
 }
 
@@ -469,16 +473,8 @@ metadata_map_io_csv
 // ----------------------------------------------------------------------------
 void
 metadata_map_io_csv
-::set_configuration( vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
-  d_->write_remaining_columns =
-    config->get_value< bool >( "write_remaining_columns", true );
-  d_->write_enum_names =
-    config->get_value< bool >( "write_enum_names", false );
-  d_->every_n_microseconds =
-    config->get_value< uint64_t >( "every_n_microseconds", 0 );
-  d_->every_n_frames =
-    config->get_value< uint64_t >( "every_n_frames", 0 );
 
   auto const split_and_trim =
     []( std::string const& s ) -> std::vector< std::string > {
@@ -494,12 +490,9 @@ metadata_map_io_csv
       return result;
     };
 
-  d_->names_string = config->get_value< std::string >( "column_names", "" );
-  d_->column_names = split_and_trim( d_->names_string );
-  d_->overrides_string =
-    config->get_value< std::string >( "column_overrides", "" );
-  d_->column_overrides = split_and_trim( d_->overrides_string );
-  d_->column_overrides.resize( d_->column_names.size() );
+  d_->column_names = split_and_trim( this->c_column_names );
+  d_->column_overrides = split_and_trim( this->c_column_overrides );
+  d_->column_overrides.resize( this->c_column_names.size() );
 }
 
 // ----------------------------------------------------------------------------
@@ -509,39 +502,6 @@ metadata_map_io_csv
 {
   return !( config->get_value< uint64_t >( "every_n_microseconds", 0 ) &&
             config->get_value< uint64_t >( "every_n_frames", 0 ) );
-}
-
-// ----------------------------------------------------------------------------
-vital::config_block_sptr
-metadata_map_io_csv
-::get_configuration() const
-{
-  // get base config from base class
-  auto config = algorithm::get_configuration();
-
-  config->set_value( "column_names", d_->names_string,
-                     "Comma-separated values specifying column order. Can "
-                     "either be the enum names, e.g. VIDEO_KEY_FRAME or the "
-                     "description, e.g. 'Is frame a key frame'. For composite "
-                     "data types, index using '.', e.g. 'SENSOR_LOCATION.2' "
-                     "for sensor altitude." );
-  config->set_value( "column_overrides", d_->overrides_string,
-                     "Comma-separated values overriding the final column names"
-                     "as they appear in the output file. Order matches up with"
-                     "column_names." );
-  config->set_value( "write_enum_names", d_->write_enum_names,
-                     "Write enum names rather than descriptive names" );
-  config->set_value( "write_remaining_columns", d_->write_remaining_columns,
-                     "Write columns present in the metadata but not in the "
-                     "manually-specified list." );
-  config->set_value( "every_n_microseconds", d_->every_n_microseconds,
-                     "Minimum time between successive rows of output. Frames "
-                     "more frequent than this will be ignored. If nonzero, "
-                     "frames without a timestamp are also ignored." );
-  config->set_value( "every_n_frames", d_->every_n_frames,
-                     "Number of frames to skip between successive rows of "
-                     "output, plus one. A value of 1 will print every frame." );
-  return config;
 }
 
 // ----------------------------------------------------------------------------
@@ -670,7 +630,7 @@ metadata_map_io_csv
     info.id = parse_column_id( name );
     info.name =
       name_override.empty()
-        ? get_column_name( info.id, d_->write_enum_names )
+        ? get_column_name( info.id, d_->write_enum_names() )
         : name_override;
 
     if( info.id.tag != kv::VITAL_META_UNKNOWN )
@@ -683,11 +643,11 @@ metadata_map_io_csv
 
   // Determine whether to write columns present in the metadata but not
   // explicitly provided
-  if( d_->write_remaining_columns )
+  if( d_->write_remaining_columns() )
   {
     for( auto const& id : remaining_ids )
     {
-      auto const name = get_column_name( id, d_->write_enum_names );
+      auto const name = get_column_name( id, d_->write_enum_names() );
       infos.push_back( { id, name } );
     }
   }
@@ -701,14 +661,14 @@ metadata_map_io_csv
   }
   csv_os << core::csv::endl;
 
-  if( d_->every_n_microseconds && d_->every_n_frames )
+  if( d_->every_n_microseconds() && d_->every_n_frames() )
   {
     throw kv::algorithm_configuration_exception(
-      this->type_name(), this->impl_name(),
+      this->interface_name(), this->plugin_name(),
       "options 'every_n_microseconds' and 'every_n_frames' are incompatible" );
   }
 
-  int64_t next_timestamp = d_->every_n_microseconds;
+  int64_t next_timestamp = d_->every_n_microseconds();
   int64_t next_frame = 1;
   for( auto const& frame_data : data->metadata() )
   {
@@ -717,7 +677,7 @@ metadata_map_io_csv
       frame_data.second.size()
       ? frame_data.second.at( 0 )->timestamp()
       : kv::timestamp{};
-    if( d_->every_n_microseconds )
+    if( d_->every_n_microseconds() )
     {
       if( !timestamp.has_valid_time() ||
           timestamp.get_time_usec() < next_timestamp )
@@ -726,9 +686,9 @@ metadata_map_io_csv
       }
       next_timestamp +=
         ( ( timestamp.get_time_usec() - next_timestamp ) /
-          d_->every_n_microseconds + 1 ) * d_->every_n_microseconds;
+          d_->every_n_microseconds() + 1 ) * d_->every_n_microseconds();
     }
-    if( d_->every_n_frames )
+    if( d_->every_n_frames() )
     {
       if( !timestamp.has_valid_frame() ||
           timestamp.get_frame() < next_frame )
@@ -737,7 +697,7 @@ metadata_map_io_csv
       }
       next_frame +=
         ( ( timestamp.get_frame() - next_frame ) /
-          d_->every_n_frames + 1 ) * d_->every_n_frames;
+          d_->every_n_frames() + 1 ) * d_->every_n_frames();
     }
 
     for( auto const& metadata_packet : frame_data.second )
