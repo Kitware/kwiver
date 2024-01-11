@@ -26,4 +26,11 @@
 #cmakedefine01  VITAL_USE_ABI_DEMANGLE
 #cmakedefine  VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
 
+// xxx(kwiver-v2)
+// kwiver-v2 targets C++17 let's used the available attributes and keywords
+// keeping them as defines so we can have custom definitions in kwiver-v1/v2
+// we can remove them once the transition is complete
+#define VITAL_UNUSED [[maybe_unused]]
+#define VITAL_DEFAULT_DTOR = default;
+#define VITAL_DEFAULT_CTOR = default;
 #endif // VITAL_VITAL_CONFIG_H
