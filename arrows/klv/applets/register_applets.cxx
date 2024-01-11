@@ -8,7 +8,6 @@
 #include <arrows/klv/applets/compare_klv.h>
 #include <arrows/klv/applets/kwiver_algo_klv_applets_export.h>
 
-#include <vital/applets/applet_registrar.h>
 #include <vital/plugin_management/plugin_loader.h>
 
 namespace kwiver {
@@ -23,16 +22,14 @@ KWIVER_ALGO_KLV_APPLETS_EXPORT
 void
 register_factories( vital::plugin_loader& vpm )
 {
-  applet_registrar registrar( vpm, "arrows.klv.applets" );
+  
+  using namespace kwiver::tools;
+  using kvpf = ::kwiver::vital::plugin_factory;
 
-  if( registrar.is_module_loaded() )
-  {
-    return;
-  }
-
-  registrar.register_tool< compare_klv >();
-
-  registrar.mark_module_as_loaded();
+  auto fact =
+    vpm.add_factory< kwiver_applet, compare_klv >( "compare-klv" );
+    fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_klv_applets" )
+    .add_attribute( kvpf::ALGORITHM_CATEGORY, kvpf::APPLET_CATEGORY );
 }
 
 } // namespace klv

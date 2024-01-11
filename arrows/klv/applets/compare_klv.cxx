@@ -19,6 +19,8 @@
 #include <vital/algo/video_input.h>
 #include <vital/config/config_block_io.h>
 
+#include <vital/algo/algorithm.txx>
+
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
@@ -56,9 +58,9 @@ public:
     {
       config->set_value( "metadata_input:klv-json:compress", true );
     }
-    vital::algo::metadata_map_io::set_nested_algo_configuration(
+    vital::set_nested_algo_configuration<vital::algo::metadata_map_io>(
       "metadata_input", config, importer );
-    vital::algo::metadata_map_io::get_nested_algo_configuration(
+    vital::get_nested_algo_configuration<vital::algo::metadata_map_io>(
       "metadata_input", config, importer );
     if( !importer )
     {
@@ -96,9 +98,9 @@ public:
     std::filesystem::path const& filepath,
     vital::config_block_sptr const& config )
   {
-    vital::algo::video_input::set_nested_algo_configuration(
+    vital::set_nested_algo_configuration<vital::algo::video_input>(
       "video_input", config, m_video );
-    vital::algo::video_input::get_nested_algo_configuration(
+    vital::get_nested_algo_configuration<vital::algo::video_input>(
       "video_input", config, m_video );
 
     if( !m_video )
@@ -190,7 +192,7 @@ struct istream_data
 class compare_klv::impl
 {
 public:
-  impl();
+  impl(compare_klv&);
 
   void print_breadcrumbs() const;
   void print_difference( std::string const& message ) const;
@@ -222,6 +224,8 @@ public:
 
   // Tracks current "location" in KLV to inform user where the differences are
   std::list< std::string > breadcrumbs;
+
+  compare_klv& parent;
 };
 
 // ----------------------------------------------------------------------------
@@ -235,7 +239,8 @@ struct possible_pair
 
 // ----------------------------------------------------------------------------
 compare_klv::impl
-::impl()
+::impl(compare_klv& parent)
+:parent(parent)
 {}
 
 // ----------------------------------------------------------------------------
@@ -624,10 +629,11 @@ compare_klv::impl
 }
 
 // ----------------------------------------------------------------------------
-compare_klv
-::compare_klv()
-  : d{ new impl }
-{}
+void compare_klv::initialize()
+{
+  KWIVER_INITIALIZE_UNIQUE_PTR(impl,d);
+}
+
 
 // ----------------------------------------------------------------------------
 int
