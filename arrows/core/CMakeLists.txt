@@ -155,11 +155,16 @@ target_link_libraries( kwiver_algo_core
   PUBLIC               vital_algo
   PRIVATE              kwiversys
                        vital_config
+                       vital_types
   )
 
-algorithms_create_plugin( kwiver_algo_core
-  register_algorithms.cxx
-  )
+kwiver_add_plugin( kwiver_algo_core_plugin
+                   SOURCES          register_algorithms.cxx
+                   PRIVATE
+                                    vital_vpm
+                                    kwiver_algo_core
+                   SUBDIR           ${kwiver_plugin_algorithm_subdir}
+                   )
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
