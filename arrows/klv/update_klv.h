@@ -28,14 +28,33 @@ class KWIVER_ALGO_KLV_EXPORT update_klv
   : public vital::algo::buffered_metadata_filter
 {
 public:
-  update_klv();
   virtual ~update_klv();
+  
+  PLUGGABLE_IMPL(
+    // name 
+    update_klv,
+    // description
+    "Edits klv packets based on vital metadata values.",
+    //parameters
+    PARAM_DEFAULT(st1108_frequency, size_t,
+          "How often (in frames) to encode a ST1108 packet.",
+          1),
+    PARAM_DEFAULT(st1108_inter, std::string,
+           "How to deal with a group of multiple frames when st1108_frequency > 1. "
 
-  PLUGIN_INFO( "update_klv",
-               "Edits klv packets based on vital metadata values." )
+           "'sample' will create a packet with the metric values of the first frame "
+           "of the group and associate it with the first frame only, leaving the rest "
+           "of the frames in the group with no associated values. "
 
-  vital::config_block_sptr get_configuration() const override;
-  void set_configuration( vital::config_block_sptr config ) override;
+           "'sample_smear' will create a packet with the metric values of the first "
+           "frame of the group and associate it with all frames in the group. "
+
+           "'mean' will create a packet with the averages of the group's metric "
+           "values and associate it with all frames in the group.",
+           // default value
+            "sample")
+    );
+
   bool check_configuration( vital::config_block_sptr config ) const override;
 
   size_t send(
@@ -48,8 +67,9 @@ public:
   size_t unavailable_frames() const override;
 
 private:
+  void initialize() override;
   class impl;
-  std::unique_ptr< impl > d;
+  KWIVER_UNIQUE_PTR(impl,d);
 };
 
 } // namespace klv
