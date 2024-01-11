@@ -2020,7 +2020,7 @@ ffmpeg_video_input
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
-::check_configuration( VITAL_UNUSED kv::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] kv::config_block_sptr config ) const
 {
   return true;
 }
@@ -2067,7 +2067,7 @@ ffmpeg_video_input
 bool
 ffmpeg_video_input
 ::next_frame( kv::timestamp& ts,
-              VITAL_UNUSED uint32_t timeout )
+              [[maybe_unused]] uint32_t timeout )
 {
   d->assert_open( "next_frame()" );
 
