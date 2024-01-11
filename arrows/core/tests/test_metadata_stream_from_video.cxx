@@ -97,6 +97,12 @@ public:
   void
   set_configuration( config_block_sptr ) override {}
 
+  config_block_sptr
+  get_configuration() const override {
+    auto cb = config_block::empty_config();
+    return cb;
+  }
+
   bool
   check_configuration( config_block_sptr ) const override { return true; }
 
