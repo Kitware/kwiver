@@ -15,10 +15,15 @@
 #include <cstdint>
 #include <memory>
 
-#include <vital/typedefs.h>
-
 namespace kwiver {
 namespace vital {
+
+/// The type to be used for general strings
+typedef std::string string_t;
+
+/// The type to be used for file and directory paths
+typedef std::string path_t;
+typedef std::vector< path_t > path_list_t;
 
 /// The type of a landmark ID number
 typedef int64_t landmark_id_t;
@@ -34,6 +39,15 @@ typedef int64_t time_usec_t;
 
 // -- concrete types --
 typedef double gsd_t;
+
+// a short name for unsigned char
+typedef unsigned char byte;
+
+enum class clone_type
+{
+  SHALLOW,
+  DEEP,
+};
 
 // Logger handle
 class kwiver_logger;

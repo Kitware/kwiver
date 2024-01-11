@@ -93,7 +93,6 @@ set( vital_public_headers
   noncopyable.h
   set.h
   signal.h
-  typedefs.h
 
   io/camera_from_metadata.h
   io/camera_io.h
@@ -329,7 +328,7 @@ add_subdirectory( logger )
 add_subdirectory( types )
 # -- Creates library "vital_vpm"
 # Requires: vital_exceptions, vital_logger, vital_util
-# Uses common headers: typedefs.h
+# Uses common headers: vital_types.h
 add_subdirectory( plugin_management )
 # -- Created library "vital_applets"
 add_subdirectory( applets )
