@@ -9,7 +9,7 @@
 
 #include "kw_archive_writer_process.h"
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/vital_types.h>
 #include <vital/types/geodesy.h>
 #include <vital/types/image_container.h>

@@ -5,7 +5,7 @@
 #include <test_common.h>
 
 #include <vital/config/config_block.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <sprokit/pipeline/process_cluster.h>
 #include <sprokit/pipeline/process_factory.h>

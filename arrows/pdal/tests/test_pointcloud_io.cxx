@@ -12,7 +12,7 @@
 #include <arrows/proj/geo_conv.h>
 #include <vital/exceptions/io.h>
 #include <vital/io/landmark_map_io.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <fstream>
 

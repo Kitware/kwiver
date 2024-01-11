@@ -14,6 +14,7 @@ namespace kwiver {
 namespace tools {
 
 /// Load and merge the appropriate default video configuration based on filename
+/// TODO: This needs a better location...
 inline kwiver::vital::config_block_sptr
 load_default_video_input_config(std::string const& video_file_name)
 {

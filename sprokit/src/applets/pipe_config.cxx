@@ -8,7 +8,7 @@
 
 #include <vital/config/config_block.h>
 #include <vital/config/config_block_io.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/util/get_paths.h>
 
 #include <sprokit/pipeline_util/export_pipe.h>

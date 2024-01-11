@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include <arrows/core/uv_unwrap_mesh.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/types/mesh.h>
 
 #include <gtest/gtest.h>

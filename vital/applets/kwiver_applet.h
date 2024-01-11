@@ -5,11 +5,12 @@
 #ifndef KWIVER_TOOLS_KWIVER_APPLET_H
 #define KWIVER_TOOLS_KWIVER_APPLET_H
 
-#include <vital/applets/kwiver_tools_applet_export.h>
-#include <vital/plugin_loader/plugin_info.h>
+#include <vital/applets/vital_applets_export.h>
+#include <vital/plugin_management/plugin_info.h>
 
 #include <vital/applets/cxxopts.hpp>
 #include <vital/config/config_block.h>
+#include <vital/plugin_management/pluggable.h>
 
 #include <ostream>
 #include <memory>
@@ -26,11 +27,13 @@ class applet_context;
 ///
 /// This class represents the abstract base class for all loadable
 /// applets.
-class KWIVER_TOOLS_APPLET_EXPORT kwiver_applet
+class VITAL_APPLETS_EXPORT kwiver_applet : public vital::pluggable
 {
 public:
   kwiver_applet();
   virtual ~kwiver_applet();
+
+  static std::string interface_name() { return "kwiver_applet"; }
 
   void initialize( kwiver::tools::applet_context* ctxt );
 

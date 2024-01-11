@@ -11,7 +11,7 @@
 #include <arrows/klv/klv_metadata.h>
 #include <arrows/serialize/json/klv/metadata_map_io.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <kwiversys/SystemTools.hxx>
 

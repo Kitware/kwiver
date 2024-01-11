@@ -8,7 +8,7 @@
 #include <test_gtest.h>
 
 #include <arrows/core/interpolate_track_spline.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 namespace kv = kwiver::vital;
 namespace kac = kwiver::arrows::core;

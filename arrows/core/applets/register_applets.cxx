@@ -8,7 +8,7 @@
  */
 
 #include <arrows/core/applets/kwiver_algo_core_applets_export.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 #include <vital/applets/applet_registrar.h>
 
 #include <arrows/core/applets/dump_klv.h>

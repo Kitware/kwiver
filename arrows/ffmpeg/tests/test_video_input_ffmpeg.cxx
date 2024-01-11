@@ -13,7 +13,7 @@
 
 #include <vital/exceptions/io.h>
 #include <vital/exceptions/video.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <kwiversys/SystemTools.hxx>
 

@@ -14,7 +14,7 @@
 #include <arrows/mvg/transform.h>
 #include <arrows/mvg/algo/initialize_cameras_landmarks_basic.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <vital/types/similarity.h>
 

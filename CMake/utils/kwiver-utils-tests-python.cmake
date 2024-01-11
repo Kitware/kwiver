@@ -179,13 +179,6 @@ endfunction()
 # Add test data to nosetest directory
 #
 function (kwiver_python_add_test_data file_name file_dst)
-
-  if(SKBUILD)
-    set ( install_path "${file_dst}/tests/data")
-  else()
-    set ( install_path "${file_dst}/tests/data")
-  endif()
-
+  set ( install_path "${file_dst}/tests/data")
   file(COPY ${file_name} DESTINATION ${install_path})
-
 endfunction()

@@ -4,7 +4,7 @@
 
 #include <sprokit/processes/tests/kwiver_processes_test_export.h>
 #include <sprokit/pipeline/process_factory.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 
 // -- list processes to register --
 #include "test_proc_seq.h"

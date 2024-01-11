@@ -8,7 +8,7 @@
 #include <test_eigen.h>
 #include <test_random_point.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 using namespace kwiver::vital;
 using namespace kwiver::arrows;

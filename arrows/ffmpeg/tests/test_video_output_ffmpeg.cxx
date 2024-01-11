@@ -9,7 +9,7 @@
 #include <arrows/ffmpeg/ffmpeg_video_output.h>
 #include <arrows/klv/klv_metadata.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/range/iota.h>
 
 #include <random>

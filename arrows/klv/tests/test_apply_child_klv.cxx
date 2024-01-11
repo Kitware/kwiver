@@ -7,7 +7,7 @@
 
 #include "data_format.h"
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <arrows/klv/apply_child_klv.h>
 #include <arrows/klv/klv_metadata.h>

@@ -10,6 +10,7 @@
 #include <kwiversys/SystemTools.hxx>
 #include <vital/algo/algorithm.txx>
 #include <vital/exceptions/io.h>
+#include <vital/types/local_geo_cs.h>
 
 /// \cond DoxygenSuppress
 INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::pointcloud_io );
@@ -43,7 +44,7 @@ pointcloud_io
 
 void
 pointcloud_io
-  ::set_local_geo_cs( vital::local_geo_cs const& lgcs )
+  ::set_local_geo_cs( vital::local_geo_cs const& /*lgcs*/ )
 {
   LOG_WARN( logger(), "Setting local geo cs is not implemented." );
 }

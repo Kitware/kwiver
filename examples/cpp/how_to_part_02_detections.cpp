@@ -13,7 +13,7 @@
 #include "vital/algo/detected_object_set_input.h"
 #include "vital/algo/detected_object_set_output.h"
 
-#include "vital/plugin_loader/plugin_manager.h"
+#include "vital/plugin_management/plugin_manager.h"
 
 // We will be calling some OpenCV code, so we need to include
 // some OpenCV related files

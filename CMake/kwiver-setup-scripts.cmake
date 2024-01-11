@@ -1,5 +1,10 @@
 ###
 # Configure setup scripts.
+#
+# These scripts are provided and configured to be sourced before using the
+# build-tree. The setup script may optionally also be installed into the
+# install-tree.
+#
 
 # Create initial setup shell script
 set(KWIVER_SETUP_SCRIPT_FILE    "${KWIVER_BINARY_DIR}/setup_KWIVER.sh" )
@@ -73,7 +78,10 @@ endif()
 ###
 # Install the basic logger properties file.
 file( COPY log4cxx.properties       DESTINATION  "${KWIVER_BINARY_DIR}" )
-install( FILES log4cxx.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
+if( NOT SKBUILD )
+  # Doesn't need to be in the python package
+  install( FILES log4cxx.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
+endif()
 
 if ( KWIVER_ENABLE_LOG4CXX )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export VITAL_LOGGER_FACTORY=$this_dir/lib/${kwiver_plugin_logger_subdir}/vital_log4cxx_logger\n" )
@@ -86,7 +94,10 @@ endif()
 
 ###
 file( COPY log4cplus.properties       DESTINATION  "${KWIVER_BINARY_DIR}" )
-install( FILES log4cplus.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
+if( NOT SKBUILD )
+  # Doesn't need to be in the python package
+  install( FILES log4cplus.properties   DESTINATION ${CMAKE_INSTALL_PREFIX} )
+endif()
 
 if ( KWIVER_ENABLE_LOG4CPLUS )
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export VITAL_LOGGER_FACTORY=$this_dir/lib/${kwiver_plugin_logger_subdir}/vital_log4cplus_logger\n" )

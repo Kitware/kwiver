@@ -9,7 +9,7 @@
 #include <arrows/klv/applets/kwiver_algo_klv_applets_export.h>
 
 #include <vital/applets/applet_registrar.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 
 namespace kwiver {
 
