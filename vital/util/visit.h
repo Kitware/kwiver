@@ -75,7 +75,7 @@ invoke_visitor_return( Visitor&& visitor )
 template < class Visitor, class... Types >
 void
 visit_variant_types( Visitor&& visitor, std::type_info const& type,
-                     VITAL_UNUSED std::variant< Types... > const* )
+                     [[maybe_unused]] std::variant< Types... > const* )
 {
   return visit_types< Visitor, Types... >(
     std::forward< Visitor >( visitor ), type );
@@ -85,7 +85,7 @@ visit_variant_types( Visitor&& visitor, std::type_info const& type,
 template < class ReturnT, class Visitor, class... Types >
 ReturnT
 visit_variant_types_return( Visitor&& visitor, std::type_info const& type,
-                            VITAL_UNUSED std::variant< Types... > const* )
+                            [[maybe_unused]] std::variant< Types... > const* )
 {
   return visit_types_return< ReturnT, Visitor, Types... >(
     std::forward< Visitor >( visitor ), type );
