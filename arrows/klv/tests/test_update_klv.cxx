@@ -8,6 +8,7 @@
 #include "data_format.h"
 
 #include <vital/plugin_management/plugin_manager.h>
+#include <vital/algo/algorithm.txx>
 
 #include <arrows/klv/update_klv.h>
 #include <arrows/klv/klv_metadata.h>
@@ -122,7 +123,7 @@ protected:
 TEST_F ( update_klv_fixture, create )
 {
   EXPECT_NE(
-    nullptr, kv::algo::buffered_metadata_filter::create( "update_klv" ) );
+    nullptr, kv::create_algorithm<kv::algo::buffered_metadata_filter>( "update_klv" ) );
 }
 
 // ----------------------------------------------------------------------------

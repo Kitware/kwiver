@@ -164,6 +164,6 @@ kwiver_add_plugin( kwiver_algo_klv_plugin
 #  add_subdirectory(applets)
 #endif()
 
-#if (KWIVER_ENABLE_TESTS)
-#  add_subdirectory( tests )
-#endif()
+if (KWIVER_ENABLE_TESTS)
+  add_subdirectory( tests )
+endif()

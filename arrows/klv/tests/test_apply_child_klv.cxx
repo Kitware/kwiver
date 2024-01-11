@@ -8,6 +8,7 @@
 #include "data_format.h"
 
 #include <vital/plugin_management/plugin_manager.h>
+#include <vital/algo/algorithm.txx>
 
 #include <arrows/klv/apply_child_klv.h>
 #include <arrows/klv/klv_metadata.h>
@@ -30,7 +31,7 @@ using namespace kwiver::arrows::klv;
 // Ensure we can create the filter with the factory method.
 TEST ( apply_child_klv, create )
 {
-  EXPECT_NE( nullptr, kv::algo::metadata_filter::create( "apply_child_klv" ) );
+  EXPECT_NE( nullptr, kv::create_algorithm<kv::algo::metadata_filter>( "apply_child_klv" ) );
 }
 
 // ----------------------------------------------------------------------------
