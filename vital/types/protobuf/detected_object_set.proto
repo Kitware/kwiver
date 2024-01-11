@@ -1,0 +1,14 @@
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
+
+syntax = "proto2";
+
+import "detected_object.proto";
+package kwiver.protobuf;
+
+message detected_object_set {
+  repeated detected_object detected_objects = 1;
+  // Currently skipping attributes
+  //+TBD
+}
