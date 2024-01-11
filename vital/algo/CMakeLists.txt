@@ -9,6 +9,7 @@
 set( public_headers
   activity_detector.h
   algorithm.h
+  algorithm.txx
   algorithm_factory.h
   analyze_tracks.h
   associate_detections_to_tracks.h
