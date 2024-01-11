@@ -1,0 +1,16 @@
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
+
+syntax = "proto2";
+
+import "track_state.proto";
+import "object_track_state.proto";
+
+package kwiver.protobuf;
+
+message track {
+  required int64 track_id = 1;
+  repeated track_state track_states = 2;
+  repeated object_track_state object_track_states = 3;
+}

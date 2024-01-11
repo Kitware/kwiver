@@ -1,0 +1,24 @@
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
+
+syntax = "proto2";
+
+package kwiver.protobuf;
+
+import "covariance.proto";
+
+//
+// These protobufs support all the point variants
+// The values are ordered x, y, z, w, ...
+//
+
+message point_i {
+  repeated int32 value = 1;
+  required covariance cov = 2;
+}
+
+message point_d {
+  repeated double value = 1;
+  required covariance cov = 2;
+}

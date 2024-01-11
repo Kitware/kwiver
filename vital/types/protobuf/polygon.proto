@@ -1,0 +1,17 @@
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
+
+syntax = "proto2";
+
+package kwiver.protobuf;
+
+message polygon {
+  message point {
+    // This is an ordered vector of points
+    required double x = 1;
+    required double y = 2;
+  }
+
+  repeated point point_list = 3;
+}
