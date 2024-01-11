@@ -38,7 +38,7 @@
     TEST_OPT_3( a, b, __VA_ARGS__ ) \
   )
 
-int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
+static int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
 
 // ----------------------------------------------------------------------------
 // Helper macros
@@ -164,11 +164,13 @@ int _test_opt_arg{ TEST_OPT_ARG( 1, 2, ) };
  * accessor methods that return const& variants of parameter types.
  */
 #define PLUGGABLE_VARIABLES( ... ) \
+IF( HAS_ARGS( __VA_ARGS__ ) )(                 \
 private:                           \
   MAP( PARAM_VAR_DEF, EMPTY, __VA_ARGS__ ) \
 public:                            \
   MAP( PARAM_PUBLIC_GETTER, EMPTY, __VA_ARGS__ ) \
-  MAP( PARAM_PUBLIC_SETTER, EMPTY, __VA_ARGS__ )
+  MAP( PARAM_PUBLIC_SETTER, EMPTY, __VA_ARGS__ ) \
+  )
 
 #define PLUGGABLE_CONSTRUCTOR( class_name, ... ) \
 public:                                          \
@@ -176,11 +178,13 @@ public:                                          \
   IF( HAS_ARGS( __VA_ARGS__ ) )(                 \
     : MAP( PARAM_CONSTRUCTOR_ASSN, COMMA, __VA_ARGS__ )                    \
     )                                            \
-  {}
+  {                                              \
+    this->initialize();                           \
+  }
 
 #define PLUGGABLE_STATIC_FROM_CONFIG( class_name, ... ) \
 public:                                                          \
-  static pluggable_sptr from_config( ::kwiver::vital::config_block_sptr const cb ) \
+  static ::kwiver::vital::pluggable_sptr from_config( [[maybe_unused]] ::kwiver::vital::config_block_sptr const cb ) \
   {                                                              \
     return std::make_shared< class_name >(                       \
       MAP( PARAM_CONFIG_GET, COMMA, __VA_ARGS__ )             \
@@ -189,7 +193,7 @@ public:                                                          \
 
 #define PLUGGABLE_STATIC_GET_DEFAULT( ... ) \
 public:                                     \
-  static void get_default_config( ::kwiver::vital::config_block& cb ) \
+  static void get_default_config( [[maybe_unused]] ::kwiver::vital::config_block& cb ) \
   {                                         \
     MAP( PARAM_CONFIG_DEFAULT_SET, EMPTY, __VA_ARGS__ )               \
   }
@@ -226,85 +230,35 @@ public:                                                 \
   PLUGGABLE_STATIC_GET_DEFAULT( __VA_ARGS__ )
 
 // ----------------------------------------------------------------------------
+// utilties for PIMPL
+// TODO document why nwe need them
+namespace kwiver::vital::detail {
 
-namespace kwiver::vital {
-
-class test_interface : public pluggable
+template < typename T >
+void
+KwiverDefaultDeleter( T* p )
 {
-public:
-  PLUGGABLE_INTERFACE( test_interface )
+  delete p;
+}
 
-  virtual std::string test() = 0;
-};
-typedef std::shared_ptr< test_interface > test_interface_sptr;
+template < typename T >
+void
+KwiverEmptyDeleter( T* p )
+{
+  (void) ( p );
+}
 
+} // namespace kwiver::vital::detail
+
+#define KWIVER_UNIQUE_PTR( type, name ) std::unique_ptr< type, \
+                                                         decltype( &kwiver:: \
+                                                                   vital:: \
+                                                                   detail:: \
+                                                                   KwiverEmptyDeleter \
+                                                                   < type > ) > \
+        name = { nullptr, kwiver::vital::detail::KwiverEmptyDeleter< type > }
+#define KWIVER_INITIALIZE_UNIQUE_PTR( type, \
+                                      name ) this->name = std::unique_ptr< type, decltype( &kwiver::vital::detail::KwiverDefaultDeleter< type > ) >( new type( *this ), kwiver::vital::detail::KwiverDefaultDeleter< type > )
 // ----------------------------------------------------------------------------
 
-/**
- * This impl shows use of more explicit generator macros.
- */
-class test_impl_simple : public test_interface
-{
-public:
-  PLUGGABLE_IMPL_BASIC(
-    test_impl_simple,
-    "This is a simple implementation with no parameters."
-    )
-
-  PLUGGABLE_VARIABLES()
-
-  PLUGGABLE_CONSTRUCTOR( test_impl_simple )
-
-  PLUGGABLE_STATIC_FROM_CONFIG(
-    test_impl_simple,
-    )
-
-  PLUGGABLE_STATIC_GET_DEFAULT()
-
-  std::string
-  test() override
-  {
-    return "simple impl";
-  }
-};
-
-// ----------------------------------------------------------------------------
-
-class test_impl_parameterized : public test_interface
-{
-public:
-//  // Define an x-macro to enumerate parameter structures.
-// #define PARAM_SET() \
-//   PARAM( a, int, "some integer" ), \
-//   PARAM_DEFAULT( b, std::string, "some string", "foo" )
-//
-//   // Expand x-macro contents into the thing that wants parameter structures.
-//   PLUGGABLE_IMPL(
-//     test_impl_parameterized,
-//     "This is a test plugin using nesting",
-//     PARAM_SET()
-//     )
-
-  // or just do it inline if we're only providing it once anyway...
-  PLUGGABLE_IMPL(
-    test_impl_parameterized,
-    "This is a test plugin using nesting",
-    // parameters
-    PARAM( a, int, "some integer" ),
-    PARAM_DEFAULT( b, std::string, "some string", "foo" )
-    )
-
-  std::string
-  test() override
-  {
-    std::stringstream ss;
-    ss << "class with parameters like " << c_a << " and '" + c_b + "'.";
-    return ss.str();
-  }
-};
-
-// ----------------------------------------------------------------------------
-
-} // end namespace kwiver::vital
-
-#endif //PLUGGABLE_MACRO_MAGIC_H
+#endif // PLUGGABLE_MACRO_MAGIC_H

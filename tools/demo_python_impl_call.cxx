@@ -6,6 +6,7 @@
 #include <vital/plugin_management/pluggable_macro_magic.h>
 #include <vital/plugin_management/plugin_manager.h>
 #include <vital/test_interface/say.h>
+#include <vital/test_interface/test_interface.h>
 
 namespace kv = kwiver::vital;
 
