@@ -14,9 +14,11 @@
 
 // interface
 #include <vital/algo/video_input.h>
+#include <vital/algo/metadata_map_io.h>
 
 // implementation
 #include <arrows/core/video_input_filter.h>
+#include <arrows/core/metadata_map_io_csv.h>
 
 namespace kwiver {
 namespace arrows {
@@ -33,6 +35,9 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   auto fact =
     vpl.add_factory< vital::algo::video_input , video_input_filter >( "filter" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
+
+    vpl.add_factory< vital::algo::metadata_map_io , metadata_map_io_csv >( "csv" );
+       fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
 }
 
 } // end namespace core
