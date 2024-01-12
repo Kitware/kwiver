@@ -80,24 +80,6 @@ struct converter<bool, std::string>
   // --------------------------------------------------------------------------
   virtual ~converter() VITAL_DEFAULT_DTOR
 
-  // --------------------------------------------------------------------------
-  virtual bool can_convert( any const & data ) const
-  {
-    return ( data.type() == typeid( std::string ) ) &&
-           convert_map.find( any_cast<std::string>( data ) ) != convert_map.end();
-  }
-
-  // --------------------------------------------------------------------------
-  virtual bool convert( any const& data ) const
-  {
-    auto const it = convert_map.find( any_cast<std::string>( data ) );
-    if ( it != convert_map.end() )
-    {
-      return it->second;
-    }
-    throw bad_any_cast( typeid( bool ).name(), typeid( std::string ).name() );
-  }
-
   //
   // --------------------------------------------------------------------------
   bool
