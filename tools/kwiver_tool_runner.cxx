@@ -5,12 +5,8 @@
 #include <vital/applets/kwiver_applet.h>
 #include <vital/applets/applet_context.h>
 
-#include <vital/applets/applet_registrar.h>
 #include <vital/exceptions/base.h>
-#include <vital/plugin_management/plugin_factory.h>
-#include <vital/plugin_management/plugin_filter_category.h>
-#include <vital/plugin_management/plugin_filter_default.h>
-#include <vital/plugin_management/plugin_manager_internal.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/util/get_paths.h>
 
 #include <algorithm>
@@ -22,7 +18,7 @@
 #include <memory>
 #include <utility>
 
-using applet_factory = kwiver::vital::implementation_factory_by_name< kwiver::tools::kwiver_applet >;
+//using applet_factory = kwiver::vital::implementation_factory_by_name< kwiver::tools::kwiver_applet >;
 using applet_context_t = std::shared_ptr< kwiver::tools::applet_context >;
 
 // ============================================================================
@@ -84,7 +80,7 @@ public:
 /**
  * Generate list of all applets that have been discovered.
  */
-void tool_runner_usage( VITAL_UNUSED applet_context_t ctxt,
+void tool_runner_usage( [[maybe_unused]] applet_context_t ctxt,
                         kwiver::vital::plugin_manager& vpm )
 {
   // display help message
@@ -94,7 +90,7 @@ void tool_runner_usage( VITAL_UNUSED applet_context_t ctxt,
             << "Available tools are listed below:" << std::endl;
 
   // Get list of factories for implementations of the applet
-  const auto fact_list = vpm.get_factories( typeid( kwiver::tools::kwiver_applet ).name() );
+  const auto fact_list = vpm.get_factories<kwiver::tools::kwiver_applet>();
 
   // Loop over all factories in the list and display name and description
   using help_pair = std::pair< std::string, std::string >;
@@ -154,12 +150,14 @@ void help_applet( const command_line_parser& options,
   }
 
   // Create applet based on the name provided
-  applet_factory app_fact;
   std::string buf = "-- Not Set --";
-  auto fact = app_fact.find_factory( options.m_applet_args[1] );
+  kwiver::vital::implementation_factory_by_name<kwiver::tools::kwiver_applet> impl_fact;
+  auto fact = impl_fact.find_factory(options.m_applet_name);
   fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, buf );
 
-  kwiver::tools::kwiver_applet_sptr applet( app_fact.create( options.m_applet_args[1] ) );
+  kwiver::vital::config_block_sptr config = kwiver::vital::config_block::empty_config();
+  kwiver::tools::kwiver_applet_sptr applet( impl_fact.create( options.m_applet_name, config ) );
+
   tool_context->m_applet_name = options.m_applet_args[1];
   applet->initialize( tool_context.get() );
   applet->add_command_options();
@@ -177,7 +175,7 @@ int main(int argc, char *argv[])
   //
   applet_context_t tool_context = std::make_shared< kwiver::tools::applet_context >();
 
-  kwiver::vital::plugin_manager_internal& vpm = kwiver::vital::plugin_manager_internal::instance();
+  kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
 
   const std::string exec_path = kwiver::vital::get_executable_path();
   vpm.add_search_path(exec_path + "/../lib/kwiver/plugins");
@@ -199,8 +197,9 @@ int main(int argc, char *argv[])
   try
   {
     // Create applet based on the name provided
-    applet_factory app_fact;
-    kwiver::tools::kwiver_applet_sptr applet( app_fact.create( options.m_applet_name ) );
+    kwiver::vital::implementation_factory_by_name<kwiver::tools::kwiver_applet> app_fact;
+    kwiver::vital::config_block_sptr config = kwiver::vital::config_block::empty_config();
+    kwiver::tools::kwiver_applet_sptr applet( app_fact.create( options.m_applet_name, config ) );
 
     tool_context->m_applet_name = options.m_applet_name;
     tool_context->m_argv = options.m_applet_args; // save a copy of the args
