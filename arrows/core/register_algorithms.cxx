@@ -28,7 +28,7 @@ namespace core {
 extern "C"
 KWIVER_ALGO_CORE_EXPORT
 void
-register_factories( kwiver::vital::plugin_loader& vpm )
+register_factories( kwiver::vital::plugin_loader& vpl )
 {
   using kvpf = ::kwiver::vital::plugin_factory;
 
