@@ -82,6 +82,6 @@ algorithm
 {
 }
 
-} // namespace kwiver
+} // namespace vital
 
 } // namespace kwiver

@@ -15,8 +15,11 @@ namespace vital{
 
 // make support functions static
 #define WAI_FUNCSPEC static
+// This import order is intentional
+// UNCRUST-OFF
 #include <vital/util/whereami.h>
 #include "whereami.c"
+// UNCRUST-ON
 
 // ----------------------------------------------------------------------------
 std::string
