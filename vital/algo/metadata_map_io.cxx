@@ -16,10 +16,6 @@
 
 #include <fstream>
 
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::metadata_map_io );
-/// \endcond
-
 namespace kwiver {
 
 namespace vital {

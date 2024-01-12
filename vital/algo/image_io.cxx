@@ -14,10 +14,6 @@
 
 #include <kwiversys/SystemTools.hxx>
 
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::image_io );
-/// \endcond
-
 namespace kwiver {
 
 namespace vital {
