@@ -8,6 +8,7 @@
 set( vital_types_public_headers
   activity.h
   activity_type.h
+  attribute_set.h
   bounding_box.h
   camera.h
   camera_intrinsics.h
@@ -18,6 +19,7 @@ set( vital_types_public_headers
   category_hierarchy.h
   class_map.h
   color.h
+  context.h
   covariance.h
   database_query.h
   descriptor.h
@@ -45,6 +47,7 @@ set( vital_types_public_headers
   image_container_set.h
   image_container_set_simple.h
   image.h
+  iterator.h
   iqr_feedback.h
   landmark.h
   landmark_map.h
@@ -66,8 +69,10 @@ set( vital_types_public_headers
   query_result.h
   query_result_set.h
   rotation.h
+  set.h
   sfm_constraints.h
   similarity.h
+  signal.h
   timestamp_config.h
   timestamp.h
   track_descriptor.h
@@ -86,10 +91,12 @@ set( vital_types_public_headers
 set( vital_type_sources
   activity.cxx
   activity_type.cxx
+  attribute_set.cxx
   bounding_box.cxx
   camera_intrinsics.cxx
   camera_perspective.cxx
   camera_rpc.cxx
+  context.cxx
   category_hierarchy.cxx
   database_query.cxx
   descriptor.cxx
