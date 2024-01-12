@@ -35,6 +35,8 @@
 
 #include <kwiversys/SystemTools.hxx>
 
+#include <vital/algo/algorithm.txx>
+
 namespace kv = kwiver::vital;
 namespace kva = kwiver::vital::algo;
 
@@ -87,12 +89,6 @@ add_command_options()
 }
 
 // ----------------------------------------------------------------------------
-dump_klv
-::dump_klv()
-{
-}
-
-// ----------------------------------------------------------------------------
 int
 dump_klv
 ::run()
@@ -124,7 +120,7 @@ dump_klv
   kva::metadata_map_io_sptr metadata_serializer_ptr;
   kva::image_io_sptr image_writer;
   auto config = this->find_configuration("applets/dump_klv.conf");
-
+  
   // If --config given, read in config file, merge in with default just generated
   if( cmd_args.count("config") )
   {
@@ -164,20 +160,20 @@ dump_klv
   {
     config->set_value( "metadata_serializer:klv-json:compress", true );
   }
+  
+  kv::set_nested_algo_configuration<>("video_reader", config, video_reader );
+  kv::get_nested_algo_configuration<>("video_reader", config, video_reader );
 
-  kva::video_input::set_nested_algo_configuration(
-    "video_reader", config, video_reader );
-  kva::video_input::get_nested_algo_configuration(
-    "video_reader", config, video_reader );
-  kva::metadata_map_io::set_nested_algo_configuration(
+  kv::set_nested_algo_configuration<>(
     "metadata_serializer", config, metadata_serializer_ptr );
-  kva::metadata_map_io::get_nested_algo_configuration(
+  kv::get_nested_algo_configuration<>(
     "metadata_serializer", config, metadata_serializer_ptr );
+
   if( cmd_args.count( "frames" ) )
   {
-    kva::image_io::set_nested_algo_configuration(
+    kv::set_nested_algo_configuration(
       "image_writer", config, image_writer );
-    kva::image_io::get_nested_algo_configuration(
+    kv::get_nested_algo_configuration(
       "image_writer", config, image_writer );
   }
 
@@ -198,14 +194,14 @@ dump_klv
     return EXIT_SUCCESS;
   }
 
-  if( !kva::video_input::check_nested_algo_configuration(
+  if( !kv::check_nested_algo_configuration<kva::video_input>(
          "video_reader", config ) )
   {
     std::cerr << "Invalid video_reader config" << std::endl;
     return EXIT_FAILURE;
   }
 
-  if ( !kva::metadata_map_io::check_nested_algo_configuration(
+  if ( !kv::check_nested_algo_configuration<kva::metadata_map_io>(
           "metadata_serializer", config ) )
   {
     std::cerr << "Invalid metadata_serializer config" << std::endl;
@@ -213,7 +209,7 @@ dump_klv
   }
 
   if( cmd_args.count( "frames" ) &&
-      !kva::image_io::check_nested_algo_configuration(
+      !kv::check_nested_algo_configuration<kva::image_io>(
          "image_writer", config ) )
   {
     std::cerr << "Invalid image_writer config" << std::endl;
