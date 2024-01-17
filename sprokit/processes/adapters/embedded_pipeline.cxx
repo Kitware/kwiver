@@ -13,7 +13,7 @@
 #include <vital/config/config_block.h>
 #include <vital/config/config_block_io.h>
 #include <vital/logger/logger.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/vital_config.h>
 
 #include <sprokit/pipeline_util/pipeline_builder.h>

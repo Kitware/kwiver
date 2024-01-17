@@ -33,7 +33,7 @@ namespace algo {
 /// This class represents an abstract interface for reading and writing video
 /// metadata.
 class VITAL_ALGO_EXPORT metadata_map_io
-  : public kwiver::vital::algorithm_def< metadata_map_io >
+  : public kwiver::vital::algorithm
 {
 public:
   virtual ~metadata_map_io() = default;

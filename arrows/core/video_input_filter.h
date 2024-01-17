@@ -9,6 +9,9 @@
 
 #include <arrows/core/kwiver_algo_core_export.h>
 
+#include <vital/algo/algorithm.txx>
+
+#include "vital/plugin_management/pluggable_macro_magic.h"
 namespace kwiver {
 namespace arrows {
 namespace core {
@@ -22,22 +25,40 @@ class KWIVER_ALGO_CORE_EXPORT video_input_filter
   : public  vital::algo::video_input
 {
 public:
-  PLUGIN_INFO( "filter",
-               "A video input that calls another video input"
-               " and filters the output on frame range and other parameters." )
+   
 
-  /// Constructor
-  video_input_filter();
+  PLUGGABLE_IMPL(
+    video_input_filter,
+     "A video input that calls another video input"
+     " and filters the output on frame range and other parameters.",
+    PARAM_DEFAULT(start_at_frame, vital::frame_id_t, 
+          "Frame number (from 1) to start processing video input. " 
+          "If set to zero, start at the beginning of the video.", 
+          1),
+    PARAM_DEFAULT(stop_after_frame,vital::frame_id_t, 
+          "End the video after passing this frame number. "
+          "Set this value to 0 to disable filter.",
+          0),
+    PARAM_DEFAULT(output_nth_frame,vital::frame_id_t, 
+          "Only outputs every nth frame of the video starting at the " 
+          "first frame. The output of num_frames still reports the total " 
+          "frames in the video but skip_frame is valid every nth frame " 
+          "only and there are metadata_map entries for only every nth " 
+          "frame.",
+          1),
+      PARAM_DEFAULT(frame_rate,double, 
+          "Number of frames per second. "
+          "If the video does not provide a valid time, use this rate "
+          "to compute frame time.  Set 0 to disable.",
+          30.0),
+      PARAM(video_input,vital::algo::video_input_sptr, 
+          "pointer to the nested algorithm")
+          )
+  
   virtual ~video_input_filter();
 
-  /// Get this algorithm's \link vital::config_block configuration block \endlink
-  virtual vital::config_block_sptr get_configuration() const;
-
-  /// Set this algorithm's properties via a config block
-  virtual void set_configuration(vital::config_block_sptr config);
-
   /// Check that the algorithm's currently configuration is valid
-  virtual bool check_configuration(vital::config_block_sptr config) const;
+  bool check_configuration(vital::config_block_sptr config) const override;
 
   virtual void open( std::string name );
   virtual void close();
@@ -63,9 +84,10 @@ public:
   kwiver::vital::video_settings_uptr implementation_settings() const override;
 
 private:
+  void initialize() override;
   /// private implementation class
   class priv;
-  const std::unique_ptr<priv> d;
+  KWIVER_UNIQUE_PTR(priv,d);
 };
 
 } } } // end namespace

@@ -8,7 +8,7 @@
 #include <arrows/core/render_mesh_depth_map.h>
 #include <arrows/core/mesh_operations.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/types/camera_perspective_map.h>
 #include <vital/util/transform_image.h>
 #include <vital/util/cpu_timer.h>

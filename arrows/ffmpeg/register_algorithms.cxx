@@ -3,42 +3,39 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Register VXL algorithms implementation
+/// \brief Register FFMPEG  algorithms implementation
 
 #include <arrows/ffmpeg/kwiver_algo_ffmpeg_plugin_export.h>
-#include <vital/algo/algorithm_factory.h>
+#include <vital/plugin_management/plugin_manager.h>
 
+// interfaces
+#include <vital/algo/video_input.h>
+#include <vital/algo/video_output.h>
+
+// implementations
 #include <arrows/ffmpeg/ffmpeg_video_input.h>
-#include <arrows/ffmpeg/ffmpeg_video_input_clip.h>
+//#include <arrows/ffmpeg/ffmpeg_video_input_clip.h>
 #include <arrows/ffmpeg/ffmpeg_video_output.h>
 
-namespace kwiver {
-
-namespace arrows {
-
-namespace ffmpeg {
+namespace kwiver::arrows::ffmpeg {
 
 extern "C"
 KWIVER_ALGO_FFMPEG_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
 {
-  ::kwiver::vital::algorithm_registrar reg( vpm, "arrows.ffmpeg" );
+  using kvpf = ::kwiver::vital::plugin_factory;
 
-  if( reg.is_module_loaded() )
-  {
-    return;
-  }
+  // reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_input_clip >();
 
-  reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_input >();
-  reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_input_clip >();
-  reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_output >();
-
-  reg.mark_module_as_loaded();
+  auto fact =
+    vpm.add_factory< vital::algo::video_input , ffmpeg_video_input >("ffmpeg");
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ffmpeg" );
+  
+  fact =
+    vpm.add_factory< vital::algo::video_output , ffmpeg_video_output >("ffmpeg");
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ffmpeg" );
+  
 }
 
-} // end namespace ffmpeg
-
-} // end namespace arrows
-
-} // end namespace kwiver
+} // end namespace

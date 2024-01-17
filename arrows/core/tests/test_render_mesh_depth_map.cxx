@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <arrows/core/render_mesh_depth_map.h>
 

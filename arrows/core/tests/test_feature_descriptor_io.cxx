@@ -5,7 +5,7 @@
 #include <test_tmpfn.h>
 
 #include <arrows/core/feature_descriptor_io.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <gtest/gtest.h>
 

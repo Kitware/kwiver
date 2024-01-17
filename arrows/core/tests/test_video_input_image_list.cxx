@@ -10,7 +10,7 @@
 #include <arrows/core/video_input_image_list.h>
 #include <arrows/tests/test_video_input.h>
 #include <vital/algo/algorithm_factory.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/vital_config.h>
 
 #include <memory>

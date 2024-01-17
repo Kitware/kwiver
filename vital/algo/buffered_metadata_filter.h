@@ -28,7 +28,7 @@ namespace algo {
 /// This interface supports arrows/algorithms that modify image metadata and
 /// require some amount of "lookahead" to do so.
 class VITAL_ALGO_EXPORT buffered_metadata_filter
-  : public kwiver::vital::algorithm_def< buffered_metadata_filter >
+  : public kwiver::vital::algorithm
 {
 public:
   /// Algorithm can use the frame image for its operation.
@@ -39,8 +39,7 @@ public:
   /// afford significant optimization opportunities to users.
   static const algorithm_capabilities::capability_name_t CAN_USE_FRAME_IMAGE;
 
-  /// Return the name of this algorithm.
-  static std::string static_type_name() { return "buffered_metadata_filter"; }
+  PLUGGABLE_INTERFACE( buffered_metadata_filter );
 
   /// Provide one frame of metadata to the filter.
   ///

@@ -85,7 +85,7 @@ if( KWIVER_ENABLE_KPF )
 endif()
 
 # if klv is enabled
-if( KWIVER_ENABLE_KLV )
+if( KWIVER_ENABLE_ARROW_KLV )
   add_subdirectory( klv )
 endif()
 

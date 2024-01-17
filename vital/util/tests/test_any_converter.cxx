@@ -41,7 +41,7 @@ TEST(any_converter, conversions)
 
   EXPECT_FALSE( any_to_int.can_convert( std::string{ "123" } ) );
   EXPECT_THROW( any_to_int.convert( std::string{ "123" } ),
-                bad_any_cast );
+                kwiver::vital::bad_any_cast );
 }
 
 // make a custom specialization
@@ -80,22 +80,29 @@ struct converter<bool, std::string>
   // --------------------------------------------------------------------------
   virtual ~converter() VITAL_DEFAULT_DTOR
 
+  //
   // --------------------------------------------------------------------------
-  virtual bool can_convert( any const & data ) const
+  bool
+  can_convert( kwiver::vital::any const& data ) const override
   {
     return ( data.type() == typeid( std::string ) ) &&
-           convert_map.find( any_cast<std::string>( data ) ) != convert_map.end();
+           convert_map.find( kwiver::vital::any_cast< std::string >(
+                               data ) ) !=
+           convert_map.end();
   }
 
   // --------------------------------------------------------------------------
-  virtual bool convert( any const& data ) const
+  bool
+  convert( kwiver::vital::any const& data ) const override
   {
-    auto const it = convert_map.find( any_cast<std::string>( data ) );
-    if ( it != convert_map.end() )
+    auto const it =
+      convert_map.find( kwiver::vital::any_cast< std::string >( data ) );
+    if( it != convert_map.end() )
     {
       return it->second;
     }
-    throw bad_any_cast( typeid( bool ).name(), typeid( std::string ).name() );
+    throw kwiver::vital::bad_any_cast( typeid( bool ).name(),
+                                       typeid( std::string ).name() );
   }
 
 private:
@@ -138,5 +145,5 @@ TEST(any_converter, custom_converter)
 
   EXPECT_FALSE( convert_to_bool.can_convert( std::string{ "foo" } ) );
   EXPECT_THROW( convert_to_bool.convert( std::string{ "foo" } ),
-                bad_any_cast );
+                kwiver::vital::bad_any_cast );
 }

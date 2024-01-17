@@ -116,7 +116,7 @@ klv_0903_fpa_index_format
 // ----------------------------------------------------------------------------
 size_t
 klv_0903_fpa_index_format
-::length_of_typed( VITAL_UNUSED klv_0903_fpa_index const& value ) const
+::length_of_typed( [[maybe_unused]] klv_0903_fpa_index const& value ) const
 {
   return 2;
 }

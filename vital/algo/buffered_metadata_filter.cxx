@@ -5,7 +5,6 @@
 /// \file
 /// Definition of buffered metadata filter algorithm.
 
-#include <vital/algo/algorithm.txx>
 #include <vital/algo/buffered_metadata_filter.h>
 
 namespace kwiver {
@@ -46,7 +45,3 @@ buffered_metadata_filter
 } // namespace vital
 
 } // namespace kwiver
-
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::buffered_metadata_filter );
-/// \endcond

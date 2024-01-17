@@ -1,0 +1,12 @@
+-c ../requirements.txt
+
+# Building
+scikit-build
+# Documentation
+breathe
+sphinx
+sphinx_rtd_theme
+# Utility
+black
+ipython
+pip-tools

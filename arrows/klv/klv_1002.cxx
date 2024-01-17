@@ -128,7 +128,7 @@ klv_1002_enumerations_format
 // ----------------------------------------------------------------------------
 size_t
 klv_1002_enumerations_format
-::length_of_typed( VITAL_UNUSED klv_1002_enumerations const& value ) const
+::length_of_typed( [[maybe_unused]] klv_1002_enumerations const& value ) const
 {
   return 1;
 }

@@ -27,6 +27,9 @@ add_custom_target(kwiver_configure ALL)
 # If "no_configure_target" is NOT set, this creates a target of the form
 # "configure-<name>" for this configuration step.
 #
+# If "kwiver_configure_with_git" is set, additional git-related variables will
+# be exposed to the file being configured.
+#
 # Additional configuration dependencies may be set with the DEPENDS and are
 # passed to the underlying ``add_custom_command``.
 #

@@ -12,7 +12,7 @@
 #include <arrows/ffmpeg/ffmpeg_video_uninterpreted_data.h>
 #include <arrows/klv/klv_metadata.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <random>
 
@@ -153,7 +153,7 @@ TEST_F ( ffmpeg_video_output, round_trip )
   auto image_epsilon = 6.5;
 
   // Hardware decoding produces a lower-quality image
-  if( is.get_configuration()->get_value< bool >( "cuda_enabled", false ) )
+  if( is.get_cuda_enabled() )
   {
     image_epsilon = 10.5;
   }

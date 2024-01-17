@@ -21,15 +21,16 @@ class KWIVER_ALGO_KLV_EXPORT apply_child_klv
   : public vital::algo::metadata_filter
 {
 public:
-  apply_child_klv();
   virtual ~apply_child_klv();
 
-  PLUGIN_INFO( "apply_child_klv",
-               "Produces resultant klv sets from source klv with ST1607 amend "
-               "or segment sets." )
+  PLUGGABLE_IMPL(
+    // name 
+    apply_child_klv,
+    // description
+    "Produces resultant klv sets from source klv with ST1607 amend "
+    "or segment sets."
+    )
 
-  vital::config_block_sptr get_configuration() const override;
-  void set_configuration( vital::config_block_sptr config ) override;
   bool check_configuration( vital::config_block_sptr config ) const override;
 
   vital::metadata_vector filter(

@@ -9,7 +9,7 @@
 
 #include <vital/vital_config.h>
 #include <vital/noncopyable.h>
-#include <vital/plugin_loader/plugin_factory.h>
+#include <vital/plugin_management/plugin_factory.h>
 #include <vital/applets/cxxopts.hpp>
 #include <vital/config/config_block.h>
 

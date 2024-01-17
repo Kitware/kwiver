@@ -5,7 +5,7 @@
 #include "kwiver_pipeline_viewer_export.h"
 
 #include <vital/applets/applet_registrar.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 
 #include "pipeline_viewer.h"
 
