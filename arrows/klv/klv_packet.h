@@ -92,7 +92,7 @@ operator<<( std::ostream& os, klv_packet const& packet );
 /// bytes to find the next packet. The value
 ///
 /// \param[in,out] data Iterator to sequence of \c uint8_t. Set to end of read
-/// bytes on success, left as is on error.
+/// bytes on success or if no KLV is found; left as is on error.
 /// \param max_length Maximum number of bytes to read.
 ///
 /// \returns Packet read in from \p data.

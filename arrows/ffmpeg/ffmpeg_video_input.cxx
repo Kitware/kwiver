@@ -447,7 +447,12 @@ public:
     std::map< int64_t, int64_t > packet_pos_to_dts;
     int64_t prev_frame_dts;
     int64_t prev_video_dts;
+
     std::multimap< int64_t, packet_uptr > lookahead;
+    typename std::multimap< int64_t, packet_uptr >::iterator first_video_it;
+    std::vector< int64_t > most_recent_dts;
+    size_t video_packet_count;
+
     std::list< packet_uptr > raw_image_buffer;
 
     std::list< ffmpeg_klv_stream > klv_streams;
@@ -506,7 +511,7 @@ ffmpeg_video_input::priv
     audio_enabled{ true },
     use_misp_timestamps{ false },
     smooth_klv_packets{ false },
-    unknown_stream_behavior{ "klv" },
+    unknown_stream_behavior{ "ignore" },
     filter_description{ "yadif=deint=1" },
     retain_klv_duration{ ffmpeg_klv_stream::default_timeline_retention },
 #ifdef KWIVER_ENABLE_FFMPEG_CUDA
@@ -924,6 +929,9 @@ ffmpeg_video_input::priv::open_video_state
     prev_frame_dts{ AV_NOPTS_VALUE },
     prev_video_dts{ AV_NOPTS_VALUE },
     lookahead{},
+    first_video_it{ lookahead.end() },
+    most_recent_dts{},
+    video_packet_count{ 0 },
     raw_image_buffer{},
     klv_streams{},
     all_metadata{ nullptr },
@@ -1005,7 +1013,17 @@ ffmpeg_video_input::priv::open_video_state
         parent.audio_enabled &&
         params->codec_type == AVMEDIA_TYPE_AUDIO )
       {
-        audio_streams.emplace_back( stream );
+        if( stream->codecpar->frame_size > 0 )
+        {
+          audio_streams.emplace_back( stream );
+        }
+        else
+        {
+          LOG_WARN(
+            logger,
+            "Ignoring audio stream " << stream->index
+            << " due to unknown codec parameters" );
+        }
       }
     }
 
@@ -1310,35 +1328,19 @@ ffmpeg_video_input::priv::open_video_state
   std::vector< int64_t > video_pos_list;
   while( !frame.has_value() && !at_eof )
   {
-    // We need at least one video packet before we could expect another frame
-    auto first_video_it = lookahead.end();
-
-    // We want to make sure each stream has caught up before actually using the
-    // next video packet
-    std::vector< int64_t > most_recent_dts(
-      format_context->nb_streams, AV_NOPTS_VALUE );
-
-    // Take stock of packets we have in storage
-    for( auto it = lookahead.begin(); it != lookahead.end(); ++it )
-    {
-      most_recent_dts.at( it->second->stream_index ) =
-        std::max(
-          most_recent_dts.at( it->second->stream_index ), it->first );
-      if( first_video_it == lookahead.end() &&
-          it->second->stream_index == video_stream->index )
-      {
-        first_video_it = it;
-      }
-    }
-
     // Functor determining if we need to parse more of other streams before
     // continuing with decoding the video
     auto const looked_ahead_enough =
-      [ this, &most_recent_dts, &first_video_it ]() -> bool
+      [ this ]() -> bool
       {
         if( first_video_it == lookahead.end() )
         {
           return false;
+        }
+
+        if( video_packet_count >= 30 )
+        {
+          return true;
         }
 
         auto const first_video_pts =
@@ -1449,17 +1451,19 @@ ffmpeg_video_input::priv::open_video_state
           packet->dts,
           format_context->streams[ packet->stream_index ]->time_base,
           AVRational{ 1, AV_TIME_BASE } );
-      for( auto& stream : klv_streams )
+      if( packet_dts == AV_NOPTS_VALUE )
       {
-        if( packet->stream_index != stream.stream->index ||
-            stream.settings().type != klv::KLV_STREAM_TYPE_ASYNC )
+        for( auto& stream : klv_streams )
         {
-          continue;
-        }
+          if( packet->stream_index != stream.stream->index )
+          {
+            continue;
+          }
 
-        packet_dts =
-          lookahead.empty() ? 0 : std::prev( lookahead.end() )->first;
-        break;
+          packet_dts =
+            lookahead.empty() ? 0 : std::prev( lookahead.end() )->first;
+          break;
+        }
       }
 
       // Put the packet in the lookahead buffer
@@ -1472,10 +1476,13 @@ ffmpeg_video_input::priv::open_video_state
       most_recent_dts.at( it->second->stream_index ) =
         std::max(
           packet_dts, most_recent_dts.at( it->second->stream_index ) );
-      if( first_video_it == lookahead.end() &&
-          it->second->stream_index == video_stream->index )
+      if( it->second->stream_index == video_stream->index )
       {
-        first_video_it = it;
+        ++video_packet_count;
+        if( first_video_it == lookahead.end() )
+        {
+          first_video_it = it;
+        }
       }
     }
 
@@ -1492,8 +1499,14 @@ ffmpeg_video_input::priv::open_video_state
     if( first_video_it != lookahead.end() )
     {
       packet = std::move( first_video_it->second );
-      lookahead.erase( first_video_it );
-      first_video_it = lookahead.end();
+      first_video_it = lookahead.erase( first_video_it );
+      while(
+        first_video_it != lookahead.end() &&
+        first_video_it->second->stream_index != video_stream->index )
+      {
+        ++first_video_it;
+      }
+      --video_packet_count;
       video_pos_list.emplace_back( packet->pos );
 
       // Record packet as raw image
@@ -1743,6 +1756,9 @@ ffmpeg_video_input::priv::open_video_state
   prev_frame_dts = AV_NOPTS_VALUE;
   prev_video_dts = AV_NOPTS_VALUE;
   lookahead.clear();
+  first_video_it = lookahead.end();
+  most_recent_dts.assign( format_context->nb_streams, AV_NOPTS_VALUE );
+  video_packet_count = 0;
   raw_image_buffer.clear();
   lookahead_at_eof = false;
   at_eof = false;
