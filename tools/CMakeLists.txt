@@ -2,20 +2,6 @@
 # CMake file for the kwiver tool runner
 #
 
-###
-# built the tool runner
-kwiver_add_executable( kwiver
-           kwiver_tool_runner.cxx
-)
-
-target_link_libraries( kwiver
-  PRIVATE        vital
-                 vital_vpm
-                 vital_logger
-                 kwiversys
-                 kwiver_tools_applet
-)
-
 kwiver_add_executable( demo_macro_magic demo_macro_magic.cxx )
 target_link_libraries(
   demo_macro_magic
@@ -33,10 +19,6 @@ configure_file(
   ${KWIVER_BINARY_DIR}/bin/demo_python_impl_call.py
   COPYONLY
 )
-
-#
-# CMake file for the kwiver tool runner
-#
 
 ###
 # built the tool runner
