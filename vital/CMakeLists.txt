@@ -347,7 +347,6 @@ add_subdirectory( config_plugins )
 add_subdirectory( applets_plugins )
 
 if (KWIVER_ENABLE_TOOLS)
-  add_subdirectory( applets )
   add_subdirectory( tools )
 endif()
 
