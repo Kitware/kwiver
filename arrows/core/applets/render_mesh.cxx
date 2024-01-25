@@ -21,7 +21,7 @@
 #include <vital/util/get_paths.h>
 #include <vital/util/transform_image.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <arrows/core/mesh_operations.h>
 #include <arrows/core/render_mesh_depth_map.h>

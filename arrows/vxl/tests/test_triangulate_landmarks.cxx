@@ -7,7 +7,7 @@
 #include <arrows/tests/test_triangulate_landmarks.h>
 #include <arrows/vxl/triangulate_landmarks.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 using namespace kwiver::vital;
 

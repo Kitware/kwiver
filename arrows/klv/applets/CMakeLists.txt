@@ -16,5 +16,5 @@ kwiver_add_plugin(kwiver_algo_klv_applets
   PRIVATE
     kwiver_algo_core
     kwiver_algo_klv
-    kwiver_tools_applet
+    vital
   )

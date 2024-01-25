@@ -9,7 +9,7 @@
 
 #include <arrows/tests/test_video_input.h>
 #include <arrows/vxl/vidl_ffmpeg_video_input.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <memory>
 #include <string>

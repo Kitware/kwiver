@@ -6,14 +6,14 @@ set( sources
   register_applets.cxx
 
   dump_klv.cxx
-  render_mesh.cxx
-  transcode.cxx
+#  render_mesh.cxx
+#  transcode.cxx
   )
 
 set( headers
   dump_klv.h
-  render_mesh.h
-  transcode.h
+#  render_mesh.h
+#  transcode.h
   )
 
 ###
@@ -29,6 +29,6 @@ kwiver_add_plugin( kwiver_algo_core_applets
   SUBDIR       ${kwiver_plugin_applets_subdir}
   SOURCES      ${sources} ${headers}
   PRIVATE      kwiver_algo_core
-               kwiver_tools_applet
+               vital_applets
                kwiversys
 )

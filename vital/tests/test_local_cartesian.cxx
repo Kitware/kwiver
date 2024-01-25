@@ -11,7 +11,7 @@
 #include <vital/types/geodesy.h>
 #include <vital/types/local_cartesian.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 static auto constexpr wgs = kwiver::vital::SRID::lat_lon_WGS84;
 static auto constexpr crs_utm_18n = kwiver::vital::SRID::UTM_WGS84_north + 18;

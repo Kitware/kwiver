@@ -8,7 +8,7 @@
 #include <test_eigen.h>
 #include <test_gtest.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <vital/config/config_block.h>
 

@@ -97,7 +97,7 @@ klv_1108_metric_period_pack_format
 // ----------------------------------------------------------------------------
 klv_1108_metric_period_pack
 klv_1108_metric_period_pack_format
-::read_typed( klv_read_iter_t& data, VITAL_UNUSED size_t length ) const
+::read_typed( klv_read_iter_t& data, [[maybe_unused]] size_t length ) const
 {
   auto const timestamp = klv_read_int< uint64_t >( data, 8 );
   auto const offset    = klv_read_int< uint32_t >( data, 4 );
@@ -108,7 +108,7 @@ klv_1108_metric_period_pack_format
 void
 klv_1108_metric_period_pack_format
 ::write_typed( klv_1108_metric_period_pack const& value,
-               klv_write_iter_t& data, VITAL_UNUSED size_t length ) const
+               klv_write_iter_t& data, [[maybe_unused]] size_t length ) const
 {
   klv_write_int( value.timestamp, data, 8 );
   klv_write_int( value.offset,    data, 4 );

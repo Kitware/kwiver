@@ -108,7 +108,7 @@ namespace algo {
 /// the name (or abbreviation) of the concrete algorithm followed by
 /// the abbreviation of the capability.
 class VITAL_ALGO_EXPORT video_input
-  : public kwiver::vital::algorithm_def< video_input >
+  : public kwiver::vital::algorithm
 {
 public:
   // Common capabilities
@@ -126,10 +126,10 @@ public:
   static const algorithm_capabilities::capability_name_t HAS_RAW_METADATA;
   static const algorithm_capabilities::capability_name_t HAS_UNINTERPRETED_DATA;
 
+  video_input();
   virtual ~video_input();
 
-  /// Return the name of this algorithm
-  static std::string static_type_name() { return "video_input"; }
+  PLUGGABLE_INTERFACE( video_input );
 
   /// \brief Open a video stream.
   ///
@@ -398,8 +398,6 @@ public:
   algorithm_capabilities const& get_implementation_capabilities() const;
 
 protected:
-  video_input(); // CTOR
-
   void set_capability( algorithm_capabilities::capability_name_t const& name,
                        bool val );
 

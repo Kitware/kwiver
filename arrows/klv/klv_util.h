@@ -15,8 +15,10 @@
 #include <ostream>
 #include <set>
 #include <tuple>
+#include <vector>
 
 #include <cstddef>
+#include <cstdint>
 
 namespace kwiver {
 

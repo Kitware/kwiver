@@ -350,6 +350,7 @@ endfunction()
 #-
 function(kwiver_install_headers)
   if(SKBUILD)
+    # Do not install headers when building python package with scikit-build.
     return()
   endif()
   set(options NOPATH)
@@ -406,6 +407,10 @@ endfunction()
 ####
 # This function creates a target for a loadable plugin.
 #
+# The ``SUBDIR`` option should be one of the ``kwiver_plugin_*_subdir`` values
+# as set in the project top-level ``CMakeLists.txt`` file. This will indicate
+# which "category" ths plugin belongs to.
+#
 # Options are:
 # SOURCES - list of source files needed to create the plugin.
 # PUBLIC - list of libraries the plugin will publicaly link against.
@@ -461,9 +466,6 @@ endfunction()
 #
 # Uses the global option KWIVER_USE_CONFIGURATION_SUBDIRECTORY
 # to control adding config specific directories to the path.
-#
-# Options are:
-# SUBDIR - subdirectory in lib where plugin will be installed.
 #
 function( kwiver_add_module_path    dir )
     set_property(GLOBAL APPEND PROPERTY kwiver_plugin_path  "${dir}" )

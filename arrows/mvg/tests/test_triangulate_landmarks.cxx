@@ -6,7 +6,7 @@
 
 #include <arrows/tests/test_triangulate_landmarks.h>
 #include <arrows/mvg/algo/triangulate_landmarks.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 // ----------------------------------------------------------------------------
 int main(int argc, char** argv)

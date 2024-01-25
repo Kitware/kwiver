@@ -1290,7 +1290,7 @@ klv_0601_image_horizon_locations_format
 size_t
 klv_0601_image_horizon_locations_format
 ::length_of_typed(
-  VITAL_UNUSED klv_0601_image_horizon_locations const& value ) const
+  [[maybe_unused]] klv_0601_image_horizon_locations const& value ) const
 {
   return 16;
 }

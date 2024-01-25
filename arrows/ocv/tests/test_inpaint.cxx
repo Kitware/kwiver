@@ -8,7 +8,7 @@
 #include <arrows/ocv/image_io.h>
 #include <arrows/ocv/inpaint.h>
 
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <opencv2/core/core.hpp>
 

@@ -29,7 +29,8 @@ protected:
   void SetUp() override
   {
     // Set write_enum_names so this test still works if the field names change
-    auto const config = io.get_configuration();
+    kv::config_block_sptr config = kv::config_block::empty_config();
+    io.get_default_config(*config);
     config->set_value( "write_enum_names", true );
     io.set_configuration( config );
 

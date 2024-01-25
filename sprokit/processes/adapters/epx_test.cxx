@@ -4,8 +4,8 @@
 
 #include "epx_test.h"
 
-#include <vital/plugin_loader/plugin_loader.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_loader.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/config/config_block_formatter.h>
 #include <vital/vital_config.h>
 

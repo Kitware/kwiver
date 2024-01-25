@@ -46,7 +46,7 @@ public:
     st1108_buffer_t st1108_buffer;
   };
 
-  impl();
+  impl(update_klv& parent);
 
   stream& get_stream( int index );
 
@@ -63,8 +63,10 @@ public:
   md_buffer_t in_buffer;
   md_buffer_t out_buffer;
 
-  size_t st1108_frequency;
-  std::string st1108_inter;
+  size_t st1108_frequency() { return parent.c_st1108_frequency; } ;
+  std::string st1108_inter() { return parent.c_st1108_inter; } ;
+
+  update_klv& parent;
 };
 
 // ----------------------------------------------------------------------------
@@ -73,14 +75,14 @@ update_klv::impl::stream
   : timeline{},
     demuxer{ timeline },
     st1108_buffer{}
+
 {}
 
 // ----------------------------------------------------------------------------
 update_klv::impl
-::impl()
+::impl(update_klv& parent)
  : streams{},
-   st1108_frequency{ 1 },
-   st1108_inter{ "sample" }
+   parent(parent)
 {}
 
 // ----------------------------------------------------------------------------
@@ -208,7 +210,7 @@ update_klv::impl
   // Initialize the metric averaging data
   std::map< klv_local_set, std::pair< double, size_t > > means;
   std::map< klv_local_set, uint64_t > metric_times;
-  if( st1108_inter == "mean" )
+  if( this->st1108_inter() == "mean" )
   {
     for( auto const& packet : packet_frames.front() )
     {
@@ -239,7 +241,7 @@ update_klv::impl
 
   // Determine the range of time this group of frames spans
   uint64_t end_timestamp = 0;
-  if( st1108_inter != "sample" )
+  if( this->st1108_inter() != "sample" )
   {
     for( auto const& packet_frame : frame_range )
     {
@@ -260,7 +262,7 @@ update_klv::impl
   for( auto it = std::next( frame_range.begin() );
        it != frame_range.end(); ++it )
   {
-    if( st1108_inter == "mean" )
+    if( this->st1108_inter() == "mean" )
     {
       for( auto const& packet : *it )
       {
@@ -303,7 +305,7 @@ update_klv::impl
   for( auto& packet : packet_frames.front() )
   {
     // Set the timestamp to cover the whole time period
-    if( st1108_inter != "sample" )
+    if( this->st1108_inter() != "sample" )
     {
       auto& period_pack =
         packet.value
@@ -314,7 +316,7 @@ update_klv::impl
     }
 
     // Set each metrics to the average value
-    if( st1108_inter == "mean" )
+    if( this->st1108_inter() == "mean" )
     {
       auto& parent_set = packet.value.get< klv_local_set >();
 
@@ -393,63 +395,22 @@ update_klv::impl
     out_buffer.splice( out_buffer.end(), in_buffer, in_buffer.begin() );
   }
 }
-
 // ----------------------------------------------------------------------------
-update_klv
-::update_klv()
-  : d{ new impl }
-{}
-
-// ----------------------------------------------------------------------------
-update_klv
-::~update_klv()
-{}
-
-// ----------------------------------------------------------------------------
-vital::config_block_sptr
-update_klv
-::get_configuration() const
+update_klv::~update_klv()
 {
-  auto config = algorithm::get_configuration();
-
-  config->set_value(
-    "st1108_frequency", d->st1108_frequency,
-    "How often (in frames) to encode a ST1108 packet." );
-  config->set_value(
-    "st1108_inter", d->st1108_inter,
-    "How to deal with a group of multiple frames when st1108_frequency > 1. "
-
-    "'sample' will create a packet with the metric values of the first frame "
-    "of the group and associate it with the first frame only, leaving the rest "
-    "of the frames in the group with no associated values. "
-
-    "'sample_smear' will create a packet with the metric values of the first "
-    "frame of the group and associate it with all frames in the group. "
-
-    "'mean' will create a packet with the averages of the group's metric "
-    "values and associate it with all frames in the group." );
-
-  return config;
 }
 
 // ----------------------------------------------------------------------------
-void
-update_klv
-::set_configuration( vital::config_block_sptr config )
+void update_klv::initialize()
 {
-  auto existing_config = algorithm::get_configuration();
-  d->st1108_frequency =
-    config->get_value< size_t >( "st1108_frequency", 1 );
-  d->st1108_inter =
-    config->get_value< std::string >( "st1108_inter", "sample" );
-
-  existing_config->merge_config( config );
+  KWIVER_INITIALIZE_UNIQUE_PTR(impl,d);
 }
+
 
 // ----------------------------------------------------------------------------
 bool
 update_klv
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   static std::set< std::string > st1108_inter_options{
     "sample", "sample_smear", "mean"
@@ -463,7 +424,7 @@ size_t
 update_klv
 ::send(
   vital::metadata_vector const& input_metadata,
-  VITAL_UNUSED vital::image_container_scptr const& input_image )
+  [[maybe_unused]] vital::image_container_scptr const& input_image )
 {
   auto& metadata = d->in_buffer.emplace_back();
   for( auto const& input_md : input_metadata )
@@ -534,9 +495,9 @@ update_klv
   }
 
   // Process the batched frames
-  if( d->in_buffer.size() >= d->st1108_frequency )
+  if( d->in_buffer.size() >= d->st1108_frequency() )
   {
-    d->flush( d->st1108_frequency );
+    d->flush( d->st1108_frequency() );
   }
 
   return available_frames();

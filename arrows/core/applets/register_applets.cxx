@@ -8,38 +8,30 @@
  */
 
 #include <arrows/core/applets/kwiver_algo_core_applets_export.h>
-#include <vital/plugin_loader/plugin_loader.h>
-#include <vital/applets/applet_registrar.h>
+#include <vital/plugin_management/plugin_loader.h>
 
 #include <arrows/core/applets/dump_klv.h>
-#include <arrows/core/applets/render_mesh.h>
-#include <arrows/core/applets/transcode.h>
+//#include <arrows/core/applets/render_mesh.h>
+//#include <arrows/core/applets/transcode.h>
 
-namespace kwiver {
-namespace arrows {
-namespace core {
+namespace kwiver::arrows::core {
 
 // ----------------------------------------------------------------------------
 extern "C"
 KWIVER_ALGO_CORE_APPLETS_EXPORT
 void
-register_factories( kwiver::vital::plugin_loader& vpm )
+register_factories( kwiver::vital::plugin_loader& vpl )
 {
-  kwiver::applet_registrar reg( vpm, "arrows.core.applets" );
+  using namespace kwiver::tools;
+  using kvpf = ::kwiver::vital::plugin_factory;
 
-  if (reg.is_module_loaded())
-  {
-    return;
-  }
+  auto fact =
+    vpl.add_factory< kwiver_applet, dump_klv >( "dump-klv");
+  fact->add_attribute( kvpf::PLUGIN_DESCRIPTION,
+                       "Kviwer algorithm core applets")
+    .add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core_applets" )
+    .add_attribute( kvpf::ALGORITHM_CATEGORY, kvpf::APPLET_CATEGORY );
 
-  // -- register applets --
-  reg.register_tool< dump_klv >();
-  reg.register_tool< render_mesh >();
-  reg.register_tool< transcode_applet >();
-
-  reg.mark_module_as_loaded();
 }
 
-} // end namespace core
-} // end namespace arrows
-} // end namespace kwiver
+} // end namespace

@@ -15,6 +15,7 @@
 #include "klv_util.h"
 
 #include <vital/util/demangle.h>
+#include <vital/util/interval_map.h>
 
 namespace kwiver {
 
@@ -457,6 +458,12 @@ KLV_INSTANTIATE( std::vector< klv_local_set > );
 KLV_INSTANTIATE( std::vector< uint16_t > );
 KLV_INSTANTIATE( std::vector< uint64_t > );
 KLV_INSTANTIATE( uint64_t );
+
+namespace detail {
+// commas confuse the macro parser so we use a temporary type
+using map_long_klv_value = kwiver::vital::interval_map_entry_t< unsigned long, kwiver::arrows::klv::klv_value >;
+}
+KLV_INSTANTIATE(detail::map_long_klv_value);
 
 } // namespace klv
 

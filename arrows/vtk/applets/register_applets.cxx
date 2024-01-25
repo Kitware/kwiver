@@ -6,7 +6,7 @@
 /// \brief register vtk applets into a plugin
 
 #include <arrows/vtk/applets/kwiver_algo_vtk_applets_export.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 #include <vital/applets/applet_registrar.h>
 
 #ifdef VTK_ENABLE_COLOR_MESH

@@ -7,8 +7,6 @@
 
 #include <vital/algo/video_output.h>
 
-#include <vital/algo/algorithm.txx>
-
 namespace kwiver {
 
 namespace vital {
@@ -47,7 +45,7 @@ video_output
 // ----------------------------------------------------------------------------
 void
 video_output
-::add_image( video_raw_image const& image )
+::add_image( [[maybe_unused]] video_raw_image const& image )
 {
   throw std::logic_error{
     "video_output: This implementation does not support raw image data" };
@@ -56,7 +54,7 @@ video_output
 // ----------------------------------------------------------------------------
 void
 video_output
-::add_metadata( video_raw_metadata const& md )
+::add_metadata( [[maybe_unused]] video_raw_metadata const& md )
 {
   throw std::logic_error{
     "video_output: This implementation does not support raw metadata" };
@@ -65,7 +63,8 @@ video_output
 // ----------------------------------------------------------------------------
 void
 video_output
-::add_uninterpreted_data( video_uninterpreted_data const& misc_data )
+::add_uninterpreted_data(
+  [[maybe_unused]] video_uninterpreted_data const& misc_data )
 {
   throw std::logic_error{
     "video_output: This implementation does not support uninterpreted data" };
@@ -94,6 +93,4 @@ video_output
 
 } // namespace kwiver
 
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::video_output );
 /// \endcond
