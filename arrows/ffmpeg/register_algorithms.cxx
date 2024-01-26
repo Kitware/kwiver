@@ -10,6 +10,7 @@
 
 #include <arrows/ffmpeg/ffmpeg_video_input.h>
 #include <arrows/ffmpeg/ffmpeg_video_input_clip.h>
+#include <arrows/ffmpeg/ffmpeg_video_input_rewire.h>
 #include <arrows/ffmpeg/ffmpeg_video_output.h>
 
 namespace kwiver {
@@ -32,6 +33,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 
   reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_input >();
   reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_input_clip >();
+  reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_input_rewire >();
   reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_output >();
 
   reg.mark_module_as_loaded();
