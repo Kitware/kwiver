@@ -485,8 +485,8 @@ protected:
   size_t
   length_of_typed( data_type const& value ) const override
   {
-    return this->m_length_constraints.fixed_or(
-      klv_int_length( static_cast< uint64_t >( value ) ) );
+    auto const int_length = klv_int_length( static_cast< uint64_t >( value ) );
+    return std::max( this->m_length_constraints.fixed_or( 1 ), int_length );
   }
 
   size_t m_length;
@@ -809,8 +809,8 @@ protected:
   size_t
   length_of_typed( std::set< Enum > const& value ) const
   {
-    return this->m_length_constraints.fixed_or(
-      m_format.length_of_( enums_to_bitfield( value ) ) );
+    auto const int_length = m_format.length_of_( enums_to_bitfield( value ) );
+    return std::max( this->m_length_constraints.fixed_or( 1 ), int_length );
   }
 
   Format m_format;

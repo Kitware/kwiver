@@ -66,3 +66,6 @@ Arrows: KLV
 * Modified flint, IMAP, and integer behavior to print a warning when writing
   values with incorrect lengths instead of correcting the length and possibly
   losing data.
+
+* Ensured integer wrapper data formats (enum, enum bitfield) use the same
+  lenient length logic as integers to prevent crashes when writing invalid data.
