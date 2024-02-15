@@ -5,6 +5,12 @@ project( vital )
 set(CMAKE_FOLDER "Vital")
 
 ###
+# Vital requirements
+# TODO: Eigen (find_package_once? kwiver_find_package?
+#       - to allow the creation of standard "depends" like current, but avoid
+#         monolithic include at the project root.)
+
+# ==============================================================================
 # KWSys
 #---------------------------------------------------------------------
 # Create the kwsys library for vital.
@@ -62,6 +68,12 @@ endif()
 
 # restore old CXX flags for our code.
 set( CMAKE_CXX_FLAGS ${save_flags} )
+
+# ==============================================================================
+# Other VITAL-specific setup and flags
+
+# ==============================================================================
+# Vital Library
 
 # ==================================================================
 ###
@@ -262,12 +274,18 @@ kwiver_add_library( vital
   ${CMAKE_CURRENT_BINARY_DIR}/vital_config.h
   )
 
+# Make sure the configuration targets flush before building this library.
+add_dependencies (vital kwiver_configure)
+
 target_link_libraries( vital
   PRIVATE         kwiversys
   PUBLIC          vital_config
                   vital_exceptions
                   vital_logger
                   vital_util
+                  vital_types
+                  vital_vpm
+                  vital_applets
                   Eigen3::Eigen
   )
 
@@ -291,18 +309,44 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vital_config.h" )
 
 ###
-#
+# Subdirectory entries
+# -- Creates library "vital_exceptions"
 add_subdirectory( exceptions )
 add_subdirectory( algo )
+# -- Creates library "vital_util"
 add_subdirectory( util )
 add_subdirectory( range )
 add_subdirectory( bindings )
+# -- Creates library "vital_config"
+# Requires: vital_logger, vital_util (vital_types)
 add_subdirectory( config )
+# -- Creates library "vital_logger"
+# Requires: vital_util
 add_subdirectory( logger )
-add_subdirectory( plugin_loader )
+# -- Creates library "vital_types"
+# Requires: vital_config
+add_subdirectory( types )
+# -- Creates library "vital_vpm"
+# Requires: vital_exceptions, vital_logger, vital_util
+# Uses common headers: vital_types.h
+add_subdirectory( plugin_management )
+# -- Created library "vital_applets"
+add_subdirectory( applets )
+
+# ==============================================================================
+# Built-in plugin modules
+#
+# This is specifically after the Vital library definition as some of these
+# require the vital library for parts and utility.
+# And, you know, the plugin management stuff (except for the logger, which works
+# independently from the main plugin management so that it can have logging
+# itself).
+#
+add_subdirectory( logger_plugins )
+add_subdirectory( config_plugins )
+add_subdirectory( applets_plugins )
 
 if (KWIVER_ENABLE_TOOLS)
-  add_subdirectory( applets )
   add_subdirectory( tools )
 endif()
 
@@ -315,3 +359,5 @@ endif()
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )
 endif()
+
+add_subdirectory( test_interface )

@@ -183,7 +183,7 @@ klv_uuid_format
 // ----------------------------------------------------------------------------
 size_t
 klv_uuid_format
-::length_of_typed( VITAL_UNUSED klv_uuid const& value ) const
+::length_of_typed( [[maybe_unused]] klv_uuid const& value ) const
 {
   return klv_uuid_length();
 }

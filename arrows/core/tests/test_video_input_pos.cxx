@@ -9,7 +9,7 @@
 
 #include <arrows/core/video_input_pos.h>
 #include <vital/io/metadata_io.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 
 #include <memory>
 #include <string>

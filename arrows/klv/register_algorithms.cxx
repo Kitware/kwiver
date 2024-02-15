@@ -5,38 +5,36 @@
 /// \file
 /// Register KLV algorithm implementations.
 
-#include <vital/algo/algorithm_factory.h>
-
 #include <arrows/klv/kwiver_algo_klv_plugin_export.h>
+#include <vital/plugin_management/plugin_manager.h>
+
+// interfaces
+#include <vital/algo/buffered_metadata_filter.h>
+#include <vital/algo/metadata_filter.h>
+
+
+// implementations
 #include <arrows/klv/apply_child_klv.h>
 #include <arrows/klv/update_klv.h>
 
-namespace kwiver {
 
-namespace arrows {
-
-namespace klv {
+namespace kwiver::arrows::klv {
 
 extern "C"
 KWIVER_ALGO_KLV_PLUGIN_EXPORT
 void
-register_factories( kwiver::vital::plugin_loader& vpm )
+register_factories( kwiver::vital::plugin_loader& vpl )
 {
-  ::kwiver::vital::algorithm_registrar reg( vpm, "arrows.klv" );
+  using kvpf = ::kwiver::vital::plugin_factory;
 
-  if( reg.is_module_loaded() )
-  {
-    return;
-  }
-
-  reg.register_algorithm< apply_child_klv >();
-  reg.register_algorithm< update_klv >();
-
-  reg.mark_module_as_loaded();
+  auto fact =
+    vpl.add_factory< vital::algo::metadata_filter , apply_child_klv >("apply_child_klv");
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_klv" );
+  
+  fact =
+    vpl.add_factory< vital::algo::buffered_metadata_filter , update_klv >("update_klv");
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_klv" );
+  
 }
 
-} // end namespace ffmpeg
-
-} // end namespace arrows
-
-} // end namespace kwiver
+} // end namespace

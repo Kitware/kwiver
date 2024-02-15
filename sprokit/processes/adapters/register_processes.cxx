@@ -5,7 +5,7 @@
 #include <sprokit/processes/adapters/kwiver_processes_adapter_export.h>
 #include <sprokit/pipeline/process_factory.h>
 
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 
 #include "input_adapter_process.h"
 #include "output_adapter_process.h"

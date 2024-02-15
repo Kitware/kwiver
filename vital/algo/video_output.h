@@ -39,7 +39,7 @@ namespace algo {
 /// This class represents an abstract interface for writing videos. Once the
 /// video is opened, frames may be added in order.
 class VITAL_ALGO_EXPORT video_output
-  : public kwiver::vital::algorithm_def< video_output >
+  : public kwiver::vital::algorithm
 {
 public:
   /// Writer supports a global frame rate.
@@ -71,8 +71,7 @@ public:
 
   virtual ~video_output();
 
-  /// Return the name of this algorithm.
-  static std::string static_type_name() { return "video_output"; }
+  PLUGGABLE_INTERFACE( video_output );
 
   /// Open a video stream.
   ///

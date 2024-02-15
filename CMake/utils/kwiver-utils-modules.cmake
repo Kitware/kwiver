@@ -1,6 +1,9 @@
 #
 # Utility macros and functions dealing with KWIVER modules
 #
+# TODO: Document what this is for. It does not look to be currently utilized
+#       anywhere.
+#
 include(CMakeParseArguments)
 
 define_property(GLOBAL PROPERTY kwiver_modules_enabled

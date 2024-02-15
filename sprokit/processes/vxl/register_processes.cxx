@@ -5,7 +5,7 @@
 #include <sprokit/processes/vxl/kwiver_processes_vxl_export.h>
 
 #include <sprokit/pipeline/process_factory.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 
 // -- list processes to register --
 #include "kw_archive_writer_process.h"

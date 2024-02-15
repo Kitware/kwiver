@@ -16,14 +16,10 @@ namespace kv = ::kwiver::vital;
 
 // ----------------------------------------------------------------------------
 kwiver_applet::
-kwiver_applet()
-{
-}
+kwiver_applet() = default;
 
 kwiver_applet::
-~kwiver_applet()
-{
-}
+~kwiver_applet() = default;
 
 // ----------------------------------------------------------------------------
 kv::config_block_sptr
@@ -114,6 +110,15 @@ applet_name() const
   }
 
   throw std::runtime_error( "Invalid context pointer" );
+}
+
+// ----------------------------------------------------------------------------
+vital::config_block_sptr
+kwiver_applet
+::get_configuration() const
+{
+  vital::config_block_sptr cb = vital::config_block::empty_config();
+  return cb;
 }
 
 } } // end namespace kwiver

@@ -235,7 +235,6 @@ private:
 class bad_any_cast : public std::bad_cast
 {
 public:
-
   /// @brief Create bad cast exception;
   ///
   /// This is the constructor for the bad any cast exception. A message is

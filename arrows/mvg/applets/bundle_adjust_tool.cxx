@@ -28,7 +28,7 @@
 #include <vital/io/landmark_map_io.h>
 #include <vital/io/metadata_io.h>
 #include <vital/io/track_set_io.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <vital/types/geodesy.h>
 #include <vital/types/ground_control_point.h>
 #include <vital/types/landmark.h>

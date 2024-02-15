@@ -37,7 +37,7 @@ namespace algo {
 ///     available in the metadata for the image. If the timestamp
 ///     is not supplied, then the metadata will not have the timestamp set.
 class VITAL_ALGO_EXPORT image_io
-  : public kwiver::vital::algorithm_def< image_io >
+  : public kwiver::vital::algorithm
 {
 public:
   // Common capabilities

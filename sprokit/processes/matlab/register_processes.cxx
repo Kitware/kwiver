@@ -4,7 +4,7 @@
 
 #include <sprokit/processes/matlab/kwiver_processes_matlab_export.h>
 #include <sprokit/pipeline/process_factory.h>
-#include <vital/plugin_loader/plugin_loader.h>
+#include <vital/plugin_management/plugin_loader.h>
 
 // -- list processes to register --
 #include "matlab_process.h"

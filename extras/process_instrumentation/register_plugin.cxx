@@ -2,8 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <vital/plugin_loader/plugin_loader.h>
-#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/plugin_management/plugin_loader.h>
+#include <vital/plugin_management/plugin_manager.h>
 #include <instrumentation_plugin_export.h>
 
 #include "logger_process_instrumentation.h"

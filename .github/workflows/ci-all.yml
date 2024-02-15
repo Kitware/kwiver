@@ -1,0 +1,87 @@
+# This workflow is intended to capture jobs that should run on all pushes and
+# pull requests.
+
+name: CI Unittests
+
+# Controls when the action will run.
+on: [ push, workflow_dispatch ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# NOTE: Github actions does not support anchors apparently. Forgive duplication of job
+#       steps.
+jobs:
+  uncrustify:
+    runs-on: ubuntu-latest
+    container: registry.access.redhat.com/ubi8/ubi:latest
+
+    env:
+      REPO_PATH: ${{ github.workspace }}/repo
+      UNCRUSTIFY_SRC_PATH: ${{ github.workspace }}/uncrustify
+      UNCRUSTIFY_BLD_PATH: ${{ github.workspace }}/uncrustify_build
+
+    steps:
+      - name: Setup system packages
+        run: |
+          dnf install -y cmake gcc-c++ make python3
+
+      - name: Acquire latest Uncrustify release
+        uses: actions/checkout@v2
+        with:
+          repository: uncrustify/uncrustify
+          ref: uncrustify-0.75.1
+          path: ${{ env.UNCRUSTIFY_SRC_PATH }}
+          fetch-depth: 0
+
+      - uses: actions/checkout@v2
+        with:
+          path: ${{ env.REPO_PATH }}
+          fetch-depth: 0
+
+      - name: Cache/Restore Uncrustify Build
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.UNCRUSTIFY_BLD_PATH }}
+          key: kwiver-uncrustify-build
+
+      - name: Build/Install Uncrustify
+        run: |
+          mkdir -p ${UNCRUSTIFY_BLD_PATH}
+          cd ${UNCRUSTIFY_BLD_PATH}
+          cmake -DCMAKE_BUILD_TYPE=Release ${UNCRUSTIFY_SRC_PATH}
+          make install -j4
+
+      - name: Uncrustify
+        run: |
+          echo "Trying to CD into :: ${REPO_PATH}"
+          ls "${REPO_PATH}"
+          ls "${REPO_PATH}/scripts/unix_uncrustify.bash"
+          cd ${REPO_PATH}
+          ./scripts/unix_uncrustify.bash --check 1>/dev/null
+
+#  lint:
+#    runs-on: ubuntu-latest
+#    container: registry.access.redhat.com/ubi8/ubi:latest
+#    steps:
+#      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+#      - uses: actions/checkout@v2
+#        with:
+#          fetch-depth: 0
+#      # Cache local python environment artifacts for the current python version
+#      # and poetry lockfile hash.
+#      - uses: actions/cache@v2
+#        id: env-cache
+#        with:
+#          # Confirmed that the `.local` directory doesn't exist until the
+#          # `pip install --user` is invoked below, so we can be confident that
+#          # only our python stuff is being captured in this cache (intentional).
+#          path: |
+#            ~/.cache/pip
+#            ~/.cache/pypoetry/virtualenvs/
+#            ~/.local
+#          key: python-3.6-${{ hashFiles('poetry.lock') }}
+#          restore-keys: |
+#            python-3.6-
+#      - name: Setup Environment
+#        uses: ./.github/actions/python-poetry-setup
+#      - name: Lint with Flake8
+#        run: poetry run flake8

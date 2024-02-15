@@ -32,7 +32,7 @@ klv_1607_child_set_format
 // ----------------------------------------------------------------------------
 void
 klv_1607_child_set_format
-::check_set( VITAL_UNUSED klv_local_set const& klv ) const
+::check_set( [[maybe_unused]] klv_local_set const& klv ) const
 {
   // Do nothing - i.e. don't check tag counts since this isn't meant to be a
   // valid set on its own

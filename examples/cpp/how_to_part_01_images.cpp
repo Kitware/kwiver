@@ -9,7 +9,7 @@
 #include "vital/algo/image_filter.h"
 #include "vital/algo/split_image.h"
 
-#include "vital/plugin_loader/plugin_manager.h"
+#include "vital/plugin_management/plugin_manager.h"
 
 // We will be calling some OpenCV code, so we need to include
 // some OpenCV related files

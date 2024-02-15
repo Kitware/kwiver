@@ -140,7 +140,7 @@ public:
     std::list< ffmpeg_audio_stream > audio_streams;
   };
 
-  impl();
+  impl(ffmpeg_video_output& parent);
   ~impl();
 
   bool is_open() const;
@@ -158,33 +158,24 @@ public:
 
   hardware_device_context_uptr hardware_device_context;
 
-  size_t width;
-  size_t height;
-  AVRational frame_rate;
-  std::string codec_name;
-  size_t bitrate;
-  bool cuda_enabled;
-  int cuda_device_index;
+  size_t width() { return parent.get_width(); }
+  size_t height() { return parent.get_height();}
+  AVRational frame_rate() { return { parent.get_frame_rate_num(), parent.get_frame_rate_den() }; };
+  std::string codec_name() { return parent.get_codec_name(); }
+  size_t bitrate() { return parent.get_bitrate() ; }
+  bool cuda_enabled() { return parent.get_cuda_enabled(); };
+  int cuda_device_index() { return parent.get_cuda_device_index(); };
+
+  ffmpeg_video_output& parent;
 
   std::optional< open_video_state > video;
 };
 
 // ----------------------------------------------------------------------------
 ffmpeg_video_output::impl
-::impl()
+::impl(ffmpeg_video_output& parent)
   : logger{},
-    width{ 0 },
-    height{ 0 },
-    frame_rate{ 0, 1 },
-    codec_name{},
-    bitrate{ 0 },
-#ifdef KWIVER_ENABLE_FFMPEG_CUDA
-    cuda_enabled{ true },
-#else
-    cuda_enabled{ false },
-#endif
-    cuda_device_index{ 0 },
-    video{}
+    parent(parent)
 {
   ffmpeg_init();
 }
@@ -220,7 +211,7 @@ void
 ffmpeg_video_output::impl
 ::hardware_init()
 {
-  if( !hardware_device_context && cuda_enabled )
+  if( !hardware_device_context && cuda_enabled() )
   {
     try
     {
@@ -277,9 +268,9 @@ ffmpeg_video_output::impl
 #endif
 
 // ----------------------------------------------------------------------------
-ffmpeg_video_output
-::ffmpeg_video_output() : d{ new impl{} }
+void ffmpeg_video_output::initialize()
 {
+  KWIVER_INITIALIZE_UNIQUE_PTR(impl,d);
   attach_logger( "ffmpeg_video_output" );
   d->logger = logger();
 
@@ -294,93 +285,26 @@ ffmpeg_video_output::~ffmpeg_video_output()
   close();
 }
 
-// ----------------------------------------------------------------------------
-vital::config_block_sptr
-ffmpeg_video_output
-::get_configuration() const
-{
-  auto config = vital::algorithm::get_configuration();
-
-  config->set_value(
-    "width", d->width,
-    "Output width in pixels."
-  );
-  config->set_value(
-    "height", d->height,
-    "Output height in pixels."
-  );
-  config->set_value(
-    "frame_rate_num", d->frame_rate.num,
-    "Integral numerator of the output frame rate."
-  );
-  config->set_value(
-    "frame_rate_den", d->frame_rate.den,
-    "Integral denominator of the output frame rate. Defaults to 1."
-  );
-  config->set_value(
-    "codec_name", d->codec_name,
-    "String identifying the codec to use."
-  );
-  config->set_value(
-    "bitrate", d->bitrate,
-    "Desired bitrate in bits per second."
-  );
-
-  config->set_value(
-    "cuda_enabled", d->cuda_enabled,
-    "When set to true, uses CUDA/NVENC to accelerate video encoding."
-  );
-  config->set_value(
-    "cuda_device_index", d->cuda_device_index,
-    "Integer index of the CUDA-enabled device to use for encoding. "
-    "Defaults to 0."
-  );
-
-  return config;
-}
 
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
-::set_configuration( kv::config_block_sptr config )
+::set_configuration_internal([[maybe_unused]] kv::config_block_sptr config )
 {
-  auto existing_config = vital::algorithm::get_configuration();
-  existing_config->merge_config( config );
 
-  d->width = config->get_value< size_t >( "width", d->width );
-  d->height = config->get_value< size_t >( "height", d->height );
-  d->frame_rate.num =
-    config->get_value< size_t >( "frame_rate_num", d->frame_rate.num );
-  if( config->has_value( "frame_rate_num" ) )
-  {
-    d->frame_rate.den = 1;
-  }
-  d->frame_rate.den =
-    config->get_value< size_t >( "frame_rate_den", d->frame_rate.den );
-  d->codec_name =
-    config->get_value< std::string >( "codec_name", d->codec_name );
-  d->bitrate = config->get_value< size_t >( "bitrate", d->bitrate );
-
-  d->cuda_enabled =
-    config->get_value< bool >(
-      "cuda_enabled", d->cuda_enabled );
-
-  if( !d->cuda_enabled && d->hardware_device() &&
+  if( !this->c_cuda_enabled && d->hardware_device() &&
       d->hardware_device()->type == AV_HWDEVICE_TYPE_CUDA )
   {
     // Turn off the active CUDA instance
     d->hardware_device_context.reset();
   }
 
-  d->cuda_device_index =
-    config->get_value< int >(
-      "cuda_device_index", d->cuda_device_index );
 }
 
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_output
-::check_configuration( kv::config_block_sptr config ) const
+::check_configuration([[maybe_unused]] kv::config_block_sptr config ) const
 {
   return true;
 }
@@ -445,7 +369,7 @@ ffmpeg_video_output
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
-::add_metadata( VITAL_UNUSED kwiver::vital::metadata const& md )
+::add_metadata( [[maybe_unused]] kwiver::vital::metadata const& md )
 {
   // TODO
 }
@@ -524,13 +448,13 @@ ffmpeg_video_output::impl::open_video_state
       return
         std::make_tuple(
           lhs->id == settings.parameters->codec_id,
-          lhs->name == parent.codec_name,
+          lhs->name == parent.codec_name(),
           lhs->id == AV_CODEC_ID_H265,
           lhs->id == AV_CODEC_ID_H264,
           is_hardware_codec( lhs ) ) >
         std::make_tuple(
           rhs->id == settings.parameters->codec_id,
-          rhs->name == parent.codec_name,
+          rhs->name == parent.codec_name(),
           rhs->id == AV_CODEC_ID_H265,
           rhs->id == AV_CODEC_ID_H264,
           is_hardware_codec( rhs ) );
@@ -672,20 +596,20 @@ ffmpeg_video_output::impl::open_video_state
   }
   if( codec_context->framerate.num <= 0 )
   {
-    codec_context->framerate = parent->frame_rate;
-    codec_context->time_base = av_inv_q( parent->frame_rate );
+    codec_context->framerate = parent->frame_rate();
+    codec_context->time_base = av_inv_q( parent->frame_rate() );
   }
   if( codec_context->width <= 0 )
   {
-    codec_context->width = parent->width;
+    codec_context->width = parent->width();
   }
   if( codec_context->height <= 0 )
   {
-    codec_context->height = parent->height;
+    codec_context->height = parent->height();
   }
   if( codec_context->bit_rate <= 0 )
   {
-    codec_context->bit_rate = parent->bitrate;
+    codec_context->bit_rate = parent->bitrate();
   }
 
   // Ensure we have all the required information
@@ -736,7 +660,7 @@ ffmpeg_video_output::impl::open_video_state
 void
 ffmpeg_video_output::impl::open_video_state
 ::add_image( kv::image_container_sptr const& image,
-             VITAL_UNUSED kv::timestamp const& ts )
+             [[maybe_unused]] kv::timestamp const& ts )
 {
   // Create frame object to represent incoming image
   frame_uptr frame{

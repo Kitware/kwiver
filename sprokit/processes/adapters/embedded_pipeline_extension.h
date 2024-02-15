@@ -10,8 +10,8 @@
 #include <sprokit/pipeline/pipeline.h>
 #include <vital/config/config_block.h>
 #include <vital/logger/logger.h>
-#include <vital/plugin_loader/plugin_info.h>
-#include <vital/plugin_loader/plugin_registrar.h>
+#include <vital/plugin_management/plugin_info.h>
+#include <vital/plugin_management/plugin_registrar.h>
 #include <vital/vital_config.h>
 
 #include <memory>

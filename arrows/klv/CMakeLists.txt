@@ -152,9 +152,13 @@ target_link_libraries( kwiver_algo_klv
   )
 
 
-algorithms_create_plugin( kwiver_algo_klv
-  register_algorithms.cxx
-  )
+kwiver_add_plugin( kwiver_algo_klv_plugin
+                   SOURCES          register_algorithms.cxx
+                   PRIVATE
+                                    vital_vpm
+                                    kwiver_algo_klv
+                   SUBDIR           ${kwiver_plugin_algorithm_subdir}
+                   )
 
 if (KWIVER_ENABLE_TOOLS)
   add_subdirectory(applets)
