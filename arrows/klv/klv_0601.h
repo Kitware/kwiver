@@ -12,6 +12,7 @@
 
 #include "klv_0102.h"
 #include "klv_checksum.h"
+#include "klv_imap.h"
 #include "klv_list.h"
 #include "klv_packet.h"
 #include "klv_set.h"
@@ -568,9 +569,9 @@ private:
 /// Geographic location.
 struct klv_0601_location_dlp
 {
-  double latitude;
-  double longitude;
-  std::optional< double > altitude;
+  klv_imap latitude;
+  klv_imap longitude;
+  std::optional< klv_imap > altitude;
 };
 
 // ----------------------------------------------------------------------------
@@ -645,8 +646,8 @@ private:
 // ----------------------------------------------------------------------------
 struct klv_0601_view_domain_interval
 {
-  double start;
-  double range;
+  klv_imap start;
+  klv_imap range;
   size_t semi_length;
 };
 
@@ -986,8 +987,8 @@ using klv_0601_active_payloads_format = klv_enum_bitfield_format< uint16_t >;
 struct klv_0601_wavelength_record
 {
   uint16_t id;
-  double min;
-  double max;
+  klv_imap min;
+  klv_imap max;
   std::string name;
 };
 

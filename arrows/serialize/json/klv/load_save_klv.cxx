@@ -6,6 +6,8 @@
 #include <arrows/serialize/json/load_save.h>
 
 #include <arrows/klv/klv_all.h>
+#include <arrows/klv/klv_imap.h>
+#include <arrows/klv/klv_read_write.h>
 
 #include <vital/internal/cereal/archives/json.hpp>
 #include <vital/internal/cereal/cereal.hpp>
@@ -86,9 +88,12 @@ using klv_type_list =
     klv_1206_look_direction,
     klv_1303_apa,
     klv_1303_mdap< double >,
+    klv_1303_mdap< klv_imap >,
     klv_1303_mdap< uint64_t >,
     klv_blob,
+    klv_imap,
     klv_lengthy< double >,
+    klv_lengthy< klv_imap >,
     klv_local_set,
     klv_universal_set,
     klv_uuid,
@@ -550,6 +555,35 @@ public:
     auto const object_scope = push_object();
     save( "lower-bound", value.lower() );
     save( "upper-bound", value.upper() );
+  }
+
+  void save( klv_imap const& value )
+  {
+    if( value.kind() == klv_imap::KIND_NORMAL )
+    {
+      save( value.as_double() );
+      return;
+    }
+
+    auto const object_scope = push_object();
+    save( "kind", value.kind() );
+    switch( value.kind() )
+    {
+      case klv_imap::KIND_NAN_QUIET:
+      case klv_imap::KIND_NAN_SIGNALING:
+        save( "sign", std::signbit( value.as_double() ) );
+        // Intentional fall-through
+      case klv_imap::KIND_USER_DEFINED:
+        save( "other-bits", value.other_bits() );
+        break;
+      case klv_imap::KIND_NORMAL:
+        save( "value", value.as_double() );
+        break;
+      case klv_imap::KIND_BELOW_MIN:
+      case klv_imap::KIND_ABOVE_MAX:
+      default:
+        break;
+    }
   }
 
   void save( klv_0601_airbase_locations const& value )
@@ -1030,6 +1064,39 @@ struct klv_json_loader : public klv_json_base< load_archive >
     LOAD_MEMBER( length );
     LOAD_MEMBER( value );
     return { std::move( value ), std::move( length ) };
+  }
+
+  LOAD_TEMPLATE( klv_imap )
+  T load()
+  {
+    try
+    {
+      return klv_imap{ load< double >() };
+    }
+    catch( std::runtime_error const& )
+    {}
+
+    auto const object_scope = push_object();
+    LOAD_VALUE( kind, klv_imap::kind_t );
+    switch( kind )
+    {
+      case klv_imap::KIND_USER_DEFINED:
+        return klv_imap::user_defined( load< uint64_t >( "other-bits" ) );
+      case klv_imap::KIND_NAN_QUIET:
+        return klv_imap::nan(
+          false, load< bool >( "sign" ), load< uint64_t >( "other-bits" ) );
+      case klv_imap::KIND_NAN_SIGNALING:
+        return klv_imap::nan(
+          true, load< bool >( "sign" ), load< uint64_t >( "other-bits" ) );
+      case klv_imap::KIND_NORMAL:
+        return klv_imap{ load< double >( "value" ) };
+      case klv_imap::KIND_BELOW_MIN:
+        return klv_imap::below_minimum();
+      case klv_imap::KIND_ABOVE_MAX:
+        return klv_imap::above_maximum();
+      default:
+        throw std::runtime_error( "invalid klv_imap::kind" );
+    }
   }
 
   LOAD_TEMPLATE( klv_timed_packet )

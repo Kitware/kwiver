@@ -7,6 +7,7 @@
 
 #include "klv_lengthy.h"
 
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_util.h>
 
 #include <optional>
@@ -73,6 +74,7 @@ DEFINE_TEMPLATE_CMP( klv_lengthy< T >, &klv_lengthy< T >::value )
 
 KLV_INSTANTIATE( double );
 KLV_INSTANTIATE( std::optional< double > );
+KLV_INSTANTIATE( klv_imap );
 
 } // namespace klv
 

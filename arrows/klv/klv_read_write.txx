@@ -48,6 +48,13 @@ constexpr size_t
 _int_bit_length( T value );
 
 // ----------------------------------------------------------------------------
+// Return number of decimal digits required to express an integer with the
+// given number of bits.
+KWIVER_ALGO_KLV_EXPORT
+size_t
+_bits_to_decimal_digits( size_t bits );
+
+// ----------------------------------------------------------------------------
 // Return whether left-shifting by given amount would overflow type T.
 template < int shift_amount, typename T >
 constexpr bool
@@ -62,39 +69,6 @@ constexpr T _int_min( size_t length );
 // Maximum integer representable using the given number of bytes
 template < class T >
 constexpr T _int_max( size_t length );
-
-// ----------------------------------------------------------------------------
-// Returns the IMAP representation of positive or negative infinity.
-KWIVER_ALGO_KLV_EXPORT
-uint64_t
-_imap_infinity( bool sign_bit, size_t length );
-
-// ----------------------------------------------------------------------------
-// Returns the IMAP representation of positive or negative quiet NaN.
-KWIVER_ALGO_KLV_EXPORT
-uint64_t
-_imap_quiet_nan( bool sign_bit, size_t length );
-
-// ----------------------------------------------------------------------------
-// Returns the IMAP representation of positive or negative signaling NaN.
-KWIVER_ALGO_KLV_EXPORT
-uint64_t
-_imap_signal_nan( bool sign_bit, size_t length );
-
-// ----------------------------------------------------------------------------
-// Helper struct
-struct KWIVER_ALGO_KLV_EXPORT _imap_terms
-{
-  double forward_scale;
-  double backward_scale;
-  double zero_offset;
-};
-
-// ----------------------------------------------------------------------------
-// Calculates the derived terms needed for both IMAP reading and writing.
-KWIVER_ALGO_KLV_EXPORT
-_imap_terms
-_calculate_imap_terms( vital::interval< double > const& interval, size_t length );
 
 // ----------------------------------------------------------------------------
 // Throws invalid_value if arguments don't make sense

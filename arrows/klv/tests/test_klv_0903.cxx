@@ -20,8 +20,6 @@
 #include <arrows/klv/klv_packet.h>
 #include <arrows/klv/klv_series.hpp>
 
-using kld = klv_lengthy< double >;
-
 // ----------------------------------------------------------------------------
 int
 main( int argc, char** argv )
@@ -50,8 +48,8 @@ auto const expected_result = klv_local_set{
   { KLV_0903_FRAME_WIDTH, uint64_t{ 1920 } },
   { KLV_0903_FRAME_HEIGHT, uint64_t{ 1080 } },
   { KLV_0903_SOURCE_SENSOR, std::string{ "EO Nose" } },
-  { KLV_0903_HORIZONTAL_FOV, kld{ 12.5 } },
-  { KLV_0903_VERTICAL_FOV, kld{ 10.0 } },
+  { KLV_0903_HORIZONTAL_FOV, kli( 12.5 ) },
+  { KLV_0903_VERTICAL_FOV, kli( 10.0 ) },
   { KLV_0903_MIIS_ID, klv_value{} },
   { KLV_0903_VTARGET_SERIES,
     std::vector< klv_0903_vtarget_pack >{
@@ -66,15 +64,15 @@ auto const expected_result = klv_local_set{
           { KLV_0903_VTARGET_PERCENT_PIXELS, uint64_t{ 50 } },
           { KLV_0903_VTARGET_COLOR, uint64_t{ 0xDAA520 } },
           { KLV_0903_VTARGET_INTENSITY, uint64_t{ 13140 } },
-          { KLV_0903_VTARGET_LOCATION_OFFSET_LATITUDE, kld{ 10.0 } },
-          { KLV_0903_VTARGET_LOCATION_OFFSET_LONGITUDE, kld{ 12.0 } },
-          { KLV_0903_VTARGET_LOCATION_ELLIPSOID_HEIGHT, kld{ 10000.0 } },
-          { KLV_0903_VTARGET_BBOX_TOP_LEFT_LATITUDE_OFFSET, kld{ 10.0 } },
-          { KLV_0903_VTARGET_BBOX_TOP_LEFT_LONGITUDE_OFFSET, kld{ 10.0 } },
+          { KLV_0903_VTARGET_LOCATION_OFFSET_LATITUDE, kli( 10.0 ) },
+          { KLV_0903_VTARGET_LOCATION_OFFSET_LONGITUDE, kli( 12.0 ) },
+          { KLV_0903_VTARGET_LOCATION_ELLIPSOID_HEIGHT, kli( 10000.0 ) },
+          { KLV_0903_VTARGET_BBOX_TOP_LEFT_LATITUDE_OFFSET, kli( 10.0 ) },
+          { KLV_0903_VTARGET_BBOX_TOP_LEFT_LONGITUDE_OFFSET, kli( 10.0 ) },
           { KLV_0903_VTARGET_BBOX_BOTTOM_RIGHT_LATITUDE_OFFSET,
-            kld{ 10.0 } },
+            kli( 10.0 ) },
           { KLV_0903_VTARGET_BBOX_BOTTOM_RIGHT_LONGITUDE_OFFSET,
-            kld{ 10.0 } },
+            kli( 10.0 ) },
           { KLV_0903_VTARGET_LOCATION, {} },
           { KLV_0903_VTARGET_GEOSPATIAL_CONTOUR_SERIES, {} },
           { KLV_0903_VTARGET_CENTROID_ROW, uint64_t{ 872 } },
@@ -231,11 +229,17 @@ TEST ( klv, read_write_0903 )
 TEST ( klv, read_write_0903_vtarget_location )
 {
   auto const expected_result = klv_0903_location_pack{
-    -87.984282970428467,
-    -115.49705505371094,
-    1671.0,
-    klv_0903_sigma_pack{ 8.0625, 24.125, 40.1875 },
-    klv_0903_rho_pack{ -0.748046875, -0.24609375, 0.255859375 }, };
+    klv_imap{ -87.984282970428467 },
+    klv_imap{ -115.49705505371094 },
+    klv_imap{  1671.0 },
+    klv_0903_sigma_pack{
+      klv_imap{  8.0625 },
+      klv_imap{  24.125 },
+      klv_imap{  40.1875 } },
+    klv_0903_rho_pack{
+      klv_imap{ -0.748046875 },
+      klv_imap{ -0.24609375 },
+      klv_imap{  0.255859375 } }, };
 
   auto const input_bytes = klv_bytes_t{
     0x01, 0x02, 0x03, 0x04,
@@ -253,11 +257,17 @@ TEST ( klv, read_write_0903_boundary_series )
 {
   auto const expected_result =
     std::vector< klv_0903_location_pack >{
-    { -87.984282970428467,
-      -115.49705505371094,
-      1671.0,
-      klv_0903_sigma_pack{ 8.0625, 24.125, 40.1875 },
-      klv_0903_rho_pack{ -0.748046875, -0.24609375, 0.255859375 } } };
+    { klv_imap{ -87.984282970428467 },
+      klv_imap{ -115.49705505371094 },
+      klv_imap{  1671.0 },
+      klv_0903_sigma_pack{
+        klv_imap{ 8.0625 },
+        klv_imap{ 24.125 },
+        klv_imap{ 40.1875 } },
+      klv_0903_rho_pack{
+        klv_imap{ -0.748046875 },
+        klv_imap{ -0.24609375 },
+        klv_imap{ 0.255859375 } } } };
 
   auto const input_bytes = klv_bytes_t{
     22,
@@ -304,7 +314,7 @@ TEST ( klv, read_write_0903_vobject )
     { KLV_0903_VOBJECT_ONTOLOGY, std::string{ "URI" } },
     { KLV_0903_VOBJECT_ONTOLOGY_CLASS, std::string{ "class" } },
     { KLV_0903_VOBJECT_ONTOLOGY_ID, uint64_t{ 7 } },
-    { KLV_0903_VOBJECT_CONFIDENCE, kld{ 32.0 } }, };
+    { KLV_0903_VOBJECT_CONFIDENCE, kli( 32.0 ) }, };
 
   auto const input_bytes = klv_bytes_t{
     0x01, 0x03,
@@ -327,7 +337,7 @@ TEST ( klv, read_write_0903_vfeature )
     { KLV_0903_VFEATURE_SCHEMA, std::string{ "A" } },
     { KLV_0903_VFEATURE_SCHEMA_FEATURE, std::string{ "B" } },
     { KLV_0903_VFEATURE_ONTOLOGY_ID, uint64_t{ 9 } },
-    { KLV_0903_VFEATURE_CONFIDENCE, kld{ 99.0 } } };
+    { KLV_0903_VFEATURE_CONFIDENCE, kli( 99.0 ) } };
 
   auto const input_bytes = klv_bytes_t{
     0x01, 0x01,
@@ -359,9 +369,15 @@ TEST ( klv, read_write_0903_vtracker )
     { KLV_0903_VTRACKER_NUM_TRACK_POINTS, uint64_t{ 27 } },
     { KLV_0903_VTRACKER_TRACK_HISTORY_SERIES, {} },
     { KLV_0903_VTRACKER_VELOCITY,
-      klv_0903_velocity_pack{ -608.75, -336.75, 208.3125 } },
+      klv_0903_velocity_pack{
+        klv_imap{ -608.75 },
+        klv_imap{ -336.75 },
+        klv_imap{  208.3125 } } },
     { KLV_0903_VTRACKER_ACCELERATION,
-      klv_0903_acceleration_pack{ 159.25, 175.25, 208.3125 } },
+      klv_0903_acceleration_pack{
+        klv_imap{ 159.25 },
+        klv_imap{ 175.25 },
+        klv_imap{ 208.3125 } } },
     { KLV_0903_VTRACKER_ALGORITHM_ID, uint64_t{ 3 } }, };
 
   auto const input_bytes = klv_bytes_t{

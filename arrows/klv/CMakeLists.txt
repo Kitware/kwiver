@@ -11,6 +11,7 @@ set( sources
   klv_demuxer.cxx
   klv_lengthy.cxx
   klv_length_constraints.cxx
+  klv_imap.cxx
   klv_key.cxx
   klv_metadata.cxx
   klv_muxer.cxx
@@ -71,6 +72,7 @@ set( public_headers
   klv_length_constraints.h
   klv_list.h
   klv_list.hpp
+  klv_imap.h
   klv_key.h
   klv_metadata.h
   klv_muxer.h

@@ -9,6 +9,7 @@
 #define KWIVER_ARROWS_KLV_KLV_1010_H_
 
 #include <arrows/klv/klv_data_format.h>
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
@@ -27,8 +28,8 @@ struct klv_1010_sdcc_flp
 {
   // Actual data
   std::vector< klv_lds_key > members;
-  std::vector< double > sigma;
-  std::vector< double > rho;
+  std::vector< klv_imap > sigma;
+  std::vector< klv_imap > rho;
 
   // Directives concerning how that data is to be written
   size_t sigma_length;

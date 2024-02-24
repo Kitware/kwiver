@@ -10,6 +10,7 @@
 #include "klv_all.h"
 #include "klv_metadata.h"
 #include "klv_muxer.h"
+#include "klv_read_write.h"
 
 #include <vital/range/iota.h>
 #include <vital/types/geodesy.h>
@@ -31,13 +32,14 @@ namespace {
 
 // ----------------------------------------------------------------------------
 using kld = klv_lengthy< double >;
+using kli = klv_lengthy< klv_imap >;
 struct klv_to_vital_visitor
 {
   template < class T,
-             typename std::enable_if< std::is_same< T, uint64_t >::value ||
-                                      std::is_same< T, double >::value ||
-                                      std::is_same< T, std::string >::value,
-                                      bool >::type = true >
+             std::enable_if_t< std::is_same_v< T, uint64_t > ||
+                               std::is_same_v< T, double > ||
+                               std::is_same_v< T, std::string >,
+                               bool > = true >
   kv::metadata_value
   operator()() const
   {
@@ -45,12 +47,19 @@ struct klv_to_vital_visitor
   }
 
   template < class T,
-             typename std::enable_if< std::is_same< T, kld >::value,
-                                      bool >::type = true >
+             std::enable_if_t< std::is_same_v< T, kld >, bool > = true >
   kv::metadata_value
   operator()() const
   {
     return value.get< T >().value;
+  }
+
+  template < class T,
+             std::enable_if_t< std::is_same_v< T, kli >, bool > = true >
+  kv::metadata_value
+  operator()() const
+  {
+    return value.get< T >().value.as_double();
   }
 
   klv_value const& value;
@@ -66,6 +75,7 @@ klv_to_vital_value( klv_value const& value )
     uint64_t,
     double,
     kld,
+    kli,
     std::string >( { value }, value.type() );
 }
 
@@ -77,12 +87,13 @@ assemble_geo_point( klv_value const& latitude,
                     klv_value const& elevation )
 {
   constexpr auto qnan = std::numeric_limits< double >::quiet_NaN();
+  auto const converter = klv_to_vital_value;
   return {
     kv::vector_3d{
-      longitude.valid() ? longitude.get< kld >().value : qnan,
-      latitude.valid() ? latitude.get< kld >().value : qnan,
-      elevation.valid() ? elevation.get< kld >().value : qnan, },
-    kv::SRID::lat_lon_WGS84 };
+      longitude.valid() ? std::get< double >( converter( longitude ) ) : qnan,
+      latitude.valid() ? std::get< double >( converter( latitude ) ) : qnan,
+      elevation.valid() ? std::get< double >( converter( elevation ) ) : qnan,
+    }, kv::SRID::lat_lon_WGS84 };
 }
 
 // ----------------------------------------------------------------------------

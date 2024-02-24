@@ -20,6 +20,7 @@
 using namespace kwiver::arrows::klv;
 namespace kv = kwiver::vital;
 using kld = klv_lengthy< double >;
+using kli = klv_lengthy< klv_imap >;
 
 kwiver::vital::path_t g_data_dir;
 
@@ -87,9 +88,15 @@ klv_local_set const test_0806_set = {
 // ---------------------------------------------------------------------------
 klv_local_set const test_0903_vtracker_set = {
   { KLV_0903_VTRACKER_VELOCITY,
-    klv_0903_velocity_pack{ 1.0, 2.0, 3.0 } },
+    klv_0903_velocity_pack{
+      klv_imap{ 1.0 },
+      klv_imap{ 2.0 },
+      klv_imap{ 3.0 } } },
   { KLV_0903_VTRACKER_ACCELERATION,
-    klv_0903_acceleration_pack{ 1.0, 2.0, 3.0 } } };
+    klv_0903_acceleration_pack{
+      klv_imap::below_minimum(),
+      klv_imap::above_maximum(),
+      klv_imap::user_defined( 1234 ) } } };
 
 // ---------------------------------------------------------------------------
 klv_local_set const test_0903_vtarget_set = {
@@ -107,9 +114,17 @@ klv_local_set const test_0903_vtarget_set = {
   { KLV_0903_VTARGET_VOBJECT_SERIES, std::vector< klv_local_set >{} },
   { KLV_0903_VTARGET_LOCATION,
     klv_0903_location_pack{
-      60.0, 30.0, 1000.0,
-      klv_0903_sigma_pack{ 1.0, 2.0, 3.0 },
-      klv_0903_rho_pack{ -1.0, 0.0, 1.0 } } } };
+      klv_imap{ 60.0 },
+      klv_imap{ 30.0 },
+      klv_imap{ 1000.0 },
+      klv_0903_sigma_pack{
+        klv_imap{ 1.0 },
+        klv_imap{ 2.0 },
+        klv_imap::nan( true, false, 0 ) },
+      klv_0903_rho_pack{
+        klv_imap{ -1.0 },
+        klv_imap{ 0.0 },
+        klv_imap::nan( false, true, 1 ) } } } };
 
 // ---------------------------------------------------------------------------
 klv_local_set const test_0903_set = {
@@ -194,8 +209,13 @@ klv_local_set const test_0601_set = {
     KLV_0601_SENSOR_FOV_NAME_MEDIUM },
   { KLV_0601_AIRBASE_LOCATIONS,
     klv_0601_airbase_locations{
-      klv_0601_location_dlp{ 1.0, 2.0, 3.0 },
-      klv_0601_location_dlp{ 4.0, 5.0 } } },
+      klv_0601_location_dlp{
+        klv_imap{ 1.0 },
+        klv_imap{ 2.0 },
+        klv_imap{ 3.0 } },
+      klv_0601_location_dlp{
+        klv_imap{ 4.0 },
+        klv_imap{ 5.0 } } } },
   { KLV_0601_COUNTRY_CODES,
     klv_0601_country_codes{
       KLV_0102_COUNTRY_CODING_METHOD_GENC_THREE_LETTER,
@@ -207,7 +227,7 @@ klv_local_set const test_0601_set = {
       { 2, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "Camera" } } },
   { KLV_0601_WAVELENGTHS_LIST,
     std::vector< klv_0601_wavelength_record >{
-      { 7, 13.0, 14.0, "Wavelength" } } },
+      { 7, klv_imap{ 13.0 }, klv_imap{ 14.0 }, "Wavelength" } } },
   { KLV_0601_WAYPOINT_LIST,
     std::vector< klv_0601_waypoint_record >{
       { 1, -3,
@@ -222,7 +242,9 @@ klv_local_set const test_0601_set = {
                 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F } } },
   { KLV_0601_VIEW_DOMAIN,
     klv_0601_view_domain{
-      klv_0601_view_domain_interval{ 30.0, 60.0 },
+      klv_0601_view_domain_interval{
+        klv_imap{ 30.0 },
+        klv_imap{ 60.0 } },
       std::nullopt,
       std::nullopt } },
   { KLV_0601_RVT_LOCAL_SET, test_0806_set },
@@ -231,13 +253,14 @@ klv_local_set const test_0601_set = {
   { KLV_0601_SDCC_FLP,
     klv_1010_sdcc_flp{
       { KLV_0601_SENSOR_LATITUDE, KLV_0601_SENSOR_LONGITUDE },
-      { 4.0, 2.1e-64 },
-      { 0.5 },
+      { klv_imap{ 4.0 }, klv_imap{ 2.1e-64 } },
+      { klv_imap{ 0.5 } },
       4, 3,
       false, true,
       true,
       false } },
   { KLV_0601_MISSION_ID, klv_blob{ 0x00, 0xFF } },
+  { KLV_0601_DENSITY_ALTITUDE_EXTENDED, kli{ klv_imap{ 1000.0 }, 3 } },
   { KLV_0601_METADATA_SUBSTREAM_ID,
     klv_0601_msid{ 0, { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F } } } };

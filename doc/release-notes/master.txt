@@ -77,3 +77,5 @@ Arrows: KLV
 * Added frame_timestamp() to klv_metadata.
 
 * Added tag 143 (Metadata Substream ID) to ST0601.
+
+* Implement remaining obscure IMAP features.

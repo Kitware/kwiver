@@ -18,71 +18,6 @@ namespace arrows {
 
 namespace klv {
 
-// ----------------------------------------------------------------------------
-uint64_t
-_imap_infinity( bool sign_bit, size_t length )
-{
-  auto const identifier = sign_bit ? 0xE8ull : 0xC8ull;
-  return length ? identifier << ( ( length - 1 ) * 8 ) : 0;
-}
-
-// ----------------------------------------------------------------------------
-uint64_t
-_imap_quiet_nan( bool sign_bit, size_t length )
-{
-  auto const identifier = sign_bit ? 0xF0ull : 0xD0ull;
-  return length ? identifier << ( ( length - 1 ) * 8 ) : 0;
-}
-
-// ----------------------------------------------------------------------------
-uint64_t
-_imap_signal_nan( bool sign_bit, size_t length )
-{
-  auto const identifier = sign_bit ? 0xF8ull : 0xD8ull;
-  return length ? identifier << ( ( length - 1 ) * 8 ) : 0;
-}
-
-// ----------------------------------------------------------------------------
-_imap_terms
-_calculate_imap_terms(
-  vital::interval< double > const& interval, size_t length )
-{
-  // ST1201, Section 8.1.2
-  auto const float_exponent = std::ceil( std::log2( interval.span() ) );
-  auto const int_exponent = 8.0 * length - 1.0;
-
-  _imap_terms result = {};
-  result.forward_scale = std::exp2( int_exponent - float_exponent );
-  result.backward_scale = std::exp2( float_exponent - int_exponent );
-  result.zero_offset = interval.contains( 0.0, false, false )
-                       ? result.forward_scale * interval.lower() -
-                       std::floor( result.forward_scale * interval.lower() )
-                       : 0.0;
-  return result;
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_imap_length( vital::interval< double > const& interval, double precision )
-{
-  // ST1201, Section 8.1.1
-  _check_range_precision( interval, precision );
-
-  auto const length_bits = std::ceil( std::log2( interval.span() ) ) -
-                           std::floor( std::log2( precision ) ) + 1.0;
-  return static_cast< size_t >( std::ceil( length_bits / 8.0 ) );
-}
-
-// ----------------------------------------------------------------------------
-double
-klv_imap_precision( vital::interval< double > const& interval, size_t length )
-{
-  _check_range_length( interval, length );
-
-  auto const length_bits = length * 8.0;
-  return std::exp2( std::log2( interval.span() ) - length_bits + 1 );
-}
-
 namespace {
 
 // ----------------------------------------------------------------------------
@@ -112,6 +47,14 @@ _check_range( vital::interval< double > const& interval )
 }
 
 } // namespace
+
+// ----------------------------------------------------------------------------
+size_t
+_bits_to_decimal_digits( size_t bits )
+{
+  static auto const factor = std::log10( 2.0 );
+  return static_cast< size_t >( std::ceil( bits * factor ) );
+}
 
 // ----------------------------------------------------------------------------
 void
@@ -208,108 +151,6 @@ klv_write_float( double value, klv_write_iter_t& data, size_t length )
     VITAL_THROW( kwiver::vital::invalid_value,
                  "length must be sizeof(float) or sizeof(double)" );
   }
-}
-
-// ----------------------------------------------------------------------------
-double
-klv_read_imap(
-  vital::interval< double > const& interval,
-  klv_read_iter_t& data, size_t length )
-{
-  // Section 8.1.2
-  _check_range_length( interval, length );
-
-  auto const int_value = klv_read_int< uint64_t >( data, length );
-  auto value = static_cast< double >( int_value );
-
-  // Section 8.2.2
-  // Left-shift required to shift a bit from the least significant place to the
-  // most significant place
-  auto const msb_shift = length * 8 - 1;
-
-  // Most significant bit and any other bit set means this is a special value
-  if( int_value & ( 1ull << msb_shift ) && int_value != ( 1ull << msb_shift ) )
-  {
-    // Third most significant bit = sign bit
-    bool const sign_bit = int_value & 1ull << ( msb_shift - 2 );
-
-    // Second, fourth, and fifth most significant bits = special value
-    // identifiers
-    constexpr uint64_t identifier_mask = 0xB; // 01011
-    auto const identifier =
-      ( int_value >> ( length * 8 - 5 ) ) & identifier_mask;
-
-    switch( identifier )
-    {
-      case 0x9: // 1001
-        value = std::numeric_limits< double >::infinity();
-        break;
-      case 0xA: // 1010
-        value = std::numeric_limits< double >::quiet_NaN();
-        break;
-      case 0xB: // 1011
-        value = std::numeric_limits< double >::signaling_NaN();
-        break;
-      default: // Reserved and user-defined values
-        return std::numeric_limits< double >::quiet_NaN();
-    }
-
-    return sign_bit ? -value : value;
-  }
-
-  // Normal value
-  auto const terms = _calculate_imap_terms( interval, length );
-  value =
-    terms.backward_scale * ( value - terms.zero_offset ) + interval.lower();
-
-  // Return exactly zero if applicable, overriding rounding errors. IMAP
-  // specification considers this important
-  auto const precision = klv_imap_precision( interval, length );
-  value = ( std::abs( value ) < precision / 2.0 ) ? 0.0 : value;
-
-  if( !interval.contains( value, true, true ) )
-  {
-    VITAL_THROW( kv::metadata_type_overflow, "value outside IMAP bounds" );
-  }
-
-  return value;
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_write_imap( double value, vital::interval< double > const& interval,
-                klv_write_iter_t& data, size_t length )
-{
-  // Section 8.1.2, 8.2.1
-  _check_range_length( interval, length );
-
-  uint64_t int_value = 0;
-  if( std::isnan( value ) )
-  {
-    // We can't robustly tell the difference between quiet and signaling NaNs,
-    // so we just assume quiet. Therefore, we will never write signaling NaNs.
-    int_value = _imap_quiet_nan( std::signbit( value ), length );
-  }
-  // Out-of-range values set to infinity
-  else if( value < interval.lower() )
-  {
-    int_value = _imap_infinity( true, length );
-  }
-  else if( value > interval.upper() )
-  {
-    int_value = _imap_infinity( false, length );
-  }
-  // Normal values
-  else
-  {
-    auto const terms = _calculate_imap_terms( interval, length );
-    int_value =
-      static_cast< uint64_t >(
-        terms.forward_scale * ( value - interval.lower() ) +
-        terms.zero_offset );
-  }
-
-  klv_write_int( int_value, data, length );
 }
 
 // ----------------------------------------------------------------------------
