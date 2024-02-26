@@ -44,6 +44,7 @@ using klv_type_list =
     klv_0601_image_horizon_locations,
     klv_0601_image_horizon_pixel_pack,
     klv_0601_location_dlp,
+    klv_0601_msid,
     klv_0601_operational_mode,
     klv_0601_payload_record,
     klv_0601_platform_status,
@@ -611,6 +612,16 @@ public:
     SAVE_MEMBER( latitude );
     SAVE_MEMBER( longitude );
     SAVE_MEMBER( altitude );
+  }
+
+  void save( klv_0601_msid const& value )
+  {
+    auto const object_scope = push_object();
+    SAVE_MEMBER( local_id );
+    if( !value.local_id )
+    {
+      SAVE_MEMBER( universal_id );
+    }
   }
 
   void save( klv_0601_payload_record const& value )
@@ -1272,6 +1283,21 @@ struct klv_json_loader : public klv_json_base< load_archive >
     return { std::move( latitude ),
              std::move( longitude ),
              std::move( altitude ) };
+  }
+
+  LOAD_TEMPLATE( klv_0601_msid )
+  T load()
+  {
+    auto const object_scope = push_object();
+    LOAD_MEMBER( local_id );
+    if( local_id )
+    {
+      return { std::move( local_id ) };
+    }
+
+    LOAD_MEMBER( universal_id );
+    return { std::move( local_id ),
+             std::move( universal_id ) };
   }
 
   LOAD_TEMPLATE( klv_0601_payload_record )

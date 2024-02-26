@@ -760,6 +760,19 @@
 					"elevation": null,
 					"roll": null
 				}
+			},
+			{
+				"key": {
+					"integer": 143,
+					"string": "Metadata Substream ID"
+				},
+				"value": {
+					"local-id": 0,
+					"universal-id": {
+						"bytes": "AAECAwQFBgcICQoLDA0ODw==",
+						"hex": "0001-0203-0405-0607-0809-0a0b-0c0d-0e0f"
+					}
+				}
 			}
 		]
 	},

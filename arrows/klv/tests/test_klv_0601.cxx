@@ -259,7 +259,8 @@ auto const expected_result = klv_local_set{
       klv_0601_view_domain_interval{ 210.00000000000000,
                                      300.00000000000000 },
       klv_0601_view_domain_interval{ -75.000000000000000,
-                                     50.000000000000000 } } } };
+                                     50.000000000000000 } } },
+  { KLV_0601_METADATA_SUBSTREAM_ID, klv_0601_msid{ 7 } } };
 
 auto const input_bytes = klv_bytes_t{
   0x02, 0x08, // KLV_0601_PRECISION_TIMESTAMP
@@ -552,7 +553,10 @@ auto const input_bytes = klv_bytes_t{
   0xA7, 0x09, 0x60, 0x00,
   0x81, 0x0E, 0x0E, // KLV_0601_VIEW_DOMAIN
   0x06, 0x34, 0x80, 0x00, 0x4B, 0x00, 0x00, 0x06, 0x1A, 0x40, 0x00, 0x0C,
-  0x80, 0x00, };
+  0x80, 0x00,
+  0x81, 0x0F, 0x01, // KLV_0601_METADATA_SUBSTREAM_ID
+  0x07
+};
 
 // ----------------------------------------------------------------------------
 TEST ( klv, read_write_0601 )
@@ -564,7 +568,7 @@ TEST ( klv, read_write_0601 )
 // ----------------------------------------------------------------------------
 TEST ( klv, read_write_0601_packet )
 {
-  auto const packet_footer = klv_bytes_t{ KLV_0601_CHECKSUM, 2, 0x58, 0x02 };
+  auto const packet_footer = klv_bytes_t{ KLV_0601_CHECKSUM, 2, 0xDE, 0x18 };
   CALL_TEST( test_read_write_packet,
              expected_result, input_bytes, packet_footer, klv_0601_key() );
 }
