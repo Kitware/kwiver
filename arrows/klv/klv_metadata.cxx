@@ -38,6 +38,22 @@ klv_metadata
   return m_klv_packets;
 }
 
+// ----------------------------------------------------------------------------
+std::optional< misp_timestamp > const&
+klv_metadata
+::frame_timestamp() const
+{
+  return m_frame_timestamp;
+}
+
+// ----------------------------------------------------------------------------
+std::optional< misp_timestamp >&
+klv_metadata
+::frame_timestamp()
+{
+  return m_frame_timestamp;
+}
+
 } // namespace klv
 
 } // namespace arrows

@@ -69,3 +69,7 @@ Arrows: KLV
 
 * Ensured integer wrapper data formats (enum, enum bitfield) use the same
   lenient length logic as integers to prevent crashes when writing invalid data.
+
+* Added has_nanoseconds to misp_timestamp.
+
+* Added frame_timestamp() to klv_metadata.
