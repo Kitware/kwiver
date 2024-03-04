@@ -607,10 +607,6 @@ ffmpeg_video_output::impl::open_video_state
   throw_error_code(
     avformat_write_header( format_context.get(), nullptr ),
     "Could not write video header" );
-
-  throw_error_code(
-    avformat_init_output( format_context.get(), nullptr ),
-    "Could not initialize output stream" );
 }
 
 // ----------------------------------------------------------------------------
