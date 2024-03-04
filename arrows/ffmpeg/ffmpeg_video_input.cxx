@@ -798,31 +798,29 @@ ffmpeg_video_input::priv::frame_state
   if( parent->parent->klv_enabled )
   {
     // Find MISP timestamp for this frame
-    uint64_t misp_timestamp = 0;
-    if( parent->parent->use_misp_timestamps )
+    std::optional< klv::misp_timestamp > misp_timestamp;
+    if( auto const it =
+          parent->pts_to_misp_ts.find( frame->best_effort_timestamp );
+        it != parent->pts_to_misp_ts.end() )
     {
-      auto const it =
-        parent->pts_to_misp_ts.find( frame->best_effort_timestamp );
-      if( it != parent->pts_to_misp_ts.end() )
-      {
-        misp_timestamp = it->second.microseconds().count();
-      }
-      else
-      {
-        LOG_ERROR( logger,
-          "No MISP timestamp found for frame " << parent->frame_number() );
-      }
+      misp_timestamp = it->second;
     }
+    auto const use_misp = parent->parent->use_misp_timestamps && misp_timestamp;
 
     // Add one metadata packet per KLV stream
     for( auto& stream : parent->klv_streams )
     {
       auto const timestamp =
-        misp_timestamp ? misp_timestamp : stream.demuxer.frame_time();
+        use_misp
+        ? misp_timestamp->microseconds().count()
+        : stream.demuxer.frame_time();
       auto stream_metadata =
         stream.vital_metadata( timestamp, parent->parent->smooth_klv_packets );
       stream_metadata->add< kv::VITAL_META_UNIX_TIMESTAMP_SOURCE >(
-        misp_timestamp ? "misp" : "klv" );
+        use_misp ? "misp" : "klv" );
+      auto const klv_metadata =
+        dynamic_cast< klv::klv_metadata* >( stream_metadata.get() );
+      klv_metadata->frame_timestamp() = misp_timestamp;
 
       parent->set_video_metadata( *stream_metadata );
       metadata->emplace_back( std::move( stream_metadata ) );

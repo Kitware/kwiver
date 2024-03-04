@@ -10,8 +10,11 @@
 #define KWIVER_ARROWS_KLV_KLV_METADATA_H_
 
 #include <arrows/klv/klv_packet.h>
+#include <arrows/klv/misp_time.h>
 
 #include <vital/types/metadata.h>
+
+#include <optional>
 
 namespace kwiver {
 
@@ -30,8 +33,12 @@ public:
   std::vector< klv_packet > const& klv() const;
   std::vector< klv_packet >& klv();
 
+  std::optional< misp_timestamp > const& frame_timestamp() const;
+  std::optional< misp_timestamp >& frame_timestamp();
+
 private:
   std::vector< klv_packet > m_klv_packets;
+  std::optional< misp_timestamp > m_frame_timestamp;
 };
 
 } // namespace klv
