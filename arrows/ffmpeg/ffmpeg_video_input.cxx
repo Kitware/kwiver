@@ -155,30 +155,26 @@ ffmpeg_klv_stream
   }
 
 #if LIBAVCODEC_VERSION_MAJOR > 57
-  // Fill in KLV profile (if not previously determined) by looking at packet
-  // MPEG-TS stream identifier
-  if( stream->codecpar->profile < 0 )
-  {
+  // Fill in KLV profile by looking at packet MPEG-TS stream identifier
 #if LIBAVCODEC_VERSION_MAJOR > 58
-    size_t length = 0;
+  size_t length = 0;
 #else
-    int length = 0;
+  int length = 0;
 #endif
-    auto const stream_id =
-      av_packet_get_side_data( packet, AV_PKT_DATA_MPEGTS_STREAM_ID, &length );
-    if( length )
+  auto const stream_id =
+    av_packet_get_side_data( packet, AV_PKT_DATA_MPEGTS_STREAM_ID, &length );
+  if( length )
+  {
+    switch( *stream_id )
     {
-      switch( *stream_id )
-      {
-        case 0xBD:
-          stream->codecpar->profile = FF_PROFILE_KLVA_ASYNC;
-          break;
-        case 0xFC:
-          stream->codecpar->profile = FF_PROFILE_KLVA_SYNC;
-          break;
-        default:
-          break;
-      }
+      case 0xBD:
+        stream->codecpar->profile = FF_PROFILE_KLVA_ASYNC;
+        break;
+      case 0xFC:
+        stream->codecpar->profile = FF_PROFILE_KLVA_SYNC;
+        break;
+      default:
+        break;
     }
   }
 #endif

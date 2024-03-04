@@ -49,6 +49,8 @@ Arrows: FFmpeg
 
 * Fixed bugs causing invalid output when transcoding between .mp4 and .ts files.
 
+* Made the MPEG-TS stream id take precedence when determining KLV stream synchronicity.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.
