@@ -388,6 +388,7 @@ KLV_INSTANTIATE( klv_0601_icing_detected );
 KLV_INSTANTIATE( klv_0601_image_horizon_locations );
 KLV_INSTANTIATE( klv_0601_image_horizon_pixel_pack );
 KLV_INSTANTIATE( klv_0601_location_dlp );
+KLV_INSTANTIATE( klv_0601_msid );
 KLV_INSTANTIATE( klv_0601_operational_mode );
 KLV_INSTANTIATE( klv_0601_payload_record );
 KLV_INSTANTIATE( klv_0601_platform_status );

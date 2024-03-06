@@ -75,3 +75,5 @@ Arrows: KLV
 * Added has_nanoseconds to misp_timestamp.
 
 * Added frame_timestamp() to klv_metadata.
+
+* Added tag 143 (Metadata Substream ID) to ST0601.
