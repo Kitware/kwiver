@@ -252,6 +252,11 @@ hierarchical_bundle_adjust
 {
   using namespace std;
 
+  if( !cameras || !landmarks || !tracks )
+  {
+    VITAL_THROW( invalid_value, "One or more input data pieces are Null!" );
+  }
+
   //frame_id_t orig_max_frame = cameras->cameras().rbegin()->first;
   LOG_INFO(logger(), cameras->size() << " cameras provided");
   size_t num_orig_cams = tracks->all_frame_ids().size();
