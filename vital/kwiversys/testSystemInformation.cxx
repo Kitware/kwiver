@@ -105,13 +105,13 @@ int testSystemInformation(int, char*[])
     << std::endl;
 
   /* test segv handler
-  info.SetStackTraceOnError(1);
+  info.SetStackTraceOnError(true);
   double *d = (double*)100;
   *d=0;
   */
 
   /* test abort handler
-  info.SetStackTraceOnError(1);
+  info.SetStackTraceOnError(true);
   abort();
   */
 

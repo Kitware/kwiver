@@ -133,7 +133,13 @@ public:
   // produce an informative stack trace the application should
   // be dynamically linked and compiled with debug symbols.
   static
-  void SetStackTraceOnError(int enable);
+  void SetStackTraceOnError(bool enable);
+
+  // Handle the SIGINT signal, triggered by Ctrl+C. This static
+  // function is designed to respond exclusively to SIGINT, leading to
+  // a termination of the application.
+  static
+  void InterruptionHandler();
 
   // format and return the current program stack in a string. In
   // order to produce an informative stack trace the application
