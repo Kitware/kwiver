@@ -43,3 +43,4 @@ kwiver_discover_gtests(vxl triangulate_landmarks       LIBRARIES ${test_librarie
 # This test is really for an algorithm in MVG, but it's here
 # because the test depends on availability of VXL sub-algorithms
 kwiver_discover_gtests(vxl initialize_cameras_landmarks LIBRARIES ${test_libraries})
+kwiver_discover_gtests(vxl initialize_cameras_landmarks_basic LIBRARIES ${test_libraries})

@@ -2437,7 +2437,8 @@ initialize_cameras_landmarks::priv
       vector_3d pos_loc;
       rotation_d R_loc;
 
-      if (constraints->get_camera_position_prior_local(fid, pos_loc) &&
+      if (constraints == nullptr &&
+          constraints->get_camera_position_prior_local(fid, pos_loc) &&
           constraints->get_camera_orientation_prior_local(fid, R_loc))
       {
         auto cam = std::make_shared<simple_camera_perspective>();

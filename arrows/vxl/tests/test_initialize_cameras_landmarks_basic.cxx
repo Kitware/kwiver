@@ -12,7 +12,7 @@
 #include <arrows/mvg/projected_track_set.h>
 #include <arrows/mvg/metrics.h>
 #include <arrows/mvg/transform.h>
-#include <arrows/mvg/algo/initialize_cameras_landmarks.h>
+#include <arrows/mvg/algo/initialize_cameras_landmarks_basic.h>
 
 #include <vital/plugin_loader/plugin_manager.h>
 
@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 }
 
 // ----------------------------------------------------------------------------
-TEST(initialize_cameras_landmarks, create)
+TEST(initialize_cameras_landmarks_basic, create)
 {
   EXPECT_NE( nullptr, algo::initialize_cameras_landmarks::create("mvg-basic") );
 }
@@ -38,7 +38,7 @@ TEST(initialize_cameras_landmarks, create)
 // ----------------------------------------------------------------------------
 // Helper function to configure the algorithm
 static void
-configure_algo(initialize_cameras_landmarks& algo,
+configure_algo(initialize_cameras_landmarks_basic& algo,
                const kwiver::vital::camera_intrinsics_sptr K)
 {
   using namespace kwiver::arrows;
@@ -52,13 +52,6 @@ configure_algo(initialize_cameras_landmarks& algo,
   cfg->set_value("essential_mat_estimator:vxl:num_ransac_samples", 10);
   cfg->set_value("camera_optimizer:type", "vxl");
   cfg->set_value("lm_triangulator:type", "mvg");
-
-  cfg->set_value("bundle_adjuster:type", "ceres");
-  cfg->set_value("global_bundle_adjuster:type", "ceres");
-  cfg->set_value("canonical_estimator:type", "core_pca");
-  cfg->set_value("similarity_estimator:type", "vxl");
-  cfg->set_value("estimate_pnp:type", "ocv");
-
   algo.set_configuration(cfg);
 
   if(!algo.check_configuration(cfg))
@@ -111,11 +104,11 @@ evaluate_initialization(const kwiver::vital::camera_map_sptr true_cams,
 }
 
 // ----------------------------------------------------------------------------
-static void
-helper(bool from_last, bool noisy)
+// Test initialization with ideal points
+TEST(initialize_cameras_landmarks_basic, ideal_points)
 {
   using namespace kwiver;
-  initialize_cameras_landmarks init;
+  initialize_cameras_landmarks_basic init;
 
   // create landmarks at the random locations
   vital::landmark_map_sptr landmarks = kwiver::testing::init_landmarks(100);
@@ -125,21 +118,8 @@ helper(bool from_last, bool noisy)
   camera_map_sptr cameras = kwiver::testing::camera_seq();
 
   // create tracks from the projections
-  vital::feature_track_set_sptr tracks = projected_tracks(landmarks, cameras);
-
-  // add random noise to track image locations
-  if( noisy )
-  {
-    tracks = kwiver::testing::noisy_tracks(tracks, 0.3);
-  }
+  feature_track_set_sptr tracks = projected_tracks(landmarks, cameras);
   kwiver::testing::reset_inlier_flag( tracks );
-
-  if( from_last )
-  {
-    vital::config_block_sptr cfg = init.get_configuration();
-    cfg->set_value("init_from_last", "true");
-    init.set_configuration(cfg);
-  }
 
   auto first_cam =
     std::dynamic_pointer_cast<vital::camera_perspective>(cameras->cameras()[0]);
@@ -153,43 +133,122 @@ helper(bool from_last, bool noisy)
   evaluate_initialization(cameras, landmarks,
                           new_cameras, new_landmarks,
                           1e-6);
-
 }
 
 // ----------------------------------------------------------------------------
 // Test initialization with ideal points
-TEST(initialize_cameras_landmarks, ideal_points)
+TEST(initialize_cameras_landmarks_basic, ideal_points_from_last)
 {
-  helper( false, false );
-}
+  using namespace kwiver;
+  initialize_cameras_landmarks_basic init;
 
-// ----------------------------------------------------------------------------
-// Test initialization with ideal points
-TEST(initialize_cameras_landmarks, ideal_points_from_last)
-{
-  helper( true, false );
+  // create landmarks at the random locations
+  vital::landmark_map_sptr landmarks = kwiver::testing::init_landmarks(100);
+  landmarks = kwiver::testing::noisy_landmarks(landmarks, 1.0);
+
+  // create a camera sequence (elliptical path)
+  vital::camera_map_sptr cameras = kwiver::testing::camera_seq();
+
+  // create tracks from the projections
+  vital::feature_track_set_sptr tracks = projected_tracks(landmarks, cameras);
+  kwiver::testing::reset_inlier_flag( tracks );
+
+  vital::config_block_sptr cfg = init.get_configuration();
+  cfg->set_value("init_from_last", "true");
+  init.set_configuration(cfg);
+  auto first_cam =
+    std::dynamic_pointer_cast<vital::camera_perspective>(cameras->cameras()[0]);
+  vital::camera_intrinsics_sptr K = first_cam->intrinsics();
+  configure_algo(init, K);
+
+  vital::camera_map_sptr new_cameras;
+  vital::landmark_map_sptr new_landmarks;
+  init.initialize(new_cameras, new_landmarks, tracks);
+
+  evaluate_initialization(cameras, landmarks,
+                          new_cameras, new_landmarks,
+                          1e-6);
 }
 
 // ----------------------------------------------------------------------------
 // Test initialization with noisy points
-TEST(initialize_cameras_landmarks, noisy_points)
+TEST(initialize_cameras_landmarks_basic, noisy_points)
 {
-  helper( false, true );
+  using namespace kwiver;
+  initialize_cameras_landmarks_basic init;
+
+  // create landmarks at the random locations
+  vital::landmark_map_sptr landmarks = kwiver::testing::init_landmarks(100);
+  landmarks = kwiver::testing::noisy_landmarks(landmarks, 1.0);
+
+  // create a camera sequence (elliptical path)
+  vital::camera_map_sptr cameras = kwiver::testing::camera_seq();
+
+  // create tracks from the projections
+  vital::feature_track_set_sptr tracks = projected_tracks(landmarks, cameras);
+
+  // add random noise to track image locations
+  tracks = kwiver::testing::noisy_tracks(tracks, 0.3);
+  kwiver::testing::reset_inlier_flag( tracks );
+
+  auto first_cam =
+    std::dynamic_pointer_cast<vital::camera_perspective>(cameras->cameras()[0]);
+  camera_intrinsics_sptr K = first_cam->intrinsics();
+  configure_algo(init, K);
+
+  vital::camera_map_sptr new_cameras;
+  vital::landmark_map_sptr new_landmarks;
+  init.initialize(new_cameras, new_landmarks, tracks);
+
+  evaluate_initialization(cameras, landmarks,
+                          new_cameras, new_landmarks,
+                          0.2);
 }
 
 // ----------------------------------------------------------------------------
 // Test initialization with noisy points
-TEST(initialize_cameras_landmarks, noisy_points_from_last)
+TEST(initialize_cameras_landmarks_basic, noisy_points_from_last)
 {
-  helper( true, true );
+  using namespace kwiver;
+  initialize_cameras_landmarks_basic init;
+
+  // create landmarks at the random locations
+  vital::landmark_map_sptr landmarks = kwiver::testing::init_landmarks(100);
+  landmarks = kwiver::testing::noisy_landmarks(landmarks, 1.0);
+
+  // create a camera sequence (elliptical path)
+  vital::camera_map_sptr cameras = kwiver::testing::camera_seq();
+
+  // create tracks from the projections
+  vital::feature_track_set_sptr tracks = projected_tracks(landmarks, cameras);
+
+  // add random noise to track image locations
+  tracks = kwiver::testing::noisy_tracks(tracks, 0.3);
+  kwiver::testing::reset_inlier_flag( tracks );
+
+  vital::config_block_sptr cfg = init.get_configuration();
+  cfg->set_value("init_from_last", "true");
+  init.set_configuration(cfg);
+  auto first_cam =
+    std::dynamic_pointer_cast<vital::camera_perspective>(cameras->cameras()[0]);
+  vital::camera_intrinsics_sptr K = first_cam->intrinsics();
+  configure_algo(init, K);
+
+  vital::camera_map_sptr new_cameras;
+  landmark_map_sptr new_landmarks;
+  init.initialize(new_cameras, new_landmarks, tracks);
+
+  evaluate_initialization(cameras, landmarks,
+                          new_cameras, new_landmarks,
+                          0.2);
 }
 
 // ----------------------------------------------------------------------------
 // Test initialization with subsets of cameras and landmarks
-TEST(initialize_cameras_landmarks, subset_init)
+TEST(initialize_cameras_landmarks_basic, subset_init)
 {
   using namespace kwiver;
-  initialize_cameras_landmarks init;
+  initialize_cameras_landmarks_basic init;
 
   // create landmarks at the random locations
   vital::landmark_map_sptr landmarks = kwiver::testing::init_landmarks(100);
