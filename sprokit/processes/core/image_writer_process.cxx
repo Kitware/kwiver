@@ -43,6 +43,10 @@ create_config_trait( file_name_template, std::string, "",
   "extension and the concrete writer selected. If an image name over-ride "
   "is provided over a pipeline, only the extension in the name is used.");
 
+create_config_trait( file_name_prefix, std::string, "",
+  "Optional folder name to append to the file name template. If unspecified "
+  "this parameter is not used. This path cannot be a regex." );
+
 create_config_trait( replace_filename_strings, std::string , "",
   "An optional comma-seperated list of pairs, corresponding to filename "
   "components we wish to replace. For example, if this is color,grey "
@@ -61,6 +65,7 @@ public:
 
   // Configuration values
   std::string m_file_template;
+  std::string m_file_prefix;
 
   // Number for current image.
   kwiver::vital::frame_id_t m_frame_number;
@@ -101,6 +106,7 @@ void image_writer_process
 
   // Get process config entries
   d->m_file_template = config_value_using_trait( file_name_template );
+  d->m_file_prefix = config_value_using_trait( file_name_prefix );
 
   // Get algo config entries
   kwiver::vital::config_block_sptr algo_config = get_config();
@@ -205,6 +211,11 @@ void image_writer_process
     }
   }
 
+  if( !d->m_file_prefix.empty() )
+  {
+    a_file = d->m_file_prefix + a_file;
+  }
+
   if( input )
   {
     scoped_step_instrumentation();
@@ -253,6 +264,7 @@ void image_writer_process
 ::make_config()
 {
   declare_config_using_trait( file_name_template );
+  declare_config_using_trait( file_name_prefix );
   declare_config_using_trait( image_writer );
   declare_config_using_trait( replace_filename_strings );
 }
