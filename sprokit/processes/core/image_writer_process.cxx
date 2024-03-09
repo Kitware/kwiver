@@ -195,7 +195,8 @@ void image_writer_process
       a_file = a_file.substr( 0, a_file.find_last_of( "." ) ) + d->m_file_template;
     }
   }
-  else
+
+  if( a_file.empty() )
   {
     a_file = kwiver::vital::string_format( d->m_file_template, d->m_frame_number );
   }
