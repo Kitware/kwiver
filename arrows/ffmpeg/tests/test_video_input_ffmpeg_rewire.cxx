@@ -14,12 +14,15 @@
 
 #include <arrows/klv/klv_metadata.h>
 
+#include <arrows/core/metadata_map_io_csv.h>
+
 #include <vital/plugin_loader/plugin_manager.h>
 
 #include <filesystem>
 
 namespace ffmpeg = kwiver::arrows::ffmpeg;
 namespace klv = kwiver::arrows::klv;
+namespace core = kwiver::arrows::core;
 namespace kv = kwiver::vital;
 
 std::filesystem::path g_data_dir;
@@ -222,6 +225,113 @@ TEST( ffmpeg_video_input_rewire, metadata )
   {
     check_inputs[ i ]->close();
   }
+  input.close();
+}
+
+// ----------------------------------------------------------------------------
+TEST( ffmpeg_video_input_rewire, metadata_map )
+{
+  auto const video_path = ( g_data_dir / "videos/aphill_short.ts" ).string();
+  auto const metadata_path = ( g_data_dir / "rewire_metadata.csv" ).string();
+
+  // Configure video and metadata inputs
+  ffmpeg::ffmpeg_video_input_rewire input;
+  auto config = input.get_configuration();
+  config->set_value( "source-0:type", "video" );
+  config->set_value( "source-0:filename", video_path );
+  config->set_value( "source-0:input:type", "ffmpeg" );
+  config->set_value( "source-1:type", "metadata_map" );
+  config->set_value( "source-1:filename", metadata_path );
+  config->set_value( "source-1:input:type", "csv" );
+  config->set_value( "streams", "0/1,1/unmarked,1/2,1/1" );
+  EXPECT_TRUE( input.check_configuration( config ) );
+  input.set_configuration( config );
+  input.open( "" );
+
+  // Open source video and metadata directly
+  ffmpeg::ffmpeg_video_input video_input;
+  core::metadata_map_io_csv metadata_input;
+  video_input.open( video_path );
+  auto const metadata_map_ptr = metadata_input.load( metadata_path );
+  ASSERT_TRUE( metadata_map_ptr );
+  auto const metadata_map = metadata_map_ptr->metadata();
+
+  kv::timestamp video_ts;
+  kv::timestamp ts;
+
+  // Run through rewired and original data together
+  for( video_input.next_frame( video_ts ),
+       input.next_frame( ts );
+       !video_input.end_of_video() && !input.end_of_video();
+       video_input.next_frame( video_ts ),
+       input.next_frame( ts ) )
+  {
+    SCOPED_TRACE(
+      std::string{ "Frame: " } +
+      std::to_string( video_ts.get_frame() ) + " | " +
+      std::to_string( ts.get_frame() ) );
+
+    // Timestamps must match
+    EXPECT_EQ( video_ts.get_frame(), ts.get_frame() );
+    EXPECT_EQ( video_ts.get_time_usec(), ts.get_time_usec() );
+
+    auto const metadata = input.frame_metadata();
+    auto const video_metadata = video_input.frame_metadata();
+    kv::metadata_vector map_metadata;
+    if( auto const it = metadata_map.find( ts.get_frame() );
+        it != metadata_map.end() )
+    {
+      map_metadata = it->second;
+    }
+    EXPECT_EQ( video_metadata.size() + map_metadata.size(), metadata.size() );
+
+    auto const get_index = [ &metadata ]( size_t index )
+    {
+      return metadata.at( index )->find(
+        kv::VITAL_META_VIDEO_DATA_STREAM_INDEX ).get< int >();
+    };
+
+    auto const get_timestamp = [ &metadata ]( size_t index )
+    {
+      return metadata.at( index )->find(
+        kv::VITAL_META_UNIX_TIMESTAMP ).as_uint64();
+    };
+
+    switch( ts.get_frame() )
+    {
+      case 1:
+        EXPECT_EQ( 3, get_index( 1 ) );
+        EXPECT_EQ( 2, get_timestamp( 1 ) );
+        EXPECT_EQ( 4, get_index( 2 ) );
+        EXPECT_EQ( 1, get_timestamp( 2 ) );
+        break;
+      case 3:
+        EXPECT_EQ( 4, get_index( 1 ) );
+        EXPECT_EQ( 2, get_timestamp( 1 ) );
+        break;
+      case 10:
+        EXPECT_EQ( 3, get_index( 1 ) );
+        EXPECT_EQ( 10, get_timestamp( 1 ) );
+        break;
+      case 15:
+        EXPECT_EQ( 2, get_index( 1 ) );
+        EXPECT_EQ( 17, get_timestamp( 1 ) );
+        EXPECT_EQ( 3, get_index( 2 ) );
+        EXPECT_EQ( 16, get_timestamp( 2 ) );
+        EXPECT_EQ( 4, get_index( 3 ) );
+        EXPECT_EQ( 15, get_timestamp( 3 ) );
+        break;
+      default:
+        break;
+    }
+
+    // Images must be identical
+    auto const check_image = video_input.frame_image()->get_image();
+    auto const image = input.frame_image()->get_image();
+    expect_eq_images( check_image, image, 0.0 );
+  }
+
+  video_input.close();
   input.close();
 }
 
