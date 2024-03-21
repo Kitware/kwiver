@@ -24,9 +24,10 @@ set(ffmpeg_headers_public
   ffmpeg_util.h
   ffmpeg_video_input.h
   ffmpeg_video_input_clip.h
+  ffmpeg_video_input_rewire.h
   ffmpeg_video_output.h
-  ffmpeg_video_raw_image.cxx
-  ffmpeg_video_raw_metadata.cxx
+  ffmpeg_video_raw_image.h
+  ffmpeg_video_raw_metadata.h
   ffmpeg_video_settings.h
   ffmpeg_video_uninterpreted_data.h
   )
@@ -48,6 +49,7 @@ set(ffmpeg_sources
   ffmpeg_util.cxx
   ffmpeg_video_input.cxx
   ffmpeg_video_input_clip.cxx
+  ffmpeg_video_input_rewire.cxx
   ffmpeg_video_output.cxx
   ffmpeg_video_raw_image.cxx
   ffmpeg_video_raw_metadata.cxx

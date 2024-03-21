@@ -51,6 +51,8 @@ Arrows: FFmpeg
 
 * Made the MPEG-TS stream id take precedence when determining KLV stream synchronicity.
 
+* Added video_input_ffmpeg_rewire.
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.
