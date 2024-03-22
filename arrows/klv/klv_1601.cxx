@@ -26,12 +26,8 @@ namespace {
 // ----------------------------------------------------------------------------
 static auto const pixel_sdcc_internal_format =
   klv_1303_mdap_format< klv_uint_format >{};
-static auto const pixel_sdcc_external_format =
-  klv_1303_mdap_format< klv_lengthless_format< klv_float_format > >{ 8 };
 static auto const geographic_sdcc_internal_format =
   klv_1303_mdap_format< klv_uint_format >{};
-static auto const geographic_sdcc_external_format =
-  klv_1303_mdap_format< klv_lengthless_format< klv_float_format > >{ 8 };
 
 // ----------------------------------------------------------------------------
 static std::vector< kv::interval< double > > const
@@ -54,7 +50,8 @@ geographic_sdcc_imap_params = {
 // ----------------------------------------------------------------------------
 uint64_t
 imap_to_int(
-  double imap_value, vital::interval< double > const& interval, size_t length )
+  klv_imap const& imap_value, vital::interval< double > const& interval,
+  size_t length )
 {
   std::vector< uint8_t > bytes( length );
   auto it = &*bytes.begin();
@@ -64,7 +61,7 @@ imap_to_int(
 }
 
 // ----------------------------------------------------------------------------
-double
+klv_imap
 int_to_imap(
   uint64_t int_value, vital::interval< double > const& interval, size_t length )
 {
@@ -73,6 +70,66 @@ int_to_imap(
   klv_write_int( int_value, it, length );
   auto cit = &*bytes.cbegin();
   return klv_read_imap( interval, cit, length );
+}
+
+// ----------------------------------------------------------------------------
+klv_1303_mdap< uint64_t >
+imap_to_int(
+  klv_1303_mdap< klv_imap > const& imap_array,
+  std::vector< kv::interval< double > > const& array_imap_params )
+{
+  klv_1303_mdap< uint64_t > result = {
+    imap_array.sizes,
+    {},
+    imap_array.element_size,
+    imap_array.apa,
+    imap_array.apa_params_length,
+    imap_array.imap_params };
+
+  auto const count = imap_array.sizes.at( 1 );
+  for( auto const i : kvr::iota< size_t >( 6 ) )
+  {
+    for( auto const j : kvr::iota( count ) )
+    {
+      auto const imap_element = imap_array.elements.at( i * count + j );
+      auto const& imap_params = array_imap_params[ i ];
+      auto const int_element =
+        imap_to_int( imap_element, imap_params, imap_array.element_size );
+      result.elements.emplace_back( int_element );
+    }
+  }
+
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+klv_1303_mdap< klv_imap >
+int_to_imap(
+  klv_1303_mdap< uint64_t > int_array,
+  std::vector< kv::interval< double > > const& array_imap_params )
+{
+  klv_1303_mdap< klv_imap > result = {
+    int_array.sizes,
+    {},
+    int_array.element_size,
+    int_array.apa,
+    int_array.apa_params_length,
+    int_array.imap_params };
+
+  auto const count = int_array.sizes.at( 1 );
+  for( auto const i : kvr::iota< size_t >( 6 ) )
+  {
+    for( auto const j : kvr::iota( count ) )
+    {
+      auto const int_element = int_array.elements.at( i * count + j );
+      auto const& imap_params = array_imap_params[ i ];
+      auto const imap_element =
+        int_to_imap( int_element, imap_params, int_array.element_size );
+      result.elements.emplace_back( imap_element );
+    }
+  }
+
+  return result;
 }
 
 } // namespace
@@ -98,59 +155,12 @@ klv_1601_pixel_sdcc_format
 }
 
 // ----------------------------------------------------------------------------
-klv_1303_mdap< double >
+klv_1303_mdap< klv_imap >
 klv_1601_pixel_sdcc_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   auto const& format = pixel_sdcc_internal_format;
   auto const int_value = format.read_( data, length );
-
-  klv_1303_mdap< double > result =
-  {
-    int_value.sizes,
-    {},
-    int_value.element_size,
-    int_value.apa,
-    int_value.apa_params_length,
-    int_value.imap_params, };
-
-  if( result.sizes.size() != 2 || result.sizes.at( 0 ) != 6 )
-  {
-    VITAL_THROW( kv::metadata_exception,
-                 "pixel sdcc mdarray does not have correct dimensions" );
-  }
-
-  auto const count = result.sizes.at( 1 );
-  for( auto const i : kvr::iota< size_t >( 6 ) )
-  {
-    for( auto const j : kvr::iota( count ) )
-    {
-      auto const int_element = int_value.elements.at( i * count + j );
-      auto const& imap_params = pixel_sdcc_imap_params[ i ];
-      auto const imap_element =
-        int_to_imap( int_element, imap_params, result.element_size );
-      result.elements.emplace_back( imap_element );
-    }
-  }
-
-  return result;
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_1601_pixel_sdcc_format
-::write_typed( klv_1303_mdap< double > const& value,
-               klv_write_iter_t& data, size_t length ) const
-{
-  auto const& format = pixel_sdcc_internal_format;
-  klv_1303_mdap< uint64_t > int_value =
-  {
-    value.sizes,
-    {},
-    value.element_size,
-    value.apa,
-    value.apa_params_length,
-    value.imap_params };
 
   if( int_value.sizes.size() != 2 || int_value.sizes.at( 0 ) != 6 )
   {
@@ -158,28 +168,32 @@ klv_1601_pixel_sdcc_format
                  "pixel sdcc mdarray does not have correct dimensions" );
   }
 
-  auto const count = int_value.sizes.at( 1 );
-  for( auto const i : kvr::iota< size_t >( 6 ) )
+  return int_to_imap( int_value, pixel_sdcc_imap_params );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_1601_pixel_sdcc_format
+::write_typed( klv_1303_mdap< klv_imap > const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  if( value.sizes.size() != 2 || value.sizes.at( 0 ) != 6 )
   {
-    for( auto const j : kvr::iota( count ) )
-    {
-      auto const imap_element = value.elements.at( i * count + j );
-      auto const& imap_params = pixel_sdcc_imap_params[ i ];
-      auto const int_element =
-        imap_to_int( imap_element, imap_params, int_value.element_size );
-      int_value.elements.emplace_back( int_element );
-    }
+    VITAL_THROW( kv::metadata_exception,
+                 "pixel sdcc mdarray does not have correct dimensions" );
   }
 
-  format.write_( int_value, data, length );
+  auto const& format = pixel_sdcc_internal_format;
+  format.write_( imap_to_int( value, pixel_sdcc_imap_params ), data, length );
 }
 
 // ----------------------------------------------------------------------------
 size_t
 klv_1601_pixel_sdcc_format
-::length_of_typed( klv_1303_mdap< double > const& value ) const
+::length_of_typed( klv_1303_mdap< klv_imap > const& value ) const
 {
-  return pixel_sdcc_external_format.length_of_( value );
+  auto const& format = pixel_sdcc_internal_format;
+  return format.length_of_( imap_to_int( value, pixel_sdcc_imap_params ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -196,60 +210,12 @@ klv_1601_geographic_sdcc_format
 }
 
 // ----------------------------------------------------------------------------
-klv_1303_mdap< double >
+klv_1303_mdap< klv_imap >
 klv_1601_geographic_sdcc_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
   auto const& format = geographic_sdcc_internal_format;
   auto const int_value = format.read_( data, length );
-
-  klv_1303_mdap< double > result =
-  {
-    int_value.sizes,
-    {},
-    int_value.element_size,
-    int_value.apa,
-    int_value.apa_params_length,
-    int_value.imap_params, };
-
-  if( result.sizes.size() != 2 ||
-      ( result.sizes.at( 0 ) != 3 && result.sizes.at( 0 ) != 6 ) )
-  {
-    VITAL_THROW( kv::metadata_exception,
-                 "geographic sdcc mdarray does not have correct dimensions" );
-  }
-
-  auto const count = result.sizes.at( 1 );
-  for( auto const i : kvr::iota( result.sizes.at( 0 ) ) )
-  {
-    for( auto const j : kvr::iota( count ) )
-    {
-      auto const int_element = int_value.elements.at( i * count + j );
-      auto const& imap_params = geographic_sdcc_imap_params[ i ];
-      auto const imap_element =
-        int_to_imap( int_element, imap_params, result.element_size );
-      result.elements.emplace_back( imap_element );
-    }
-  }
-
-  return result;
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_1601_geographic_sdcc_format
-::write_typed( klv_1303_mdap< double > const& value,
-               klv_write_iter_t& data, size_t length ) const
-{
-  auto const& format = geographic_sdcc_internal_format;
-  klv_1303_mdap< uint64_t > int_value =
-  {
-    value.sizes,
-    {},
-    value.element_size,
-    value.apa,
-    value.apa_params_length,
-    value.imap_params };
 
   if( int_value.sizes.size() != 2 ||
       ( int_value.sizes.at( 0 ) != 3 && int_value.sizes.at( 0 ) != 6 ) )
@@ -258,28 +224,33 @@ klv_1601_geographic_sdcc_format
                  "geographic sdcc mdarray does not have correct dimensions" );
   }
 
-  auto const count = int_value.sizes.at( 1 );
-  for( auto const i : kvr::iota< size_t >( int_value.sizes.at( 0 ) ) )
+  return int_to_imap( int_value, geographic_sdcc_imap_params );
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_1601_geographic_sdcc_format
+::write_typed( klv_1303_mdap< klv_imap > const& value,
+               klv_write_iter_t& data, size_t length ) const
+{
+  if( value.sizes.size() != 2 ||
+      ( value.sizes.at( 0 ) != 3 && value.sizes.at( 0 ) != 6 ) )
   {
-    for( auto const j : kvr::iota( count ) )
-    {
-      auto const imap_element = value.elements.at( i * count + j );
-      auto const& imap_params = geographic_sdcc_imap_params[ i ];
-      auto const int_element =
-        imap_to_int( imap_element, imap_params, int_value.element_size );
-      int_value.elements.emplace_back( int_element );
-    }
+    VITAL_THROW( kv::metadata_exception,
+                 "geographic sdcc mdarray does not have correct dimensions" );
   }
 
-  format.write_( int_value, data, length );
+  auto const& format = geographic_sdcc_internal_format;
+  format.write_( imap_to_int( value, geographic_sdcc_imap_params ), data, length );
 }
 
 // ----------------------------------------------------------------------------
 size_t
 klv_1601_geographic_sdcc_format
-::length_of_typed( klv_1303_mdap< double > const& value ) const
+::length_of_typed( klv_1303_mdap< klv_imap > const& value ) const
 {
-  return geographic_sdcc_external_format.length_of_( value );
+  auto const& format = geographic_sdcc_internal_format;
+  return format.length_of_( imap_to_int( value, geographic_sdcc_imap_params ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -328,9 +299,10 @@ klv_1601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1601_GEOGRAPHIC_POINTS ),
+      // This format is not actually used except for the type check.
       std::make_shared<
-        klv_1303_mdap_format<
-          klv_lengthless_format< klv_float_format > > >( 8 ),
+        klv_1303_mdap_format< klv_lengthless_imap_format > >(
+          vital::interval< double >{ -180.0, 180.0 }, 4 ),
       "Correspondence Points - Latitude / Longitude",
       "List of tie points represented in geographic space.",
       { 0, 1 } },
@@ -350,9 +322,10 @@ klv_1601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_1601_ELEVATION ),
+      // This format is not actually used except for the type check.
       std::make_shared<
-        klv_1303_mdap_format<
-          klv_lengthless_format< klv_float_format > > >( 4 ),
+        klv_1303_mdap_format< klv_lengthless_imap_format > >(
+          vital::interval< double >{ -900.0, 40000.0 }, 4 ),
       "Correspondence Points - Elevation",
       "List of elevation values for the geographic tie points.",
       { 0, 1 } },

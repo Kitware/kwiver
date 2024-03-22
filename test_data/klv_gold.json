@@ -251,12 +251,26 @@
 											"sigma": {
 												"east": 1.0,
 												"north": 2.0,
-												"up": 3.0
+												"up": {
+													"kind": {
+														"integer": 2,
+														"string": "Signaling NaN"
+													},
+													"sign": false,
+													"other-bits": 0
+												}
 											},
 											"rho": {
 												"east-north": -1.0,
 												"east-up": 0.0,
-												"north-up": 1.0
+												"north-up": {
+													"kind": {
+														"integer": 1,
+														"string": "Quiet NaN"
+													},
+													"sign": true,
+													"other-bits": 1
+												}
 											}
 										}
 									},
@@ -345,9 +359,25 @@
 													"string": "Acceleration"
 												},
 												"value": {
-													"east": 1.0,
-													"north": 2.0,
-													"up": 3.0,
+													"east": {
+														"kind": {
+															"integer": 3,
+															"string": "Below Minimum"
+														}
+													},
+													"north": {
+														"kind": {
+															"integer": 5,
+															"string": "Above Maximum"
+														}
+													},
+													"up": {
+														"kind": {
+															"integer": 0,
+															"string": "User Defined"
+														},
+														"other-bits": 1234
+													},
 													"sigma": null,
 													"rho": null
 												}
@@ -553,6 +583,16 @@
 					"rho-uses-imap": true,
 					"long-parse-control": true,
 					"sparse": false
+				}
+			},
+			{
+				"key": {
+					"integer": 103,
+					"string": "Density Altitude Extended"
+				},
+				"value": {
+					"length": 3,
+					"value": 1000.0
 				}
 			},
 			{

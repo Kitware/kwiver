@@ -10,6 +10,8 @@
 #define KWIVER_ARROWS_KLV_TESTS_DATA_FORMAT_H_
 
 #include <arrows/klv/klv_data_format.h>
+#include <arrows/klv/klv_imap.h>
+#include <arrows/klv/klv_lengthy.h>
 #include <arrows/klv/klv_packet.h>
 
 #include <vital/util/demangle.h>
@@ -143,6 +145,14 @@ test_read_write_packet( klv_value const& expected_result,
   klv_write_packet( read_packet, write_it, written_bytes.size() );
   EXPECT_EQ( &*written_bytes.end(), write_it );
   EXPECT_EQ( packet_bytes, written_bytes );
+}
+
+// ----------------------------------------------------------------------------
+// Useful shorthand when creating test values.
+klv_lengthy< klv_imap >
+kli( double x )
+{
+  return { klv_imap{ x } };
 }
 
 #endif

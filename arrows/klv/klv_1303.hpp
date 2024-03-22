@@ -10,6 +10,7 @@
 
 #include "klv_1303.h"
 
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_util.h>
 
 #include <vital/range/iota.h>
@@ -438,7 +439,8 @@ klv_1303_mdap_format< Format >
   switch( result.apa )
   {
     case KLV_1303_APA_IMAP:
-      if constexpr( std::is_same_v< element_t, double > )
+      if constexpr( std::is_same_v< element_t, double > ||
+                    std::is_same_v< element_t, klv_imap > )
       {
         result.apa_params_length =
           tracker.remaining() - length_of_array * result.element_size;
@@ -461,8 +463,15 @@ klv_1303_mdap_format< Format >
       break;
     case KLV_1303_APA_NATURAL:
       result.apa_params_length = 0;
-      format.reset( new Format{ m_format } );
-      format->set_length_constraints( result.element_size );
+      if constexpr( std::is_same_v< element_t, klv_imap > )
+      {
+        format.reset( new klv_lengthless_float_format{ result.element_size } );
+      }
+      else
+      {
+        format.reset( new Format{ m_format } );
+        format->set_length_constraints( result.element_size );
+      }
       break;
     case KLV_1303_APA_UINT:
       if constexpr( std::is_same_v< element_t, uint64_t > )
@@ -506,14 +515,43 @@ klv_1303_mdap_format< Format >
   switch( result.apa )
   {
     case KLV_1303_APA_IMAP:
+      // Read in each value of constant length
+      for( size_t i = 0; i < length_of_array; ++i )
+      {
+        auto value =
+          format->read( data, tracker.verify( result.element_size ) );
+        if constexpr( std::is_same_v< element_t, double > )
+        {
+          result.elements.emplace_back(
+            std::move( value.template get< klv_imap >().as_double() ) );
+        }
+        else if constexpr( std::is_same_v< element_t, klv_imap > )
+        {
+          result.elements.emplace_back(
+            std::move( value.template get< klv_imap >() ) );
+        }
+        else
+        {
+          throw_apa_type_mismatch( result.apa, typeid( element_t ) );
+        }
+      }
+      break;
     case KLV_1303_APA_NATURAL:
       // Read in each value of constant length
       for( size_t i = 0; i < length_of_array; ++i )
       {
         auto value =
           format->read( data, tracker.verify( result.element_size ) );
-        result.elements.emplace_back(
+        if constexpr( std::is_same_v< element_t, klv_imap > )
+        {
+          result.elements.emplace_back(
+            std::move( klv_imap{ value.template get< double >() } ) );
+        }
+        else
+        {
+          result.elements.emplace_back(
             std::move( value.template get< element_t >() ) );
+        }
       }
       break;
     case KLV_1303_APA_UINT:
@@ -665,7 +703,8 @@ klv_1303_mdap_format< Format >
   switch( value.apa )
   {
     case KLV_1303_APA_IMAP:
-      if constexpr( std::is_same_v< element_t, double > )
+      if constexpr( std::is_same_v< element_t, klv_imap > ||
+                    std::is_same_v< element_t, double > )
       {
         auto const param_length = value.apa_params_length / 2;
         auto const minimum = value.imap_params->lower();
@@ -681,8 +720,15 @@ klv_1303_mdap_format< Format >
       }
       break;
     case KLV_1303_APA_NATURAL:
-      format.reset( new Format{ m_format } );
-      format->set_length_constraints( value.element_size );
+      if constexpr( std::is_same_v< element_t, klv_imap > )
+      {
+        format.reset( new klv_lengthless_float_format{ value.element_size } );
+      }
+      else
+      {
+        format.reset( new Format{ m_format } );
+        format->set_length_constraints( value.element_size );
+      }
       break;
     case KLV_1303_APA_UINT:
       if constexpr( std::is_same_v< element_t, uint64_t > )
@@ -718,6 +764,22 @@ klv_1303_mdap_format< Format >
   switch( value.apa )
   {
     case KLV_1303_APA_IMAP:
+      // Simple write
+      for( auto const element : value.elements )
+      {
+        if constexpr( std::is_same_v< element_t, double > )
+        {
+          // Special case for converting regular double -> IMAP
+          format->write(
+            klv_imap{ element },
+            data, tracker.verify( value.element_size ) );
+        }
+        else if constexpr( std::is_same_v< element_t, klv_imap > )
+        {
+          format->write( element, data, tracker.verify( value.element_size ) );
+        }
+      }
+      break;
     case KLV_1303_APA_NATURAL:
       // Simple write
       for( auto const element : value.elements )
@@ -727,6 +789,13 @@ klv_1303_mdap_format< Format >
           // Special case for std::vector< bool >
           format->write(
             static_cast< element_t >( element ),
+            data, tracker.verify( value.element_size ) );
+        }
+        else if constexpr( std::is_same_v< element_t, klv_imap > )
+        {
+          // Special case for converting IMAP -> regular double
+          format->write(
+            element.as_double(),
             data, tracker.verify( value.element_size ) );
         }
         else
@@ -815,7 +884,8 @@ klv_1303_mdap_format< Format >
   switch( value.apa )
   {
     case KLV_1303_APA_IMAP:
-      if constexpr( !std::is_same_v< element_t, double > )
+      if constexpr( !std::is_same_v< element_t, klv_imap > &&
+                    !std::is_same_v< element_t, double > )
       {
         throw_apa_type_mismatch( value.apa, typeid( element_t ) );
       }

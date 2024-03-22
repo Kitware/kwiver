@@ -7,6 +7,7 @@
 
 #include <arrows/klv/klv_1303.hpp>
 
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_string.h>
 
 namespace kwiver {
@@ -45,6 +46,7 @@ operator<<( std::ostream& os, klv_1303_apa value )
 KLV_INSTANTIATE( bool );
 KLV_INSTANTIATE( double );
 KLV_INSTANTIATE( int64_t );
+KLV_INSTANTIATE( klv_imap );
 KLV_INSTANTIATE( std::string );
 KLV_INSTANTIATE( uint64_t );
 

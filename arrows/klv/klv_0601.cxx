@@ -1768,9 +1768,7 @@ operator<<( std::ostream& os, klv_0601_location_dlp const& value )
        << value.longitude
        << ", "
        << "altitude: "
-       << ( value.altitude
-        ? std::to_string( *value.altitude )
-        : std::string( "(empty)" ) )
+       << value.altitude
        << " }";
 }
 
@@ -1938,22 +1936,20 @@ klv_0601_airbase_locations_format
                klv_write_iter_t& data, size_t length ) const
 {
   auto const tracker = track_it( data, length );
+  klv_0601_location_dlp_format const location_format;
 
   // Write take-off location
   if( value.take_off_location )
   {
     // Take-off location is set
-    size_t const length_of_take_off_location =
-      klv_0601_location_dlp_format{}.length_of_( *value.take_off_location );
+    auto const length_of_take_off_location =
+      location_format.length_of_( *value.take_off_location );
 
-    if( length_of_take_off_location <= tracker.remaining() )
-    {
-      klv_write_ber( length_of_take_off_location, data, tracker.remaining() );
+    klv_write_ber( length_of_take_off_location, data, tracker.remaining() );
 
-      klv_0601_location_dlp_format{}
-        .write_( *value.take_off_location, data,
-                 tracker.verify( length_of_take_off_location ) );
-    }
+    location_format
+      .write_( *value.take_off_location, data,
+               tracker.verify( length_of_take_off_location ) );
   }
   else
   {
@@ -1962,7 +1958,7 @@ klv_0601_airbase_locations_format
   }
 
   // Write recovery location
-  if( !tracker.remaining() )
+  if( value.recovery_location == value.take_off_location )
   {
     // Recovery location is not included
     return;
@@ -1970,24 +1966,14 @@ klv_0601_airbase_locations_format
 
   if( value.recovery_location )
   {
-    // Recovery location is set
-    if( value.recovery_location == value.take_off_location )
-    {
-      // Locations are the same, truncate the recovery location
-      return;
-    }
+    auto const length_of_recovery_location =
+      location_format.length_of_( *value.recovery_location );
 
-    size_t const length_of_recovery_location =
-      klv_0601_location_dlp_format{}.length_of_( *value.recovery_location );
+    klv_write_ber( length_of_recovery_location, data, tracker.remaining() );
 
-    if( length_of_recovery_location <= tracker.remaining() )
-    {
-      klv_write_ber( length_of_recovery_location, data, tracker.remaining() );
-
-      klv_0601_location_dlp_format{}
-        .write_( *value.recovery_location, data,
-                 tracker.verify( length_of_recovery_location ) );
-    }
+    location_format
+      .write_( *value.recovery_location, data,
+                tracker.verify( length_of_recovery_location ) );
   }
   else
   {

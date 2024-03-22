@@ -29,6 +29,7 @@ test_read_write( klv_value const& expected_result,
   test_read_write_format< format_t >( expected_result, input_bytes );
 }
 
+// ----------------------------------------------------------------------------
 using kld = klv_lengthy< double >;
 auto const expected_result = klv_local_set{
   { KLV_0601_PRECISION_TIMESTAMP,
@@ -141,34 +142,34 @@ auto const expected_result = klv_local_set{
       { { 0x16, 0xB7, 0x43, 0x41, 0x00, 0x08, 0x41, 0xA0, 0xBE, 0x36, 0x5B,
         0x5A, 0xB9, 0x6A, 0x36, 0x45 } } } },
   { KLV_0601_SAR_MOTION_IMAGERY_LOCAL_SET,     {} },
-  { KLV_0601_TARGET_WIDTH_EXTENDED,            kld{ 13898.5000000000000 } },
+  { KLV_0601_TARGET_WIDTH_EXTENDED,            kli( 13898.5000000000000 ) },
   { KLV_0601_RANGE_IMAGE_LOCAL_SET,            {} },
   { KLV_0601_GEOREGISTRATION_LOCAL_SET,        {} },
   { KLV_0601_COMPOSITE_IMAGING_LOCAL_SET,      {} },
   { KLV_0601_SEGMENT_LOCAL_SET,                {} },
   { KLV_0601_AMEND_LOCAL_SET,                  {} },
   { KLV_0601_SDCC_FLP,                         {} },
-  { KLV_0601_DENSITY_ALTITUDE_EXTENDED,        kld{ 23456.234375000000 } },
-  { KLV_0601_SENSOR_ELLIPSOID_HEIGHT_EXTENDED, kld{ 23456.234375000000 } },
+  { KLV_0601_DENSITY_ALTITUDE_EXTENDED,        kli( 23456.234375000000 ) },
+  { KLV_0601_SENSOR_ELLIPSOID_HEIGHT_EXTENDED, kli( 23456.234375000000 ) },
   { KLV_0601_ALTERNATE_PLATFORM_ELLIPSOID_HEIGHT_EXTENDED,
-    kld{ 23456.234375000000 } },
+    kli( 23456.234375000000 ) },
   { KLV_0601_STREAM_DESIGNATOR,                std::string{ "BLUE" } },
   { KLV_0601_OPERATIONAL_BASE,                 std::string{ "BASE01" } },
   { KLV_0601_BROADCAST_SOURCE,                 std::string{ "HOME" } },
-  { KLV_0601_RANGE_TO_RECOVERY_LOCATION,       kld{ 1.6250000000000000 } },
+  { KLV_0601_RANGE_TO_RECOVERY_LOCATION,       kli( 1.6250000000000000 ) },
   { KLV_0601_TIME_AIRBORNE,                    uint64_t{ 19887 } },
   { KLV_0601_PROPULSION_UNIT_SPEED,            uint64_t{ 3000 } },
-  { KLV_0601_PLATFORM_COURSE_ANGLE,            kld{ 125.00000000000000 } },
-  { KLV_0601_ALTITUDE_ABOVE_GROUND_LEVEL,      kld{ 2150.0000000000000 } },
-  { KLV_0601_RADAR_ALTIMETER,                  kld{ 2154.5000000000000 } },
+  { KLV_0601_PLATFORM_COURSE_ANGLE,            kli( 125.00000000000000 ) },
+  { KLV_0601_ALTITUDE_ABOVE_GROUND_LEVEL,      kli( 2150.0000000000000 ) },
+  { KLV_0601_RADAR_ALTIMETER,                  kli( 2154.5000000000000 ) },
   { KLV_0601_CONTROL_COMMAND,
     klv_0601_control_command{ 5, "Fly to Waypoint 1", std::nullopt } },
   { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
     std::vector< uint64_t >{ 3, 7 } },
-  { KLV_0601_SENSOR_AZIMUTH_RATE,              kld{  1.0 } },
-  { KLV_0601_SENSOR_ELEVATION_RATE,            kld{  0.004150390625000000 } },
-  { KLV_0601_SENSOR_ROLL_RATE,                 kld{ -50.000000000000000 } },
-  { KLV_0601_ONBOARD_MI_STORAGE_PERCENT_FULL,  kld{  72.000000000000000 } },
+  { KLV_0601_SENSOR_AZIMUTH_RATE,              kli(  1.0 ) },
+  { KLV_0601_SENSOR_ELEVATION_RATE,            kli(  0.004150390625000000 ) },
+  { KLV_0601_SENSOR_ROLL_RATE,                 kli( -50.000000000000000 ) },
+  { KLV_0601_ONBOARD_MI_STORAGE_PERCENT_FULL,  kli(  72.000000000000000 ) },
   { KLV_0601_ACTIVE_WAVELENGTH_LIST,
     std::vector< uint64_t >{ 1, 3 } },
   { KLV_0601_COUNTRY_CODES,
@@ -188,20 +189,24 @@ auto const expected_result = klv_local_set{
     klv_0601_frame_rate{ 60000, 1001 } },
   { KLV_0601_WAVELENGTHS_LIST,
     std::vector< klv_0601_wavelength_record >{
-     { 21, 1000.0, 2000.0, "NNIR" }
+     { 21, klv_imap{ 1000.0 }, klv_imap{ 2000.0 }, "NNIR" }
     } },
   { KLV_0601_TARGET_ID,                        std::string{ "A123" } },
   { KLV_0601_AIRBASE_LOCATIONS,
     klv_0601_airbase_locations{
       klv_0601_location_dlp{
-        38.8418589830398559, -77.0367841720581054, 3.0 },
+        klv_imap{  38.8418589830398559 },
+        klv_imap{ -77.0367841720581054 },
+        klv_imap{  3.0 } },
       klv_0601_location_dlp{
-        38.9393529891967773, -77.4598112106323242, 95.0 } } },
+        klv_imap{  38.9393529891967773 },
+        klv_imap{ -77.4598112106323242 },
+        klv_imap{  95.0 } } } },
   { KLV_0601_TAKEOFF_TIME,
     uint64_t{ 1529588637122999 } },
-  { KLV_0601_TRANSMISSION_FREQUENCY,           kld{ 2400.0000000000000 } },
+  { KLV_0601_TRANSMISSION_FREQUENCY,           kli( 2400.0000000000000 ) },
   { KLV_0601_ONBOARD_MI_STORAGE_CAPACITY,      uint64_t{ 10000 } },
-  { KLV_0601_ZOOM_PERCENTAGE,                  kld{ 55.000000000000000 } },
+  { KLV_0601_ZOOM_PERCENTAGE,                  kli( 55.000000000000000 ) },
   { KLV_0601_COMMUNICATIONS_METHOD,
     std::string{ "Frequency Modulation" } },
   { KLV_0601_LEAP_SECONDS,                     int64_t{ 30 } },
@@ -238,28 +243,38 @@ auto const expected_result = klv_local_set{
       { 0, 1,
         std::set< klv_0601_waypoint_info_bit >{
           KLV_0601_WAYPOINT_INFO_BIT_MODE, KLV_0601_WAYPOINT_INFO_BIT_SOURCE },
-        klv_0601_location_dlp{ 38.8894219398498535, -77.0351622104644775,
-                               200.000000000000000 } },
+        klv_0601_location_dlp{
+          klv_imap{  38.8894219398498535 },
+          klv_imap{ -77.0351622104644775 },
+          klv_imap{  200.000000000000000 } } },
       { 1, 2,
         std::set< klv_0601_waypoint_info_bit >{
           KLV_0601_WAYPOINT_INFO_BIT_SOURCE },
-        klv_0601_location_dlp{ 38.8892679214477539, -77.0499181747436523,
-                               250.000000000000000 } },
+        klv_0601_location_dlp{
+          klv_imap{  38.8892679214477539 },
+          klv_imap{ -77.0499181747436523 },
+          klv_imap{  250.000000000000000 } } },
       { 2, 32767,
         std::set< klv_0601_waypoint_info_bit >{
           KLV_0601_WAYPOINT_INFO_BIT_MODE },
-        klv_0601_location_dlp{ 38.8897409439086914, -77.0129330158233643,
-                               100.000000000000000 } },
+        klv_0601_location_dlp{
+          klv_imap{  38.8897409439086914 },
+          klv_imap{ -77.0129330158233643 },
+          klv_imap{  100.000000000000000 } } },
       { 3, -2, std::set< klv_0601_waypoint_info_bit >{},
-        klv_0601_location_dlp{ 38.8898218870162964, -77.0100920200347900,
-                               300.000000000000000 } }
+        klv_0601_location_dlp{
+          klv_imap{  38.8898218870162964 },
+          klv_imap{ -77.0100920200347900 },
+          klv_imap{  300.000000000000000 } } }
     } },
   { KLV_0601_VIEW_DOMAIN,
     klv_0601_view_domain{
-      klv_0601_view_domain_interval{ 210.00000000000000,
-                                     300.00000000000000 },
-      klv_0601_view_domain_interval{ -75.000000000000000,
-                                     50.000000000000000 } } },
+      klv_0601_view_domain_interval{
+        klv_imap{  210.00000000000000 },
+        klv_imap{  300.00000000000000 } },
+      klv_0601_view_domain_interval{
+        klv_imap{ -75.000000000000000 },
+        klv_imap{  50.000000000000000 } } } },
   { KLV_0601_METADATA_SUBSTREAM_ID, klv_0601_msid{ 7 } } };
 
 auto const input_bytes = klv_bytes_t{

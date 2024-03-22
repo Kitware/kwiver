@@ -7,6 +7,7 @@
 
 #include <arrows/klv/klv_0903_vobject_set.h>
 
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_series.hpp>
 #include <arrows/klv/klv_string.h>
 #include <arrows/klv/klv_util.h>

@@ -9,6 +9,7 @@
 
 #include <arrows/klv/klv_1206.h>
 #include <arrows/klv/klv_1303.h>
+#include <arrows/klv/klv_imap.h>
 
 // ----------------------------------------------------------------------------
 int
@@ -28,40 +29,45 @@ test_read_write( klv_value const& expected_result,
 }
 
 // ----------------------------------------------------------------------------
-using kld = klv_lengthy< double >;
 auto const expected_result = klv_local_set{
-  { KLV_1206_GRAZING_ANGLE, kld{ 64.0 } },
-  { KLV_1206_GROUND_PLANE_SQUINT_ANGLE, kld{ -26.0 } },
+  { KLV_1206_GRAZING_ANGLE, kli( 64.0 ) },
+  { KLV_1206_GROUND_PLANE_SQUINT_ANGLE, kli( -26.0 ) },
   { KLV_1206_LOOK_DIRECTION, KLV_1206_LOOK_DIRECTION_RIGHT },
   { KLV_1206_IMAGE_PLANE, KLV_1206_IMAGE_PLANE_SLANT },
-  { KLV_1206_RANGE_RESOLUTION, kld{ 524288.0 } },
-  { KLV_1206_CROSS_RANGE_RESOLUTION, kld{ 32768.0 } },
-  { KLV_1206_RANGE_IMAGE_PLANE_PIXEL_SIZE, kld{ 24576.0 } },
-  { KLV_1206_CROSS_RANGE_IMAGE_PLANE_PIXEL_SIZE, kld{ 16384.0 } },
+  { KLV_1206_RANGE_RESOLUTION, kli( 524288.0 ) },
+  { KLV_1206_CROSS_RANGE_RESOLUTION, kli( 32768.0 ) },
+  { KLV_1206_RANGE_IMAGE_PLANE_PIXEL_SIZE, kli( 24576.0 ) },
+  { KLV_1206_CROSS_RANGE_IMAGE_PLANE_PIXEL_SIZE, kli( 16384.0 ) },
   { KLV_1206_IMAGE_ROWS, uint64_t{ 720 } },
   { KLV_1206_IMAGE_COLUMNS, uint64_t{ 1080 } },
-  { KLV_1206_RANGE_DIRECTION_ANGLE, kld{ 12.0 } },
-  { KLV_1206_TRUE_NORTH, kld{ 28.0 } },
-  { KLV_1206_RANGE_LAYOVER_ANGLE, kld{ 40.0 } },
-  { KLV_1206_GROUND_APERTURE_ANGULAR_EXTENT, kld{ 15.0 } },
+  { KLV_1206_RANGE_DIRECTION_ANGLE, kli( 12.0 ) },
+  { KLV_1206_TRUE_NORTH, kli( 28.0 ) },
+  { KLV_1206_RANGE_LAYOVER_ANGLE, kli( 40.0 ) },
+  { KLV_1206_GROUND_APERTURE_ANGULAR_EXTENT, kli( 15.0 ) },
   { KLV_1206_APERTURE_DURATION, uint64_t{ 4096 } },
-  { KLV_1206_GROUND_TRACK_ANGLE, kld{ 64.0 } },
-  { KLV_1206_MINIMUM_DETECTABLE_VELOCITY, kld{ 0.5 } },
-  { KLV_1206_TRUE_PULSE_REPETITION_FREQUENCY, kld{ 528384.0 } },
-  { KLV_1206_PULSE_REPETITION_FREQUENCY_SCALE_FACTOR, kld{ 0.0390625 } },
-  { KLV_1206_TRANSMIT_RF_CENTER_FREQUENCY, kld{ 4311744512.0 } },
-  { KLV_1206_TRANSMIT_RF_BANDWIDTH, kld{ 469762048.0 } },
+  { KLV_1206_GROUND_TRACK_ANGLE, kli( 64.0 ) },
+  { KLV_1206_MINIMUM_DETECTABLE_VELOCITY, kli( 0.5 ) },
+  { KLV_1206_TRUE_PULSE_REPETITION_FREQUENCY, kli( 528384.0 ) },
+  { KLV_1206_PULSE_REPETITION_FREQUENCY_SCALE_FACTOR, kli( 0.0390625 ) },
+  { KLV_1206_TRANSMIT_RF_CENTER_FREQUENCY, kli( 4311744512.0 ) },
+  { KLV_1206_TRANSMIT_RF_BANDWIDTH, kli( 469762048.0 ) },
   { KLV_1206_RADAR_CROSS_SECTION_SCALE_FACTOR_POLYNOMIAL,
-    klv_1303_mdap< double >{
+    klv_1303_mdap< klv_imap >{
       { 4, 2 },
-      { 8192.0, 16384.0, 24576.0, 32768.0,
-        40960.0, 49152.0, 57344.0, 65536.0 } } },
+      { klv_imap{ 8192.0 },
+        klv_imap{ 16384.0 },
+        klv_imap{ 24576.0 },
+        klv_imap{ 32768.0 },
+        klv_imap{ 40960.0 },
+        klv_imap{ 49152.0 },
+        klv_imap{ 57344.0 },
+        klv_imap{ 65536.0 } } } },
   { KLV_1206_REFERENCE_FRAME_PRECISION_TIMESTAMP,
     uint64_t{ 1311768464867721216 } },
-  { KLV_1206_REFERENCE_FRAME_GRAZING_ANGLE, kld{ 7.0625 } },
-  { KLV_1206_REFERENCE_FRAME_GROUND_PLANE_SQUINT_ANGLE, kld{ -87.875 } },
-  { KLV_1206_REFERENCE_FRAME_RANGE_DIRECTION_ANGLE, kld{ 12.25 } },
-  { KLV_1206_REFERENCE_FRAME_RANGE_LAYOVER_ANGLE, kld{ 20.25 } },
+  { KLV_1206_REFERENCE_FRAME_GRAZING_ANGLE, kli( 7.0625 ) },
+  { KLV_1206_REFERENCE_FRAME_GROUND_PLANE_SQUINT_ANGLE, kli( -87.875 ) },
+  { KLV_1206_REFERENCE_FRAME_RANGE_DIRECTION_ANGLE, kli( 12.25 ) },
+  { KLV_1206_REFERENCE_FRAME_RANGE_LAYOVER_ANGLE, kli( 20.25 ) },
   { KLV_1206_DOCUMENT_VERSION, uint64_t{ 1 } } };
 
 auto const input_bytes = klv_bytes_t{

@@ -160,7 +160,7 @@ klv_1010_sdcc_flp_format
   {
     for( size_t i = 0; i < matrix_size; ++i )
     {
-      double value;
+      klv_imap value;
       if( result.sigma_uses_imap )
       {
         auto const format =
@@ -169,7 +169,7 @@ klv_1010_sdcc_flp_format
       }
       else
       {
-        value = klv_read_float( data, tracker.verify( result.sigma_length ) );
+        value = klv_imap{ klv_read_float( data, tracker.verify( result.sigma_length ) ) };
       }
       result.sigma.push_back( value );
     }
@@ -180,10 +180,10 @@ klv_1010_sdcc_flp_format
   {
     for( auto const i : kvr::iota< size_t >( rho_count ) )
     {
-      double value;
+      klv_imap value;
       if( result.sparse && !( bitset.at( i / 8 ) & ( 0x80 >> ( i % 8 ) ) ) )
       {
-        value = 0.0;
+        value = klv_imap{ 0.0 };
       }
       else if( result.rho_uses_imap )
       {
@@ -192,7 +192,7 @@ klv_1010_sdcc_flp_format
       }
       else
       {
-        value = klv_read_float( data, tracker.verify( result.rho_length ) );
+        value = klv_imap{ klv_read_float( data, tracker.verify( result.rho_length ) ) };
       }
       result.rho.push_back( value );
     }
@@ -259,7 +259,8 @@ klv_1010_sdcc_flp_format
     std::vector< uint8_t > bitset( bitset_length );
     for( auto const i : kvr::iota< size_t >( rho_count ) )
     {
-      bitset.at( i / 8 ) |= value.rho.at( i ) ? ( 0x80 >> ( i % 8 ) ) : 0;
+      bitset.at( i / 8 ) |=
+        value.rho.at( i ).as_double() ? ( 0x80 >> ( i % 8 ) ) : 0;
     }
 
     data = std::copy_n( bitset.begin(), bitset_length, data );
@@ -279,7 +280,7 @@ klv_1010_sdcc_flp_format
       }
       else
       {
-        klv_write_float( sigma_value, data,
+        klv_write_float( sigma_value.as_double(), data,
                          tracker.verify( value.sigma_length ) );
       }
       ++it;
@@ -291,7 +292,7 @@ klv_1010_sdcc_flp_format
   {
     for( auto const rho_value : value.rho )
     {
-      if( value.sparse && !rho_value )
+      if( value.sparse && !rho_value.as_double() )
       {
         continue;
       }
@@ -302,7 +303,7 @@ klv_1010_sdcc_flp_format
       }
       else
       {
-        klv_write_float( rho_value, data, tracker.verify( value.rho_length ) );
+        klv_write_float( rho_value.as_double(), data, tracker.verify( value.rho_length ) );
       }
     }
   }
@@ -318,8 +319,8 @@ klv_1010_sdcc_flp_format
     matrix_size * ( matrix_size - 1 ) / 2;
   auto const rho_sparse_count =
     std::accumulate( value.rho.begin(), value.rho.end(), size_t{ 0 },
-                     []( size_t count, double element ){
-                       return count + static_cast< bool >( element );
+                     []( size_t count, klv_imap const& element ){
+                       return count + static_cast< bool >( element.as_double() );
                      } );
   auto const length_of_matrix_size = klv_ber_oid_length( matrix_size );
   auto const length_of_parse_control = size_t{ 1 } + value.long_parse_control;

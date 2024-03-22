@@ -8,6 +8,7 @@
 #include "data_format.h"
 
 #include <arrows/klv/klv_1303.h>
+#include <arrows/klv/klv_imap.h>
 
 // ----------------------------------------------------------------------------
 int
@@ -16,6 +17,8 @@ main( int argc, char** argv )
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
+
+namespace {
 
 // ----------------------------------------------------------------------------
 void
@@ -72,43 +75,71 @@ test_read_write_rle( klv_value const& expected_result,
   EXPECT_EQ( input_bytes.size(), format_t{}.length_of( expected_result ) );
 }
 
+auto const imap_value = klv_1303_mdap< klv_imap >{
+  { 4, 2 },
+  { klv_imap{ 1.0 },
+    klv_imap{ 2.0 },
+    klv_imap{ 3.0 },
+    klv_imap{ 4.0 },
+    klv_imap{ 5.0 },
+    klv_imap{ 6.0 },
+    klv_imap{ 7.0 },
+    klv_imap{ 8.0 } } };
+
+auto const imap_bytes = klv_bytes_t{
+  0x02, // Number of dimensions
+  0x04, 0x02, // Dimensions
+  0x02, // Element size
+  0x02, // APA
+  0x3F, 0x80, 0x00, 0x00, 0x41, 0x00, 0x00, 0x00, // APA params
+  0x00, 0x00, 0x10, 0x00, 0x20, 0x00, 0x30, 0x00, // Elements
+  0x40, 0x00, 0x50, 0x00, 0x60, 0x00, 0x70, 0x00, };
+
+auto const float_value = klv_1303_mdap< double >{
+  { 4, 2 },
+  { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 } };
+
+auto const float_bytes = klv_bytes_t{
+  0x02, // Number of dimensions
+  0x04, 0x02, // Dimensions
+  0x04, // Element size
+  0x01, // APA
+  0x3F, 0x80, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, // Elements
+  0x40, 0x40, 0x00, 0x00, 0x40, 0x80, 0x00, 0x00,
+  0x40, 0xA0, 0x00, 0x00, 0x40, 0xC0, 0x00, 0x00,
+  0x40, 0xE0, 0x00, 0x00, 0x41, 0x00, 0x00, 0x00, };
+
+} // namespace <anonymous>
+
 // ----------------------------------------------------------------------------
 TEST ( klv, read_write_1303_imap )
 {
-  auto const expected_result = klv_1303_mdap< double >{
-    { 4, 2 },
-    { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 } };
+  CALL_TEST( test_read_write_imap, imap_value, imap_bytes, 1.0, 8.0, 2 );
+}
 
-  auto const input_bytes = klv_bytes_t{
-    0x02, // Number of dimensions
-    0x04, 0x02, // Dimensions
-    0x02, // Element size
-    0x02, // APA
-    0x3F, 0x80, 0x00, 0x00, 0x41, 0x00, 0x00, 0x00, // APA params
-    0x00, 0x00, 0x10, 0x00, 0x20, 0x00, 0x30, 0x00, // Elements
-    0x40, 0x00, 0x50, 0x00, 0x60, 0x00, 0x70, 0x00, };
+// ----------------------------------------------------------------------------
+TEST ( klv, read_write_1303_imap_float )
+{
+  using format_t = klv_1303_mdap_format< klv_lengthless_imap_format >;
+  CALL_TEST(
+    test_read_write_format< format_t >,
+    imap_value, float_bytes,
+    { kwiver::vital::interval< double >{ 1.0, 8.0 }, 2 } );
+}
 
-  CALL_TEST( test_read_write_imap, expected_result, input_bytes, 1.0, 8.0, 2 );
+// ----------------------------------------------------------------------------
+TEST ( klv, read_write_1303_float_imap )
+{
+  using format_t = klv_1303_mdap_format< klv_lengthless_float_format >;
+  CALL_TEST(
+    test_read_write_format< format_t >,
+    float_value, imap_bytes, { 4 } );
 }
 
 // ----------------------------------------------------------------------------
 TEST ( klv, read_write_1303_float )
 {
-  auto const expected_result = klv_1303_mdap< double >{
-    { 4, 2 },
-    { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 } };
-
-  auto const input_bytes = klv_bytes_t{
-    0x02, // Number of dimensions
-    0x04, 0x02, // Dimensions
-    0x04, // Element size
-    0x01, // APA
-    0x3F, 0x80, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, // Elements
-    0x40, 0x40, 0x00, 0x00, 0x40, 0x80, 0x00, 0x00,
-    0x40, 0xA0, 0x00, 0x00, 0x40, 0xC0, 0x00, 0x00,
-    0x40, 0xE0, 0x00, 0x00, 0x41, 0x00, 0x00, 0x00, };
-
-  CALL_TEST( test_read_write_float, expected_result, input_bytes, 4 );
+  CALL_TEST( test_read_write_float, float_value, float_bytes, 4 );
 }
 
 // ----------------------------------------------------------------------------

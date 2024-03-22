@@ -23,17 +23,6 @@ namespace arrows {
 
 namespace klv {
 
-namespace {
-
-size_t
-bits_to_decimal_digits( size_t bits )
-{
-  static auto const factor = std::log10( 2.0 );
-  return static_cast< size_t >( std::ceil( bits * factor ) );
-}
-
-} // namespace
-
 // ----------------------------------------------------------------------------
 klv_data_format
 ::klv_data_format( klv_length_constraints const& length_constraints )
@@ -485,7 +474,7 @@ klv_sflint_format
 
   // Print the number of digits corresponding to the precision of the format
   auto const length = m_length_constraints.fixed_or( value.length );
-  auto const digits = length ? bits_to_decimal_digits( length * 8 )
+  auto const digits = length ? _bits_to_decimal_digits( length * 8 )
                              : ( DBL_DIG + 1 );
   os << std::setprecision( digits ) << value.value;
 
@@ -556,7 +545,7 @@ klv_uflint_format
 
   // Print the number of digits corresponding to the precision of the format
   auto const length = m_length_constraints.fixed_or( value.length );
-  auto const digits = length ? bits_to_decimal_digits( length * 8 )
+  auto const digits = length ? _bits_to_decimal_digits( length * 8 )
                              : ( DBL_DIG + 1 );
   os << std::setprecision( digits ) << value.value;
 
@@ -577,76 +566,6 @@ klv_uflint_format
 // ----------------------------------------------------------------------------
 vital::interval< double >
 klv_uflint_format
-::interval() const
-{
-  return m_interval;
-}
-
-// ----------------------------------------------------------------------------
-klv_imap_format
-::klv_imap_format( vital::interval< double > const& interval,
-                   klv_length_constraints const& length_constraints )
-  : klv_data_format_< data_type >{ length_constraints }, m_interval{ interval }
-{}
-
-// ----------------------------------------------------------------------------
-klv_lengthy< double >
-klv_imap_format
-::read_typed( klv_read_iter_t& data, size_t length ) const
-{
-  return { klv_read_imap( m_interval, data, length ), length };
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_imap_format
-::write_typed( klv_lengthy< double > const& value,
-               klv_write_iter_t& data, size_t length ) const
-{
-  klv_write_imap( value.value, m_interval, data, length );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_imap_format
-::length_of_typed( klv_lengthy< double > const& value ) const
-{
-  return
-    value.length
-    ? value.length
-    : m_length_constraints.fixed_or( m_length_constraints.suggested() );
-}
-
-// ----------------------------------------------------------------------------
-std::ostream&
-klv_imap_format
-::print_typed( std::ostream& os, klv_lengthy< double > const& value ) const
-{
-  auto const flags = os.flags();
-
-  // Print the number of digits corresponding to the precision of the format
-  auto const length = m_length_constraints.fixed_or( value.length );
-  auto const digits = length ? bits_to_decimal_digits( length * 8 - 1 )
-                             : ( DBL_DIG + 1 );
-  os << std::setprecision( digits ) << value.value;
-
-  os.flags( flags );
-  return os;
-}
-
-// ----------------------------------------------------------------------------
-std::string
-klv_imap_format
-::description_() const
-{
-  std::stringstream ss;
-  ss << "Float (Encoding: IMAP) (Range: " << m_interval << ")";
-  return ss.str();
-}
-
-// ----------------------------------------------------------------------------
-vital::interval< double >
-klv_imap_format
 ::interval() const
 {
   return m_interval;
