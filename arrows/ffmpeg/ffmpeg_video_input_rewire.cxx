@@ -8,10 +8,16 @@
 #include <arrows/ffmpeg/ffmpeg_video_input_rewire.h>
 
 #include <arrows/ffmpeg/ffmpeg_video_raw_metadata.h>
+#include <arrows/ffmpeg/ffmpeg_video_settings.h>
 #include <arrows/ffmpeg/ffmpeg_video_uninterpreted_data.h>
 #include <arrows/ffmpeg/ffmpeg_util.h>
 
+#include <arrows/klv/klv_metadata.h>
+
+#include <vital/algo/metadata_map_io.h>
+
 #include <map>
+#include <set>
 #include <tuple>
 
 #include <cstdint>
@@ -32,7 +38,43 @@ struct source_video_input
 };
 
 // ----------------------------------------------------------------------------
+struct source_metadata_map_io
+{
+  vital::algo::metadata_map_io_sptr input;
+  std::string filename;
+  vital::metadata_map_sptr map;
+};
+
+// ----------------------------------------------------------------------------
 enum { UNMARKED_STREAM = SIZE_MAX };
+
+// ----------------------------------------------------------------------------
+size_t get_stream_id( vital::metadata_sptr const& md )
+{
+  size_t stream_index = UNMARKED_STREAM;
+  if( auto const entry = md->find( vital::VITAL_META_VIDEO_DATA_STREAM_INDEX ) )
+  {
+    auto const int_value = entry.get< int >();
+    if( int_value > 0 )
+    {
+      stream_index = static_cast< size_t >( int_value );
+    }
+  }
+  return stream_index;
+};
+
+// ----------------------------------------------------------------------------
+klv::klv_stream_type get_stream_sync( vital::metadata_sptr const& md )
+{
+  auto stream_type = klv::KLV_STREAM_TYPE_ASYNC;
+  if( auto const& entry =
+        md->find( vital::VITAL_META_VIDEO_DATA_STREAM_SYNCHRONOUS );
+      entry && entry.get< bool >() )
+  {
+    stream_type = klv::KLV_STREAM_TYPE_SYNC;
+  }
+  return stream_type;
+};
 
 } // namespace <anonymous>
 
@@ -43,6 +85,7 @@ public:
   impl();
 
   std::map<size_t, source_video_input> video_sources;
+  std::map<size_t, source_metadata_map_io> metadata_map_sources;
 
   // { source index, stream index } : output index
   std::map<std::tuple<size_t, size_t>, size_t> rewire_map;
@@ -76,6 +119,15 @@ ffmpeg_video_input_rewire
     config->set_value( prefix + "type", "video" );
     config->set_value( prefix + "filename", source.filename );
     video_input::get_nested_algo_configuration(
+      prefix + "input", config, source.input );
+  }
+
+  for( auto const& [index, source] : d->metadata_map_sources )
+  {
+    auto const prefix = "source-" + std::to_string( index ) + ":";
+    config->set_value( prefix + "type", "metadata_map" );
+    config->set_value( prefix + "filename", source.filename );
+    vital::algo::metadata_map_io::get_nested_algo_configuration(
       prefix + "input", config, source.input );
   }
 
@@ -114,9 +166,10 @@ ffmpeg_video_input_rewire
   auto config = get_configuration();
   config->merge_config( in_config );
 
-  // Video sources come labeled "source-X", where X is the index. All Xs must
+  // All sources come labeled "source-X", where X is the index. All Xs must
   // be sequential starting from 0
   d->video_sources.clear();
+  d->metadata_map_sources.clear();
   for( size_t i = 0; true; ++i )
   {
     auto const prefix = "source-" + std::to_string( i ) + ":";
@@ -128,21 +181,28 @@ ffmpeg_video_input_rewire
       break;
     }
 
-    if( type != "video" )
-    {
-      // We may support other (e.g. metadata_map_io) sources in the future
-      continue;
-    }
-
     // File to be opened
     auto const filename =
       config->get_value< std::string >( prefix + "filename", "" );
 
-    // Create nested video input
-    source_video_input source{ nullptr, filename };
-    video_input::set_nested_algo_configuration(
-      prefix + "input", config, source.input );
-    d->video_sources.emplace( i, std::move( source ) );
+    if( type == "video" )
+    {
+      // Create nested video input
+      source_video_input source{ nullptr, filename };
+      video_input::set_nested_algo_configuration(
+        prefix + "input", config, source.input );
+      d->video_sources.emplace( i, std::move( source ) );
+      continue;
+    }
+
+    if( type == "metadata_map" )
+    {
+      source_metadata_map_io source{ nullptr, filename };
+      vital::algo::metadata_map_io::set_nested_algo_configuration(
+        prefix + "input", config, source.input );
+      d->metadata_map_sources.emplace( i, std::move( source ) );
+      continue;
+    }
   }
 
   // Parse the rewiring string, which consists of comma-separated "X/Y" pairs.
@@ -182,6 +242,11 @@ ffmpeg_video_input_rewire
   for( auto& [index, source] : d->video_sources )
   {
     source.input->open( source.filename );
+  }
+
+  for( auto& [index, source] : d->metadata_map_sources )
+  {
+    source.map = source.input->load( source.filename );
   }
 }
 
@@ -314,6 +379,50 @@ ffmpeg_video_input_rewire
     }
   }
 
+  // Overwrite metadata related to video stream
+  auto const overwrite_video_md =
+    [ &video_md ]( vital::metadata_sptr const& md )
+    {
+      for( auto const tag : {
+        vital::VITAL_META_VIDEO_KEY_FRAME,
+        vital::VITAL_META_VIDEO_FRAME_NUMBER,
+        vital::VITAL_META_VIDEO_MICROSECONDS,
+        vital::VITAL_META_VIDEO_FRAME_RATE,
+        vital::VITAL_META_VIDEO_BITRATE,
+        vital::VITAL_META_VIDEO_COMPRESSION_TYPE,
+        vital::VITAL_META_VIDEO_COMPRESSION_PROFILE,
+        vital::VITAL_META_VIDEO_COMPRESSION_LEVEL,
+      } )
+      {
+        if( video_md && video_md->find( tag ) )
+        {
+          md->add( tag, video_md->find( tag ).data() );
+        }
+        else
+        {
+          md->erase( tag );
+        }
+      }
+    };
+
+  // Modify metadata to match new rewired scheme
+  auto const rewire_metadatum =
+    [ & ]( size_t source_index, vital::metadata_sptr const& source_md )
+    {
+      auto const stream_index = get_stream_id( source_md );
+      auto const key = std::make_tuple( source_index, stream_index );
+      if( auto const it = d->rewire_map.find( key ); it != d->rewire_map.end() )
+      {
+        auto const& md = result.emplace_back( source_md->clone() );
+
+        // Relabel stream index
+        md->add< vital::VITAL_META_VIDEO_DATA_STREAM_INDEX >(
+          static_cast< int >( it->second ) );
+
+        overwrite_video_md( md );
+      }
+    };
+
   for( auto const& [source_index, source] : d->video_sources )
   {
     // Skip sources that have ended
@@ -325,49 +434,21 @@ ffmpeg_video_input_rewire
     // Map all metadata to its correct destination stream index
     for( auto const& source_md : source.input->frame_metadata() )
     {
-      size_t stream_index = UNMARKED_STREAM;
-      if( auto const entry =
-            source_md->find( vital::VITAL_META_VIDEO_DATA_STREAM_INDEX ) )
-      {
-        auto const int_value = entry.get< int >();
-        if( int_value < 0 )
-        {
-          continue;
-        }
-        stream_index = static_cast< size_t >( int_value );
-      }
+      rewire_metadatum( source_index, source_md );
+    }
+  }
 
-      auto const key = std::make_tuple( source_index, stream_index );
-      if( auto const it = d->rewire_map.find( key ); it != d->rewire_map.end() )
-      {
-        auto const& md = result.emplace_back( source_md->clone() );
+  auto const frame_number = frame_timestamp().get_frame();
+  for( auto const& [source_index, source] : d->metadata_map_sources )
+  {
+    if( !source.map )
+    {
+      continue;
+    }
 
-        // Relabel stream index
-        md->add< vital::VITAL_META_VIDEO_DATA_STREAM_INDEX >(
-          static_cast< int >( it->second ) );
-
-        // Overwrite metadata related to video stream
-        for( auto const tag : {
-          vital::VITAL_META_VIDEO_KEY_FRAME,
-          vital::VITAL_META_VIDEO_FRAME_NUMBER,
-          vital::VITAL_META_VIDEO_MICROSECONDS,
-          vital::VITAL_META_VIDEO_FRAME_RATE,
-          vital::VITAL_META_VIDEO_BITRATE,
-          vital::VITAL_META_VIDEO_COMPRESSION_TYPE,
-          vital::VITAL_META_VIDEO_COMPRESSION_PROFILE,
-          vital::VITAL_META_VIDEO_COMPRESSION_LEVEL,
-        } )
-        {
-          if( video_md && video_md->find( tag ) )
-          {
-            md->add( tag, video_md->find( tag ).data() );
-          }
-          else
-          {
-            md->erase( tag );
-          }
-        }
-      }
+    for( auto const& source_md : source.map->get_vector( frame_number ) )
+    {
+      rewire_metadatum( source_index, source_md );
     }
   }
 
@@ -502,8 +583,99 @@ vital::video_settings_uptr
 ffmpeg_video_input_rewire
 ::implementation_settings() const
 {
-  // Video data taken from first video source
-  return d->video_sources.at( 0 ).input->implementation_settings();
+  // Base settings taken from first video source
+  auto settings = d->video_sources.at( 0 ).input->implementation_settings();
+
+  // Ensure we are working with the correct underlying structure
+  auto const ffmpeg_settings =
+    dynamic_cast< ffmpeg::ffmpeg_video_settings* >( settings.get() );
+  if( !ffmpeg_settings )
+  {
+    return settings;
+  }
+
+  // Combine similar logic for KLV and audio streams coming from video
+  auto const rewire_video_settings =
+    [ this ]( size_t source_index, auto& streams_in, auto& streams_out )
+    {
+      for( auto& stream : streams_in )
+      {
+        if( stream.index < 0 )
+        {
+          continue;
+        }
+
+        auto const key =
+          std::make_tuple(
+            source_index, static_cast< size_t >( stream.index ) );
+        if( auto const it = d->rewire_map.find( key );
+            it != d->rewire_map.end() )
+        {
+          stream.index = it->second;
+          streams_out.emplace_back( std::move( stream ) );
+        }
+      }
+    };
+
+  // Rewire KLV and audio stream settings from input videos
+  ffmpeg_settings->audio_streams.clear();
+  ffmpeg_settings->klv_streams.clear();
+  for( auto const& [source_index, source] : d->video_sources )
+  {
+    auto const source_settings =
+      dynamic_cast< ffmpeg::ffmpeg_video_settings* >(
+        source.input->implementation_settings().get() );
+    if( !source_settings )
+    {
+      continue;
+    }
+
+    rewire_video_settings(
+      source_index,
+      source_settings->klv_streams,
+      ffmpeg_settings->klv_streams );
+    rewire_video_settings(
+      source_index,
+      source_settings->audio_streams,
+      ffmpeg_settings->audio_streams );
+  }
+
+  // Rewire KLV from input metadata maps
+  for( auto const& [source_index, source] : d->metadata_map_sources )
+  {
+    std::set< size_t > checked_indices;
+    for( auto const& [frame, frame_md] : source.map->metadata() )
+    {
+      for( auto const& md : frame_md )
+      {
+        auto const stream_index = get_stream_id( md );
+        if( checked_indices.count( stream_index ) )
+        {
+          continue;
+        }
+        checked_indices.emplace( stream_index );
+
+        if( !dynamic_cast< klv::klv_metadata const* >( md.get() ) )
+        {
+          continue;
+        }
+
+        auto const key = std::make_tuple( source_index, stream_index );
+        if( auto const it = d->rewire_map.find( key );
+            it != d->rewire_map.end() )
+        {
+          klv::klv_stream_settings klv_settings;
+          klv_settings.index = static_cast< int >( it->second );
+          klv_settings.type = get_stream_sync( md );
+          ffmpeg_settings->klv_streams.emplace_back(
+            std::move( klv_settings ) );
+        }
+      }
+    }
+  }
+
+
+  return settings;
 }
 
 } // namespace ffmpeg
