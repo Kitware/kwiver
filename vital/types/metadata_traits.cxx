@@ -442,7 +442,17 @@ std::string
 metadata_tag_traits
 ::type_name() const
 {
-  return demangle( m_type.name() );
+  static std::map< std::type_index, std::string > const map = {
+    { typeid( bool ), "bool" },
+    { typeid( int ), "int" },
+    { typeid( uint64_t ), "uint64" },
+    { typeid( double ), "double" },
+    { typeid( std::string ), "string" },
+    { typeid( geo_point ), "geo_point" },
+    { typeid( geo_polygon ), "geo_polygon" },
+  };
+
+  return map.at( m_type );
 }
 
 // ----------------------------------------------------------------------------
