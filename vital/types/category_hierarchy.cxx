@@ -178,7 +178,7 @@ category_hierarchy
 
   if( has_class_name( synonym_name ) )
   {
-    throw std::runtime_error( "Synonym name already exists in hierarchy" );
+    throw std::runtime_error( "Synonym " + synonym_name + " already exists" );
   }
 
   itr->second->synonyms.push_back( synonym_name );
