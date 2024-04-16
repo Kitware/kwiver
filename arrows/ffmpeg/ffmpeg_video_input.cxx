@@ -48,6 +48,7 @@ extern "C" {
 
 #include <iomanip>
 #include <list>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -441,6 +442,7 @@ public:
     AVRational maybe_frame_rate;
     std::map< int64_t, klv::misp_timestamp > pts_to_misp_ts;
     std::map< int64_t, int64_t > packet_pos_to_dts;
+    std::multimap< int64_t, int64_t > packet_pts_to_pos;
     int64_t prev_frame_dts;
     int64_t prev_video_dts;
 
@@ -920,6 +922,7 @@ ffmpeg_video_input::priv::open_video_state
     maybe_frame_rate{ 0, 0 },
     pts_to_misp_ts{},
     packet_pos_to_dts{},
+    packet_pts_to_pos{},
     prev_frame_dts{ AV_NOPTS_VALUE },
     prev_video_dts{ AV_NOPTS_VALUE },
     lookahead{},
@@ -1200,6 +1203,9 @@ ffmpeg_video_input::priv::open_video_state
         LOG_WARN(
           parent->logger, "Could not read beginning of video with codec "
           << pretty_codec_name( codec ) << ": " << error_string( send_err ) );
+
+        seek_to_start();
+
         return false;
       }
       av_packet_unref( tmp_packet.get() );
@@ -1511,6 +1517,7 @@ ffmpeg_video_input::priv::open_video_state
         av_packet_ref( raw_image_buffer.back().get(), packet.get() ),
         "Could not give packet to raw image cache" );
       packet_pos_to_dts.emplace( packet->pos, packet->dts );
+      packet_pts_to_pos.emplace( packet->pts, packet->pos );
 
       // Find MISP timestamp
       for( auto const tag_type : { klv::MISP_TIMESTAMP_TAG_STRING,
@@ -1543,12 +1550,34 @@ ffmpeg_video_input::priv::open_video_state
     switch( recv_err )
     {
       case 0:
+      {
         // Success
         frame = std::move( new_frame );
         if( frame_count )
         {
           ++( *frame_count );
         }
+
+        // Look up the position of the packet that contained this frame
+        auto const range = packet_pts_to_pos.equal_range( frame->frame->pts );
+        if( range.first != range.second )
+        {
+          using pair_t = typename decltype( packet_pts_to_pos )::value_type;
+          auto const cmp = []( pair_t const& lhs, pair_t const& rhs )
+            {
+              return lhs.second < rhs.second;
+            };
+          auto const it = std::min_element( range.first, range.second, cmp );
+          if( frame->frame->pkt_pos < 0 )
+          {
+            frame->frame->pkt_pos = it->second;
+          }
+          packet_pts_to_pos.erase( it );
+        }
+
+        packet_pts_to_pos.erase(
+          packet_pts_to_pos.begin(),
+          packet_pts_to_pos.lower_bound( frame->frame->pts ) );
 
         // Look up the dts of the packet that contained this frame
         if( auto const it = packet_pos_to_dts.find( frame->frame->pkt_pos );
@@ -1558,6 +1587,7 @@ ffmpeg_video_input::priv::open_video_state
                jt != raw_image_buffer.end(); )
           {
             if( ( *jt )->dts <= it->second ||
+                ( *jt )->dts <= frame->frame->pts ||
                 ( *jt )->dts <= frame->frame->pkt_dts )
             {
               auto const next_jt = std::next( jt );
@@ -1604,6 +1634,7 @@ ffmpeg_video_input::priv::open_video_state
           }
         }
         break;
+      }
       case AVERROR_EOF:
         // End of file
         at_eof = true;
@@ -1731,7 +1762,11 @@ ffmpeg_video_input::priv::open_video_state
         frame->frame->best_effort_timestamp,
         video_stream->time_base,
         stream.stream->time_base );
-      max_pos = frame->frame->pkt_pos;
+
+      if( frame->frame->pkt_pos >= 0 )
+      {
+        max_pos = frame->frame->pkt_pos;
+      }
     }
 
     stream.advance( backup_timestamp, max_pts, max_pos );

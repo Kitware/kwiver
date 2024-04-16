@@ -660,12 +660,10 @@ ffmpeg_video_output::impl::open_video_state
   codec_context->framerate = video_settings.frame_rate;
 
   // Fill in backup parameters from config
-  if( codec_context->pix_fmt < 0 )
-  {
-    // TODO: Add config options so RGB24 is not hardcoded here
-    codec_context->pix_fmt = avcodec_find_best_pix_fmt_of_list(
-      codec->pix_fmts, AV_PIX_FMT_RGB24, false, nullptr );
-  }
+  codec_context->pix_fmt = avcodec_find_best_pix_fmt_of_list(
+    codec->pix_fmts,
+    ( codec_context->pix_fmt < 0 ) ? AV_PIX_FMT_RGB24 : codec_context->pix_fmt,
+    false, nullptr );
   if( codec_context->framerate.num <= 0 )
   {
     codec_context->framerate = parent->frame_rate;
@@ -699,10 +697,13 @@ ffmpeg_video_output::impl::open_video_state
     throw_error( "Output format does not support video" );
   }
 
-  video_stream =
-    throw_error_null(
-      avformat_new_stream( format_context.get(), codec ),
-      "Could not allocate video stream" );
+  if( !video_stream )
+  {
+    video_stream =
+      throw_error_null(
+        avformat_new_stream( format_context.get(), nullptr ),
+        "Could not allocate video stream" );
+  }
   video_stream->time_base = codec_context->time_base;
   video_stream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
   video_stream->codecpar->codec_id = codec->id;
@@ -998,6 +999,17 @@ ffmpeg_video_output::impl::open_video_state
     packet->dts += offset;
     packet->pts += offset;
   }
+
+  // This is necessary for FFmpeg's CUVID wrapper, which doesn't do B-frame
+  // timestamps quite right
+  if( packet->pts < packet->dts )
+  {
+    packet->dts =
+      ( prev_video_dts == AV_NOPTS_VALUE )
+      ? packet->pts - 1
+      : prev_video_dts + 1;
+  }
+  prev_video_dts = packet->dts;
 
   // Succeeded; write to file
   throw_error_code(
