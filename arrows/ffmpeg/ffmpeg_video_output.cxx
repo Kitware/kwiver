@@ -604,8 +604,17 @@ ffmpeg_video_output::impl::open_video_state
     avio_open( &format_context->pb, video_name.c_str(), AVIO_FLAG_WRITE ),
     "Could not open `", video_name, "` for writing" );
 
+  AVDictionary* format_options = nullptr;
+
+  // Disable writing the SDT table, which carries information useful for
+  // broadcast television but not computer vision applications
+  if( format_context->oformat->name == std::string{ "mpegts" } )
+  {
+    av_dict_set( &format_options, "omit_sdt", "1", 0 );
+  }
+
   throw_error_code(
-    avformat_write_header( format_context.get(), nullptr ),
+    avformat_write_header( format_context.get(), &format_options ),
     "Could not write video header" );
 }
 
