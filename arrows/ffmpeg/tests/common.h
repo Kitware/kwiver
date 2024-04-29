@@ -143,3 +143,16 @@ expect_eq_videos(
   src_is.close();
   tmp_is.close();
 }
+
+
+// ----------------------------------------------------------------------------
+// This will delete the temporary file even if an exception is thrown.
+struct _tmp_file_deleter
+{
+  ~_tmp_file_deleter()
+  {
+    std::remove( tmp_path.c_str() );
+  }
+
+  std::string tmp_path;
+};

@@ -107,21 +107,6 @@ protected:
   TEST_ARG( data_dir );
 };
 
-namespace {
-
-// This will delete the temporary file even if an exception is thrown
-struct _tmp_file_deleter
-{
-  ~_tmp_file_deleter()
-  {
-    std::remove( tmp_path.c_str() );
-  }
-
-  std::string tmp_path;
-};
-
-} // namespace
-
 // ----------------------------------------------------------------------------
 // Test that reading, writing, then reading a video produces generally the
 // same result as the first time we read it.

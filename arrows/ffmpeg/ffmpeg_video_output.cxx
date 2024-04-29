@@ -5,6 +5,7 @@
 /// \file
 /// Implementation of FFmpeg video writer.
 
+#include "arrows/ffmpeg/ffmpeg_convert_image.h"
 #include "arrows/ffmpeg/ffmpeg_cuda.h"
 #include "arrows/ffmpeg/ffmpeg_init.h"
 #include "arrows/ffmpeg/ffmpeg_video_output.h"
@@ -645,6 +646,17 @@ ffmpeg_video_output::impl::open_video_state
   LOG_DEBUG(
     parent->logger, "Trying output codec: " << pretty_codec_name( codec ) );
 
+  // Clear previous work if we are trying a second codec
+  if(
+    codec_context && codec_context->codec
+#ifdef AV_CODEC_CAP_ENCODER_FLUSH
+    && ( codec_context->codec->capabilities & AV_CODEC_CAP_ENCODER_FLUSH )
+#endif
+  )
+  {
+    avcodec_flush_buffers( codec_context.get() );
+  }
+
   // Create and configure codec context
   codec_context.reset(
     throw_error_null(
@@ -744,107 +756,9 @@ ffmpeg_video_output::impl::open_video_state
 ::add_image( kv::image_container_sptr const& image,
              VITAL_UNUSED kv::timestamp const& ts )
 {
-  // Create frame object to represent incoming image
-  frame_uptr frame{
-    throw_error_null( av_frame_alloc(), "Could not allocate frame" ) };
-
-  // Fill in a few mandatory fields
-  frame->width = image->width();
-  frame->height = image->height();
-  switch( image->depth() )
-  {
-    case 1: frame->format = AV_PIX_FMT_GRAY8; break;
-    case 3: frame->format = AV_PIX_FMT_RGB24; break;
-    default:
-      throw_error( "Image has unsupported depth: ", image->depth() );
-  }
-
-  if( image->get_image().pixel_traits() !=
-      kv::image_pixel_traits_of< uint8_t >() )
-  {
-    // TODO: Is there an existing conversion function somewhere?
-    throw_error( "Image has unsupported pixel traits (non-uint8)" );
-  }
-
-  // Allocate storage based on those fields
-  throw_error_code(
-    av_frame_get_buffer( frame.get(), 32 ), "Could not allocate frame data" );
-
-  // Give the frame the raw pixel data
-  {
-    auto ptr =
-      static_cast< uint8_t const* >( image->get_image().first_pixel() );
-    auto const i_step = image->get_image().h_step();
-    auto const j_step = image->get_image().w_step();
-    auto const k_step = image->get_image().d_step();
-    if( j_step == static_cast< ptrdiff_t >( image->depth() ) &&
-        k_step == static_cast< ptrdiff_t >( 1 ) )
-    {
-      for( size_t i = 0; i < image->height(); ++i )
-      {
-        std::memcpy(
-          frame->data[ 0 ] + i * frame->linesize[ 0 ], ptr + i * i_step,
-          image->width() * image->depth() );
-      }
-    }
-    else
-    {
-      auto const i_step_ptr = i_step - j_step * image->width();
-      auto const j_step_ptr = j_step - k_step * image->depth();
-      auto const k_step_ptr = k_step;
-      auto const i_step_index =
-        frame->linesize[ 0 ] - image->width() * image->depth();
-      size_t index = 0;
-      for( size_t i = 0; i < image->height(); ++i )
-      {
-        for( size_t j = 0; j < image->width(); ++j )
-        {
-          for( size_t k = 0; k < image->depth(); ++k )
-          {
-            frame->data[ 0 ][ index++ ] = *ptr;
-            ptr += k_step_ptr;
-          }
-          ptr += j_step_ptr;
-        }
-        ptr += i_step_ptr;
-        index += i_step_index;
-      }
-    }
-  }
-
-  // Create frame object to hold the image after conversion to the required
-  // pixel format
-  frame_uptr converted_frame{
-    throw_error_null( av_frame_alloc(), "Could not allocate frame" ) };
-
-  // Fill in a few mandatory fields
-  converted_frame->width = image->width();
-  converted_frame->height = image->height();
-  converted_frame->format = codec_context->pix_fmt;
-
-  // Allocate storage based on those fields
-  throw_error_code(
-    av_frame_get_buffer( converted_frame.get(), 32 ),
-    "Could not allocate frame data" );
-
-  // Specify which conversion to perform
-  image_conversion_context.reset(
-    throw_error_null(
-      sws_getCachedContext(
-        image_conversion_context.release(),
-        image->width(), image->height(),
-        static_cast< AVPixelFormat >( frame->format ),
-        image->width(), image->height(),
-        static_cast< AVPixelFormat >( converted_frame->format ),
-        SWS_BICUBIC, nullptr, nullptr, nullptr ),
-      "Could not create image conversion context" ) );
-
-  // Convert the pixel format
-  throw_error_code(
-    sws_scale(
-      image_conversion_context.get(), frame->data, frame->linesize,
-      0, image->height(), converted_frame->data, converted_frame->linesize ),
-    "Could not convert frame image to target pixel format" );
+  auto const converted_frame =
+    vital_image_to_frame(
+        image, codec_context.get(), &image_conversion_context );
 
   // Try to send image to video encoder
   converted_frame->pts = next_video_pts();

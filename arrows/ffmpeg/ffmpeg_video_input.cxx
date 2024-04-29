@@ -6,6 +6,7 @@
 /// \brief Implementation file for video input using FFmpeg.
 
 #include "ffmpeg_cuda.h"
+#include "ffmpeg_convert_image.h"
 #include "ffmpeg_init.h"
 #include "ffmpeg_util.h"
 #include "ffmpeg_video_input.h"
@@ -375,7 +376,6 @@ public:
     frame_uptr frame;
     frame_uptr processed_frame;
 
-    kv::image_memory_sptr image_memory;
     kv::image_container_sptr image;
     kv::video_raw_image_sptr raw_image;
 
@@ -640,7 +640,6 @@ ffmpeg_video_input::priv::frame_state
     logger{ parent.logger },
     frame{},
     processed_frame{},
-    image_memory{},
     image{},
     raw_image{},
     metadata{},
@@ -727,58 +726,8 @@ ffmpeg_video_input::priv::frame_state
     av_frame_move_ref( frame.get(), processed_frame.get() );
   }
 
-  // Determine pixel formats
-  auto const src_pix_fmt = static_cast< AVPixelFormat >( frame->format );
-  // TODO: Detect and support grayscale, alpha, binary
-  auto const dst_pix_fmt = AV_PIX_FMT_RGB24;
-  size_t const depth = 3;
-
-  // Determine image dimensions
-  auto const params = parent->video_stream->codecpar;
-  auto const width = static_cast< size_t >( params->width );
-  auto const height = static_cast< size_t >( params->height );
-  auto const image_size = width * height * depth + AV_INPUT_BUFFER_PADDING_SIZE;
-
-  // Allocate enough space for the output image
-  if( !image_memory || image_memory->size() < image_size )
-  {
-    image_memory = std::make_shared< kv::image_memory >( image_size );
-  }
-
-  // Get image converter
-  parent->image_conversion_context.reset(
-    throw_error_null(
-      sws_getCachedContext(
-        parent->image_conversion_context.release(),
-        width, height, src_pix_fmt,
-        width, height, dst_pix_fmt,
-        SWS_BICUBIC, nullptr, nullptr, nullptr ),
-      "Could not create image conversion context" ) );
-
-  // Setup frame to receive converted image
-  processed_frame->width = width;
-  processed_frame->height = height;
-  processed_frame->format = dst_pix_fmt;
-  processed_frame->data[ 0 ] = static_cast< uint8_t* >( image_memory->data() );
-  processed_frame->linesize[ 0 ] = width * depth;
-
-  // Convert pixel format
-  throw_error_code(
-    sws_scale(
-      parent->image_conversion_context.get(),
-      frame->data, frame->linesize,
-      0, height,
-      processed_frame->data, processed_frame->linesize ) );
-
-  // Clear frame structure
-  av_frame_unref( processed_frame.get() );
-
-  // Package up and return result
-  return image = std::make_shared< kv::simple_image_container >(
-    kv::image(
-      image_memory, image_memory->data(),
-      width, height, depth,
-      depth, depth * width, 1 ) );
+  return image =
+    frame_to_vital_image( frame.get(), &parent->image_conversion_context );
 }
 
 // ----------------------------------------------------------------------------
@@ -1319,7 +1268,6 @@ ffmpeg_video_input::priv::open_video_state
   frame_state new_frame{ *this };
   if( frame.has_value() )
   {
-    new_frame.image_memory = std::move( frame->image_memory );
     new_frame.is_draining = frame->is_draining;
   }
   frame.reset();

@@ -20,6 +20,7 @@ endif()
 set(ffmpeg_headers_public
   ffmpeg_audio_stream_settings.h
   ffmpeg_cuda.h
+  ffmpeg_image_io.h
   ffmpeg_init.h
   ffmpeg_util.h
   ffmpeg_video_input.h
@@ -44,7 +45,9 @@ kwiver_install_headers(
 
 set(ffmpeg_sources
   ffmpeg_audio_stream_settings.cxx
+  ffmpeg_convert_image.cxx
   ffmpeg_cuda.cxx
+  ffmpeg_image_io.cxx
   ffmpeg_init.cxx
   ffmpeg_util.cxx
   ffmpeg_video_input.cxx

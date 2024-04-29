@@ -9,6 +9,7 @@ set(test_libraries     kwiver_algo_ffmpeg kwiver_algo_klv kwiver_algo_core)
 ##############################
 # Algorithms ffmpeg tests
 ##############################
+kwiver_discover_gtests(ffmpeg image_io_ffmpeg           LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(ffmpeg video_input_ffmpeg        LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(ffmpeg video_input_ffmpeg_clip   LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(ffmpeg video_input_ffmpeg_rewire LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
