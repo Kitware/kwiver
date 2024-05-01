@@ -34,6 +34,7 @@ The provided Arrows are:
    burnout
    ceres
    darknet
+   klv
    matlab
    opencv
    proj
