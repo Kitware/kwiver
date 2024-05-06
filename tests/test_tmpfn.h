@@ -11,6 +11,9 @@
 #ifndef KWIVER_TEST_TEST_TMPFN_H_
 #define KWIVER_TEST_TEST_TMPFN_H_
 
+#include <fcntl.h>
+
+#include <stdexcept>
 #include <string>
 
 #include <cstdio>
@@ -18,6 +21,14 @@
 
 #ifdef _WIN32
 #define tempnam(d, p) _tempnam(d, p)
+#define O_EXCL _O_EXCL
+#define O_CREAT _O_CREAT
+#define open _open
+#define close _close
+#define pmode _S_IREAD | _S_IWRITE
+#else
+#include <unistd.h>
+#define pmode 0600
 #endif
 
 namespace kwiver {
@@ -32,11 +43,22 @@ namespace testing {
 std::string
 temp_file_name( char const* prefix, char const* suffix )
 {
-  auto const n = tempnam(".", prefix);
-  auto const s = std::string(n);
-  free(n);
+  std::string name;
+  int fd = -1;
+  while( fd < 0 )
+  {
+    auto const base_name = tempnam( ".", prefix );
+    name = std::string( base_name ) + suffix;
+    free( base_name );
+    fd = open( name.c_str(), O_EXCL | O_CREAT, pmode );
+  }
 
-  return s + suffix;
+  if( close( fd ) )
+  {
+    throw std::runtime_error( "Could not close temporary file" );
+  }
+
+  return name;
 }
 
 } // end namespace testing
