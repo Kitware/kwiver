@@ -49,8 +49,10 @@ ffmpeg_kwiver_log_callback( void* ptr, int level, const char* fmt, va_list vl )
       LOG_INFO( ffmpeg_logger, msg );
       break;
     case AV_LOG_VERBOSE:
-    case AV_LOG_DEBUG:
       LOG_DEBUG( ffmpeg_logger, msg );
+      break;
+    case AV_LOG_DEBUG:
+      LOG_TRACE( ffmpeg_logger, msg );
       break;
     default:
       break;
