@@ -136,20 +136,9 @@ protected:
     auto const y = image.height() - 1;
 
     EXPECT_NEAR( 0, image.at< uint8_t >( 0, 0, 0 ), pixel_epsilon );
-    EXPECT_NEAR( 0, image.at< uint8_t >( 0, 0, 1 ), pixel_epsilon );
-    EXPECT_NEAR( 0, image.at< uint8_t >( 0, 0, 2 ), pixel_epsilon );
-
     EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 0 ), pixel_epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 1 ), pixel_epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( 0, y, 2 ), pixel_epsilon );
-
     EXPECT_NEAR( 0, image.at< uint8_t >( x, y, 0 ), pixel_epsilon );
-    EXPECT_NEAR( 0, image.at< uint8_t >( x, y, 1 ), pixel_epsilon );
-    EXPECT_NEAR( 0, image.at< uint8_t >( x, y, 2 ), pixel_epsilon );
-
     EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 0 ), pixel_epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 1 ), pixel_epsilon );
-    EXPECT_NEAR( 255, image.at< uint8_t >( x, 0, 2 ), pixel_epsilon );
   }
 
   // Frame number encoded as 32-bit binary number in top row of pixels.
@@ -388,7 +377,7 @@ TEST_F ( ffmpeg_video_input_klv, h265_tricky_klv_verify )
     ASSERT_NE( nullptr, image );
     ASSERT_EQ( 160, image->width() );
     ASSERT_EQ( 120, image->height() );
-    ASSERT_EQ( 3, image->depth() );
+    ASSERT_EQ( 1, image->depth() );
     verify_gray_sentinel( image->get_image() );
 
     // Check frame number code

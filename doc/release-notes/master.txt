@@ -55,6 +55,10 @@ Arrows: FFmpeg
 
 * Added video_input_ffmpeg_rewire.
 
+* Added ffmpeg_image_io.
+
+* Added support for image channel counts from 1-4 (gray, gray+alpha, rgb, rgba).
+
 Arrows: KLV
 
 * Ensured that NaN comparisons happen consistently across all data structures.

@@ -8,6 +8,7 @@
 #include <arrows/ffmpeg/kwiver_algo_ffmpeg_plugin_export.h>
 #include <vital/algo/algorithm_factory.h>
 
+#include <arrows/ffmpeg/ffmpeg_image_io.h>
 #include <arrows/ffmpeg/ffmpeg_video_input.h>
 #include <arrows/ffmpeg/ffmpeg_video_input_clip.h>
 #include <arrows/ffmpeg/ffmpeg_video_input_rewire.h>
@@ -31,6 +32,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
     return;
   }
 
+  reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_image_io >();
   reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_input >();
   reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_input_clip >();
   reg.register_algorithm< ::kwiver::arrows::ffmpeg::ffmpeg_video_input_rewire >();

@@ -127,10 +127,6 @@ DEFINE_DELETER( format_context, AVFormatContext )
 // ----------------------------------------------------------------------------
 DEFINE_DELETER( codec_context, AVCodecContext )
 {
-  if( ptr->codec && ptr->codec_type == AVMEDIA_TYPE_VIDEO )
-  {
-    avcodec_flush_buffers( ptr );
-  }
   avcodec_free_context( &ptr );
 }
 
