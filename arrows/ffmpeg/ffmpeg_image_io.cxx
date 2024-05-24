@@ -8,6 +8,7 @@
 #include <arrows/ffmpeg/ffmpeg_image_io.h>
 
 #include <arrows/ffmpeg/ffmpeg_convert_image.h>
+#include <arrows/ffmpeg/ffmpeg_init.h>
 #include <arrows/ffmpeg/ffmpeg_util.h>
 
 extern "C" {
@@ -85,7 +86,9 @@ ffmpeg_image_io::impl
 ffmpeg_image_io
 ::ffmpeg_image_io()
   : d{ new impl }
-{}
+{
+  ffmpeg_init();
+}
 
 // ----------------------------------------------------------------------------
 ffmpeg_image_io
