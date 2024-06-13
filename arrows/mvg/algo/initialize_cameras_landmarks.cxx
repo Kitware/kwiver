@@ -2432,6 +2432,11 @@ initialize_cameras_landmarks::priv
     // initialize the cameras from metadata
     cams->clear();
 
+    if (!constraints)
+    {
+      return false;
+    }
+
     for (auto fid : keyframes)
     {
       vector_3d pos_loc;
