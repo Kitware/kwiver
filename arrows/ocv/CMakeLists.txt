@@ -44,6 +44,7 @@ set( ocv_headers_public
   match_features_flannbased.h
   match_set.h
   merge_images.h
+  moving_burnin_detector_opencv.h
   refine_detections_write_to_disk.h
   resection_camera.h
   split_image.h
@@ -99,6 +100,7 @@ set( ocv_sources
   match_features_flannbased.cxx
   match_set.cxx
   merge_images.cxx
+  moving_burnin_detector_opencv.cxx
   refine_detections_write_to_disk.cxx
   resection_camera.cxx
   split_image.cxx
