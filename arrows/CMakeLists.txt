@@ -89,6 +89,11 @@ if( KWIVER_ENABLE_KLV )
   add_subdirectory( klv )
 endif()
 
+# if stanag is enabled
+if( KWIVER_ENABLE_STANAG )
+  add_subdirectory( stanag )
+endif()
+
 # if GDAL is enabled
 if ( KWIVER_ENABLE_GDAL )
   add_subdirectory( gdal )
