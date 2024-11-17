@@ -15,6 +15,57 @@
 #include <kwiversys/SystemTools.hxx>
 
 #include <fstream>
+#include <stdexcept>
+
+namespace { // anon
+
+//
+// helper class for left / right camera intrinsics shared beween json and yaml loaders
+//
+// (since this class has a default ctor, we can store it in a "left"/"right" map)
+//
+
+class intrinsics_builder
+{
+private:
+  bool valid_;
+  double fx_, fy_, cx_, cy_;
+  kwiver::vital::vector_4d dist_;
+
+public:
+  intrinsics_builder(): valid_(false) {}
+  intrinsics_builder( double fx,                // focal point x
+                      double fy,                // focal point y
+                      double cx,                // principal point x
+                      double cy,                // principal point y
+                      const kwiver::vital::vector_4d& dist ) // distance parameters
+    : valid_(true), fx_(fx), fy_(fy), cx_(cx), cy_(cy), dist_(dist)
+  {}
+
+  kwiver::vital::camera_intrinsics_sptr make_intrinsics( void ) const
+  {
+    if (!valid_)
+    {
+      throw std::logic_error("trying to build a camera from uninitialized intrinsics");
+    }
+
+    double focal_length = 0.5*(fx_+fy_);
+    double dx = 2*cx_, dy = 2*cy_;
+    kwiver::vital::vector_2d principal_point(cx_, cy_);
+    auto const aspect_ratio = 1.0, skew = 0.0;
+
+    return std::make_shared<kwiver::vital::simple_camera_intrinsics>(
+      focal_length,
+      principal_point,
+      aspect_ratio,
+      skew,
+      dist_,
+      dx, dy
+      );
+  }
+};
+
+} // end anon namespace
 
 namespace kwiver {
 namespace vital {
@@ -65,65 +116,33 @@ read_stereo_rig_json( path_t const& FN )
   std::ifstream is(FN);
   cereal::JSONInputArchive ar(is);
   camera_collection cams;
+  std::map< std::string, intrinsics_builder > intrinsics_lr;
+  std::string LEFT("left"), RIGHT("right");
+  auto sides = {LEFT, RIGHT};
 
-// left
-  std::string name = "left";
-  double fx=1, fy=1;
-  ar( cereal::make_nvp( "fx_" + name, fx) );
-  ar( cereal::make_nvp( "fy_" + name, fy) );
-  double focal_length = .5*(fx+fy);
+  for (const auto& name: sides)
+  {
+    double fx=1, fy=1;
+    ar( cereal::make_nvp( "fx_" + name, fx) );
+    ar( cereal::make_nvp( "fy_" + name, fy) );
 
-  double cx=0, cy=0;
-  ar ( cereal::make_nvp( "cx_" + name, cx) );
-  ar ( cereal::make_nvp( "cy_" + name, cy) );
-  vector_2d principal_point(cx, cy);
-  unsigned dx = 2*cx, dy = 2*cy;
+    double cx=0, cy=0;
+    ar ( cereal::make_nvp( "cx_" + name, cx) );
+    ar ( cereal::make_nvp( "cy_" + name, cy) );
 
-  auto const aspect_ratio = 1.0, skew = 0.0;
+    vector_4d dist;
+    ar( cereal::make_nvp( "k1_" + name, dist[0] ) );
+    ar( cereal::make_nvp( "k2_" + name, dist[1] ) );
+    ar( cereal::make_nvp( "p1_" + name, dist[2] ) );
+    ar( cereal::make_nvp( "p2_" + name, dist[3] ) );
 
-  vector_4d dist;
-  ar( cereal::make_nvp( "k1_" + name, dist[0] ) );
-  ar( cereal::make_nvp( "k2_" + name, dist[1] ) );
-  ar( cereal::make_nvp( "p1_" + name, dist[2] ) );
-  ar( cereal::make_nvp( "p2_" + name, dist[3] ) );
+    intrinsics_lr[name] = intrinsics_builder( fx, fy, cx, cy, dist );
+  }
 
-  auto intrinsics = std::make_shared<simple_camera_intrinsics>(
-    focal_length,
-    principal_point,
-    aspect_ratio,
-    skew,
-    dist,
-    dx, dy
-  );
   vector_3d center = { 0, 0, 0 };
   rotation_d rotation;
-  cams[name] = std::make_shared<simple_camera_perspective>(
-      center, rotation, intrinsics
-  );
-
-// right
-  name = "right";
-  ar( cereal::make_nvp( "fx_" + name, fx) );
-  ar( cereal::make_nvp( "fy_" + name, fy) );
-  focal_length = .5*(fx+fy);
-
-  ar ( cereal::make_nvp( "cx_" + name, cx) );
-  ar ( cereal::make_nvp( "cy_" + name, cy) );
-  dx = 2*cx, dy = 2*cy;
-
-  principal_point = vector_2d(cx, cy);
-  ar( cereal::make_nvp( "k1_" + name, dist[0] ) );
-  ar( cereal::make_nvp( "k2_" + name, dist[1] ) );
-  ar( cereal::make_nvp( "p1_" + name, dist[2] ) );
-  ar( cereal::make_nvp( "p2_" + name, dist[3] ) );
-
-  intrinsics = std::make_shared<simple_camera_intrinsics>(
-    focal_length,
-    principal_point,
-    aspect_ratio,
-    skew,
-    dist,
-    dx, dy
+  cams[LEFT] = std::make_shared<simple_camera_perspective>(
+    center, rotation, intrinsics_lr[LEFT].make_intrinsics()
   );
 
   std::vector<double> T, R;
@@ -147,13 +166,13 @@ read_stereo_rig_json( path_t const& FN )
   }
   rotation = rotation_d(rm);
   auto camp = std::make_shared<simple_camera_perspective>(
-      center, rotation, intrinsics
+    center, rotation, intrinsics_lr[RIGHT].make_intrinsics()
   );
   camp->set_translation(tv);
-  cams[name] = camp;
+  cams[RIGHT] = camp;
 
   return std::make_shared<camera_rig_stereo>(
-      cams["left"], cams["right"]
+      cams[LEFT], cams[RIGHT]
   );
 }
 
