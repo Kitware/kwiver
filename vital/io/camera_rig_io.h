@@ -5,7 +5,7 @@
 /// \file
 /// \brief Header file for loading camera collections
 
-#ifndef VITAL_CAMERA_MAP_IO_H_
+#ifndef VITAL_CAMERA_RIG_IO_H_
 #define VITAL_CAMERA_RIG_IO_H_
 
 #include <vital/types/camera_rig.h>
