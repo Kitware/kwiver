@@ -9,7 +9,7 @@
 
 namespace sprokit {
 
-scheduler::type_t const scheduler_factory::default_type = scheduler::type_t("thread_per_process");
+scheduler::type_t const scheduler_factory::default_type = scheduler::type_t("pythread_per_process");
 
 // ----------------------------------------------------------------------------
 scheduler_factory::
