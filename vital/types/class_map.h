@@ -214,6 +214,17 @@ public:
   /// @return Vector of class names.
   static std::vector < std::string > all_class_names();
 
+  /// @brief Get list of the top N classes in the class map.
+  ///
+  /// This method returns an ordered vector of the top N class_name
+  /// strings stored in this object, according to score. The highest
+  /// with the highest scores are returned first in the output. If
+  /// n is 0 or greater than the size of all classes, all class names
+  /// will be returned.
+  ///
+  /// @return Vector of class names.
+  std::vector < std::string > top_class_names( const size_t n );
+
   /// @brief Signal emitted when a new type name is created.
   ///
   /// This signal is emitted whenever a new type name is seen for the first

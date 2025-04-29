@@ -333,6 +333,33 @@ class_map< T >
 
 // ----------------------------------------------------------------------------
 template < typename T >
+std::vector< std::string >
+class_map< T >
+::top_class_names( const size_t n )
+{
+  std::vector< std::string const* > classes;
+
+  for( const auto e : m_classes )
+  {
+    classes.push_back( e.first );
+  }
+
+  std::sort( classes.begin(), classes.end(),
+    [this]( const auto& a, const auto& b )
+    { return this->score( *a ) > this->score( *b ); } );
+
+  std::vector< std::string > output;
+
+  for( size_t i = 0; i < std::min( classes.size(), n ); ++i )
+  {
+    output.push_back( *classes[i] );
+  }
+
+  return output;
+}
+
+// ----------------------------------------------------------------------------
+template < typename T >
 constexpr double
 class_map< T >
 ::INVALID_SCORE;
