@@ -21,8 +21,8 @@ public:
   priv();
   ~priv();
 
+   vital::frame_id_t m_current_idx;
    vital::algo::refine_detections_sptr m_refiner;
-
 }; // end priv class
 
 // ==================================================================
@@ -73,31 +73,96 @@ refine_detections_process::
 _step()
 {
   vital::image_container_sptr image;
+  vital::timestamp timestamp;
+  vital::detected_object_set_sptr dets;
+  vital::object_track_set_sptr tracks;
+  vital::frame_id_t cur_frame_id;
 
   if( has_input_port_edge_using_trait( image ) )
   {
     image = grab_from_port_using_trait( image );
   }
+  if( has_input_port_edge_using_trait( detected_object_set ) )
+  {
+    dets = grab_from_port_using_trait( detected_object_set );
+  }
+  if( has_input_port_edge_using_trait( object_track_set ) )
+  {
+    tracks = grab_from_port_using_trait( object_track_set );
+  }
 
-  vital::detected_object_set_sptr dets =
-    grab_from_port_using_trait( detected_object_set );
+  if( has_input_port_edge_using_trait( timestamp ) )
+  {
+    timestamp = grab_from_port_using_trait( timestamp );
 
-  vital::detected_object_set_sptr results;
+    if( timestamp.has_valid_frame() )
+    {
+      cur_frame_id = timestamp.get_frame();
+    }
+  }
+  else
+  {
+    cur_frame_id = d->m_current_idx;
+  }
+
+  vital::detected_object_set_sptr output_dets;
+
   {
     scoped_step_instrumentation();
 
     // Get detections from refiner on image
     if( dets )
     {
-      results = d->m_refiner->refine( image, dets );
+      output_dets = d->m_refiner->refine( image, dets );
     }
-    else
+
+    if( tracks )
     {
-      results = dets;
+      auto frame_dets = std::make_shared< kwiver::vital::detected_object_set >();
+
+      for( auto& trk : tracks->tracks() )
+      {
+        for( auto& state : *trk )
+        {
+          auto obj_state =
+            std::static_pointer_cast< kwiver::vital::object_track_state >( state );
+
+          if( state->frame() == cur_frame_id )
+          {
+            frame_dets->add( obj_state->detection() );
+          }
+        }
+      }
+
+      frame_dets = d->m_refiner->refine( image, frame_dets );
+
+      if( !dets )
+      {
+        output_dets = frame_dets;
+      }
+
+      auto dets_itr = frame_dets->begin();
+
+      for( auto& trk : tracks->tracks() )
+      {
+        for( auto& state : *trk )
+        {
+          auto obj_state =
+            std::static_pointer_cast< kwiver::vital::object_track_state >( state );
+
+          if( state->frame() == cur_frame_id )
+          {
+            obj_state->set_detection( *dets_itr++ );
+          }
+        }
+      }
     }
   }
 
-  push_to_port_using_trait( detected_object_set, results );
+  push_to_port_using_trait( detected_object_set, output_dets );
+  push_to_port_using_trait( object_track_set, tracks );
+
+  d->m_current_idx++;
 }
 
 // ------------------------------------------------------------------
@@ -106,17 +171,17 @@ refine_detections_process::
 make_ports()
 {
   // Set up for required ports
-  sprokit::process::port_flags_t required;
   sprokit::process::port_flags_t optional;
-
-  required.insert( flag_required );
 
   // -- input --
   declare_input_port_using_trait( image, optional );
-  declare_input_port_using_trait( detected_object_set, required );
+  declare_input_port_using_trait( timestamp, optional );
+  declare_input_port_using_trait( detected_object_set, optional );
+  declare_input_port_using_trait( object_track_set, optional );
 
   // -- output --
   declare_output_port_using_trait( detected_object_set, optional );
+  declare_output_port_using_trait( object_track_set, optional );
 }
 
 // ------------------------------------------------------------------
@@ -130,6 +195,7 @@ make_config()
 // ================================================================
 refine_detections_process::priv
 ::priv()
+  : m_current_idx( 0 )
 {
 }
 
