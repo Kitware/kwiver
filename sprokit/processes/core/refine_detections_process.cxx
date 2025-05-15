@@ -50,8 +50,8 @@ _configure()
   vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::refine_detections::check_nested_algo_configuration_using_trait(
-         refiner, algo_config ) )
+  if( ! vital::algo::refine_detections::check_nested_algo_configuration_using_trait(
+        refiner, algo_config ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
@@ -61,10 +61,23 @@ _configure()
     algo_config,
     d->m_refiner );
 
-  if ( ! d->m_refiner )
+  if( ! d->m_refiner )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create refiner" );
   }
+}
+
+// ------------------------------------------------------------------
+void
+refine_detections_process::
+_finalize()
+{
+  mark_process_as_complete();
+
+  const sprokit::datum_t dat = sprokit::datum::complete_datum();
+
+  push_datum_to_port_using_trait( detected_object_set, dat );
+  push_datum_to_port_using_trait( object_track_set, dat );
 }
 
 // ------------------------------------------------------------------
@@ -78,17 +91,33 @@ _step()
   vital::object_track_set_sptr tracks;
   vital::frame_id_t cur_frame_id;
 
-  if( has_input_port_edge_using_trait( image ) )
-  {
-    image = grab_from_port_using_trait( image );
-  }
   if( has_input_port_edge_using_trait( detected_object_set ) )
   {
+    auto port_check = peek_at_port_using_trait( detected_object_set );
+
+    if( port_check.datum->type() == sprokit::datum::complete )
+    {
+      this->_finalize();
+      return;
+    }
+
     dets = grab_from_port_using_trait( detected_object_set );
   }
   if( has_input_port_edge_using_trait( object_track_set ) )
   {
+    auto port_check = peek_at_port_using_trait( object_track_set );
+
+    if( port_check.datum->type() == sprokit::datum::complete )
+    {
+      this->_finalize();
+      return;
+    }
+
     tracks = grab_from_port_using_trait( object_track_set );
+  }
+  if( has_input_port_edge_using_trait( image ) )
+  {
+    image = grab_from_port_using_trait( image );
   }
 
   if( has_input_port_edge_using_trait( timestamp ) )
