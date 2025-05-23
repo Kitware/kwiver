@@ -76,7 +76,7 @@ klv_demuxer
 void
 klv_demuxer
 ::send_frame( std::vector< klv_packet > const& packets,
-              kv::optional< uint64_t > backup_timestamp )
+              std::optional< uint64_t > backup_timestamp )
 {
   m_prev_frame_timestamp = m_frame_timestamp;
 

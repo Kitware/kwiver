@@ -95,7 +95,7 @@ TEST ( visit, visit_types_return )
   }
 }
 
-using variant_t = variant< int, char >;
+using variant_t = std::variant< int, char >;
 
 // ----------------------------------------------------------------------------
 TEST ( visit, visit_variant_types )

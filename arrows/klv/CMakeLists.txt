@@ -11,12 +11,15 @@ set( sources
   klv_demuxer.cxx
   klv_lengthy.cxx
   klv_length_constraints.cxx
+  klv_imap.cxx
   klv_key.cxx
   klv_metadata.cxx
   klv_muxer.cxx
   klv_packet.cxx
   klv_read_write.cxx
   klv_set.cxx
+  klv_stream_settings.cxx
+  klv_string.cxx
   klv_tag_traits.cxx
   klv_timeline.cxx
   klv_unimplemented.cxx
@@ -56,27 +59,35 @@ set( sources
   klv_1602.cxx
   klv_1607.cxx
   misp_time.cxx
+  update_klv.cxx
   )
 
 set( public_headers
   apply_child_klv.h
   klv_all.h
   klv_blob.h
+  klv_data_format.h
   klv_demuxer.h
   klv_lengthy.h
   klv_length_constraints.h
   klv_list.h
   klv_list.hpp
+  klv_imap.h
   klv_key.h
   klv_metadata.h
   klv_muxer.h
   klv_packet.h
+  klv_read_write.h
   klv_series.h
   klv_set.h
+  klv_stream_settings.h
+  klv_string.h
   klv_timeline.h
   klv_types.h
   klv_unimplemented.h
   klv_update_intervals.h
+  klv_update_tracker.h
+  klv_util.h
   klv_value.h
   klv_0102.h
   klv_0104.h
@@ -111,15 +122,12 @@ set( public_headers
   klv_1602.h
   klv_1607.h
   misp_time.h
+  update_klv.h
   )
 
 set( private_headers
-  klv_data_format.h
   klv_length_value.h
   klv_key_traits.h
-  klv_read_write.h
-  klv_update_tracker.h
-  klv_util.h
 )
 
 kwiver_install_headers(
@@ -150,6 +158,9 @@ algorithms_create_plugin( kwiver_algo_klv
   register_algorithms.cxx
   )
 
+if (KWIVER_ENABLE_TOOLS)
+  add_subdirectory(applets)
+endif()
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )

@@ -12,8 +12,7 @@
 
 #include "bakery_base.h"
 
-#include <vital/optional.h>
-
+#include <optional>
 #include <vector>
 
 namespace sprokit {
@@ -51,7 +50,7 @@ public:
     input_maps_t m_inputs;
     output_maps_t m_outputs;
   };
-  typedef kwiver::vital::optional< cluster_component_info_t > opt_cluster_component_info_t;
+  typedef std::optional< cluster_component_info_t > opt_cluster_component_info_t;
 
   /// Name of the cluster.
   process::type_t m_type;

@@ -8,8 +8,6 @@
 #ifndef KWIVER_VITAL_UTIL_VISIT_H_
 #define KWIVER_VITAL_UTIL_VISIT_H_
 
-// TODO(C++17): replace with std::variant
-#include <vital/util/variant/variant.hpp>
 #include <vital/vital_config.h>
 #include <vital/util/demangle.h>
 #include <vital/exceptions.h>
@@ -17,6 +15,7 @@
 #include <map>
 #include <stdexcept>
 #include <typeindex>
+#include <variant>
 
 namespace kwiver {
 
@@ -76,7 +75,7 @@ invoke_visitor_return( Visitor&& visitor )
 template < class Visitor, class... Types >
 void
 visit_variant_types( Visitor&& visitor, std::type_info const& type,
-                     VITAL_UNUSED variant< Types... > const* )
+                     VITAL_UNUSED std::variant< Types... > const* )
 {
   return visit_types< Visitor, Types... >(
     std::forward< Visitor >( visitor ), type );
@@ -86,7 +85,7 @@ visit_variant_types( Visitor&& visitor, std::type_info const& type,
 template < class ReturnT, class Visitor, class... Types >
 ReturnT
 visit_variant_types_return( Visitor&& visitor, std::type_info const& type,
-                            VITAL_UNUSED variant< Types... > const* )
+                            VITAL_UNUSED std::variant< Types... > const* )
 {
   return visit_types_return< ReturnT, Visitor, Types... >(
     std::forward< Visitor >( visitor ), type );

@@ -164,7 +164,9 @@ public:
   virtual
   ~klv_set_format();
 
-protected:
+  klv_tag_traits_lookup const&
+  traits() const;
+
   klv_set< Key >
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
@@ -178,6 +180,7 @@ protected:
   std::ostream&
   print_typed( std::ostream& os, klv_set< Key > const& value ) const;
 
+protected:
   // Print warnings if tags appear too few or too many times in the given set.
   void
   check_tag_counts( klv_set< Key > const& klv ) const;
@@ -185,6 +188,7 @@ protected:
   virtual void
   check_set( klv_set< Key > const& klv ) const;
 
+private:
   klv_tag_traits_lookup const& m_traits;
 };
 

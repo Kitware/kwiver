@@ -32,7 +32,7 @@ enum klv_0903_tag : klv_lds_key
   KLV_0903_VERSION              = 4,
   KLV_0903_NUM_TARGETS_DETECTED = 5,
   KLV_0903_NUM_TARGETS_REPORTED = 6,
-  KLV_0903_FRAME_NUMBER         = 7,
+  KLV_0903_FRAME_NUMBER         = 7, // Deprecated
   KLV_0903_FRAME_WIDTH          = 8,
   KLV_0903_FRAME_HEIGHT         = 9,
   KLV_0903_SOURCE_SENSOR        = 10,
@@ -70,10 +70,10 @@ public:
   klv_0903_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
   klv_checksum_packet_format const*
-  checksum_format() const override;
+  packet_checksum_format() const override;
 
 private:
   klv_running_sum_16_packet_format m_checksum_format;

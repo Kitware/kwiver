@@ -113,7 +113,7 @@ klv_1107_local_set_format
 // ----------------------------------------------------------------------------
 klv_checksum_packet_format const*
 klv_1107_local_set_format
-::checksum_format() const
+::packet_checksum_format() const
 {
   return &m_checksum_format;
 }
@@ -121,10 +121,9 @@ klv_1107_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1107_local_set_format
-::description() const
+::description_() const
 {
-  return
-    "metric geopositioning local set of " + m_length_constraints.description();
+  return "ST1107 Metric Geopositioning LS";
 }
 
 // ----------------------------------------------------------------------------

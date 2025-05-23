@@ -35,7 +35,7 @@
 #include <arrows/klv/klv_1202.h>
 #include <arrows/klv/klv_1204.h>
 #include <arrows/klv/klv_1206.h>
-#include <arrows/klv/klv_1303.hpp>
+#include <arrows/klv/klv_1303.h>
 #include <arrows/klv/klv_1601.h>
 #include <arrows/klv/klv_1602.h>
 #include <arrows/klv/klv_1607.h>

@@ -12,7 +12,7 @@
 #ifndef ESTIMATE_HOMOGRAPHY_TRAMPOLINE_TXX
 #define ESTIMATE_HOMOGRAPHY_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/estimate_homography.h>
 #include <vital/types/vector.h>
@@ -31,7 +31,7 @@ class algorithm_def_eh_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
          kwiver::vital::algo::estimate_homography >,
@@ -56,20 +56,16 @@ class estimate_homography_trampoline :
                std::vector<bool>& inliers,
                double inlier_scale)  const override
     {
-      kwiver::vital::python::gil_scoped_acquire gil;
-      pybind11::function overload = pybind11::get_overload( static_cast< const kwiver::vital::algo::estimate_homography* > ( this ), "estimate" );
-      if( overload )
-      {
-        auto o = overload( feat1, feat2, matches, inlier_scale );
-        if( o.is_none() )
-        {
-          return nullptr;
-        }
-        auto r = o.cast< std::pair< kwiver::vital::homography_sptr, std::vector<bool> > >();
-        inliers = std::move( r.second );
-        return r.first;
-      }
-      pybind11::pybind11_fail( "Tried to call pure virtual function \"kwiver::vital::algo::estimate_homography::estimate\"" );
+      PYBIND11_OVERLOAD(
+        kwiver::vital::homography_sptr,
+        kwiver::vital::algo::estimate_homography,
+        estimate,
+        feat1,
+        feat2,
+        matches,
+        inliers,
+        inlier_scale
+      );
     }
 
     kwiver::vital::homography_sptr
@@ -78,20 +74,15 @@ class estimate_homography_trampoline :
                std::vector<bool>& inliers,
                double inlier_scale)  const override
     {
-      kwiver::vital::python::gil_scoped_acquire gil;
-      pybind11::function overload = pybind11::get_overload( static_cast< const kwiver::vital::algo::estimate_homography* > ( this ), "estimate" );
-      if( overload )
-      {
-        auto o = overload( pts1, pts2, inlier_scale );
-        if( o.is_none() )
-        {
-          return nullptr;
-        }
-        auto r = o.cast< std::pair< kwiver::vital::homography_sptr, std::vector<bool> > >();
-        inliers = std::move( r.second );
-        return r.first;
-      }
-      pybind11::pybind11_fail( "Tried to call pure virtual function \"kwiver::vital::algo::estimate_homography::estimate\"" );
+      PYBIND11_OVERLOAD_PURE(
+        kwiver::vital::homography_sptr,
+        kwiver::vital::algo::estimate_homography,
+        estimate,
+        pts1,
+        pts2,
+        inliers,
+        inlier_scale
+      );
     }
 
 };

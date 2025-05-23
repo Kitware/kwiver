@@ -136,7 +136,7 @@ if (KWIVER_ENABLE_PYTHON)
 
   file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "# Python environment\n")
   file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:PYTHON_LIBRARY = \"${PYTHON_LIBRARY}\"\n" )
-  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:PYTHONPATH = \"$this_dir/lib/$config/python2.7/site-packages\"\n" )
+  file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:PYTHONPATH = \"$this_dir/Lib/$config/python2.7/site-packages\"\n" )
   file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "\n# additional python mudules to load, separated by ':'\n" )
   file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "$ENV:SPROKIT_PYTHON_MODULES = \"" )
   file( APPEND "${KWIVER_SETUP_POWERSHELL_FILE}" "kwiver.sprokit.processes:" )

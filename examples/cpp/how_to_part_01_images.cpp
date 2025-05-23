@@ -72,19 +72,17 @@ void how_to_part_01_images()
   // And that we tell our application CMake targets about OpenCV (See the CMakeLists.txt for this file)
   cv::Mat mat;
   // First, convert the image to an OpenCV image object
-  mat = kwiver::arrows::ocv::image_container::vital_to_ocv(ocv_img->get_image(), kwiver::arrows::ocv::image_container::RGB_COLOR );
+  mat = kwiver::arrows::ocv::image_container::vital_to_ocv(ocv_img->get_image(), kwiver::arrows::ocv::image_container::BGR_COLOR );
   cv::namedWindow("Image loaded by OpenCV", cv::WINDOW_AUTOSIZE);// Create a window for display.
   cv::imshow("Image loaded by OpenCV", mat);                     // Show our image inside it.
-  cv::waitKey(5);
-  kwiversys::SystemTools::Delay(2000);                                                   // Wait for 2s
+  cv::waitKey(2000);                                                  // Wait for 2s
   cv::destroyWindow("Image loaded by OpenCV");
 
   // We can do the same, even if the image was originally loaded with VXL
-  mat = kwiver::arrows::ocv::image_container::vital_to_ocv(vxl_img->get_image(), kwiver::arrows::ocv::image_container::RGB_COLOR);
+  mat = kwiver::arrows::ocv::image_container::vital_to_ocv(vxl_img->get_image(), kwiver::arrows::ocv::image_container::BGR_COLOR);
   cv::namedWindow("Image loaded by VXL", cv::WINDOW_AUTOSIZE);// Create a window for display.
   cv::imshow("Image loaded by VXL", mat);                     // Show our image inside it.
-  cv::waitKey(5);
-  kwiversys::SystemTools::Delay(2000);                                                // Wait for 2s
+  cv::waitKey(2000);                                              // Wait for 2s
   cv::destroyWindow("Image loaded by VXL");
 
   //////////////////
@@ -105,22 +103,20 @@ void how_to_part_01_images()
   std::vector<kwiver::vital::image_container_sptr> ocv_imgs = ocv_split->split(vxl_img);
   for (kwiver::vital::image_container_sptr i : ocv_imgs)
   {
-    mat = kwiver::arrows::ocv::image_container::vital_to_ocv(i->get_image(), kwiver::arrows::ocv::image_container::RGB_COLOR);
+    mat = kwiver::arrows::ocv::image_container::vital_to_ocv(i->get_image(), kwiver::arrows::ocv::image_container::BGR_COLOR);
     cv::namedWindow("OpenCV Split Image", cv::WINDOW_AUTOSIZE);// Create a window for display.
     cv::imshow("OpenCV Split Image", mat);                     // Show our image inside it.
-    cv::waitKey(5);
-    kwiversys::SystemTools::Delay(2000);                                               // Wait for 2s
+    cv::waitKey(2000);                                               // Wait for 2s
     cv::destroyWindow("OpenCV Split Image");
   }
 
   std::vector<kwiver::vital::image_container_sptr> vxl_imgs = ocv_split->split(ocv_img);
   for (kwiver::vital::image_container_sptr i : vxl_imgs)
   {
-    mat = kwiver::arrows::ocv::image_container::vital_to_ocv(i->get_image(), kwiver::arrows::ocv::image_container::RGB_COLOR);
+    mat = kwiver::arrows::ocv::image_container::vital_to_ocv(i->get_image(), kwiver::arrows::ocv::image_container::BGR_COLOR);
     cv::namedWindow("VXL Split Image", cv::WINDOW_AUTOSIZE);// Create a window for display.
     cv::imshow("VXL Split Image", mat);                     // Show our image inside it.
-    cv::waitKey(5);
-    kwiversys::SystemTools::Delay(2000);                                            // Wait for 2s
+    cv::waitKey(2000);                                            // Wait for 2s
     cv::destroyWindow("VXL Split Image");
   }
 

@@ -9,12 +9,12 @@
 #define KWIVER_ARROWS_KLV_KLV_1010_H_
 
 #include <arrows/klv/klv_data_format.h>
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <vital/optional.h>
-
 #include <bitset>
+#include <optional>
 #include <ostream>
 
 namespace kwiver {
@@ -28,8 +28,8 @@ struct klv_1010_sdcc_flp
 {
   // Actual data
   std::vector< klv_lds_key > members;
-  std::vector< double > sigma;
-  std::vector< double > rho;
+  std::vector< klv_imap > sigma;
+  std::vector< klv_imap > rho;
 
   // Directives concerning how that data is to be written
   size_t sigma_length;
@@ -64,7 +64,7 @@ public:
   explicit klv_1010_sdcc_flp_format( imap_from_key_fn sigma_imap );
 
   std::string
-  description() const override;
+  description_() const override;
 
   void
   set_preceding( std::vector< klv_lds_key > const& preceding_keys );

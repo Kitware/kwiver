@@ -23,17 +23,6 @@ namespace arrows {
 
 namespace klv {
 
-namespace {
-
-size_t
-bits_to_decimal_digits( size_t bits )
-{
-  static auto const factor = std::log10( 2.0 );
-  return static_cast< size_t >( std::ceil( bits * factor ) );
-}
-
-} // namespace
-
 // ----------------------------------------------------------------------------
 klv_data_format
 ::klv_data_format( klv_length_constraints const& length_constraints )
@@ -61,7 +50,23 @@ klv_data_format
 // ----------------------------------------------------------------------------
 klv_checksum_packet_format const*
 klv_data_format
-::checksum_format() const
+::prefix_checksum_format() const
+{
+  return nullptr;
+}
+
+// ----------------------------------------------------------------------------
+klv_checksum_packet_format const*
+klv_data_format
+::payload_checksum_format() const
+{
+  return nullptr;
+}
+
+// ----------------------------------------------------------------------------
+klv_checksum_packet_format const*
+klv_data_format
+::packet_checksum_format() const
 {
   return nullptr;
 }
@@ -80,6 +85,19 @@ klv_data_format
 ::set_length_constraints( klv_length_constraints const& length_constraints )
 {
   m_length_constraints = length_constraints;
+}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_data_format
+::description() const
+{
+  auto const result = description_();
+  if( m_length_constraints.is_free() )
+  {
+    return result;
+  }
+  return result + " (Length: " + m_length_constraints.description() + ")";
 }
 
 // ----------------------------------------------------------------------------
@@ -116,11 +134,9 @@ klv_blob_format
 // ----------------------------------------------------------------------------
 std::string
 klv_blob_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "raw bytes of " << m_length_constraints.description();
-  return ss.str();
+  return "Raw Bytes";
 }
 
 // ----------------------------------------------------------------------------
@@ -131,9 +147,9 @@ klv_uuid_format
 // ----------------------------------------------------------------------------
 std::string
 klv_uuid_format
-::description() const
+::description_() const
 {
-  return "UUID of " + m_length_constraints.description();
+  return "UUID";
 }
 
 // ----------------------------------------------------------------------------
@@ -162,44 +178,41 @@ klv_uuid_format
 }
 
 // ----------------------------------------------------------------------------
-klv_string_format
-::klv_string_format( klv_length_constraints const& length_constraints )
-  : klv_data_format_< data_type >{ length_constraints }
+klv_bool_format
+::klv_bool_format() : klv_data_format_< bool >( 1 )
 {}
 
 // ----------------------------------------------------------------------------
 std::string
-klv_string_format
+klv_bool_format
+::description_() const
+{
+  return "Boolean";
+}
+
+// ----------------------------------------------------------------------------
+bool
+klv_bool_format
 ::read_typed( klv_read_iter_t& data, size_t length ) const
 {
-  return klv_read_string( data, length );
+  return klv_read_int< uint8_t >( data, length );
 }
 
 // ----------------------------------------------------------------------------
 void
-klv_string_format
-::write_typed( std::string const& value,
+klv_bool_format
+::write_typed( bool const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  klv_write_string( value, data, length );
+  klv_write_int< uint8_t >( value, data, length );
 }
 
 // ----------------------------------------------------------------------------
 size_t
-klv_string_format
-::length_of_typed( std::string const& value ) const
+klv_bool_format
+::length_of_typed( bool const& ) const
 {
-  return klv_string_length( value );
-}
-
-// ----------------------------------------------------------------------------
-std::string
-klv_string_format
-::description() const
-{
-  std::stringstream ss;
-  ss << "string of " << m_length_constraints.description();
-  return ss.str();
+  return m_length_constraints.fixed_or( 1 );
 }
 
 // ----------------------------------------------------------------------------
@@ -230,17 +243,16 @@ size_t
 klv_uint_format
 ::length_of_typed( uint64_t const& value ) const
 {
-  return klv_int_length( value );
+  auto const int_length = klv_int_length( value );
+  return std::max( m_length_constraints.fixed_or( 1 ), int_length );
 }
 
 // ----------------------------------------------------------------------------
 std::string
 klv_uint_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "unsigned integer of " << m_length_constraints.description();
-  return ss.str();
+  return "Unsigned Integer";
 }
 
 // ----------------------------------------------------------------------------
@@ -271,17 +283,16 @@ size_t
 klv_sint_format
 ::length_of_typed( int64_t const& value ) const
 {
-  return klv_int_length( value );
+  auto const int_length = klv_int_length( value );
+  return std::max( m_length_constraints.fixed_or( 1 ), int_length );
 }
 
 // ----------------------------------------------------------------------------
 std::string
 klv_sint_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "signed integer of " << m_length_constraints.description();
-  return ss.str();
+  return "Signed Integer";
 }
 
 // ----------------------------------------------------------------------------
@@ -317,12 +328,9 @@ klv_ber_format
 // ----------------------------------------------------------------------------
 std::string
 klv_ber_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "BER-encoded unsigned integer of "
-     << m_length_constraints.description();
-  return ss.str();
+  return "Unsigned Integer (Encoding: BER)";
 }
 
 // ----------------------------------------------------------------------------
@@ -358,12 +366,9 @@ klv_ber_oid_format
 // ----------------------------------------------------------------------------
 std::string
 klv_ber_oid_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "BER-OID-encoded unsigned integer of "
-     << m_length_constraints.description();
-  return ss.str();
+  return "Unsigned Integer (Encoding: BER-OID)";
 }
 
 // ----------------------------------------------------------------------------
@@ -394,7 +399,10 @@ size_t
 klv_float_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return value.length;
+  return
+    value.length
+    ? value.length
+    : m_length_constraints.fixed_or( m_length_constraints.suggested() );
 }
 
 // ----------------------------------------------------------------------------
@@ -416,12 +424,9 @@ klv_float_format
 // ----------------------------------------------------------------------------
 std::string
 klv_float_format
-::description() const
+::description_() const
 {
-  std::stringstream ss;
-  ss << "IEEE-754 floating-point number of "
-     << m_length_constraints.description();
-  return ss.str();
+  return "Float (Encoding: IEEE-754)";
 }
 
 // ----------------------------------------------------------------------------
@@ -454,7 +459,10 @@ size_t
 klv_sflint_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return value.length;
+  return
+    value.length
+    ? value.length
+    : m_length_constraints.fixed_or( m_length_constraints.suggested() );
 }
 
 // ----------------------------------------------------------------------------
@@ -466,7 +474,7 @@ klv_sflint_format
 
   // Print the number of digits corresponding to the precision of the format
   auto const length = m_length_constraints.fixed_or( value.length );
-  auto const digits = length ? bits_to_decimal_digits( length * 8 )
+  auto const digits = length ? _bits_to_decimal_digits( length * 8 )
                              : ( DBL_DIG + 1 );
   os << std::setprecision( digits ) << value.value;
 
@@ -477,11 +485,10 @@ klv_sflint_format
 // ----------------------------------------------------------------------------
 std::string
 klv_sflint_format
-::description() const
+::description_() const
 {
   std::stringstream ss;
-  ss << "signed integer of " << m_length_constraints.description()
-     << " mapped to range " << m_interval;
+  ss << "Float (Encoding: Signed Integer) (Range: " << m_interval << ")";
   return ss.str();
 }
 
@@ -523,7 +530,10 @@ size_t
 klv_uflint_format
 ::length_of_typed( klv_lengthy< double > const& value ) const
 {
-  return value.length;
+  return
+    value.length
+    ? value.length
+    : m_length_constraints.fixed_or( m_length_constraints.suggested() );
 }
 
 // ----------------------------------------------------------------------------
@@ -535,7 +545,7 @@ klv_uflint_format
 
   // Print the number of digits corresponding to the precision of the format
   auto const length = m_length_constraints.fixed_or( value.length );
-  auto const digits = length ? bits_to_decimal_digits( length * 8 )
+  auto const digits = length ? _bits_to_decimal_digits( length * 8 )
                              : ( DBL_DIG + 1 );
   os << std::setprecision( digits ) << value.value;
 
@@ -546,85 +556,16 @@ klv_uflint_format
 // ----------------------------------------------------------------------------
 std::string
 klv_uflint_format
-::description() const
+::description_() const
 {
   std::stringstream ss;
-  ss << "unsigned integer of " << m_length_constraints.description()
-     << " mapped to range " << m_interval;
+  ss << "Float (Encoding: Unsigned Integer) (Range: " << m_interval << ")";
   return ss.str();
 }
 
 // ----------------------------------------------------------------------------
 vital::interval< double >
 klv_uflint_format
-::interval() const
-{
-  return m_interval;
-}
-
-// ----------------------------------------------------------------------------
-klv_imap_format
-::klv_imap_format( vital::interval< double > const& interval,
-                   klv_length_constraints const& length_constraints )
-  : klv_data_format_< data_type >{ length_constraints }, m_interval{ interval }
-{}
-
-// ----------------------------------------------------------------------------
-klv_lengthy< double >
-klv_imap_format
-::read_typed( klv_read_iter_t& data, size_t length ) const
-{
-  return { klv_read_imap( m_interval, data, length ), length };
-}
-
-// ----------------------------------------------------------------------------
-void
-klv_imap_format
-::write_typed( klv_lengthy< double > const& value,
-               klv_write_iter_t& data, size_t length ) const
-{
-  klv_write_imap( value.value, m_interval, data, length );
-}
-
-// ----------------------------------------------------------------------------
-size_t
-klv_imap_format
-::length_of_typed( klv_lengthy< double > const& value ) const
-{
-  return value.length;
-}
-
-// ----------------------------------------------------------------------------
-std::ostream&
-klv_imap_format
-::print_typed( std::ostream& os, klv_lengthy< double > const& value ) const
-{
-  auto const flags = os.flags();
-
-  // Print the number of digits corresponding to the precision of the format
-  auto const length = m_length_constraints.fixed_or( value.length );
-  auto const digits = length ? bits_to_decimal_digits( length * 8 - 1 )
-                             : ( DBL_DIG + 1 );
-  os << std::setprecision( digits ) << value.value;
-
-  os.flags( flags );
-  return os;
-}
-
-// ----------------------------------------------------------------------------
-std::string
-klv_imap_format
-::description() const
-{
-  std::stringstream ss;
-  ss << "IMAP-encoded range " << m_interval << "of "
-     << m_length_constraints.description();
-  return ss.str();
-}
-
-// ----------------------------------------------------------------------------
-vital::interval< double >
-klv_imap_format
 ::interval() const
 {
   return m_interval;

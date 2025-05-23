@@ -8,9 +8,21 @@ project(KWIVER)
 ###
 # KWIVER version
 set(KWIVER_VERSION_MAJOR 1)
-set(KWIVER_VERSION_MINOR 7)
+set(KWIVER_VERSION_MINOR 8)
 set(KWIVER_VERSION_PATCH 0)
 set(KWIVER_VERSION "${KWIVER_VERSION_MAJOR}.${KWIVER_VERSION_MINOR}.${KWIVER_VERSION_PATCH}")
+
+# C++17 is required
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# Set default visibility
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+
+# Allow capitalized _ROOT variables
+if(POLICY_CMP0144)
+  cmake_policy(SET CMP0144 NEW)
+endif()
 
 # Organize target into folders for IDEs that support it
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -46,7 +58,9 @@ mark_as_advanced(KWIVER_DEFAULT_LIBRARY_DIR)
 set(KWIVER_CONFIG_FILE          "${KWIVER_BINARY_DIR}/kwiver-config.cmake")
 
 if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.20)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.30)
+    set(_vcVersion vc17)
+  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.20)
     set(_vcVersion vc16)
   elseif(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.10)
     set(_vcVersion vc15)
@@ -110,6 +124,7 @@ OPTION(KWIVER_ENABLE_SPROKIT              "Enable building sprokit" OFF )
 if(KWIVER_ENABLE_ARROWS)
   OPTION(KWIVER_ENABLE_MVG                "Enable Multi-View Geometry Arrow" ON )
   OPTION(KWIVER_ENABLE_KLV                "Enable Key-Length-Value Metadata Arrow" ON)
+  OPTION(KWIVER_ENABLE_ZLIB               "Enable Zlib Arrow" ON)
 endif()
 
 CMAKE_DEPENDENT_OPTION(KWIVER_ENABLE_PROCESSES

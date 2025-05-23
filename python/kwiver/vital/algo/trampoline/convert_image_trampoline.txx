@@ -12,7 +12,7 @@
 #ifndef COVERT_IMAGE_TRAMPOLINE_TXX
 #define COVERT_IMAGE_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/convert_image.h>
 
@@ -30,7 +30,7 @@ class algorithm_def_ci_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::convert_image>,
         type_name,
@@ -49,7 +49,7 @@ class convert_image_trampoline :
     kwiver::vital::image_container_sptr
     convert( kwiver::vital::image_container_sptr img ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::convert_image,
         convert,

@@ -11,9 +11,8 @@
 #include "klv_set.h"
 #include "klv_util.h"
 
-#include <vital/util/variant/variant.hpp>
-
 #include <ostream>
+#include <variant>
 
 namespace kwiver {
 
@@ -76,7 +75,7 @@ public:
   klv_0806_user_defined_data_type_id_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0806_user_defined_data_type_id
@@ -85,6 +84,10 @@ private:
   void
   write_typed( klv_0806_user_defined_data_type_id const& value,
                klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed(
+    klv_0806_user_defined_data_type_id const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -111,7 +114,7 @@ public:
   klv_0806_user_defined_data_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0806_user_defined_data
@@ -134,7 +137,7 @@ public:
   klv_0806_user_defined_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

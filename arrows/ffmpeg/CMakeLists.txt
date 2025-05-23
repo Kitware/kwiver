@@ -18,12 +18,19 @@ if (NOT FFMPEG_FOUND_SEVERAL)
 endif()
 
 set(ffmpeg_headers_public
+  ffmpeg_audio_stream_settings.h
+  ffmpeg_cuda.h
+  ffmpeg_image_io.h
   ffmpeg_init.h
+  ffmpeg_util.h
   ffmpeg_video_input.h
+  ffmpeg_video_input_clip.h
+  ffmpeg_video_input_rewire.h
   ffmpeg_video_output.h
-  ffmpeg_video_raw_image.cxx
-  ffmpeg_video_raw_metadata.cxx
+  ffmpeg_video_raw_image.h
+  ffmpeg_video_raw_metadata.h
   ffmpeg_video_settings.h
+  ffmpeg_video_uninterpreted_data.h
   )
 
 kwiver_install_headers(
@@ -37,14 +44,20 @@ kwiver_install_headers(
   )
 
 set(ffmpeg_sources
+  ffmpeg_audio_stream_settings.cxx
+  ffmpeg_convert_image.cxx
   ffmpeg_cuda.cxx
+  ffmpeg_image_io.cxx
   ffmpeg_init.cxx
   ffmpeg_util.cxx
   ffmpeg_video_input.cxx
+  ffmpeg_video_input_clip.cxx
+  ffmpeg_video_input_rewire.cxx
   ffmpeg_video_output.cxx
   ffmpeg_video_raw_image.cxx
   ffmpeg_video_raw_metadata.cxx
   ffmpeg_video_settings.cxx
+  ffmpeg_video_uninterpreted_data.cxx
   )
 
 if(KWIVER_ENABLE_CUDA)
@@ -52,6 +65,7 @@ if(KWIVER_ENABLE_CUDA)
   if(KWIVER_ENABLE_FFMPEG_CUDA)
     add_compile_definitions(KWIVER_ENABLE_FFMPEG_CUDA)
     set(FFMPEG_CUDA_LIBRARIES cuda)
+    include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
   endif()
 endif()
 

@@ -36,35 +36,50 @@ auto const expected_result = klv_local_set {
       { 4, 4 },
       { 133, 128, 97, 69, 31, 91, 122, 129,
         89, 82, 52, 27, 125, 176, 204, 210 } } },
-  { KLV_1601_GEOGRAPHIC_POINTS, klv_1303_mdap< double >{
+  { KLV_1601_GEOGRAPHIC_POINTS, klv_1303_mdap< klv_imap >{
       { 2, 4 },
-      { 32.98416f, 32.98417f, 32.98418f, 32.98419f,
-        48.08388f, 48.08389f, 48.08390f, 48.08391f } } },
+      { klv_imap{ 32.98416f }, klv_imap{ 32.98417f },
+        klv_imap{ 32.98418f }, klv_imap{ 32.98419f },
+        klv_imap{ 48.08388f }, klv_imap{ 48.08389f },
+        klv_imap{ 48.08390f }, klv_imap{ 48.08391f } } } },
   { KLV_1601_SECOND_IMAGE_NAME, std::string{ "test.img" } },
   { KLV_1601_ALGORITHM_CONFIG_ID,
     klv_uuid{
       0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x11,
       0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99 } },
-  { KLV_1601_ELEVATION, klv_1303_mdap< double >{
+  { KLV_1601_ELEVATION, klv_1303_mdap< klv_imap >{
       { 4 },
-      { 1500.0f, 1501.0f, 1500.0f, 1499.0f } } },
-  { KLV_1601_PIXEL_SDCC, klv_1303_mdap< double >{
+      { klv_imap{ 1500.0f }, klv_imap{ 1501.0f },
+        klv_imap{ 1500.0f }, klv_imap{ 1499.0f } } } },
+  { KLV_1601_PIXEL_SDCC, klv_1303_mdap< klv_imap >{
       { 6, 4 },
-      { 1.3125, 2.3125, 3.3125, 4.3125,         // Row sigma 1
-        1.375, 2.375, 3.375, 4.375,             // Column sigma 1
-        -0.921875, -0.90625, -0.890625, -0.875, // Row-column rho 1
-        10.4375, 11.4375, 12.4375, 13.4375,     // Row sigma 2
-        10.5, 11.5, 12.5, 13.5,                 // Column sigma 2
-        -0.671875, -0.65625, -0.640625, -0.625, // Row-column sigma 2
+      { klv_imap{ 1.3125 },    klv_imap{ 2.3125 },
+        klv_imap{ 3.3125 },    klv_imap{ 4.3125 },   // Row sigma 1
+        klv_imap{ 1.375 },     klv_imap{ 2.375 },
+        klv_imap{ 3.375 },     klv_imap{ 4.375 },    // Column sigma 1
+        klv_imap{ -0.921875 }, klv_imap{ -0.90625 },
+        klv_imap{ -0.890625 }, klv_imap{ -0.875 },   // Row-column rho 1
+        klv_imap{ 10.4375 },   klv_imap{ 11.4375 },
+        klv_imap{ 12.4375 },   klv_imap{ 13.4375 },  // Row sigma 2
+        klv_imap{ 10.5 },      klv_imap{ 11.5 },
+        klv_imap{ 12.5 },      klv_imap{ 13.5 },     // Column sigma 2
+        klv_imap{ -0.671875 }, klv_imap{ -0.65625 },
+        klv_imap{ -0.640625 }, klv_imap{ -0.625 },   // Row-column sigma 2
       } } },
-  { KLV_1601_GEOGRAPHIC_SDCC, klv_1303_mdap< double >{
+  { KLV_1601_GEOGRAPHIC_SDCC, klv_1303_mdap< klv_imap >{
       { 6, 4 },
-      { 0.0, 32.0, 128.0, 160.0,     // Latitude sigma
-        128.0, 160.0, 0.0, 32.0,     // Longitude sigma
-        -0.5, -0.4375, 0.25, 0.3125, // Latitude-longitude rho
-        384.0, 416.0, 512.0, 544.0,  // Elevation sigma
-        0, 0.0625, -0.25, -0.1875,   // Latitude-elevation rho
-        0.25, 0.3125, -0.5, -0.4375  // Longitude-elevation rho
+      { klv_imap{ 0.0 },   klv_imap{ 32.0 },
+        klv_imap{ 128.0 }, klv_imap{ 160.0 },   // Latitude sigma
+        klv_imap{ 128.0 }, klv_imap{ 160.0 },
+        klv_imap{ 0.0 },   klv_imap{ 32.0 },    // Longitude sigma
+        klv_imap{ -0.5 },  klv_imap{ -0.4375 },
+        klv_imap{ 0.25 },  klv_imap{ 0.3125 },  // Latitude-longitude rho
+        klv_imap{ 384.0 }, klv_imap{ 416.0 },
+        klv_imap{ 512.0 }, klv_imap{ 544.0 },   // Elevation sigma
+        klv_imap{ 0 },     klv_imap{ 0.0625 },
+        klv_imap{ -0.25 }, klv_imap{ -0.1875 }, // Latitude-elevation rho
+        klv_imap{ 0.25 },  klv_imap{ 0.3125 },
+        klv_imap{ -0.5 },  klv_imap{ -0.4375 }  // Longitude-elevation rho
       } } }, };
 
 // ----------------------------------------------------------------------------

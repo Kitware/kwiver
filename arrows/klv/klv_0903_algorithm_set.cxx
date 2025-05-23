@@ -5,7 +5,9 @@
 /// \file
 /// Implementation of the KLV 0903 algorithm local set parser.
 
-#include "klv_0903_algorithm_set.h"
+#include <arrows/klv/klv_0903_algorithm_set.h>
+
+#include <arrows/klv/klv_string.h>
 
 namespace kwiver {
 
@@ -33,26 +35,26 @@ klv_0903_algorithm_set_traits_lookup()
       0 },
     { {},
       ENUM_AND_NAME( KLV_0903_ALGORITHM_ID ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "ID",
       "Identifier for the algorithm used. The value 0 is reserved for future "
       "use.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_0903_ALGORITHM_NAME ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Name",
       "Name of algorithm.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_0903_ALGORITHM_VERSION ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Version",
       "Version of algorithm",
       1 },
     { {},
       ENUM_AND_NAME( KLV_0903_ALGORITHM_CLASS ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Class",
       "Type of algorithm. Examples: 'detector', 'classifier'.",
       { 0, 1 } },
@@ -75,9 +77,9 @@ klv_0903_algorithm_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_algorithm_local_set_format
-::description() const
+::description_() const
 {
-  return "algorithm local set of " + m_length_constraints.description();
+  return "ST0903 Algorithm LS";
 }
 
 } // namespace klv

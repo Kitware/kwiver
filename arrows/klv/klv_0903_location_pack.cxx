@@ -181,9 +181,9 @@ klv_0903_location_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_location_pack_format
-::description() const
+::description_() const
 {
-  return "location pack of " + m_length_constraints.description();
+  return "ST0903 Location Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -261,9 +261,9 @@ klv_0903_velocity_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_velocity_pack_format
-::description() const
+::description_() const
 {
-  return "velocity/acceleration pack of " + m_length_constraints.description();
+  return "ST0903 Velocity or Acceleration Pack";
 }
 
 // ----------------------------------------------------------------------------

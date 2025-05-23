@@ -10,11 +10,13 @@
 #include "klv_all.h"
 #include "klv_metadata.h"
 #include "klv_muxer.h"
+#include "klv_read_write.h"
 
 #include <vital/range/iota.h>
 #include <vital/types/geodesy.h>
 
 #include <iomanip>
+#include <optional>
 
 #include <cstdint>
 
@@ -30,13 +32,14 @@ namespace {
 
 // ----------------------------------------------------------------------------
 using kld = klv_lengthy< double >;
+using kli = klv_lengthy< klv_imap >;
 struct klv_to_vital_visitor
 {
   template < class T,
-             typename std::enable_if< std::is_same< T, uint64_t >::value ||
-                                      std::is_same< T, double >::value ||
-                                      std::is_same< T, std::string >::value,
-                                      bool >::type = true >
+             std::enable_if_t< std::is_same_v< T, uint64_t > ||
+                               std::is_same_v< T, double > ||
+                               std::is_same_v< T, std::string >,
+                               bool > = true >
   kv::metadata_value
   operator()() const
   {
@@ -44,12 +47,19 @@ struct klv_to_vital_visitor
   }
 
   template < class T,
-             typename std::enable_if< std::is_same< T, kld >::value,
-                                      bool >::type = true >
+             std::enable_if_t< std::is_same_v< T, kld >, bool > = true >
   kv::metadata_value
   operator()() const
   {
     return value.get< T >().value;
+  }
+
+  template < class T,
+             std::enable_if_t< std::is_same_v< T, kli >, bool > = true >
+  kv::metadata_value
+  operator()() const
+  {
+    return value.get< T >().value.as_double();
   }
 
   klv_value const& value;
@@ -65,6 +75,7 @@ klv_to_vital_value( klv_value const& value )
     uint64_t,
     double,
     kld,
+    kli,
     std::string >( { value }, value.type() );
 }
 
@@ -76,19 +87,20 @@ assemble_geo_point( klv_value const& latitude,
                     klv_value const& elevation )
 {
   constexpr auto qnan = std::numeric_limits< double >::quiet_NaN();
+  auto const converter = klv_to_vital_value;
   return {
     kv::vector_3d{
-      longitude.valid() ? longitude.get< kld >().value : qnan,
-      latitude.valid() ? latitude.get< kld >().value : qnan,
-      elevation.valid() ? elevation.get< kld >().value : qnan, },
-    kv::SRID::lat_lon_WGS84 };
+      longitude.valid() ? std::get< double >( converter( longitude ) ) : qnan,
+      latitude.valid() ? std::get< double >( converter( latitude ) ) : qnan,
+      elevation.valid() ? std::get< double >( converter( elevation ) ) : qnan,
+    }, kv::SRID::lat_lon_WGS84 };
 }
 
 // ----------------------------------------------------------------------------
 // Create a geo_point from the given lists of tags, which are queried in order
 // to enforce precedence of e.g. newer or more precise tags over deprecated or
 // less precise ones
-kv::optional< kv::geo_point >
+std::optional< kv::geo_point >
 parse_geo_point( klv_timeline const& klv_data,
                  klv_top_level_tag standard,
                  uint64_t timestamp,
@@ -107,7 +119,7 @@ parse_geo_point( klv_timeline const& klv_data,
   }
   if( !latitude.valid() )
   {
-    return kv::nullopt;
+    return std::nullopt;
   }
 
   klv_value longitude;
@@ -121,7 +133,7 @@ parse_geo_point( klv_timeline const& klv_data,
   }
   if( !longitude.valid() )
   {
-    return kv::nullopt;
+    return std::nullopt;
   }
 
   klv_value elevation;
@@ -283,7 +295,7 @@ klv_0104_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
   }
 
   // Image frame corner point locations
-  std::vector< kv::optional< kv::geo_point > > corner_points = {
+  std::vector< std::optional< kv::geo_point > > corner_points = {
     parse_geo_point( klv_data, standard, timestamp,
                      { KLV_0104_CORNER_LATITUDE_POINT_1 },
                      { KLV_0104_CORNER_LONGITUDE_POINT_1 },
@@ -303,7 +315,7 @@ klv_0104_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 
   // Add the frame corners if we found all of them
   if( std::all_of( corner_points.cbegin(), corner_points.cend(),
-                   []( kv::optional< kv::geo_point > const& value ) -> bool {
+                   []( std::optional< kv::geo_point > const& value ) -> bool {
                      return value.has_value();
                    } ) )
   {
@@ -476,7 +488,7 @@ klv_0601_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
   }
 
   // Image frame corner point locations
-  std::vector< kv::optional< kv::geo_point > > corner_points = {
+  std::vector< std::optional< kv::geo_point > > corner_points = {
     parse_geo_point( klv_data, standard, timestamp,
                      { KLV_0601_FULL_CORNER_LATITUDE_POINT_1 },
                      { KLV_0601_FULL_CORNER_LONGITUDE_POINT_1 },
@@ -499,7 +511,7 @@ klv_0601_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
   {
     auto const target_location_vector =
       target_location->location( kv::SRID::lat_lon_WGS84 );
-    std::vector< kv::optional< kv::geo_point > > const offset_corner_points = {
+    std::vector< std::optional< kv::geo_point > > const offset_corner_points = {
       parse_geo_point( klv_data, standard, timestamp,
                        { KLV_0601_OFFSET_CORNER_LATITUDE_POINT_1 },
                        { KLV_0601_OFFSET_CORNER_LONGITUDE_POINT_1 },
@@ -533,7 +545,7 @@ klv_0601_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
 
   // Add the frame corners if we found all of them
   if( std::all_of( corner_points.cbegin(), corner_points.cend(),
-                   []( kv::optional< kv::geo_point > const& value ) -> bool {
+                   []( std::optional< kv::geo_point > const& value ) -> bool {
                      return value.has_value();
                    } ) )
   {
@@ -564,7 +576,7 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
   // metric
   for( auto const& metric : metrics )
   {
-    klv_local_set const* best_metric_set = nullptr;
+    std::optional< klv_local_set > best_metric_set;
     for( auto const& metric_set_entry :
          klv_data.all_at( standard, KLV_1108_METRIC_LOCAL_SET, timestamp ) )
     {
@@ -590,7 +602,7 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
           best_metric_set->at( KLV_1108_METRIC_SET_TIME ) <
           metric_set.at( KLV_1108_METRIC_SET_TIME ) )
       {
-        best_metric_set = &metric_set;
+        best_metric_set = metric_set;
       }
     }
 
@@ -599,7 +611,8 @@ klv_1108_to_vital_metadata( klv_timeline const& klv_data, uint64_t timestamp,
       auto const value = best_metric_set->at( KLV_1108_METRIC_SET_VALUE );
       if( value.valid() )
       {
-        vital_data.add( metric.second, value.get< double >() );
+        vital_data.add(
+          metric.second, value.get< klv_lengthy< double > >().value );
       }
     }
   }

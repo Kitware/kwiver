@@ -127,10 +127,6 @@ DEFINE_DELETER( format_context, AVFormatContext )
 // ----------------------------------------------------------------------------
 DEFINE_DELETER( codec_context, AVCodecContext )
 {
-  if( ptr->codec )
-  {
-    avcodec_flush_buffers( ptr );
-  }
   avcodec_free_context( &ptr );
 }
 
@@ -174,6 +170,12 @@ DEFINE_DELETER( sws_context, SwsContext )
 DEFINE_DELETER( hardware_device_context, AVBufferRef )
 {
   av_buffer_unref( &ptr );
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_DELETER( bsf_context, AVBSFContext )
+{
+  av_bsf_free( &ptr );
 }
 
 #undef DEFINE_DELETER

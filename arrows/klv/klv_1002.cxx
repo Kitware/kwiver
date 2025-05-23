@@ -8,7 +8,7 @@
 #include "klv_1002.h"
 
 #include <arrows/klv/klv_1202.h>
-#include <arrows/klv/klv_1303.hpp>
+#include <arrows/klv/klv_1303.h>
 #include <arrows/klv/klv_checksum.h>
 #include <arrows/klv/klv_length_value.h>
 #include <arrows/klv/klv_util.h>
@@ -95,9 +95,9 @@ klv_1002_enumerations_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1002_enumerations_format
-::description() const
+::description_() const
 {
-  return "range image enumerations of " + m_length_constraints.description();
+  return "ST1002 Range Image Enumerations Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -177,9 +177,9 @@ klv_1002_section_data_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1002_section_data_pack_format
-::description() const
+::description_() const
 {
-  return "section data pack of " + m_length_constraints.description();
+  return "ST1002 Section Data Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -193,9 +193,11 @@ klv_1002_section_data_pack_format
   klv_1002_section_data_pack result;
 
   result.section_x =
-    klv_read_lv( data, tracker.remaining(), index_format );
+    static_cast< uint32_t >(
+      klv_read_lv( data, tracker.remaining(), index_format ) );
   result.section_y =
-    klv_read_lv( data, tracker.remaining(), index_format );
+    static_cast< uint32_t >(
+      klv_read_lv( data, tracker.remaining(), index_format ) );
   result.measurements =
     klv_read_lv( data, tracker.remaining(), mdap_format );
   result.uncertainty =
@@ -259,15 +261,15 @@ klv_1002_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1002_local_set_format
-::description() const
+::description_() const
 {
-  return "range image local set of " + m_length_constraints.description();
+  return "ST1002 Range Image LS";
 }
 
 // ----------------------------------------------------------------------------
 klv_checksum_packet_format const*
 klv_1002_local_set_format
-::checksum_format() const
+::packet_checksum_format() const
 {
   return &m_checksum_format;
 }

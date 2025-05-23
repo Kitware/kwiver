@@ -27,7 +27,7 @@ klv_update_intervals::key_t
 // ----------------------------------------------------------------------------
 klv_update_intervals::key_t
 ::key_t(
-  klv_top_level_tag standard, kwiver::vital::optional< klv_lds_key > tag )
+  klv_top_level_tag standard, std::optional< klv_lds_key > tag )
   : standard{ standard }, tag{ tag }
 {}
 
@@ -51,7 +51,7 @@ klv_update_intervals
   auto const it = m_map.find( key );
   if( it == m_map.end() )
   {
-    auto const jt = m_map.find( { key.standard, kv::nullopt } );
+    auto const jt = m_map.find( { key.standard, std::nullopt } );
     return ( jt == m_map.end() ) ? m_default : jt->second;
   }
   return it->second;

@@ -73,9 +73,9 @@ klv_0806_user_defined_data_type_id_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0806_user_defined_data_type_id_format
-::description() const
+::description_() const
 {
-  return "user defined data type / id of " + m_length_constraints.description();
+  return "ST0806 User Defined Data Type and Id Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -97,9 +97,17 @@ klv_0806_user_defined_data_type_id_format
 ::write_typed( klv_0806_user_defined_data_type_id const& value,
                klv_write_iter_t& data, size_t length ) const
 {
-  auto int_value = static_cast< uint8_t >( value.id & 0x3F ) |
-                   static_cast< uint8_t >( value.type << 6 );
+  auto int_value =
+    static_cast< uint8_t >( ( value.id & 0x3F ) | ( value.type << 6 ) );
   klv_write_int( int_value, data, length );
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0806_user_defined_data_type_id_format
+::length_of_typed( klv_0806_user_defined_data_type_id const& ) const
+{
+  return 1;
 }
 
 // ----------------------------------------------------------------------------
@@ -141,9 +149,9 @@ klv_0806_user_defined_data_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0806_user_defined_data_format
-::description() const
+::description_() const
 {
-  return "user defined data of " + m_length_constraints.description();
+  return "ST0806 User Defined Data Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -182,9 +190,9 @@ klv_0806_user_defined_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0806_user_defined_set_format
-::description() const
+::description_() const
 {
-  return "user defined local set of " + m_length_constraints.description();
+  return "ST0806 User Defined LS";
 }
 
 } // namespace klv

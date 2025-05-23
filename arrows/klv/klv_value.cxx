@@ -12,6 +12,7 @@
 #include "klv_packet.h"
 #include "klv_series.hpp"
 #include "klv_set.h"
+#include "klv_util.h"
 
 #include <vital/util/demangle.h>
 
@@ -20,30 +21,6 @@ namespace kwiver {
 namespace arrows {
 
 namespace klv {
-
-namespace {
-
-// ----------------------------------------------------------------------------
-template < class T,
-           typename std::enable_if< !std::is_floating_point< T >::value,
-                                    bool >::type = true >
-bool
-equal_or_nan( T const& lhs, T const& rhs )
-{
-  return lhs == rhs;
-}
-
-// ----------------------------------------------------------------------------
-template < class T,
-           typename std::enable_if< std::is_floating_point< T >::value,
-                                    bool >::type = true >
-bool
-equal_or_nan( T const& lhs, T const& rhs )
-{
-  return lhs == rhs || ( std::isnan( lhs ) && std::isnan( rhs ) );
-}
-
-} // namespace
 
 // ----------------------------------------------------------------------------
 klv_bad_value_cast
@@ -130,7 +107,7 @@ public:
     auto const& rhs_item =
       dynamic_cast< internal_< T > const& >( rhs ).m_item;
     // Second, compare values
-    return equal_or_nan( lhs.m_item, rhs_item );
+    return wrap_cmp_nan( lhs.m_item ) == wrap_cmp_nan( rhs_item );
   }
 
   std::ostream&
@@ -208,7 +185,7 @@ klv_value&
 klv_value
 ::operator=( T&& rhs )
 {
-  klv_value{ rhs }.swap( *this );
+  klv_value{ std::forward< T >( rhs ) }.swap( *this );
   return *this;
 }
 
@@ -376,26 +353,29 @@ operator<<( std::ostream& os, klv_value const& rhs )
 }
 
 // ----------------------------------------------------------------------------
-#define KLV_INSTANTIATE( T )                         \
-  template KWIVER_ALGO_KLV_EXPORT                    \
-  klv_value::klv_value( T&& );                       \
-  template KWIVER_ALGO_KLV_EXPORT                    \
-  klv_value::klv_value( T& );                        \
-  template KWIVER_ALGO_KLV_EXPORT                    \
-  klv_value::klv_value( T const& );                  \
-  template KWIVER_ALGO_KLV_EXPORT                    \
-  klv_value & klv_value::operator= < T >( T && );    \
-  template KWIVER_ALGO_KLV_EXPORT                    \
-  T & klv_value::get< T >();                         \
-  template KWIVER_ALGO_KLV_EXPORT                    \
-  T const& klv_value::get< T >() const;              \
-  template KWIVER_ALGO_KLV_EXPORT                    \
-  T * klv_value::get_ptr< T >() noexcept;            \
-  template KWIVER_ALGO_KLV_EXPORT                    \
-  T const* klv_value::get_ptr< T >() const noexcept; \
-  template class KWIVER_ALGO_KLV_EXPORT              \
+#define KLV_INSTANTIATE( T )                                 \
+  template KWIVER_ALGO_KLV_EXPORT                            \
+  klv_value::klv_value( T&& );                               \
+  template KWIVER_ALGO_KLV_EXPORT                            \
+  klv_value::klv_value( T& );                                \
+  template KWIVER_ALGO_KLV_EXPORT                            \
+  klv_value::klv_value( T const& );                          \
+  template KWIVER_ALGO_KLV_EXPORT                            \
+  klv_value & klv_value::operator= < T >( T && );            \
+  template KWIVER_ALGO_KLV_EXPORT                            \
+  klv_value & klv_value::operator= < T const& >( T const& ); \
+  template KWIVER_ALGO_KLV_EXPORT                            \
+  T & klv_value::get< T >();                                 \
+  template KWIVER_ALGO_KLV_EXPORT                            \
+  T const& klv_value::get< T >() const;                      \
+  template KWIVER_ALGO_KLV_EXPORT                            \
+  T * klv_value::get_ptr< T >() noexcept;                    \
+  template KWIVER_ALGO_KLV_EXPORT                            \
+  T const* klv_value::get_ptr< T >() const noexcept;         \
+  template class KWIVER_ALGO_KLV_EXPORT                      \
   klv_value::internal_< T >;
 
+KLV_INSTANTIATE( bool );
 KLV_INSTANTIATE( double );
 KLV_INSTANTIATE( int64_t );
 KLV_INSTANTIATE( klv_0102_country_coding_method );
@@ -408,6 +388,7 @@ KLV_INSTANTIATE( klv_0601_icing_detected );
 KLV_INSTANTIATE( klv_0601_image_horizon_locations );
 KLV_INSTANTIATE( klv_0601_image_horizon_pixel_pack );
 KLV_INSTANTIATE( klv_0601_location_dlp );
+KLV_INSTANTIATE( klv_0601_msid );
 KLV_INSTANTIATE( klv_0601_operational_mode );
 KLV_INSTANTIATE( klv_0601_payload_record );
 KLV_INSTANTIATE( klv_0601_platform_status );
@@ -448,10 +429,16 @@ KLV_INSTANTIATE( klv_1204_miis_id );
 KLV_INSTANTIATE( klv_1206_image_plane );
 KLV_INSTANTIATE( klv_1206_look_direction );
 KLV_INSTANTIATE( klv_1303_apa );
+KLV_INSTANTIATE( klv_1303_mdap< bool > );
 KLV_INSTANTIATE( klv_1303_mdap< double > );
+KLV_INSTANTIATE( klv_1303_mdap< int64_t > );
+KLV_INSTANTIATE( klv_1303_mdap< klv_imap > );
+KLV_INSTANTIATE( klv_1303_mdap< std::string > );
 KLV_INSTANTIATE( klv_1303_mdap< uint64_t > );
 KLV_INSTANTIATE( klv_blob );
+KLV_INSTANTIATE( klv_imap );
 KLV_INSTANTIATE( klv_lengthy< double > );
+KLV_INSTANTIATE( klv_lengthy< klv_imap > );
 KLV_INSTANTIATE( klv_local_set );
 KLV_INSTANTIATE( klv_uds_key );
 KLV_INSTANTIATE( klv_universal_set );

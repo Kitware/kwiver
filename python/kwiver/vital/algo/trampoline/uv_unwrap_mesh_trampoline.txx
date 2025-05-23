@@ -12,7 +12,7 @@
 #ifndef UV_UNWRAP_MESH_TRAMPOLINE_TXX
 #define UV_UNWRAP_MESH_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/uv_unwrap_mesh.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_uvum_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::uv_unwrap_mesh>,
         type_name,
@@ -51,7 +51,7 @@ class uv_unwrap_mesh_trampoline :
     void
     unwrap( kwiver::vital::mesh_sptr mesh ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::uv_unwrap_mesh,
         unwrap,

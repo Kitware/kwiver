@@ -113,7 +113,7 @@ public:
   klv_1206_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 } // namespace klv

@@ -14,6 +14,7 @@
 #include <vital/logger/logger.h>
 #include <vital/range/iterator_range.h>
 
+#include <iterator>
 #include <list>
 
 namespace kwiver {
@@ -82,9 +83,9 @@ apply_amend( klv_value& value ) {
   {
     while( valid_amend_sets.empty() )
     {
-      auto& value = amend_range.begin()->second;
-      apply_amend( value );
-      auto const amend_ptr = value.get_ptr< klv_local_set >();
+      auto& amend_value = amend_range.begin()->second;
+      apply_amend( amend_value );
+      auto const amend_ptr = amend_value.get_ptr< klv_local_set >();
       if( amend_ptr )
       {
         valid_amend_sets.emplace_back( std::move( *amend_ptr ) );
@@ -184,7 +185,7 @@ apply_child_klv
 // ----------------------------------------------------------------------------
 bool
 apply_child_klv
-::check_configuration( vital::config_block_sptr config ) const
+::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -238,9 +239,9 @@ apply_child_klv
     }
 
     // Move packets back to vector for storage
-    std::vector< klv_packet > tmp_klv( result_klv.size() );
-    std::move( result_klv.begin(), result_klv.end(), tmp_klv.begin() );
-    klv_md->set_klv( tmp_klv );
+    klv_md->klv().assign(
+      std::make_move_iterator( result_klv.begin() ),
+      std::make_move_iterator( result_klv.end() ) );
   }
 
   return results;

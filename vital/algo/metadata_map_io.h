@@ -19,6 +19,7 @@
 
 #include <vital/vital_config.h>
 
+#include <ios>
 #include <string>
 
 namespace kwiver {
@@ -131,6 +132,24 @@ private:
   virtual void save_( std::ostream& fout,
                       kwiver::vital::metadata_map_sptr data,
                       std::string const& filename ) const = 0;
+
+  /// Returns implementation specific open mode when loading files.
+  ///
+  /// The purpose of this function is to allow differentiation between binary-
+  /// and text-encoded files, which alters the treatment of newline characters.
+  ///
+  /// \param filename Name of file being opened.
+  virtual std::ios_base::openmode
+  load_open_mode( std::string const& filename ) const;
+
+  /// Returns implementation specific open mode when saving files.
+  ///
+  /// The purpose of this function is to allow differentiation between binary-
+  /// and text-encoded files, which alters the treatment of newline characters.
+  ///
+  /// \param filename Name of file being opened.
+  virtual std::ios_base::openmode
+  save_open_mode( std::string const& filename ) const;
 
   algorithm_capabilities m_capabilities;
 };

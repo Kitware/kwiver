@@ -23,19 +23,35 @@ klv_metadata
 }
 
 // ----------------------------------------------------------------------------
-void
-klv_metadata
-::set_klv( std::vector< klv_packet > const& packets )
-{
-  m_klv_packets = packets;
-}
-
-// ----------------------------------------------------------------------------
 std::vector< klv_packet > const&
 klv_metadata
 ::klv() const
 {
   return m_klv_packets;
+}
+
+// ----------------------------------------------------------------------------
+std::vector< klv_packet >&
+klv_metadata
+::klv()
+{
+  return m_klv_packets;
+}
+
+// ----------------------------------------------------------------------------
+std::optional< misp_timestamp > const&
+klv_metadata
+::frame_timestamp() const
+{
+  return m_frame_timestamp;
+}
+
+// ----------------------------------------------------------------------------
+std::optional< misp_timestamp >&
+klv_metadata
+::frame_timestamp()
+{
+  return m_frame_timestamp;
 }
 
 } // namespace klv

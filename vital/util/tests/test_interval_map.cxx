@@ -136,10 +136,10 @@ TEST ( interval_map, iterators )
 TEST ( interval_map, find_point )
 {
   using map_type = interval_map< float, int >;
-  using opt_type = kwiver::vital::optional< int >;
+  using opt_type = std::optional< int >;
 
   auto const empty_map = map_type{};
-  EXPECT_EQ( kwiver::vital::nullopt, empty_map.at( 0.0f ) );
+  EXPECT_EQ( std::nullopt, empty_map.at( 0.0f ) );
 
   auto const test_map = map_type{
     { { -finf, -100.0f }, -1 },
@@ -148,7 +148,7 @@ TEST ( interval_map, find_point )
     { { 10.0f, finf }, 2 }, };
 
   // Key with no value
-  EXPECT_EQ( kwiver::vital::nullopt, test_map.at( -1.0f ) );
+  EXPECT_EQ( std::nullopt, test_map.at( -1.0f ) );
 
   // Bottom of interval
   EXPECT_EQ( opt_type{ 0 }, test_map.at( 0.0f ) );
@@ -160,7 +160,7 @@ TEST ( interval_map, find_point )
   EXPECT_EQ( opt_type{ 2 }, test_map.at( 100.0f ) );
 
   // Top of interval
-  EXPECT_EQ( kwiver::vital::nullopt, test_map.at( 5.0f ) );
+  EXPECT_EQ( std::nullopt, test_map.at( 5.0f ) );
 
   // Between adjacent intervals
   EXPECT_EQ( opt_type{ 1 }, test_map.at( 1.0f ) );
@@ -171,7 +171,7 @@ TEST ( interval_map, find_point )
   // value of a given type (e.g. infinity, SIZE_MAX). Practically, unsure
   // whether this limitation is particularly pressing.
   EXPECT_EQ( opt_type{ -1 }, test_map.at( -finf ) );
-  EXPECT_EQ( kwiver::vital::nullopt, test_map.at( finf ) );
+  EXPECT_EQ( std::nullopt, test_map.at( finf ) );
 
   // NaN
   EXPECT_THROW( test_map.at( fnan ), std::invalid_argument );

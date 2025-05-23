@@ -181,7 +181,7 @@ class TestVitalGeoPoint(unittest.TestCase):
 
     def test_to_str_empty(self):
         p1 = gp.GeoPoint()
-        nt.assert_equals(str(p1), "geo_point\n[ empty ]")
+        nt.assert_equals(str(p1), "[ empty ]")
         print("empty geo_point to string:", str(p1), sep='\n')
 
     # Also make sure the doubles roundtrip
@@ -193,25 +193,24 @@ class TestVitalGeoPoint(unittest.TestCase):
         split_str = str(p1).split()
 
         # Initial strings
-        nt.assert_equals(split_str[0], "geo_point")
-        nt.assert_equals(split_str[1], "[")
+        nt.assert_equals(split_str[0], "[")
 
         # Parsing easting
-        easting_out, comma = split_str[2][:-1], split_str[2][-1]
+        easting_out, comma = split_str[1][:-1], split_str[1][-1]
         nt.assert_equals(comma, ",")
         np.testing.assert_almost_equal(float(easting_out), easting_in, decimal=15)
 
         # Parsing northing
-        northing_out, comma = split_str[3][:-1], split_str[3][-1]
+        northing_out, comma = split_str[2][:-1], split_str[2][-1]
         nt.assert_equals(comma, ",")
         np.testing.assert_almost_equal(float(northing_out), northing_in, decimal=15)
 
         # Altitude (0)
-        altitude_out = split_str[4]
+        altitude_out = split_str[3]
         nt.assert_almost_equal(float(altitude_out), 0)
 
-        nt.assert_equals(split_str[5], "]")
-        nt.assert_equals(split_str[6], "@")
-        nt.assert_equals(int(split_str[7]), self.crs_ll)
+        nt.assert_equals(split_str[4], "]")
+        nt.assert_equals(split_str[5], "@")
+        nt.assert_equals(int(split_str[6]), self.crs_ll)
 
         print("geo_point with data:", str(p1), sep='\n')

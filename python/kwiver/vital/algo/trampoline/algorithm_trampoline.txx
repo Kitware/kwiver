@@ -13,7 +13,7 @@
 
 #include <vital/algo/algorithm.h>
 #include <vital/config/config_block.h>
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 
 namespace kwiver {
 namespace vital  {
@@ -26,7 +26,7 @@ class algorithm_trampoline : public algorithm_base
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         std::string,
         algorithm_base,
         type_name,
@@ -35,7 +35,7 @@ class algorithm_trampoline : public algorithm_base
 
     kwiver::vital::config_block_sptr get_configuration() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         kwiver::vital::config_block_sptr,
         algorithm_base,
         get_configuration,
@@ -44,7 +44,7 @@ class algorithm_trampoline : public algorithm_base
 
     void set_configuration(kwiver::vital::config_block_sptr config) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         algorithm_base,
         set_configuration,
@@ -54,7 +54,7 @@ class algorithm_trampoline : public algorithm_base
 
     bool check_configuration(kwiver::vital::config_block_sptr config) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         algorithm_base,
         check_configuration,

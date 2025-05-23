@@ -83,12 +83,21 @@ public:
   to_string( klv_value const& value ) const;
 
   /// Return a textual description of this data format.
-  virtual std::string
-  description() const = 0;
+  std::string
+  description() const;
 
-  /// Optionally the checksum format for this data format.
+  /// Return the checksum format for the packet key and length only, or
+  /// `nullptr`.
   virtual klv_checksum_packet_format const*
-  checksum_format() const;
+  prefix_checksum_format() const;
+
+  /// Return the checksum format for the packet payload only, or `nullptr`.
+  virtual klv_checksum_packet_format const*
+  payload_checksum_format() const;
+
+  /// Return the checksum format for the entire packet, or `nullptr`.
+  virtual klv_checksum_packet_format const*
+  packet_checksum_format() const;
 
   /// Return the constraints on the length of this format.
   klv_length_constraints const&
@@ -99,6 +108,9 @@ public:
   set_length_constraints( klv_length_constraints const& length_constraints );
 
 protected:
+  virtual std::string
+  description_() const = 0;
+
   klv_length_constraints m_length_constraints;
 };
 
@@ -155,15 +167,18 @@ public:
   {
     if( !length )
     {
-      VITAL_THROW( kwiver::vital::metadata_exception,
-                  "zero length given to read_()" );
+      throw vital::metadata_exception{ "zero length given to read_()" };
     }
-    else if( !m_length_constraints.do_allow( length ) )
+
+    if( !m_length_constraints.do_allow( length ) )
     {
       // Invalid length
-      LOG_WARN( kwiver::vital::get_logger( "klv" ),
-                "format `" << description() <<
-                "` received wrong number of bytes ( " << length << " )" );
+      std::stringstream ss;
+      ss << "format `" << description() << "` "
+         << "received illegal number of bytes (" << length << ") "
+         << "when reading";
+
+      LOG_WARN( vital::get_logger( "klv" ), ss.str() );
     }
 
     return read_typed( data, length );
@@ -196,15 +211,24 @@ public:
     auto const value_length = length_of_( value );
     if( value_length > max_length )
     {
-      VITAL_THROW( kwiver::vital::metadata_buffer_overflow,
-                  "write will overflow buffer" );
+      std::stringstream ss;
+      ss << "format `" << description() << "` "
+         << "has been asked to write value `" << to_string( value ) << "`, "
+         << "which is too long (" << value_length << ") "
+         << "for remaining buffer length (" << max_length << ")";
+      throw vital::metadata_buffer_overflow{ ss.str() };
     }
-    else if( !m_length_constraints.do_allow( value_length ) )
+
+    if( !m_length_constraints.do_allow( value_length ) )
     {
       // Invalid length
-      LOG_WARN( kwiver::vital::get_logger( "klv" ),
-                "format `" << description() <<
-                "` received wrong number of bytes ( " << value_length << " )" );
+      std::stringstream ss;
+      ss << "format `" << description() << "` "
+         << "has been asked to write value `" << to_string( value ) << "`, "
+         << "which serializes to an illegal number of bytes "
+         << "(" << value_length << ")";
+
+      LOG_WARN( vital::get_logger( "klv" ), ss.str() );
     }
 
     // Write the value
@@ -218,8 +242,8 @@ public:
     {
       std::stringstream ss;
       ss << "format `" << description() << "`: "
-        << "written length (" << written_length << ") and "
-        << "calculated length (" << value_length <<  ") not equal";
+         << "written length (" << written_length << ") and "
+         << "calculated length (" << value_length <<  ") not equal";
       throw std::logic_error( ss.str() );
     }
   }
@@ -244,9 +268,7 @@ public:
   size_t
   length_of_( T const& value ) const
   {
-    return m_length_constraints.fixed()
-          ? *m_length_constraints.fixed()
-          : length_of_typed( value );
+    return length_of_typed( value );
   }
 
   std::type_info const&
@@ -282,12 +304,7 @@ protected:
                size_t length ) const = 0;
 
   virtual size_t
-  length_of_typed( VITAL_UNUSED T const& value ) const
-  {
-    throw std::logic_error(
-      std::string{} + "data format of type `" + type_name() +
-      "` must either provide a fixed size or override length_of_typed()" );
-  }
+  length_of_typed( T const& value ) const = 0;
 
   virtual std::ostream&
   print_typed( std::ostream& os, T const& value ) const
@@ -315,7 +332,7 @@ public:
   ~klv_blob_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   klv_blob
@@ -338,7 +355,7 @@ public:
   klv_uuid_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   klv_uuid
@@ -353,26 +370,26 @@ protected:
 };
 
 // ----------------------------------------------------------------------------
-/// Interprets data as a string.
-class KWIVER_ALGO_KLV_EXPORT klv_string_format
-  : public klv_data_format_< std::string >
+/// Treats data as a single boolean value.
+class KWIVER_ALGO_KLV_EXPORT klv_bool_format
+  : public klv_data_format_< bool >
 {
 public:
-  klv_string_format( klv_length_constraints const& length_constraints = {} );
+  klv_bool_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
-  std::string
+  bool
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
-  write_typed( std::string const& value,
+  write_typed( bool const& value,
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( std::string const& value ) const override;
+  length_of_typed( bool const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -387,7 +404,7 @@ public:
   ~klv_uint_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   uint64_t
@@ -413,7 +430,7 @@ public:
   ~klv_sint_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   int64_t
@@ -445,12 +462,9 @@ public:
   {}
 
   std::string
-  description() const override
+  description_() const override
   {
-    std::stringstream ss;
-    ss << this->type_name() << " enumeration of "
-       << this->m_length_constraints.description();
-    return ss.str();
+    return "Enumeration '" + this->type_name() + "'";
   }
 
 protected:
@@ -471,7 +485,8 @@ protected:
   size_t
   length_of_typed( data_type const& value ) const override
   {
-    return klv_int_length( static_cast< uint64_t >( value ) );
+    auto const int_length = klv_int_length( static_cast< uint64_t >( value ) );
+    return std::max( this->m_length_constraints.fixed_or( 1 ), int_length );
   }
 
   size_t m_length;
@@ -489,7 +504,7 @@ public:
   ~klv_ber_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   uint64_t
@@ -515,7 +530,7 @@ public:
   ~klv_ber_oid_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   uint64_t
@@ -541,7 +556,7 @@ public:
   ~klv_float_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
 protected:
   klv_lengthy< double >
@@ -574,7 +589,7 @@ public:
   ~klv_sflint_format() = default;
 
   std::string
-  description() const override;
+  description_() const override;
 
   vital::interval< double >
   interval() const;
@@ -612,41 +627,7 @@ public:
   ~klv_uflint_format() = default;
 
   std::string
-  description() const override;
-
-  vital::interval< double >
-  interval() const;
-
-protected:
-  klv_lengthy< double >
-  read_typed( klv_read_iter_t& data, size_t length ) const override;
-
-  void
-  write_typed( klv_lengthy< double > const& value,
-               klv_write_iter_t& data, size_t length ) const override;
-
-  size_t
-  length_of_typed( klv_lengthy< double > const& value ) const override;
-
-  std::ostream&
-  print_typed( std::ostream& os,
-               klv_lengthy< double > const& value ) const override;
-
-  vital::interval< double > m_interval;
-};
-
-// ----------------------------------------------------------------------------
-/// Interprets data as a floating point value encoded in IMAP format.
-class KWIVER_ALGO_KLV_EXPORT klv_imap_format
-  : public klv_data_format_< klv_lengthy< double > >
-{
-public:
-  klv_imap_format(
-    vital::interval< double > const& interval,
-    klv_length_constraints const& length_constraints = {} );
-
-  std::string
-  description() const override;
+  description_() const override;
 
   vital::interval< double >
   interval() const;
@@ -689,7 +670,7 @@ public:
   }
 
   std::string
-  description() const
+  description_() const
   {
     return m_format.description();
   }
@@ -725,7 +706,6 @@ protected:
   Format m_format;
 };
 using klv_lengthless_float_format = klv_lengthless_format< klv_float_format >;
-using klv_lengthless_imap_format = klv_lengthless_format< klv_imap_format >;
 
 // ----------------------------------------------------------------------------
 template< class Enum, class Int >
@@ -772,9 +752,9 @@ public:
   }
 
   std::string
-  description() const
+  description_() const
   {
-    return "bitfield of " + this->m_length_constraints.description();
+    return "Bitfield";
   }
 
 protected:
@@ -794,7 +774,8 @@ protected:
   size_t
   length_of_typed( std::set< Enum > const& value ) const
   {
-    return m_format.length_of_( enums_to_bitfield( value ) );
+    auto const int_length = m_format.length_of_( enums_to_bitfield( value ) );
+    return std::max( this->m_length_constraints.fixed_or( 1 ), int_length );
   }
 
   Format m_format;

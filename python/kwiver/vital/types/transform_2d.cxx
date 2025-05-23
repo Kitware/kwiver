@@ -4,8 +4,6 @@
 
 #include <vital/types/transform_2d.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
-
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -73,7 +71,7 @@ kv::vector_2d
 transform_2d_trampoline
 ::map( kv::vector_2d const& p ) const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::vector_2d,
     kv::transform_2d,
     map,

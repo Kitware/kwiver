@@ -16,6 +16,7 @@ set( plugin_core_headers
   compute_ref_homography_core.h
   convert_image_bypass.h
   create_detection_grid.h
+  csv_io.h
   depth_utils.h
   derive_metadata.h
   detect_features_filtered.h
@@ -39,10 +40,12 @@ set( plugin_core_headers
   match_features_fundamental_matrix.h
   match_features_homography.h
   match_tracks.h
+  merge_metadata_streams.h
   mesh_intersect.h
   mesh_operations.h
   merge_detections_suppress_in_regions.h
   metadata_map_io_csv.h
+  metadata_stream_from_video.h
   read_object_track_set_kw18.h
   read_track_descriptor_set_csv.h
   refine_detections_add_fixed.h
@@ -54,6 +57,7 @@ set( plugin_core_headers
   transform_detected_object_set.h
   triangle_scan_iterator.h
   uv_unwrap_mesh.h
+  video_input_buffered_metadata_filter.h
   video_input_filter.h
   video_input_image_list.h
   video_input_metadata_filter.h
@@ -94,6 +98,7 @@ set( plugin_core_sources
   compute_ref_homography_core.cxx
   convert_image_bypass.cxx
   create_detection_grid.cxx
+  csv_io.cxx
   depth_utils.cxx
   derive_metadata.cxx
   detect_features_filtered.cxx
@@ -117,10 +122,12 @@ set( plugin_core_sources
   match_features_fundamental_matrix.cxx
   match_features_homography.cxx
   match_tracks.cxx
+  merge_metadata_streams.cxx
   mesh_intersect.cxx
   mesh_operations.cxx
   merge_detections_suppress_in_regions.cxx
   metadata_map_io_csv.cxx
+  metadata_stream_from_video.cxx
   read_object_track_set_kw18.cxx
   read_track_descriptor_set_csv.cxx
   refine_detections_add_fixed.cxx
@@ -134,6 +141,7 @@ set( plugin_core_sources
   uv_unwrap_mesh.cxx
   video_input_filter.cxx
   video_input_image_list.cxx
+  video_input_buffered_metadata_filter.cxx
   video_input_metadata_filter.cxx
   video_input_pos.cxx
   video_input_splice.cxx

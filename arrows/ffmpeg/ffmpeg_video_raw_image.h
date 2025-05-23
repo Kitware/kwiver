@@ -33,6 +33,9 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_raw_image
   operator=( ffmpeg_video_raw_image const& ) = delete;
 
   std::list< packet_uptr > packets;
+  int64_t frame_dts;
+  int64_t frame_pts;
+  bool is_keyframe;
 };
 using ffmpeg_video_raw_image_sptr = std::shared_ptr< ffmpeg_video_raw_image >;
 

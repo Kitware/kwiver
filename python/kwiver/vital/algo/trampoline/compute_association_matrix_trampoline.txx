@@ -12,7 +12,7 @@
 #ifndef COMPUTE_ASSOCAITION_MATRIX_TXX
 #define COMPUTE_ASSOCIATION_MATRIX_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/compute_association_matrix.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_cam_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
           kwiver::vital::algo::compute_association_matrix>,
@@ -56,7 +56,7 @@ class compute_association_matrix_trampoline :
                   kwiver::vital::matrix_d& matrix,
                   kwiver::vital::detected_object_set_sptr& considered ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         bool,
         kwiver::vital::algo::compute_association_matrix,
         compute,

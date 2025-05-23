@@ -155,13 +155,19 @@ get_sensor_location( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_SENSOR_LOCATION );
 
-  if( !item || !std::isfinite( item.as_double() ) )
+  if( item )
   {
-    VITAL_THROW( kv::invalid_value,
-                 "metadata does not contain sensor location" );
+    auto const typed_item = item.get< kv::geo_point >();
+    if( std::isfinite( typed_item.location()[ 0 ] ) &&
+        std::isfinite( typed_item.location()[ 1 ] ) &&
+        std::isfinite( typed_item.location()[ 2 ] ) )
+    {
+      return typed_item;
+    }
   }
 
-  return item.get< kv::geo_point >();
+  VITAL_THROW(
+    kv::invalid_value, "metadata does not contain sensor location" );
 }
 
 // ----------------------------------------------------------------------------
@@ -171,13 +177,19 @@ get_frame_center( kwiver::vital::metadata_sptr const& metadata )
   kv::metadata_item const& item =
     metadata->find( kv::VITAL_META_FRAME_CENTER );
 
-  if( !item || !std::isfinite( item.as_double() ) )
+  if( item )
   {
-    VITAL_THROW( kv::invalid_value,
-                 "metadata does not contain frame center" );
+    auto const typed_item = item.get< kv::geo_point >();
+    if( std::isfinite( typed_item.location()[ 0 ] ) &&
+        std::isfinite( typed_item.location()[ 1 ] ) &&
+        std::isfinite( typed_item.location()[ 2 ] ) )
+    {
+      return typed_item;
+    }
   }
 
-  return item.get< kv::geo_point >();
+  VITAL_THROW(
+    kv::invalid_value, "metadata does not contain frame center" );
 }
 
 // ----------------------------------------------------------------------------
@@ -212,6 +224,10 @@ compute_slant_range( kwiver::vital::metadata_sptr const& metadata )
     kv::rotation_d const total_rotation = get_total_rotation( metadata );
     double yaw, pitch, roll;
     total_rotation.get_yaw_pitch_roll( yaw, pitch, roll );
+    if ( pitch >= 0 )
+    {
+      VITAL_THROW( kv::invalid_value, "pitch must be negative" );
+    }
 
     // Determine the altitude of the sensor above the frame center
     kv::geo_point const sensor_location = get_sensor_location( metadata );
@@ -497,6 +513,10 @@ derive_metadata
         // Compute GSD
         auto const gsd =
           compute_gsd( updated_metadata, frame_width, frame_height );
+        if( !std::isfinite( gsd ) || gsd <= 0 )
+        {
+          VITAL_THROW( kv::invalid_value, "invalid GSD result" );
+        }
         updated_metadata->add< kv::VITAL_META_AVERAGE_GSD >( gsd );
 
         // Compute VNIIRS

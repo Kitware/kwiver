@@ -7,9 +7,10 @@
 
 #include "klv_lengthy.h"
 
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_util.h>
 
-#include <vital/optional.h>
+#include <optional>
 
 namespace kwiver {
 
@@ -58,56 +59,11 @@ operator<<( std::ostream& os, klv_lengthy< T > const& value )
 }
 
 // ----------------------------------------------------------------------------
-template < class T >
-bool
-operator<( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value < rhs.value;
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-bool
-operator>( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value > rhs.value;
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-bool
-operator<=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value <= rhs.value;
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-bool
-operator>=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value >= rhs.value;
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-bool
-operator==( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value == rhs.value;
-}
-
-// ----------------------------------------------------------------------------
-template < class T >
-bool
-operator!=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
-{
-  return lhs.value != rhs.value;
-}
+DEFINE_TEMPLATE_CMP( klv_lengthy< T >, &klv_lengthy< T >::value )
 
 // ----------------------------------------------------------------------------
 #define KLV_INSTANTIATE( T )                                                    \
-  template class klv_lengthy< T >;                                              \
+  template struct klv_lengthy< T >;                                             \
   template std::ostream& operator<<( std::ostream&, klv_lengthy< T > const& );  \
   template bool operator>( klv_lengthy< T > const&, klv_lengthy< T > const& );  \
   template bool operator<( klv_lengthy< T > const&, klv_lengthy< T > const& );  \
@@ -117,7 +73,8 @@ operator!=( klv_lengthy< T > const& lhs, klv_lengthy< T > const& rhs )
   template bool operator!=( klv_lengthy< T > const&, klv_lengthy< T > const& )
 
 KLV_INSTANTIATE( double );
-KLV_INSTANTIATE( kwiver::vital::optional< double > );
+KLV_INSTANTIATE( std::optional< double > );
+KLV_INSTANTIATE( klv_imap );
 
 } // namespace klv
 

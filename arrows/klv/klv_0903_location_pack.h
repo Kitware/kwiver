@@ -10,11 +10,12 @@
 
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_packet.h>
 #include <arrows/klv/klv_series.h>
 #include <arrows/klv/klv_set.h>
 
-#include <vital/optional.h>
+#include <optional>
 
 namespace kwiver {
 
@@ -26,9 +27,9 @@ namespace klv {
 /// Standard deviation values along each geospatial axis.
 struct KWIVER_ALGO_KLV_EXPORT klv_0903_sigma_pack
 {
-  double east;
-  double north;
-  double up;
+  klv_imap east;
+  klv_imap north;
+  klv_imap up;
 };
 
 // ----------------------------------------------------------------------------
@@ -43,9 +44,9 @@ DECLARE_CMP( klv_0903_sigma_pack )
 /// Correlation values for each pair of geospatial axes.
 struct KWIVER_ALGO_KLV_EXPORT klv_0903_rho_pack
 {
-  double east_north;
-  double east_up;
-  double north_up;
+  klv_imap east_north;
+  klv_imap east_up;
+  klv_imap north_up;
 };
 
 // ----------------------------------------------------------------------------
@@ -60,11 +61,11 @@ DECLARE_CMP( klv_0903_rho_pack )
 /// Geodetic location with optional precision information.
 struct KWIVER_ALGO_KLV_EXPORT klv_0903_location_pack
 {
-  double latitude;
-  double longitude;
-  double altitude;
-  kwiver::vital::optional< klv_0903_sigma_pack > sigma;
-  kwiver::vital::optional< klv_0903_rho_pack > rho;
+  klv_imap latitude;
+  klv_imap longitude;
+  klv_imap altitude;
+  std::optional< klv_0903_sigma_pack > sigma;
+  std::optional< klv_0903_rho_pack > rho;
 };
 
 // ----------------------------------------------------------------------------
@@ -79,11 +80,11 @@ DECLARE_CMP( klv_0903_location_pack )
 /// Velocity along geospatial axes with optional precision information.
 struct KWIVER_ALGO_KLV_EXPORT klv_0903_velocity_pack
 {
-  double east;
-  double north;
-  double up;
-  kwiver::vital::optional< klv_0903_sigma_pack > sigma;
-  kwiver::vital::optional< klv_0903_rho_pack > rho;
+  klv_imap east;
+  klv_imap north;
+  klv_imap up;
+  std::optional< klv_0903_sigma_pack > sigma;
+  std::optional< klv_0903_rho_pack > rho;
 };
 
 // ----------------------------------------------------------------------------
@@ -106,7 +107,7 @@ public:
   klv_0903_location_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0903_location_pack
@@ -134,7 +135,7 @@ public:
   klv_0903_velocity_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0903_velocity_pack

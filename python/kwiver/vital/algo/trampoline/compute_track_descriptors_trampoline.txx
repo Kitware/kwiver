@@ -12,7 +12,7 @@
 #ifndef COMPUTE_TRACK_DESCRIPTORS_TRAMPOLINE_TXX
 #define COMPUTE_TRACK_DESCRIPTORS_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/compute_track_descriptors.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_ctd_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         std::string,
         kwiver::vital::algorithm_def<
           kwiver::vital::algo::compute_track_descriptors>,
@@ -54,7 +54,7 @@ class compute_track_descriptors_trampoline :
              kwiver::vital::image_container_sptr image_data,
              kwiver::vital::object_track_set_sptr tracks ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::track_descriptor_set_sptr,
         kwiver::vital::algo::compute_track_descriptors,
         compute,
@@ -67,7 +67,7 @@ class compute_track_descriptors_trampoline :
     kwiver::vital::track_descriptor_set_sptr
       flush() override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::track_descriptor_set_sptr,
         kwiver::vital::algo::compute_track_descriptors,
         flush,

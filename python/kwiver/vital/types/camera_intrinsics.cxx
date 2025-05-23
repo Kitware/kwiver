@@ -4,8 +4,6 @@
 
 #include <vital/types/camera_intrinsics.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
-
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -131,7 +129,7 @@ double
 camera_intrinsics_trampoline
 ::focal_length() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     double,
     kv::camera_intrinsics,
     focal_length,
@@ -142,7 +140,7 @@ kv::vector_2d
 camera_intrinsics_trampoline
 ::principal_point() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     kv::vector_2d,
     kv::camera_intrinsics,
     principal_point,
@@ -153,7 +151,7 @@ double
 camera_intrinsics_trampoline
 ::aspect_ratio() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     double,
     kv::camera_intrinsics,
     aspect_ratio,
@@ -164,7 +162,7 @@ double
 camera_intrinsics_trampoline
 ::skew() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     double,
     kv::camera_intrinsics,
     skew,
@@ -175,7 +173,7 @@ unsigned int
 camera_intrinsics_trampoline
 ::image_width() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     unsigned int,
     kv::camera_intrinsics,
     image_width,
@@ -186,7 +184,7 @@ unsigned int
 camera_intrinsics_trampoline
 ::image_height() const
 {
-  VITAL_PYBIND11_OVERLOAD_PURE(
+  PYBIND11_OVERLOAD_PURE(
     unsigned int,
     kv::camera_intrinsics,
     image_height,
@@ -197,7 +195,7 @@ std::vector<double>
 camera_intrinsics_trampoline
 ::dist_coeffs() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     std::vector<double>,
     kv::camera_intrinsics,
     dist_coeffs,
@@ -208,7 +206,7 @@ kv::matrix_3x3d
 camera_intrinsics_trampoline
 ::as_matrix() const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::matrix_3x3d,
     kv::camera_intrinsics,
     as_matrix,
@@ -219,7 +217,7 @@ kv::vector_2d
 camera_intrinsics_trampoline
 ::map( const kv::vector_2d& norm_pt ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::vector_2d,
     kv::camera_intrinsics,
     map,
@@ -231,7 +229,7 @@ kv::vector_2d
 camera_intrinsics_trampoline
 ::map( const kv::vector_3d& norm_hpt ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::vector_2d,
     kv::camera_intrinsics,
     map,
@@ -243,7 +241,7 @@ kv::vector_2d
 camera_intrinsics_trampoline
 ::unmap( const kv::vector_2d& norm_pt ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::vector_2d,
     kv::camera_intrinsics,
     unmap,
@@ -255,7 +253,7 @@ kv::vector_2d
 camera_intrinsics_trampoline
 ::distort( const kv::vector_2d& norm_pt ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::vector_2d,
     kv::camera_intrinsics,
     distort,
@@ -267,7 +265,7 @@ kv::vector_2d
 camera_intrinsics_trampoline
 ::undistort( const kv::vector_2d& dist_pt ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     kv::vector_2d,
     kv::camera_intrinsics,
     undistort,
@@ -279,7 +277,7 @@ bool
 camera_intrinsics_trampoline
 ::is_map_valid( const kv::vector_2d& norm_pt ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     bool,
     kv::camera_intrinsics,
     is_map_valid,
@@ -291,7 +289,7 @@ bool
 camera_intrinsics_trampoline
 ::is_map_valid( const kv::vector_3d& norm_hpt ) const
 {
-  VITAL_PYBIND11_OVERLOAD(
+  PYBIND11_OVERLOAD(
     bool,
     kv::camera_intrinsics,
     is_map_valid,

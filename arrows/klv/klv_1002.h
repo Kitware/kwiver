@@ -15,7 +15,7 @@
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <vital/optional.h>
+#include <optional>
 
 namespace kwiver {
 
@@ -112,7 +112,7 @@ public:
   klv_1002_enumerations_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_1002_enumerations
@@ -132,10 +132,10 @@ struct KWIVER_ALGO_KLV_EXPORT klv_1002_section_data_pack
   uint32_t section_x;
   uint32_t section_y;
   klv_1303_mdap< double > measurements;
-  kwiver::vital::optional< klv_1303_mdap< double > > uncertainty;
-  kwiver::vital::optional< klv_lengthy< double > > plane_x_scale;
-  kwiver::vital::optional< klv_lengthy< double > > plane_y_scale;
-  kwiver::vital::optional< klv_lengthy< double > > plane_constant;
+  std::optional< klv_1303_mdap< double > > uncertainty;
+  std::optional< klv_lengthy< double > > plane_x_scale;
+  std::optional< klv_lengthy< double > > plane_y_scale;
+  std::optional< klv_lengthy< double > > plane_constant;
 };
 
 // ----------------------------------------------------------------------------
@@ -154,7 +154,7 @@ public:
   klv_1002_section_data_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_1002_section_data_pack
@@ -177,10 +177,10 @@ public:
   klv_1002_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
   klv_checksum_packet_format const*
-  checksum_format() const override;
+  packet_checksum_format() const override;
 
 private:
   klv_crc_16_ccitt_packet_format m_checksum_format;

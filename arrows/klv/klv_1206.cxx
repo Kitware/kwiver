@@ -7,7 +7,8 @@
 
 #include "klv_1206.h"
 
-#include <arrows/klv/klv_1303.hpp>
+#include <arrows/klv/klv_1303.h>
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_util.h>
 
 namespace kwiver {
@@ -299,10 +300,9 @@ klv_1206_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1206_local_set_format
-::description() const
+::description_() const
 {
-  return
-    "SAR motion imagery local set of " + m_length_constraints.description();
+  return "ST1206 SAR Motion Imagery LS";
 }
 
 } // namespace klv

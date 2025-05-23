@@ -12,7 +12,7 @@
 #ifndef MATCH_FEATURES_TRAMPOLINE_TXX
 #define MATCH_FEATURES_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/match_features.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_mf_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::match_features>,
         type_name,
@@ -54,7 +54,7 @@ class match_features_trampoline :
            kwiver::vital::feature_set_sptr feat2,
            kwiver::vital::descriptor_set_sptr desc2 ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::match_set_sptr,
         kwiver::vital::algo::match_features,
         match,

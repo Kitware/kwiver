@@ -7,7 +7,6 @@
 #include <sprokit/pipeline_util/export_dot.h>
 #include <sprokit/pipeline_util/export_dot_exception.h>
 
-#include <python/kwiver/vital/util/pybind11.h>
 #include <python/kwiver/sprokit/util/pystream.h>
 
 #include <pybind11/pybind11.h>
@@ -33,7 +32,7 @@ void export_dot(object const& stream, ::sprokit::pipeline_t const pipe, std::str
 using namespace kwiver::sprokit::python;
 PYBIND11_MODULE(export_, m)
 {
-  m.def("export_dot", &export_dot, call_guard<kwiver::vital::python::gil_scoped_release>()
+  m.def("export_dot", &export_dot, call_guard<pybind11::gil_scoped_release>()
     , arg("stream"), arg("pipeline"), arg("name")
     , "Writes the pipeline to the stream in dot format.");
 }

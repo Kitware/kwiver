@@ -75,7 +75,7 @@
 # any outside mailing list and no documentation of the change will be
 # written.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3...3.27 FATAL_ERROR)
 IF(POLICY CMP0025)
   CMAKE_POLICY(SET CMP0025 NEW)
 ENDIF()

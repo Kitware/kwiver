@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#include <cstdint>
+
 namespace kwiver {
 
 namespace vital {

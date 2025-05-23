@@ -48,7 +48,7 @@ cluster_bakery
   // These lists end up in "cluster"
   for ( auto sb : subblocks )
   {
-    kwiver::vital::visit( splitter, sb );
+    std::visit( splitter, sb );
   }
 
   m_cluster = cluster;

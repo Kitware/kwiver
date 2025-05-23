@@ -1,0 +1,13 @@
+version: 2
+
+python:
+  install:
+    - requirements: doc/manuals/rtd_requirement.txt
+
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.11"
+
+sphinx:
+  configuration: doc/manuals/conf.py

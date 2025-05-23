@@ -11,6 +11,7 @@
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <arrows/klv/klv_1303.h>
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_packet.h>
 #include <arrows/klv/klv_set.h>
 
@@ -50,24 +51,24 @@ operator<<( std::ostream& os, klv_1601_tag tag );
 /// different IMAP parameters, which is not supported natively by the MDARRAY
 /// format.
 class KWIVER_ALGO_KLV_EXPORT klv_1601_pixel_sdcc_format
-  : public klv_data_format_< klv_1303_mdap< double > >
+  : public klv_data_format_< klv_1303_mdap< klv_imap > >
 {
 public:
   klv_1601_pixel_sdcc_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
-  klv_1303_mdap< double >
+  klv_1303_mdap< klv_imap >
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
-  write_typed( klv_1303_mdap< double > const& value,
+  write_typed( klv_1303_mdap< klv_imap > const& value,
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_1303_mdap< double > const& value ) const override;
+  length_of_typed( klv_1303_mdap< klv_imap > const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -77,24 +78,24 @@ private:
 /// different IMAP parameters, which is not supported natively by the MDARRAY
 /// format.
 class KWIVER_ALGO_KLV_EXPORT klv_1601_geographic_sdcc_format
-  : public klv_data_format_< klv_1303_mdap< double > >
+  : public klv_data_format_< klv_1303_mdap< klv_imap > >
 {
 public:
   klv_1601_geographic_sdcc_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
-  klv_1303_mdap< double >
+  klv_1303_mdap< klv_imap >
   read_typed( klv_read_iter_t& data, size_t length ) const override;
 
   void
-  write_typed( klv_1303_mdap< double > const& value,
+  write_typed( klv_1303_mdap< klv_imap > const& value,
                klv_write_iter_t& data, size_t length ) const override;
 
   size_t
-  length_of_typed( klv_1303_mdap< double > const& value ) const override;
+  length_of_typed( klv_1303_mdap< klv_imap > const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -116,7 +117,7 @@ public:
   klv_1601_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 } // namespace klv

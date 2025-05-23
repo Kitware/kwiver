@@ -9,6 +9,7 @@
 
 #include <arrows/klv/klv_1108_metric_set.h>
 #include <arrows/klv/klv_checksum.h>
+#include <arrows/klv/klv_string.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -114,11 +115,19 @@ klv_1108_metric_period_pack_format
 }
 
 // ----------------------------------------------------------------------------
+size_t
+klv_1108_metric_period_pack_format
+::length_of_typed( klv_1108_metric_period_pack const& ) const
+{
+  return 12;
+}
+
+// ----------------------------------------------------------------------------
 std::string
 klv_1108_metric_period_pack_format
-::description() const
+::description_() const
 {
-  return "metric period pack of " + m_length_constraints.description();
+  return "ST1108 Metric Period Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -192,9 +201,9 @@ klv_1108_window_corners_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1108_window_corners_pack_format
-::description() const
+::description_() const
 {
-  return "window corners pack of " + m_length_constraints.description();
+  return "ST1108 Window Corners Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -214,7 +223,7 @@ klv_1108_local_set_format
 // ----------------------------------------------------------------------------
 klv_checksum_packet_format const*
 klv_1108_local_set_format
-::checksum_format() const
+::packet_checksum_format() const
 {
   return &m_checksum_format;
 }
@@ -222,9 +231,9 @@ klv_1108_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_1108_local_set_format
-::description() const
+::description_() const
 {
-  return "ST 1108 local set of " + m_length_constraints.description();
+  return "ST1108 Interpretability and Quality LS";
 }
 
 // ----------------------------------------------------------------------------
@@ -293,7 +302,7 @@ klv_1108_traits_lookup()
       1 },
     { { 0x060E2B3401010101, 0x0E01050400000000 },
       ENUM_AND_NAME( KLV_1108_COMPRESSION_LEVEL ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Compression Level",
       "Level of video compression.",
       1 },
@@ -404,7 +413,18 @@ compression_profile_pairs()
     { "Main 4:4:4 12", KLV_1108_COMPRESSION_PROFILE_MAIN_4_4_4_12 },
     { "High 4:2:2", KLV_1108_COMPRESSION_PROFILE_HIGH_4_2_2 },
     { "High 4:4:4 Predictive",
-      KLV_1108_COMPRESSION_PROFILE_HIGH_4_4_4_PREDICTIVE } };
+      KLV_1108_COMPRESSION_PROFILE_HIGH_4_4_4_PREDICTIVE },
+
+    // Not technically correct, but these vital values have no ST1108 direct
+    // equivalent
+    { "Baseline", KLV_1108_COMPRESSION_PROFILE_CONSTRAINED_BASELINE },
+    { "Extended", KLV_1108_COMPRESSION_PROFILE_HIGH },
+    { "High 10", KLV_1108_COMPRESSION_PROFILE_HIGH },
+    { "High 10 Intra", KLV_1108_COMPRESSION_PROFILE_HIGH },
+    { "High 4:2:2 Intra", KLV_1108_COMPRESSION_PROFILE_HIGH_4_2_2 },
+    { "High 4:4:4", KLV_1108_COMPRESSION_PROFILE_HIGH_4_4_4_PREDICTIVE },
+    { "High 4:4:4 Intra", KLV_1108_COMPRESSION_PROFILE_HIGH_4_4_4_PREDICTIVE },
+  };
 
   return pairs;
 }
@@ -418,7 +438,7 @@ struct klv_compression_level_pair
 
 // ----------------------------------------------------------------------------
 std::vector< klv_compression_level_pair > const&
-compression_level_pairs()
+compression_level_pairs_mpeg2()
 {
   static std::vector< klv_compression_level_pair > const pairs = {
     { "Low", "LL" },
@@ -469,7 +489,7 @@ klv_1108_fill_in_metadata(
   if( bitrate_vital && !klv_data.has( KLV_1108_STREAM_BITRATE ) )
   {
     // Convert from bps to kbps
-    auto const bitrate_klv = bitrate_vital.as_uint64() + 500 / 1000;
+    auto const bitrate_klv = ( bitrate_vital.as_uint64() + 500 ) / 1000;
     klv_data.add( KLV_1108_STREAM_BITRATE, bitrate_klv );
   }
 
@@ -484,9 +504,27 @@ klv_1108_fill_in_metadata(
     KLV_1108_COMPRESSION_PROFILE, compression_profile_pairs() );
 
   // Compression level
-  convert_vital_to_klv_via_pairs(
-    vital_data, klv_data, kv::VITAL_META_VIDEO_COMPRESSION_LEVEL,
-    KLV_1108_COMPRESSION_LEVEL, compression_level_pairs() );
+  if( klv_data.has( KLV_1108_COMPRESSION_TYPE ) )
+  {
+    if( klv_data.at( KLV_1108_COMPRESSION_TYPE ) ==
+        KLV_1108_COMPRESSION_TYPE_H262 )
+    {
+      convert_vital_to_klv_via_pairs(
+          vital_data, klv_data, kv::VITAL_META_VIDEO_COMPRESSION_LEVEL,
+          KLV_1108_COMPRESSION_LEVEL, compression_level_pairs_mpeg2() );
+    }
+    else
+    {
+      auto const compression_level_vital =
+        vital_data.find( kv::VITAL_META_VIDEO_COMPRESSION_LEVEL );
+      if( compression_level_vital &&
+          !klv_data.has( KLV_1108_COMPRESSION_LEVEL ) )
+      {
+        klv_data.add(
+          KLV_1108_COMPRESSION_LEVEL, compression_level_vital.as_string() );
+      }
+    }
+  }
 
   // Compression ratio
   auto const& frame_rate_vital =
@@ -499,9 +537,11 @@ klv_1108_fill_in_metadata(
       bitrate_vital && !klv_data.has( KLV_1108_COMPRESSION_RATIO ) )
   {
     auto const compression_ratio_klv =
-      24.0 * frame_width_vital.as_double() * frame_height_vital.as_double() *
-      frame_rate_vital.as_double() / bitrate_vital.as_double();
-    klv_data.add( KLV_1108_COMPRESSION_RATIO, compression_ratio_klv );
+      24.0 * frame_width_vital.as_uint64() * frame_height_vital.as_uint64() *
+      frame_rate_vital.as_double() / bitrate_vital.as_uint64();
+    klv_data.add(
+      KLV_1108_COMPRESSION_RATIO,
+      klv::klv_lengthy< double >{ compression_ratio_klv, 4 } );
   }
 
   // Standard version

@@ -28,8 +28,10 @@ enum klv_0903_ontology_set_tag : klv_lds_key
   KLV_0903_ONTOLOGY_UNKNOWN   = 0,
   KLV_0903_ONTOLOGY_ID        = 1,
   KLV_0903_ONTOLOGY_PARENT_ID = 2,
-  KLV_0903_ONTOLOGY_URI       = 3,
-  KLV_0903_ONTOLOGY_CLASS     = 4,
+  KLV_0903_ONTOLOGY_IRI       = 3,
+  KLV_0903_ONTOLOGY_ENTITY    = 4,
+  KLV_0903_ONTOLOGY_VERSION   = 5,
+  KLV_0903_ONTOLOGY_LABEL     = 6,
 };
 
 // ----------------------------------------------------------------------------
@@ -51,7 +53,7 @@ public:
   klv_0903_ontology_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

@@ -5,7 +5,9 @@
 /// \file
 /// Implementation of the KLV 0903 ontology local set parser.
 
-#include "klv_0903_ontology_set.h"
+#include <arrows/klv/klv_0903_ontology_set.h>
+
+#include <arrows/klv/klv_string.h>
 
 namespace kwiver {
 
@@ -44,18 +46,29 @@ klv_0903_ontology_set_traits_lookup()
       "Defines a link between two related ontology local sets.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0903_ONTOLOGY_URI ),
-      std::make_shared< klv_string_format >(),
-      "URI",
-      "Uniform Resource Identifier according to the OWL Web Ontology "
-      "Language.",
+      ENUM_AND_NAME( KLV_0903_ONTOLOGY_IRI ),
+      std::make_shared< klv_utf_8_format >(),
+      "IRI",
+      "Internationalized Resource Identifier identifying the ontology.",
       1 },
     { {},
-      ENUM_AND_NAME( KLV_0903_ONTOLOGY_CLASS ),
-      std::make_shared< klv_string_format >(),
-      "Class",
-      "Target class or type, as defined by the ontology.",
-      1 } };
+      ENUM_AND_NAME( KLV_0903_ONTOLOGY_ENTITY ),
+      std::make_shared< klv_utf_8_format >(),
+      "Entity",
+      "IRI identifying an entity within the ontology.",
+      1 },
+    { {},
+      ENUM_AND_NAME( KLV_0903_ONTOLOGY_VERSION ),
+      std::make_shared< klv_utf_8_format >(),
+      "Version",
+      "IRI identifying the version of the ontology.",
+      { 0, 1 } },
+    { {},
+      ENUM_AND_NAME( KLV_0903_ONTOLOGY_LABEL ),
+      std::make_shared< klv_utf_8_format >(),
+      "Label",
+      "Name of the entity, as defined by the ontology.",
+      { 0, 1 } } };
 
   return lookup;
 }
@@ -69,9 +82,9 @@ klv_0903_ontology_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_ontology_local_set_format
-::description() const
+::description_() const
 {
-  return "ontology local set of " + m_length_constraints.description();
+  return "ST0903 Ontology LS";
 }
 
 } // namespace klv

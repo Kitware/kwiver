@@ -8,8 +8,9 @@
 
 #include "dump_klv.h"
 
-#include <iostream>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 
 #include <vital/algo/image_io.h>
 #include <vital/algo/metadata_map_io.h>
@@ -77,6 +78,7 @@ add_command_options()
     ( "multithread",
       "Use multithreading to accelerate encoding of frame images. "
       "Number of worker threads is not configurable at this time." )
+    ( "compress", "Compress output file. Only available for klv-json." )
 
     // positional parameters
     ( "video-file", "Video input file", cxxopts::value< std::string >() )
@@ -159,6 +161,11 @@ dump_klv
     config->set_value( "metadata_serializer:type", serializer_type );
   }
 
+  if( cmd_args.count( "compress" ) )
+  {
+    config->set_value( "metadata_serializer:klv-json:compress", true );
+  }
+
   kva::video_input::set_nested_algo_configuration(
     "video_reader", config, video_reader );
   kva::video_input::get_nested_algo_configuration(
@@ -167,10 +174,13 @@ dump_klv
     "metadata_serializer", config, metadata_serializer_ptr );
   kva::metadata_map_io::get_nested_algo_configuration(
     "metadata_serializer", config, metadata_serializer_ptr );
-  kva::image_io::set_nested_algo_configuration(
-    "image_writer", config, image_writer );
-  kva::image_io::get_nested_algo_configuration(
-    "image_writer", config, image_writer );
+  if( cmd_args.count( "frames" ) )
+  {
+    kva::image_io::set_nested_algo_configuration(
+      "image_writer", config, image_writer );
+    kva::image_io::get_nested_algo_configuration(
+      "image_writer", config, image_writer );
+  }
 
   // Check to see if we are to dump config
   if ( cmd_args.count("output") )
@@ -203,7 +213,8 @@ dump_klv
     return EXIT_FAILURE;
   }
 
-  if( !kva::image_io::check_nested_algo_configuration(
+  if( cmd_args.count( "frames" ) &&
+      !kva::image_io::check_nested_algo_configuration(
          "image_writer", config ) )
   {
     std::cerr << "Invalid image_writer config" << std::endl;
@@ -217,25 +228,15 @@ dump_klv
   }
   catch ( kv::video_exception const& e )
   {
-    std::cerr << "Video Exception-Couldn't open \"" << video_file << "\"" << std::endl
-              << e.what() << std::endl;
+    std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
   }
   catch ( kv::file_not_found_exception const& e )
   {
-    std::cerr << "Couldn't open \"" << video_file << "\"" << std::endl
-              << e.what() << std::endl;
+    std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
   }
 
-  auto const& caps = video_reader->get_implementation_capabilities();
-  if ( !caps.capability( kva::video_input::HAS_METADATA ) )
-  {
-    std::cerr << "No metadata stream found in " << video_file << '\n';
-    return EXIT_FAILURE;
-  }
-
-  int count(1);
   kv::timestamp ts;
   kv::wrap_text_block wtb;
   kv::metadata_map::map_metadata_t frame_metadata;
@@ -252,8 +253,11 @@ dump_klv
   {
     if ( !quiet )
     {
-      std::cout << "========== Read frame " << ts.get_frame()
-                << " (index " << count << ") ==========" << std::endl;
+      std::cout
+        << "Frame # " << std::setw( 6 ) << std::setfill( ' ' ) << ts.get_frame()
+        << " @ " << std::fixed << std::setprecision( 6 )
+        << ts.get_time_seconds() << " sec" << std::endl
+        << std::string( 64, '-' ) << std::endl;
     }
 
     kv::metadata_vector metadata = video_reader->frame_metadata();
@@ -264,36 +268,41 @@ dump_klv
       frame_metadata.insert( { ts.get_frame(), metadata } );
     }
 
-    if ( !quiet )
+    if( !quiet )
     {
-      for ( auto const& meta : metadata )
+      size_t packet_count = 1;
+      for( auto const& meta : metadata )
       {
-        std::cout << "\n\n---------------- Metadata from: "
-                  << meta->timestamp() << std::endl;
+        std::cout
+          << "Metadata packet #" << packet_count << std::endl
+          << std::string( 32, '-' ) << std::endl;
 
-        if ( detail )
+        if( detail )
         {
-          for ( auto const& ix : *meta )
+          for( auto const& entry : *meta )
           {
-            // process metada items
-            auto const& name = ix.second->name();
-            auto const& tag = ix.second->tag();
-            auto const& descrip = kv::tag_traits_by_tag( tag ).description();
+            auto const description =
+              kv::tag_traits_by_tag( entry.first ).description();
+            auto const value_string =
+              kv::metadata::format_string( entry.second->as_string() );
 
             std::cout
-                << "Metadata item: " << name << std::endl
-                << wtb.wrap_text( descrip )
-                << "Data: <" << ix.second->type().name() << ">: "
-                << kv::metadata::format_string(ix.second->as_string())
-                << std::endl;
+              << entry.second->name() << std::endl
+              << wtb.wrap_text( description )
+              << "Type:  " << entry.second->type_name() << std::endl
+              << "Value: " << value_string << std::endl << std::endl;
           }
         }
         else
         {
           print_metadata( std::cout, *meta );
         }
-      } // end for over metadata collection vector
-    } // The end of not quiet
+        std::cout << std::endl;
+        ++packet_count;
+      }
+
+      std::cout << std::endl;
+    }
 
     if( cmd_args.count( "frames" ) )
     {
@@ -321,9 +330,7 @@ dump_klv
         task();
       }
     }
-
-    ++count;
-  } // end while over video
+  }
 
   if ( log )
   {

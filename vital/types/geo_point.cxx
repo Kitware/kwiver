@@ -99,7 +99,6 @@ void geo_point
 std::ostream&
 operator<<( std::ostream& str, vital::geo_point const& obj )
 {
-  str << "geo_point\n";
   if ( obj.is_empty() )
   {
     str << "[ empty ]";

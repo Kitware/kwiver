@@ -79,7 +79,7 @@ TEST ( apply_child_klv, empty_klv )
   apply_child_klv filter;
   auto const klv_md = std::make_shared< klv_metadata >();
   kv::metadata_vector input{ klv_md };
-  klv_md->set_klv( {} );
+  klv_md->klv().clear();
   klv_md->add< kv::VITAL_META_UNIX_TIMESTAMP >( 42 );
   auto const output = filter.filter( input, nullptr );
   ASSERT_EQ( 1, output.size() );
@@ -98,10 +98,10 @@ TEST ( apply_child_klv, no_children )
   apply_child_klv filter;
   auto const klv_md = std::make_shared< klv_metadata >();
   kv::metadata_vector input{ klv_md };
-  klv_md->set_klv( {
+  klv_md->klv() = {
     { klv_0601_key(), klv_local_set{
       { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 42 } },
-      { KLV_0601_VERSION_NUMBER, uint64_t{ 17 } } } } } );
+      { KLV_0601_VERSION_NUMBER, uint64_t{ 17 } } } } };
   klv_md->add< kv::VITAL_META_UNIX_TIMESTAMP >( 42 );
 
   auto const output = filter.filter( input, nullptr );
@@ -126,7 +126,7 @@ TEST ( apply_child_klv, amend_only )
   auto const klv_md = std::make_shared< klv_metadata >();
   kv::metadata_vector input{ klv_md };
 
-  klv_md->set_klv( {
+  klv_md->klv() = {
     { klv_0601_key(), klv_local_set{
       { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 42 } },
       { KLV_0601_PLATFORM_DESIGNATION, std::string{ "PLATFORM" } },
@@ -136,7 +136,7 @@ TEST ( apply_child_klv, amend_only )
         { KLV_0601_MISSION_ID, std::string{ "ID" } },
         { KLV_0601_AMEND_LOCAL_SET, klv_local_set{
           { KLV_0601_MISSION_ID, std::string{ "BETTER_ID" } },
-          { KLV_0601_PLATFORM_DESIGNATION, {} } } } } } } } } );
+          { KLV_0601_PLATFORM_DESIGNATION, {} } } } } } } } };
   klv_md->add< kv::VITAL_META_UNIX_TIMESTAMP >( 42 );
 
   auto const output = filter.filter( input, nullptr );
@@ -147,8 +147,6 @@ TEST ( apply_child_klv, amend_only )
   ASSERT_EQ( 1, output_klv->klv().size() );
   EXPECT_EQ(
     42, output_klv->find( kv::VITAL_META_UNIX_TIMESTAMP ).as_uint64() );
-  auto const& output_set =
-    output_klv->klv().at( 0 ).value.get< klv_local_set >();
 
   std::vector< klv_packet > expected_klv = {
     { klv_0601_key(), klv_local_set{
@@ -171,7 +169,7 @@ TEST ( apply_child_klv, sibling_amend )
   auto const klv_md = std::make_shared< klv_metadata >();
   kv::metadata_vector input{ klv_md };
 
-  klv_md->set_klv( {
+  klv_md->klv() = {
     { klv_0601_key(), klv_local_set{
       { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 42 } },
       { KLV_0601_MISSION_ID, std::string{ "ID" } },
@@ -179,7 +177,7 @@ TEST ( apply_child_klv, sibling_amend )
       { KLV_0601_AMEND_LOCAL_SET, klv_local_set{
         { KLV_0601_MISSION_ID, std::string{ "ID_1" } } } },
       { KLV_0601_AMEND_LOCAL_SET, klv_local_set{
-        { KLV_0601_MISSION_ID, std::string{ "ID_2" } } } } } } } );
+        { KLV_0601_MISSION_ID, std::string{ "ID_2" } } } } } } };
   klv_md->add< kv::VITAL_META_UNIX_TIMESTAMP >( 42 );
 
   auto const output = filter.filter( input, nullptr );
@@ -200,7 +198,7 @@ TEST ( apply_child_klv, segment_only )
   auto const klv_md = std::make_shared< klv_metadata >();
   kv::metadata_vector input{ klv_md };
 
-  klv_md->set_klv( {
+  klv_md->klv() = {
     { klv_0601_key(), klv_local_set{
       { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 42 } },
       { KLV_0601_PLATFORM_DESIGNATION, std::string{ "PLATFORM" } },
@@ -227,7 +225,7 @@ TEST ( apply_child_klv, segment_only )
     { klv_0601_key(), klv_local_set{
       { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 42 } },
       { KLV_0601_PLATFORM_DESIGNATION, std::string{ "PLATFORM3" } },
-      { KLV_0601_VERSION_NUMBER, uint64_t{ 17 } } } } } );
+      { KLV_0601_VERSION_NUMBER, uint64_t{ 17 } } } } };
   klv_md->add< kv::VITAL_META_UNIX_TIMESTAMP >( 42 );
 
   auto const output = filter.filter( input, nullptr );
@@ -282,7 +280,7 @@ TEST ( apply_child_klv, mixed_children )
   auto const klv_md = std::make_shared< klv_metadata >();
   kv::metadata_vector input{ klv_md };
 
-  klv_md->set_klv( {
+  klv_md->klv() = {
     { klv_0601_key(), klv_local_set{
       { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 42 } },
       { KLV_0601_PLATFORM_DESIGNATION, std::string{ "PLATFORM" } },
@@ -296,7 +294,7 @@ TEST ( apply_child_klv, mixed_children )
         { KLV_0601_PLATFORM_DESIGNATION, std::string{ "PLATFORM_ALT" } },
         { KLV_0601_MISSION_ID, std::string{ "ID_1" } } } },
       { KLV_0601_SEGMENT_LOCAL_SET, klv_local_set{
-        { KLV_0601_MISSION_ID, std::string{ "ID_2" } } } } } } } );
+        { KLV_0601_MISSION_ID, std::string{ "ID_2" } } } } } } };
   klv_md->add< kv::VITAL_META_UNIX_TIMESTAMP >( 42 );
 
   auto const output = filter.filter( input, nullptr );

@@ -12,7 +12,7 @@
 #ifndef COMPUTE_DEPTH_TXX
 #define COMPUTE_DEPTH_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/compute_depth.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_cd_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
           kwiver::vital::algo::compute_depth>,
@@ -58,7 +58,7 @@ class compute_depth_trampoline :
               std::vector<kwiver::vital::image_container_sptr> const& mask )
          const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::compute_depth,
         compute,
@@ -82,7 +82,7 @@ class compute_depth_trampoline :
               std::vector<kwiver::vital::image_container_sptr> const& mask )
          const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::compute_depth,
         compute,

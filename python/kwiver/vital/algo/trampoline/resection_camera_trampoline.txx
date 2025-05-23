@@ -10,7 +10,7 @@
 #ifndef RESECTION_CAMERA_TRAMPOLINE_TXX
 #define RESECTION_CAMERA_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/resection_camera.h>
 #include <vital/types/vector.h>
@@ -30,7 +30,7 @@ class algorithm_def_resection_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
           kwiver::vital::algo::resection_camera >,
@@ -55,7 +55,7 @@ class resection_camera_trampoline :
                  std::vector<bool>* inliers
                ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::camera_perspective_sptr,
         kwiver::vital::algo::resection_camera,
         resection,
@@ -74,7 +74,7 @@ class resection_camera_trampoline :
                  std::unordered_set<landmark_id_t>* inliers
                ) const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         kwiver::vital::camera_perspective_sptr,
         kwiver::vital::algo::resection_camera,
         resection,
@@ -94,7 +94,7 @@ class resection_camera_trampoline :
                  std::unordered_set<landmark_id_t>* inliers
                ) const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         kwiver::vital::camera_perspective_sptr,
         kwiver::vital::algo::resection_camera,
         resection,

@@ -142,7 +142,7 @@ public:
   klv_1108_metric_period_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
   klv_1108_metric_period_pack
   read_typed( klv_read_iter_t& data, size_t length ) const override;
@@ -150,6 +150,9 @@ public:
   void
   write_typed( klv_1108_metric_period_pack const& value,
                klv_write_iter_t& data, size_t length ) const override;
+
+  size_t
+  length_of_typed( klv_1108_metric_period_pack const& value ) const override;
 };
 
 // ----------------------------------------------------------------------------
@@ -176,7 +179,7 @@ public:
   klv_1108_window_corners_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_1108_window_corners_pack
@@ -198,10 +201,10 @@ public:
   klv_1108_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
   klv_checksum_packet_format const*
-  checksum_format() const override;
+  packet_checksum_format() const override;
 
 private:
   klv_crc_16_ccitt_packet_format m_checksum_format;

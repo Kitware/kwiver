@@ -13,7 +13,7 @@
 
 #include <tuple>
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <vital/algo/detected_object_set_input.h>
 #include <vital/types/detected_object_set.h>
 #include <vital/types/image_container.h>
@@ -34,7 +34,7 @@ class algorithm_def_dosi_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<dosi>,
         type_name,
@@ -53,41 +53,41 @@ class detected_object_set_input_trampoline :
 
     bool read_set(kwiver::vital::detected_object_set_sptr& set, std::string& image_path) override
     {
-      kwiver::vital::python::gil_scoped_acquire gil;
+      pybind11::gil_scoped_acquire gil;
       if (image_path.empty()) {
-	pybind11::function overload = pybind11::get_overload(static_cast<dosi const*>(this), "read_set");
-	if (overload) {
-	  auto o = overload();
-	  if (pybind11::isinstance<pybind11::none>(o)) {
-	    return false;
-	  }
-	  std::tie(set, image_path) = o.cast<std::tuple<kwiver::vital::detected_object_set_sptr, std::string>>();
-	  return true;
-	}
+	      pybind11::function overload = pybind11::get_overload(static_cast<dosi const*>(this), "read_set");
+	      if (overload) {
+	        auto o = overload();
+	        if (pybind11::isinstance<pybind11::none>(o)) {
+	          return false;
+	        }
+	        std::tie(set, image_path) = o.cast<std::tuple<kwiver::vital::detected_object_set_sptr, std::string>>();
+	        return true;
+	      }
       } else {
-	pybind11::function overload = pybind11::get_overload(static_cast<dosi const*>(this), "read_set_by_path");
-	if (overload) {
-	  auto o = overload(image_path);
-	  set = o.cast<kwiver::vital::detected_object_set_sptr>();
-	  return true;
-	}
+        pybind11::function overload = pybind11::get_overload(static_cast<dosi const*>(this), "read_set_by_path");
+	      if (overload) {
+	        auto o = overload(image_path);
+	        set = o.cast<kwiver::vital::detected_object_set_sptr>();
+	        return true;
+	      }
       }
       pybind11::pybind11_fail("Tried to call pure virtual function \"dosi::read_set\"");
     }
 
     void open(std::string const& filename) override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         dosi,
         open,
-	filename
+        filename
       );
     }
 
     void close() override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         dosi,
         close,

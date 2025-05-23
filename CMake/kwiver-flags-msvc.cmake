@@ -10,6 +10,7 @@ endif()
 
 kwiver_check_compiler_flag(/W3)
 kwiver_check_compiler_flag(/MP)
+kwiver_check_compiler_flag(/utf-8)
 
 # Disable deprication warnings for standard C and STL functions in VS2005 and
 # later.

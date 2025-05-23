@@ -12,7 +12,7 @@
 #ifndef DETECT_DETECTED_OBJECT_SET_TRAMPOLINE_TXX
 #define DETECT_DETECTED_OBJECT_SET_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/draw_detected_object_set.h>
 
@@ -29,7 +29,7 @@ class algorithm_def_ddos_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::draw_detected_object_set>,
         type_name,
@@ -49,7 +49,7 @@ class draw_detected_object_set_trampoline :
     draw( kwiver::vital::detected_object_set_sptr detected_set,
            kwiver::vital::image_container_sptr image_data ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::draw_detected_object_set,
         draw,

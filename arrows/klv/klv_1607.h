@@ -41,7 +41,7 @@ public:
   klv_1607_child_set_format( klv_tag_traits_lookup const& traits );
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   void

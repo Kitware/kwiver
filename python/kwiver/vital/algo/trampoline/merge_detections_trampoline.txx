@@ -12,7 +12,7 @@
 #ifndef MERGE_DETECTIONS_TRAMPOLINE_TXX
 #define MERGE_DETECTIONS_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 
 #include <vital/algo/merge_detections.h>
@@ -32,7 +32,7 @@ class algorithm_def_md_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::merge_detections>,
         type_name,
@@ -52,7 +52,7 @@ class merge_detections_trampoline :
     kwiver::vital::detected_object_set_sptr
     merge( std::vector<kwiver::vital::detected_object_set_sptr> const& sets ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::detected_object_set_sptr,
         kwiver::vital::algo::merge_detections,
         merge,

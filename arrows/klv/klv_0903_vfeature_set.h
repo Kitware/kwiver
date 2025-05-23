@@ -25,8 +25,10 @@ namespace klv {
 enum klv_0903_vfeature_set_tag : klv_lds_key
 {
   KLV_0903_VFEATURE_UNKNOWN        = 0,
-  KLV_0903_VFEATURE_SCHEMA         = 1,
-  KLV_0903_VFEATURE_SCHEMA_FEATURE = 2,
+  KLV_0903_VFEATURE_SCHEMA         = 1, // Deprecated
+  KLV_0903_VFEATURE_SCHEMA_FEATURE = 2, // Deprecated
+  KLV_0903_VFEATURE_ONTOLOGY_ID    = 3,
+  KLV_0903_VFEATURE_CONFIDENCE     = 4,
 };
 
 // ----------------------------------------------------------------------------
@@ -48,7 +50,7 @@ public:
   klv_0903_vfeature_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 } // namespace klv

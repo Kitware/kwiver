@@ -5,9 +5,10 @@
 /// \file
 /// Implementation of the KLV 0806 POI Set parser.
 
-#include "klv_0806_poi_set.h"
+#include <arrows/klv/klv_0806_poi_set.h>
 
-#include "klv_0806.h"
+#include <arrows/klv/klv_0806.h>
+#include <arrows/klv/klv_string.h>
 
 namespace kwiver {
 
@@ -61,31 +62,35 @@ klv_0806_poi_set_traits_lookup()
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101031B000000 },
       ENUM_AND_NAME( KLV_0806_POI_SET_TEXT ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(
+        klv_length_constraints{ 0, 2048 } ),
       "POI Text",
       "User-defined string.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101031C000000 },
       ENUM_AND_NAME( KLV_0806_POI_SET_SOURCE_ICON ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(
+        klv_length_constraints{ 0, 127 } ),
       "POI Source Icon",
       "Per MIL-STD-2525B. Icon used in FalconView.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101031D000000 },
       ENUM_AND_NAME( KLV_0806_POI_SET_SOURCE_ID ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(
+        klv_length_constraints{ 0, 255 } ),
       "POI Source ID",
       "User-defined string.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E0101031E000000 },
       ENUM_AND_NAME( KLV_0806_POI_SET_LABEL ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >( 16 ),
       "POI Label",
       "User-defined string.",
       { 0, 1 } },
     { { 0x060E2B3401010101, 0x0E01040301000000 },
       ENUM_AND_NAME( KLV_0806_POI_SET_OPERATION_ID ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_ascii_format >(
+        klv_length_constraints{ 0, 127 } ),
       "Operation ID",
       "Identifier for the duration of the supporting mission or event "
       "associated with the point of interest. Distinct from the platform "
@@ -111,9 +116,9 @@ klv_0806_poi_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0806_poi_set_format
-::description() const
+::description_() const
 {
-  return "point-of-interest local set of " + m_length_constraints.description();
+  return "ST0806 Point of Interest LS";
 }
 
 } // namespace klv

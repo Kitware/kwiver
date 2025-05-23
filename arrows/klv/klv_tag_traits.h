@@ -127,6 +127,8 @@ class KWIVER_ALGO_KLV_EXPORT klv_tag_traits_lookup
 public:
   using iterator = typename std::vector< klv_tag_traits >::const_iterator;
 
+  klv_tag_traits_lookup();
+
   /// Create lookup tables for the tag, uds_key, name, and enum name of
   /// \p traits.
   ///
@@ -144,6 +146,11 @@ public:
   /// \copydoc
   /// klv_tag_traits_lookup( std::initializer_list< klv_tag_traits > const& )
   klv_tag_traits_lookup( std::vector< klv_tag_traits > const& traits );
+
+  klv_tag_traits_lookup( klv_tag_traits_lookup const& other );
+
+  klv_tag_traits_lookup&
+  operator=( klv_tag_traits_lookup const& other );
 
   iterator
   begin() const;

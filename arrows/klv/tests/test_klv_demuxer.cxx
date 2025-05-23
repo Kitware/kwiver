@@ -7,8 +7,11 @@
 
 #include <arrows/klv/klv_all.h>
 #include <arrows/klv/klv_demuxer.h>
+#include <arrows/klv/klv_read_write.h>
 
 #include <tests/test_gtest.h>
+
+#include <optional>
 
 namespace kv = kwiver::vital;
 
@@ -207,16 +210,16 @@ TEST ( klv, demuxer_0601_special )
         { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 15 } },
         { KLV_0601_WAVELENGTHS_LIST,
           std::vector< klv_0601_wavelength_record >{
-            { 1, 380.0, 750.0, "VIS" },
-            { 2, 750.0, 100000.0, "IR" } } },
+            { 1, klv_imap{ 380.0 }, klv_imap{ 750.0 }, "VIS" },
+            { 2, klv_imap{ 750.0 }, klv_imap{ 100000.0 }, "IR" } } },
         { KLV_0601_PAYLOAD_LIST,
           std::vector< klv_0601_payload_record >{
             { 0, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "VIS Nose Camera" },
             { 1, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "ACME VIS" } } },
         { KLV_0601_WAYPOINT_LIST,
           std::vector< klv_0601_waypoint_record >{
-            { 0, 1, kv::nullopt, kv::nullopt },
-            { 1, 2, kv::nullopt, kv::nullopt } } },
+            { 0, 1, std::nullopt, std::nullopt },
+            { 1, 2, std::nullopt, std::nullopt } } },
         { KLV_0601_WEAPON_FIRED, uint64_t{ 0xBA } },
         { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
           std::vector< uint64_t >{ 0 } },
@@ -235,13 +238,13 @@ TEST ( klv, demuxer_0601_special )
         { KLV_0601_SDCC_FLP,
           klv_1010_sdcc_flp{
             { KLV_0601_SENSOR_LATITUDE, KLV_0601_SENSOR_LONGITUDE },
-            { 1.0, 2.0 },
+            { klv_imap{ 1.0 }, klv_imap{ 2.0 } },
             {} } },
         { KLV_0601_SDCC_FLP,
           klv_1010_sdcc_flp{
             { KLV_0601_ALTERNATE_PLATFORM_LATITUDE,
               KLV_0601_ALTERNATE_PLATFORM_LONGITUDE },
-            { 2.0, 3.0 },
+            { klv_imap{ 2.0 }, klv_imap{ 3.0 } },
             {} } },
         { KLV_0601_CONTROL_COMMAND,
           klv_0601_control_command{ 0, "CMD0", 12 } },
@@ -252,9 +255,9 @@ TEST ( klv, demuxer_0601_special )
         { KLV_0601_PRECISION_TIMESTAMP, uint64_t{ 30 } },
         { KLV_0601_WAVELENGTHS_LIST,
           std::vector< klv_0601_wavelength_record >{
-            { 1, 380.0, 750.0, "VIS" },
-            { 3, 380.0, 750.0, "VIS2" },
-            { 4, 750.0, 100000.0, "IR2" } } },
+            { 1, klv_imap{ 380.0 }, klv_imap{ 750.0 }, "VIS" },
+            { 3, klv_imap{ 380.0 }, klv_imap{ 750.0 }, "VIS2" },
+            { 4, klv_imap{ 750.0 }, klv_imap{ 100000.0 }, "IR2" } } },
         { KLV_0601_PAYLOAD_LIST,
           std::vector< klv_0601_payload_record >{
             { 0, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "VIS Nose Camera" },
@@ -262,16 +265,16 @@ TEST ( klv, demuxer_0601_special )
             { 3, KLV_0601_PAYLOAD_TYPE_ELECTRO_OPTICAL, "ACME VIS 2" } } },
         { KLV_0601_WAYPOINT_LIST,
           std::vector< klv_0601_waypoint_record >{
-            { 0, 1, kv::nullopt, kv::nullopt },
-            { 2, 3, kv::nullopt, kv::nullopt },
-            { 3, 4, kv::nullopt, kv::nullopt } } },
+            { 0, 1, std::nullopt, std::nullopt },
+            { 2, 3, std::nullopt, std::nullopt },
+            { 3, 4, std::nullopt, std::nullopt } } },
         { KLV_0601_CONTROL_COMMAND_VERIFICATION_LIST,
           std::vector< uint64_t >{ 1 } },
         { KLV_0601_SDCC_FLP,
           klv_1010_sdcc_flp{
             { KLV_0601_ALTERNATE_PLATFORM_LATITUDE,
               KLV_0601_ALTERNATE_PLATFORM_LONGITUDE },
-            { 12.0, 13.0 },
+            { klv_imap{ 12.0 }, klv_imap{ 13.0 } },
             {} } },
         { KLV_0601_CONTROL_COMMAND,
           klv_0601_control_command{ 1, "CMD1", 13 } } } } };
@@ -365,18 +368,26 @@ TEST ( klv, demuxer_0601_special )
     auto const tag = KLV_0601_SDCC_FLP;
     auto const slice1 = timeline.all_at( standard, tag, 15 );
     ASSERT_EQ( 2, slice1.size() );
-    EXPECT_EQ( std::vector< double >( { 1.0, 2.0 } ),
+    EXPECT_EQ( std::vector< klv_imap >( {
+                 klv_imap{ 1.0 },
+                 klv_imap{ 2.0 } } ),
                slice1.at( 0 ).get< klv_1010_sdcc_flp >().sigma );
-    EXPECT_EQ( std::vector< double >( { 2.0, 3.0 } ),
+    EXPECT_EQ( std::vector< klv_imap >( {
+                 klv_imap{ 2.0 },
+                 klv_imap{ 3.0 } } ),
                slice1.at( 1 ).get< klv_1010_sdcc_flp >().sigma );
     EXPECT_EQ( 2, timeline.all_at( standard, tag, 16 ).size() );
     ASSERT_EQ( 2, timeline.all_at( standard, tag, 30 ).size() );
 
     auto const slice2 = timeline.all_at( standard, tag, 30 );
     ASSERT_EQ( 2, slice2.size() );
-    EXPECT_EQ( std::vector< double >( { 1.0, 2.0 } ),
+    EXPECT_EQ( std::vector< klv_imap >( {
+                 klv_imap{ 1.0 },
+                 klv_imap{ 2.0 } } ),
                slice2.at( 0 ).get< klv_1010_sdcc_flp >().sigma );
-    EXPECT_EQ( std::vector< double >( { 12.0, 13.0 } ),
+    EXPECT_EQ( std::vector< klv_imap >( {
+                 klv_imap{ 12.0 },
+                 klv_imap{ 13.0 } } ),
                slice2.at( 1 ).get< klv_1010_sdcc_flp >().sigma );
     EXPECT_EQ( 2, timeline.all_at( standard, tag, 31 ).size() );
   }

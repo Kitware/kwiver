@@ -76,9 +76,9 @@ klv_0903_fpa_index_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_fpa_index_format
-::description() const
+::description_() const
 {
-  return "fpa index pack of " + m_length_constraints.description();
+  return "ST0903 FPA Index Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -129,9 +129,9 @@ klv_0903_vtarget_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vtarget_pack_format
-::description() const
+::description_() const
 {
-  return "vtarget pack of " + m_length_constraints.description();
+  return "ST0903 VTarget Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -143,8 +143,7 @@ klv_0903_vtarget_pack_format
   klv_0903_vtarget_pack result;
   result.id = klv_read_ber_oid< size_t >( data, tracker.remaining() );
   result.set =
-    klv_0903_vtarget_local_set_format()
-    .read( data, tracker.remaining() ).get< klv_local_set >();
+    klv_0903_vtarget_local_set_format().read( data, tracker.remaining() );
   return result;
 }
 
@@ -182,25 +181,26 @@ klv_0903_vtarget_pack_traits_lookup()
       0 },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_CENTROID ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 6 } ),
       "Target Centroid",
       "Index of the centroid pixel. Uses the equation (row - 1) * width + "
       "column, where row and column are 1-indexed.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_TOP_LEFT ),
-      std::make_shared< klv_uint_format >(),
-      "Boundary Top Left",
+      ENUM_AND_NAME( KLV_0903_VTARGET_BBOX_TOP_LEFT_PIXEL ),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 6 } ),
+      "Bounding Box Top Left Pixel",
       "Index of the top-left corner pixel of the target bounding box. Uses "
       "the equation (row - 1) * width + column, where row and column are "
       "1-indexed.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT ),
-      std::make_shared< klv_uint_format >(),
-      "Boundary Bottom Right",
+      ENUM_AND_NAME( KLV_0903_VTARGET_BBOX_BOTTOM_RIGHT_PIXEL ),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 6 } ),
+      "Bounding Box Bottom Right Pixel",
       "Index of the bottom-right corner pixel of the target bounding box. "
-      "Uses the equation (row - 1) * width + column, where row and column are 1-indexed.",
+      "Uses the equation (row - 1) * width + column, where row and column are "
+      "1-indexed.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_PRIORITY ),
@@ -217,7 +217,7 @@ klv_0903_vtarget_pack_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_HISTORY ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 2 } ),
       "Target History",
       "Number of times a target has previously been detected.",
       { 0, 1 } },
@@ -236,7 +236,7 @@ klv_0903_vtarget_pack_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_INTENSITY ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Target Intensity",
       "Dominant intensity of the target, expressed as a single integer using "
       "up to 24 bits.",
@@ -244,7 +244,7 @@ klv_0903_vtarget_pack_traits_lookup()
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_LOCATION_OFFSET_LATITUDE ),
       std::make_shared< klv_imap_format >(
-        vital::interval< double >{ -19.2, 19.2 } ),
+        vital::interval< double >{ -19.2, 19.2 }, 3 ),
       "Target Location Offset Latitude",
       "Latitude offset for target from Frame Center Latitude, based on WGS84 "
       "ellipsoid.",
@@ -252,7 +252,7 @@ klv_0903_vtarget_pack_traits_lookup()
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_LOCATION_OFFSET_LONGITUDE ),
       std::make_shared< klv_imap_format >(
-        vital::interval< double >{ -19.2, 19.2 } ),
+        vital::interval< double >{ -19.2, 19.2 }, 3 ),
       "Target Location Offset Longitude",
       "Longitude offset for target from Frame Center Longitude, based on "
       "WGS84 ellipsoid.",
@@ -260,39 +260,39 @@ klv_0903_vtarget_pack_traits_lookup()
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_LOCATION_ELLIPSOID_HEIGHT ),
       std::make_shared< klv_imap_format >(
-        vital::interval< double >{ -900.0, 19000.0 } ),
+        vital::interval< double >{ -900.0, 19000.0 }, 2 ),
       "Target Height Above Ellipsoid",
       "Height of the target in meters above the WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_TOP_LEFT_LATITUDE_OFFSET ),
+      ENUM_AND_NAME( KLV_0903_VTARGET_BBOX_TOP_LEFT_LATITUDE_OFFSET ),
       std::make_shared< klv_imap_format >(
-        vital::interval< double >{ -19.2, 19.2 } ),
-      "Boundary Top Left Latitude Offset",
+        vital::interval< double >{ -19.2, 19.2 }, 3 ),
+      "Bounding Box Top Left Latitude Offset",
       "Latitude offset for the top left corner of the bounding box from Frame "
       "Center Latitude, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_TOP_LEFT_LONGITUDE_OFFSET ),
+      ENUM_AND_NAME( KLV_0903_VTARGET_BBOX_TOP_LEFT_LONGITUDE_OFFSET ),
       std::make_shared< klv_imap_format >(
-        vital::interval< double >{ -19.2, 19.2 } ),
-      "Boundary Top Left Longitude Offset",
+        vital::interval< double >{ -19.2, 19.2 }, 3 ),
+      "Bounding Box Top Left Longitude Offset",
       "Longitude offset for the top left corner of the bounding box from Frame "
       "Center Longitude, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT_LATITUDE_OFFSET ),
+      ENUM_AND_NAME( KLV_0903_VTARGET_BBOX_BOTTOM_RIGHT_LATITUDE_OFFSET ),
       std::make_shared< klv_imap_format >(
-        vital::interval< double >{ -19.2, 19.2 } ),
-      "Boundary Bottom Right Latitude Offset",
+        vital::interval< double >{ -19.2, 19.2 }, 3 ),
+      "Bounding Box Bottom Right Latitude Offset",
       "Latitude offset for the bottom right corner of the bounding box from "
       "Frame Center Latitude, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_BOTTOM_RIGHT_LONGITUDE_OFFSET ),
+      ENUM_AND_NAME( KLV_0903_VTARGET_BBOX_BOTTOM_RIGHT_LONGITUDE_OFFSET ),
       std::make_shared< klv_imap_format >(
-        vital::interval< double >{ -19.2, 19.2 } ),
-      "Boundary Bottom Right Longitude Offset",
+        vital::interval< double >{ -19.2, 19.2 }, 3 ),
+      "Bounding Box Bottom Right Longitude Offset",
       "Longitude offset for the bottom right corner of the bounding box from "
       "Frame Center Longitude, based on WGS84 ellipsoid.",
       { 0, 1 } },
@@ -303,21 +303,21 @@ klv_0903_vtarget_pack_traits_lookup()
       "Geographical position of target, based on WGS84 ellipsoid.",
       { 0, 1 } },
     { {},
-      ENUM_AND_NAME( KLV_0903_VTARGET_BOUNDARY_SERIES ),
+      ENUM_AND_NAME( KLV_0903_VTARGET_GEOSPATIAL_CONTOUR_SERIES ),
       std::make_shared< klv_0903_location_series_format >(),
-      "Target Boundary Series",
+      "Geospatial Contour Series",
       "An arbitrary number of geospatial vertices defining the boundary "
-      "around an area or volume of interest",
+      "around an area or volume of interest.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_CENTROID_ROW ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 4 } ),
       "Centroid Pixel Row",
       "Row of the target centroid pixel, with 1 being the topmost row.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_CENTROID_COLUMN ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 4 } ),
       "Centroid Pixel Column",
       "Column of the target centroid pixel, with 1 being the leftmost column.",
       { 0, 1 } },
@@ -326,12 +326,18 @@ klv_0903_vtarget_pack_traits_lookup()
       std::make_shared< klv_0903_fpa_index_format >(),
       "FPA Index Pack",
       "Index of Focal Plane Array in which detection of the target occurs.",
-      { 0, 1 } },
+      0 },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_ALGORITHM_ID ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Algorithm ID",
       "Id number of algorithm used to detect the target.",
+      { 0, 1 } },
+    { {},
+      ENUM_AND_NAME( KLV_0903_VTARGET_DETECTION_STATUS ),
+      std::make_shared< klv_0903_detection_status_format >(),
+      "Detection Status",
+      "Current status of VMTI detections for a given entity.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_VMASK ),
@@ -345,7 +351,7 @@ klv_0903_vtarget_pack_traits_lookup()
       std::make_shared< klv_0903_vobject_local_set_format >(),
       "Target Object",
       "Class or type of the target to an arbitrary level of detail.",
-      { 0, 1 },
+      0,
       &klv_0903_vobject_set_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_VFEATURE ),
@@ -353,7 +359,7 @@ klv_0903_vtarget_pack_traits_lookup()
       "Target Features",
       "Data which describes the target or features of the target, in varying "
       "forms.",
-      { 0, 1 },
+      0,
       &klv_0903_vfeature_set_traits_lookup() },
     { {},
       ENUM_AND_NAME( KLV_0903_VTARGET_VTRACKER ),
@@ -396,9 +402,9 @@ klv_0903_vtarget_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vtarget_local_set_format
-::description() const
+::description_() const
 {
-  return "vtarget local set of " + m_length_constraints.description();
+  return "ST0903 VTarget LS";
 }
 
 } // namespace klv

@@ -8,6 +8,7 @@
 #include "data_format.h"
 
 #include <arrows/klv/klv_1107.h>
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_packet.h>
 
 // ----------------------------------------------------------------------------
@@ -30,27 +31,27 @@ test_read_write( klv_value const& expected_result,
 // ----------------------------------------------------------------------------
 using kld = klv_lengthy< double >;
 auto const expected_result = klv_local_set{
-  { KLV_1107_SENSOR_ECEF_POSITION_X,               kld{ -831506944.0 } },
-  { KLV_1107_SENSOR_ECEF_POSITION_Y,               kld{ -831441408.0 } },
-  { KLV_1107_SENSOR_ECEF_POSITION_Z,               kld{ -831375872.0 } },
-  { KLV_1107_SENSOR_ECEF_VELOCITY_X,               kld{ -19858.0 } },
-  { KLV_1107_SENSOR_ECEF_VELOCITY_Y,               kld{ -19856.0 } },
-  { KLV_1107_SENSOR_ECEF_VELOCITY_Z,               kld{ -19854.0 } },
-  { KLV_1107_SENSOR_ABSOLUTE_AZIMUTH,              kld{ 1.03125 } },
-  { KLV_1107_SENSOR_ABSOLUTE_PITCH,                kld{ 0.03125 } },
-  { KLV_1107_SENSOR_ABSOLUTE_ROLL,                 kld{ 0.03125 } },
-  { KLV_1107_SENSOR_ABSOLUTE_AZIMUTH_RATE,         kld{ 0.046875 } },
-  { KLV_1107_SENSOR_ABSOLUTE_PITCH_RATE,           kld{ 0.046875 } },
-  { KLV_1107_SENSOR_ABSOLUTE_ROLL_RATE,            kld{ 0.046875 } },
-  { KLV_1107_BORESIGHT_OFFSET_DELTA_X,             kld{ 244 } },
-  { KLV_1107_BORESIGHT_OFFSET_DELTA_Y,             kld{ 252 } },
-  { KLV_1107_BORESIGHT_OFFSET_DELTA_Z,             kld{ 260 } },
-  { KLV_1107_BORESIGHT_DELTA_ANGLE_1,              kld{ 0.1875 } },
-  { KLV_1107_BORESIGHT_DELTA_ANGLE_2,              kld{ 0.19140625 } },
-  { KLV_1107_BORESIGHT_DELTA_ANGLE_3,              kld{ 0.1953125 } },
-  { KLV_1107_FOCAL_PLANE_PRINCIPAL_POINT_OFFSET_Y, kld{ -1.0 } },
-  { KLV_1107_FOCAL_PLANE_PRINCIPAL_POINT_OFFSET_X, kld{ -0.5 } },
-  { KLV_1107_EFFECTIVE_FOCAL_LENGTH,               kld{ 4096.0 } },
+  { KLV_1107_SENSOR_ECEF_POSITION_X,               kli( -831506944.0 ) },
+  { KLV_1107_SENSOR_ECEF_POSITION_Y,               kli( -831441408.0 ) },
+  { KLV_1107_SENSOR_ECEF_POSITION_Z,               kli( -831375872.0 ) },
+  { KLV_1107_SENSOR_ECEF_VELOCITY_X,               kli( -19858.0 ) },
+  { KLV_1107_SENSOR_ECEF_VELOCITY_Y,               kli( -19856.0 ) },
+  { KLV_1107_SENSOR_ECEF_VELOCITY_Z,               kli( -19854.0 ) },
+  { KLV_1107_SENSOR_ABSOLUTE_AZIMUTH,              kli( 1.03125 ) },
+  { KLV_1107_SENSOR_ABSOLUTE_PITCH,                kli( 0.03125 ) },
+  { KLV_1107_SENSOR_ABSOLUTE_ROLL,                 kli( 0.03125 ) },
+  { KLV_1107_SENSOR_ABSOLUTE_AZIMUTH_RATE,         kli( 0.046875 ) },
+  { KLV_1107_SENSOR_ABSOLUTE_PITCH_RATE,           kli( 0.046875 ) },
+  { KLV_1107_SENSOR_ABSOLUTE_ROLL_RATE,            kli( 0.046875 ) },
+  { KLV_1107_BORESIGHT_OFFSET_DELTA_X,             kli( 244 ) },
+  { KLV_1107_BORESIGHT_OFFSET_DELTA_Y,             kli( 252 ) },
+  { KLV_1107_BORESIGHT_OFFSET_DELTA_Z,             kli( 260 ) },
+  { KLV_1107_BORESIGHT_DELTA_ANGLE_1,              kli( 0.1875 ) },
+  { KLV_1107_BORESIGHT_DELTA_ANGLE_2,              kli( 0.19140625 ) },
+  { KLV_1107_BORESIGHT_DELTA_ANGLE_3,              kli( 0.1953125 ) },
+  { KLV_1107_FOCAL_PLANE_PRINCIPAL_POINT_OFFSET_Y, kli( -1.0 ) },
+  { KLV_1107_FOCAL_PLANE_PRINCIPAL_POINT_OFFSET_X, kli( -0.5 ) },
+  { KLV_1107_EFFECTIVE_FOCAL_LENGTH,               kli( 4096.0 ) },
   { KLV_1107_RADIAL_DISTORTION_CONSTANT,           1.0 },
   { KLV_1107_RADIAL_DISTORTION_PARAMETER_1,        2.0 },
   { KLV_1107_RADIAL_DISTORTION_PARAMETER_2,        3.0 },
@@ -65,8 +66,8 @@ auto const expected_result = klv_local_set{
   { KLV_1107_GENERALIZED_TRANSFORMATION_LOCAL_SET, {} },
   { KLV_1107_IMAGE_ROWS,                           uint64_t{ 720 } },
   { KLV_1107_IMAGE_COLUMNS,                        uint64_t{ 1080 } },
-  { KLV_1107_PIXEL_SIZE_X,                         kld{ 0.0626 } },
-  { KLV_1107_PIXEL_SIZE_Y,                         kld{ 0.09385 } },
+  { KLV_1107_PIXEL_SIZE_X,                         kli( 0.0626 ) },
+  { KLV_1107_PIXEL_SIZE_Y,                         kli( 0.09385 ) },
   { KLV_1107_SLANT_RANGE_PEDIGREE, KLV_1107_SLANT_RANGE_PEDIGREE_MEASURED },
   { KLV_1107_LINE_COORDINATE,                      11.0 },
   { KLV_1107_SAMPLE_COORDINATE,                    12.0 },
@@ -75,7 +76,7 @@ auto const expected_result = klv_local_set{
   { KLV_1107_PRECISION_TIMESTAMP, uint64_t{ 0x0001020304050607 } },
   { KLV_1107_DOCUMENT_VERSION,                     uint64_t{ 4 } },
   { KLV_1107_LEAP_SECONDS,                         int64_t{ 37 } },
-  { KLV_1107_EFFECTIVE_FOCAL_LENGTH_EXTENDED,      kld{ 1024.0 } }
+  { KLV_1107_EFFECTIVE_FOCAL_LENGTH_EXTENDED,      kli( 1024.0 ) }
 };
 
 // ----------------------------------------------------------------------------

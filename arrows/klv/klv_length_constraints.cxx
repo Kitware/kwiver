@@ -24,22 +24,13 @@ klv_length_constraints
 // ----------------------------------------------------------------------------
 klv_length_constraints
 ::klv_length_constraints( size_t fixed_length ) : m_impl{ fixed_length }
-{
-  if( fixed_length == 0 )
-  {
-    throw std::logic_error{ "length constraints cannot include zero" };
-  }
-}
+{}
 
 // ----------------------------------------------------------------------------
 klv_length_constraints
 ::klv_length_constraints( size_t minimum, size_t maximum )
   : m_impl{ vital::interval< size_t >{ minimum, maximum } }
 {
-  if( minimum == 0 || maximum == 0 )
-  {
-    throw std::logic_error{ "length constraints cannot include zero" };
-  }
   if( minimum == maximum )
   {
     throw std::logic_error{ "length constraints cannot exclude all lengths" };
@@ -52,10 +43,6 @@ klv_length_constraints
   : m_impl{ vital::interval< size_t >{ minimum, maximum } },
     m_suggested{ suggested }
 {
-  if( minimum == 0 || maximum == 0 )
-  {
-    throw std::logic_error{ "length constraints cannot include zero" };
-  }
   if( minimum == maximum )
   {
     throw std::logic_error{ "length constraints cannot exclude all lengths" };
@@ -72,10 +59,6 @@ klv_length_constraints
   {
     throw std::logic_error{ "length constraints cannot exclude all lengths" };
   }
-  if( allowed.count( 0 ) )
-  {
-    throw std::logic_error{ "length constraints cannot include zero" };
-  }
 }
 
 // ----------------------------------------------------------------------------
@@ -86,10 +69,6 @@ klv_length_constraints
   if( allowed.empty() )
   {
     throw std::logic_error{ "length constraints cannot exclude all lengths" };
-  }
-  if( allowed.count( 0 ) )
-  {
-    throw std::logic_error{ "length constraints cannot include zero" };
   }
   set_suggested( suggested );
 }
@@ -102,7 +81,7 @@ klv_length_constraints
   struct visitor
   {
     bool
-    operator()( vital::monostate ) const
+    operator()( std::monostate ) const
     {
       return true;
     }
@@ -128,7 +107,7 @@ klv_length_constraints
     size_t length;
   };
 
-  return vital::visit( visitor{ length }, m_impl );
+  return std::visit( visitor{ length }, m_impl );
 }
 
 // ----------------------------------------------------------------------------
@@ -136,22 +115,22 @@ bool
 klv_length_constraints
 ::is_free() const
 {
-  return vital::holds_alternative< vital::monostate >( m_impl );
+  return std::holds_alternative< std::monostate >( m_impl );
 }
 
 // ----------------------------------------------------------------------------
-vital::optional< size_t >
+std::optional< size_t >
 klv_length_constraints
 ::fixed() const
 {
-  auto const result = vital::get_if< size_t >( &m_impl );
+  auto const result = std::get_if< size_t >( &m_impl );
   if( result )
   {
     return *result;
   }
   else
   {
-    return vital::nullopt;
+    return std::nullopt;
   }
 }
 
@@ -160,7 +139,7 @@ size_t
 klv_length_constraints
 ::fixed_or( size_t backup ) const
 {
-  auto const result = vital::get_if< size_t >( &m_impl );
+  auto const result = std::get_if< size_t >( &m_impl );
   if( result )
   {
     return *result;
@@ -172,34 +151,34 @@ klv_length_constraints
 }
 
 // ----------------------------------------------------------------------------
-vital::optional< vital::interval< size_t > >
+std::optional< vital::interval< size_t > >
 klv_length_constraints
 ::interval() const
 {
-  auto const result = vital::get_if< vital::interval< size_t > >( &m_impl );
+  auto const result = std::get_if< vital::interval< size_t > >( &m_impl );
   if( result )
   {
     return *result;
   }
   else
   {
-    return vital::nullopt;
+    return std::nullopt;
   }
 }
 
 // ----------------------------------------------------------------------------
-vital::optional< std::set< size_t > >
+std::optional< std::set< size_t > >
 klv_length_constraints
 ::set() const
 {
-  auto const result = vital::get_if< std::set< size_t > >( &m_impl );
+  auto const result = std::get_if< std::set< size_t > >( &m_impl );
   if( result )
   {
     return *result;
   }
   else
   {
-    return vital::nullopt;
+    return std::nullopt;
   }
 }
 
@@ -216,7 +195,7 @@ klv_length_constraints
   struct visitor
   {
     size_t
-    operator()( vital::monostate ) const
+    operator()( std::monostate ) const
     {
       return 1;
     }
@@ -240,7 +219,7 @@ klv_length_constraints
     }
   };
 
-  return vital::visit( visitor{}, m_impl );
+  return std::visit( visitor{}, m_impl );
 }
 
 // ----------------------------------------------------------------------------
@@ -248,7 +227,7 @@ void
 klv_length_constraints
 ::set_suggested( size_t length )
 {
-  if( length == 0 || !do_allow( length ) )
+  if( !do_allow( length ) )
   {
     throw std::logic_error{
             "suggested length is not permitted by constraints" };
@@ -264,35 +243,37 @@ klv_length_constraints
   struct visitor
   {
     void
-    operator()( vital::monostate ) const
+    operator()( std::monostate ) const
     {
-      os << "unconstrained length";
+      os << "Any";
     }
 
     void
     operator()( size_t fixed_length ) const
     {
-      os << "exactly " << fixed_length << " bytes";
+      os << fixed_length;
     }
 
     void
     operator()( vital::interval< size_t > const& interval ) const
     {
-      os << "between " << interval.lower() << " and " << interval.upper()
-         << " bytes";
+      os << interval.lower() << " to " << interval.upper();
     }
 
     void
     operator()( std::set< size_t > const& set ) const
     {
-      os << "one of these lengths: ";
-      for( auto const& entry : set )
+      for( auto it = set.begin(); it != set.end(); ++it )
       {
-        os << entry;
-        if( &entry != &*set.end() )
+        if( it != set.begin() )
         {
-          os << ", ";
+          os << ( ( set.size() > 2 ) ? ", " : " " );
         }
+        if( std::next( it ) == set.end() )
+        {
+          os << "or ";
+        }
+        os << *it;
       }
     }
 
@@ -300,7 +281,7 @@ klv_length_constraints
   };
 
   std::stringstream ss;
-  vital::visit( visitor{ ss }, m_impl );
+  std::visit( visitor{ ss }, m_impl );
   return ss.str();
 }
 

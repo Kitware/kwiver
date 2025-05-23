@@ -18,19 +18,19 @@ namespace klv {
 // ----------------------------------------------------------------------------
 misp_timestamp
 ::misp_timestamp()
-  : m_timestamp{ 0 }, m_status{ default_status }
+  : m_timestamp{ 0 }, m_status{ default_status }, m_has_nanoseconds{ false }
 {}
 
 // ----------------------------------------------------------------------------
 misp_timestamp
 ::misp_timestamp( std::chrono::microseconds timestamp, uint8_t status )
-  : m_timestamp{ timestamp }, m_status{ status }
+  : m_timestamp{ timestamp }, m_status{ status }, m_has_nanoseconds{ false }
 {}
 
 // ----------------------------------------------------------------------------
 misp_timestamp
 ::misp_timestamp( std::chrono::nanoseconds timestamp, uint8_t status )
-  : m_timestamp{ timestamp }, m_status{ status }
+  : m_timestamp{ timestamp }, m_status{ status }, m_has_nanoseconds{ true }
 {}
 
 // ----------------------------------------------------------------------------
@@ -47,6 +47,7 @@ misp_timestamp
 ::set_microseconds( std::chrono::microseconds microseconds )
 {
   m_timestamp = std::chrono::nanoseconds{ microseconds };
+  m_has_nanoseconds = false;
 }
 
 // ----------------------------------------------------------------------------
@@ -63,6 +64,7 @@ misp_timestamp
 ::set_nanoseconds( std::chrono::nanoseconds nanoseconds )
 {
   m_timestamp = nanoseconds;
+  m_has_nanoseconds = true;
 }
 
 // ----------------------------------------------------------------------------
@@ -79,6 +81,14 @@ misp_timestamp
 ::set_status( uint8_t status )
 {
   m_status = status;
+}
+
+// ----------------------------------------------------------------------------
+bool
+misp_timestamp
+::has_nanoseconds() const
+{
+  return m_has_nanoseconds;
 }
 
 // ----------------------------------------------------------------------------
@@ -166,7 +176,8 @@ write_misp_timestamp( misp_timestamp value, klv_write_iter_t& data,
   ++data;
 
   auto timestamp =
-    is_nano ? value.nanoseconds().count() : value.microseconds().count();
+    static_cast< uint64_t >(
+      is_nano ? value.nanoseconds().count() : value.microseconds().count() );
   for( auto const i :
        kwiver::vital::range::iota( misp_detail::timestamp_length ) )
   {
@@ -179,8 +190,8 @@ write_misp_timestamp( misp_timestamp value, klv_write_iter_t& data,
     else
     {
       // Write the next most significant byte
-      constexpr uint64_t mask = 0xFF << 7;
-      *data = timestamp & mask;
+      constexpr uint64_t mask = 0xFFull;
+      *data = ( timestamp >> ( 7 * 8 ) ) & mask;
       timestamp <<= 8;
     }
     ++data;

@@ -27,7 +27,7 @@ enum klv_0903_vchip_set_tag : klv_lds_key
 {
   KLV_0903_VCHIP_UNKNOWN        = 0,
   KLV_0903_VCHIP_IMAGE_TYPE     = 1,
-  KLV_0903_VCHIP_IMAGE_URI      = 2,
+  KLV_0903_VCHIP_IMAGE_IRI      = 2,
   KLV_0903_VCHIP_EMBEDDED_IMAGE = 3,
 };
 
@@ -50,7 +50,7 @@ public:
   klv_0903_vchip_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

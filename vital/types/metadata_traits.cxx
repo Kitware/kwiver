@@ -95,6 +95,10 @@ VITAL_META_##X, #X, typeid( type_of_tag< VITAL_META_##X > )
     { TRAITS_OF( VIDEO_DATA_STREAM_INDEX ),
       "Index of Metadata Stream",
       "Index of metadata stream." },
+    { TRAITS_OF( VIDEO_DATA_STREAM_SYNCHRONOUS ),
+      "Is Metadata Stream Synchronous",
+      "True if the association between the metadata in this stream and the "
+      "frame images is exact." },
     { TRAITS_OF( VIDEO_URI ),
       "Video URI",
       "URI of source video." },
@@ -441,7 +445,17 @@ std::string
 metadata_tag_traits
 ::type_name() const
 {
-  return demangle( m_type.name() );
+  static std::map< std::type_index, std::string > const map = {
+    { typeid( bool ), "bool" },
+    { typeid( int ), "int" },
+    { typeid( uint64_t ), "uint64" },
+    { typeid( double ), "double" },
+    { typeid( std::string ), "string" },
+    { typeid( geo_point ), "geo_point" },
+    { typeid( geo_polygon ), "geo_polygon" },
+  };
+
+  return map.at( m_type );
 }
 
 // ----------------------------------------------------------------------------

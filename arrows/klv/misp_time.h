@@ -105,9 +105,12 @@ public:
   uint8_t status() const;
   void set_status( uint8_t status );
 
+  bool has_nanoseconds() const;
+
 private:
   std::chrono::nanoseconds m_timestamp;
   uint8_t m_status;
+  bool m_has_nanoseconds;
 };
 
 // ----------------------------------------------------------------------------

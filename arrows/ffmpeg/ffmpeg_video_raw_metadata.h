@@ -11,6 +11,8 @@
 #include <arrows/ffmpeg/kwiver_algo_ffmpeg_export.h>
 #include <arrows/ffmpeg/ffmpeg_util.h>
 
+#include <arrows/klv/klv_stream_settings.h>
+
 #include <vital/types/video_raw_metadata.h>
 
 #include <list>
@@ -31,7 +33,15 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_raw_metadata
   ffmpeg_video_raw_metadata&
   operator=( ffmpeg_video_raw_metadata const& ) = delete;
 
-  std::list< packet_uptr > packets;
+  struct packet_info
+  {
+    packet_info();
+
+    packet_uptr packet;
+    klv::klv_stream_settings stream_settings;
+  };
+
+  std::list< packet_info > packets;
 };
 using ffmpeg_video_raw_metadata_sptr =
   std::shared_ptr< ffmpeg_video_raw_metadata >;

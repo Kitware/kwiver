@@ -12,7 +12,7 @@
 #ifndef INTEGRATE_DEPTH_MAPS_TRAMPOLINE_TXX
 #define INTEGRATE_DEPTH_MAPS_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/integrate_depth_maps.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_idm_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::integrate_depth_maps>,
         type_name,
@@ -56,7 +56,7 @@ class integrate_depth_maps_trampoline :
                kwiver::vital::image_container_sptr& volume,
                kwiver::vital::vector_3d& spacing ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::integrate_depth_maps,
         integrate,
@@ -78,7 +78,7 @@ class integrate_depth_maps_trampoline :
                kwiver::vital::image_container_sptr& volume,
                kwiver::vital::vector_3d& spacing ) const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::integrate_depth_maps,
         integrate,

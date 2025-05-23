@@ -7,11 +7,11 @@
 
 #include <vital/config/config_block.h>
 #include <vital/util/source_location.h>
-#include <vital/util/variant/variant.hpp>
 
 #include <sprokit/pipeline/process.h>
 
 #include <string>
+#include <variant>
 #include <vector>
 
 /**
@@ -138,7 +138,7 @@ struct connect_pipe_block
 };
 
 /// A discriminating union over all available pipeline block types.
-typedef kwiver::vital::variant
+typedef std::variant
   < config_pipe_block
   , process_pipe_block
   , connect_pipe_block
@@ -208,7 +208,7 @@ struct cluster_output_t
 };
 
 /// A variant over the possible blocks that may be contained within a cluster.
-typedef kwiver::vital::variant<cluster_config_t, cluster_input_t, cluster_output_t> cluster_subblock_t;
+typedef std::variant<cluster_config_t, cluster_input_t, cluster_output_t> cluster_subblock_t;
 
 /// A type for a collection of cluster subblocks.
 typedef std::vector<cluster_subblock_t> cluster_subblocks_t;
@@ -232,7 +232,7 @@ struct cluster_pipe_block
 };
 
 /// A discriminating union over all available cluster block types.
-typedef kwiver::vital::variant
+typedef std::variant
   < config_pipe_block
   , process_pipe_block
   , connect_pipe_block

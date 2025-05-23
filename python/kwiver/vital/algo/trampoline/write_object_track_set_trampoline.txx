@@ -12,7 +12,7 @@
 #ifndef WRITE_OBJECT_TRACK_SET_TRAMPOLINE_TXX
 #define WRITE_OBJECT_TRACK_SET_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/write_object_track_set.h>
 
@@ -31,7 +31,7 @@ class algorithm_def_wots_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::write_object_track_set>,
         type_name,
@@ -50,7 +50,7 @@ class write_object_track_set_trampoline :
 
     void open( std::string const& filename ) override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::write_object_track_set,
         open,
@@ -60,7 +60,7 @@ class write_object_track_set_trampoline :
 
     void close() override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         void,
         kwiver::vital::algo::write_object_track_set,
         close,
@@ -72,7 +72,7 @@ class write_object_track_set_trampoline :
               kwiver::vital::timestamp const& ts = {},
               std::string const& frame_identifier = {}) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         void,
         kwiver::vital::algo::write_object_track_set,
         write_set,

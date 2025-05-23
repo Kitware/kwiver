@@ -2,22 +2,23 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include "klv_0601.h"
+#include <arrows/klv/klv_0601.h>
 
-#include "klv_0806.h"
-#include "klv_0903.h"
-#include "klv_1002.h"
-#include "klv_1010.h"
-#include "klv_1204.h"
-#include "klv_1206.h"
-#include "klv_1601.h"
-#include "klv_1602.h"
-#include "klv_1607.h"
-#include "klv_checksum.h"
-#include "klv_series.hpp"
-#include "klv_length_value.h"
-#include "klv_list.hpp"
-#include "klv_util.h"
+#include <arrows/klv/klv_0806.h>
+#include <arrows/klv/klv_0903.h>
+#include <arrows/klv/klv_1002.h>
+#include <arrows/klv/klv_1010.h>
+#include <arrows/klv/klv_1204.h>
+#include <arrows/klv/klv_1206.h>
+#include <arrows/klv/klv_1601.h>
+#include <arrows/klv/klv_1602.h>
+#include <arrows/klv/klv_1607.h>
+#include <arrows/klv/klv_checksum.h>
+#include <arrows/klv/klv_series.hpp>
+#include <arrows/klv/klv_length_value.h>
+#include <arrows/klv/klv_list.hpp>
+#include <arrows/klv/klv_string.h>
+#include <arrows/klv/klv_util.h>
 
 #include <vital/logger/logger.h>
 
@@ -69,15 +70,13 @@ klv_0601_traits_lookup()
       1 },
     { {},
       ENUM_AND_NAME( KLV_0601_MISSION_ID ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Mission ID",
       "Descriptive mission identifier to distinguish an event or sortie.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_TAIL_NUMBER ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Platform Tail Number",
       "Identifier of platform as posted.",
       { 0, 1 } },
@@ -124,23 +123,20 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_DESIGNATION ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Platform Designation",
       "Model name for the platform. Examples: 'Predator', 'Reaper'.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_IMAGE_SOURCE_SENSOR ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Image Source Sensor",
       "Name of the currently active sensor. Examples: 'EO Nose', 'TESAR "
       "Imagery'.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_IMAGE_COORDINATE_SYSTEM ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Image Coordinate System",
       "Name of the image coordinate system used.",
       { 0, 1 } },
@@ -488,7 +484,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_PLATFORM_CALL_SIGN ),
-      std::make_shared< klv_string_format >( klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Platform Call Sign",
       "Call sign of the platform or operating unit.",
       { 0, 1 } },
@@ -562,7 +558,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_ALTERNATE_PLATFORM_NAME ),
-      std::make_shared< klv_string_format >( klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Alternate Platform Name",
       "Name of the platform connected to the UAS via direct datalink. "
       "Examples: 'Apache', 'Rover'.",
@@ -824,23 +820,20 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_STREAM_DESIGNATOR ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Stream Designator",
       "Shorthand descriptor for a particular Motion Imagery data stream, "
       "typically delivered over IP.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_OPERATIONAL_BASE ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Operational Base",
       "Indicates the location for the launch recovery equipment.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_BROADCAST_SOURCE ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Broadcast Source",
       "Location where the Motion Imagery is first broadcast. Examples: "
       "'Creech', 'Cannon'.",
@@ -994,7 +987,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_TARGET_ID ),
-      std::make_shared< klv_string_format >( klv_length_constraints{ 1, 32 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 32 } ),
       "Target ID",
       "Alpha-numeric identification of the target.",
       { 0, 1 } },
@@ -1036,8 +1029,7 @@ klv_0601_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0601_COMMUNICATIONS_METHOD ),
-      std::make_shared< klv_string_format >(
-        klv_length_constraints{ 1, 127 } ),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 127 } ),
       "Communications Method",
       "Type of communications used with platform",
       { 0, 1 } },
@@ -1084,7 +1076,14 @@ klv_0601_traits_lookup()
       "View Domain",
       "Specifies range of possible sensor relative azimuth, elevation, and "
       "roll values.",
-      { 0, 1 } }, };
+      { 0, 1 } },
+    { {},
+      ENUM_AND_NAME( KLV_0601_METADATA_SUBSTREAM_ID ),
+      std::make_shared< klv_0601_msid_format >(),
+      "Metadata Substream ID",
+      "Identifier for substream containing metadata operations. For use only "
+      "in segment (Item 100) and amend (Item 101) sets.",
+      { 0, 1 } } };
 
   return lookup;
 }
@@ -1254,9 +1253,9 @@ klv_0601_image_horizon_locations_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_image_horizon_locations_format
-::description() const
+::description_() const
 {
-  return "image horizon locations of " + m_length_constraints.description();
+  return "ST0601 Image Horizon Locations Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1335,9 +1334,9 @@ klv_0601_image_horizon_pixel_pack_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_image_horizon_pixel_pack_format
-::description() const
+::description_() const
 {
-  return "image horizon pixel pack of " + m_length_constraints.description();
+  return "ST0601 Image Horizon Pixel Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1465,9 +1464,9 @@ klv_0601_control_command_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_control_command_format
-::description() const
+::description_() const
 {
-  return "control command of " + m_length_constraints.description();
+  return "ST0601 Control Command Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1541,9 +1540,9 @@ klv_0601_frame_rate_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_frame_rate_format
-::description() const
+::description_() const
 {
-  return "frame rate of " + m_length_constraints.description();
+  return "ST0601 Frame Rate Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1589,9 +1588,9 @@ klv_0601_country_codes_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_country_codes_format
-::description() const
+::description_() const
 {
-  return "country codes pack of " + m_length_constraints.description();
+  return "ST0601 Country Codes Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1769,9 +1768,7 @@ operator<<( std::ostream& os, klv_0601_location_dlp const& value )
        << value.longitude
        << ", "
        << "altitude: "
-       << ( value.altitude
-        ? std::to_string( *value.altitude )
-        : std::string( "(empty)" ) )
+       << value.altitude
        << " }";
 }
 
@@ -1791,9 +1788,9 @@ klv_0601_location_dlp_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_location_dlp_format
-::description() const
+::description_() const
 {
-  return "location pack of " + m_length_constraints.description();
+  return "ST0601 Location Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1886,9 +1883,9 @@ klv_0601_airbase_locations_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_airbase_locations_format
-::description() const
+::description_() const
 {
-  return "airbase locations pack of " + m_length_constraints.description();
+  return "ST0601 Airbase Locations Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -1939,22 +1936,20 @@ klv_0601_airbase_locations_format
                klv_write_iter_t& data, size_t length ) const
 {
   auto const tracker = track_it( data, length );
+  klv_0601_location_dlp_format const location_format;
 
   // Write take-off location
   if( value.take_off_location )
   {
     // Take-off location is set
-    size_t const length_of_take_off_location =
-      klv_0601_location_dlp_format{}.length_of_( *value.take_off_location );
+    auto const length_of_take_off_location =
+      location_format.length_of_( *value.take_off_location );
 
-    if( length_of_take_off_location <= tracker.remaining() )
-    {
-      klv_write_ber( length_of_take_off_location, data, tracker.remaining() );
+    klv_write_ber( length_of_take_off_location, data, tracker.remaining() );
 
-      klv_0601_location_dlp_format{}
-        .write_( *value.take_off_location, data,
-                 tracker.verify( length_of_take_off_location ) );
-    }
+    location_format
+      .write_( *value.take_off_location, data,
+               tracker.verify( length_of_take_off_location ) );
   }
   else
   {
@@ -1963,7 +1958,7 @@ klv_0601_airbase_locations_format
   }
 
   // Write recovery location
-  if( !tracker.remaining() )
+  if( value.recovery_location == value.take_off_location )
   {
     // Recovery location is not included
     return;
@@ -1971,24 +1966,14 @@ klv_0601_airbase_locations_format
 
   if( value.recovery_location )
   {
-    // Recovery location is set
-    if( value.recovery_location == value.take_off_location )
-    {
-      // Locations are the same, truncate the recovery location
-      return;
-    }
+    auto const length_of_recovery_location =
+      location_format.length_of_( *value.recovery_location );
 
-    size_t const length_of_recovery_location =
-      klv_0601_location_dlp_format{}.length_of_( *value.recovery_location );
+    klv_write_ber( length_of_recovery_location, data, tracker.remaining() );
 
-    if( length_of_recovery_location <= tracker.remaining() )
-    {
-      klv_write_ber( length_of_recovery_location, data, tracker.remaining() );
-
-      klv_0601_location_dlp_format{}
-        .write_( *value.recovery_location, data,
-                 tracker.verify( length_of_recovery_location ) );
-    }
+    location_format
+      .write_( *value.recovery_location, data,
+                tracker.verify( length_of_recovery_location ) );
   }
   else
   {
@@ -2069,9 +2054,9 @@ klv_0601_view_domain_interval_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_view_domain_interval_format
-::description() const
+::description_() const
 {
-  return "view domain interval of " + m_length_constraints.description();
+  return "ST0601 View Domain Interval Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2156,9 +2141,9 @@ klv_0601_view_domain_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_view_domain_format
-::description() const
+::description_() const
 {
-  return "view domain pack of " + m_length_constraints.description();
+  return "ST0601 View Domain Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2250,9 +2235,9 @@ klv_0601_waypoint_record_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_waypoint_record_format
-::description() const
+::description_() const
 {
-  return "waypoint pack of " + m_length_constraints.description();
+  return "ST0601 Waypoint Record Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2425,9 +2410,9 @@ klv_0601_weapons_store_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_weapons_store_format
-::description() const
+::description_() const
 {
-  return "weapons store pack of " + m_length_constraints.description();
+  return "ST0601 Weapons Store Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2488,7 +2473,9 @@ klv_0601_weapons_store_format
   auto const engagement_status_int =
     enums_to_bitfield< klv_0601_weapon_engagement_status_bit >(
       value.engagement_status );
-  uint16_t status = ( engagement_status_int << 8 ) + value.general_status;
+  auto const status =
+    static_cast< uint16_t >(
+      ( engagement_status_int << 8 ) + value.general_status );
   klv_write_ber_oid( status, data, tracker.remaining() );
 
   // Write weapons type
@@ -2515,7 +2502,9 @@ klv_0601_weapons_store_format
   auto const engagement_status_int =
     enums_to_bitfield< klv_0601_weapon_engagement_status_bit >(
       value.engagement_status );
-  uint16_t status = ( engagement_status_int << 8 ) + value.general_status;
+  auto const status =
+    static_cast< uint16_t >(
+      ( engagement_status_int << 8 ) + value.general_status );
   size_t const length_of_status = klv_ber_oid_length( status );
 
   // Length of weapon type
@@ -2583,9 +2572,9 @@ klv_0601_payload_record_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_payload_record_format
-::description() const
+::description_() const
 {
-  return "payload pack of " + m_length_constraints.description();
+  return "ST0601 Payload Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2666,9 +2655,9 @@ klv_0601_payload_list_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_payload_list_format
-::description() const
+::description_() const
 {
-  return "payload list pack of " + m_length_constraints.description();
+  return "ST0601 Payload List Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2758,9 +2747,9 @@ klv_0601_wavelength_record_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_wavelength_record_format
-::description() const
+::description_() const
 {
-  return "wavelength pack of " + m_length_constraints.description();
+  return "ST0601 Wavelength Record Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -2822,9 +2811,82 @@ klv_0601_wavelength_record_format
 }
 
 // ----------------------------------------------------------------------------
+std::ostream&
+operator<<( std::ostream& os, klv_0601_msid const& value )
+{
+  os << value.local_id;
+  if( !value.local_id )
+  {
+    os << ":" << value.universal_id;
+  }
+  return os;
+}
+
+// ----------------------------------------------------------------------------
+DEFINE_STRUCT_CMP(
+  klv_0601_msid,
+  &klv_0601_msid::local_id,
+  &klv_0601_msid::universal_id
+)
+
+// ----------------------------------------------------------------------------
+klv_0601_msid_format
+::klv_0601_msid_format()
+{}
+
+// ----------------------------------------------------------------------------
+std::string
+klv_0601_msid_format
+::description_() const
+{
+  return "ST0601 Metadata Substream ID Pack";
+}
+
+// ----------------------------------------------------------------------------
+klv_0601_msid
+klv_0601_msid_format
+::read_typed( klv_read_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  klv_0601_msid result;
+  result.local_id = klv_read_ber_oid< uint32_t >( data, tracker.remaining() );
+  if( !result.local_id )
+  {
+    result.universal_id = klv_uuid_format().read_( data, tracker.remaining() );
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void
+klv_0601_msid_format
+::write_typed(
+  klv_0601_msid const& value, klv_write_iter_t& data, size_t length ) const
+{
+  auto const tracker = track_it( data, length );
+
+  klv_write_ber_oid( value.local_id, data, tracker.remaining() );
+  if( !value.local_id )
+  {
+    klv_uuid_format().write_( value.universal_id, data, tracker.remaining() );
+  }
+}
+
+// ----------------------------------------------------------------------------
+size_t
+klv_0601_msid_format
+::length_of_typed( klv_0601_msid const& value ) const
+{
+  return
+    klv_ber_oid_length( value.local_id ) +
+    ( value.local_id ? 0 : klv_uuid_format().length_of_( value.universal_id ) );
+}
+
+// ----------------------------------------------------------------------------
 klv_checksum_packet_format const*
 klv_0601_local_set_format
-::checksum_format() const
+::packet_checksum_format() const
 {
   return &m_checksum_format;
 }
@@ -2832,9 +2894,9 @@ klv_0601_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0601_local_set_format
-::description() const
+::description_() const
 {
-  return "UAS datalink local set of " + m_length_constraints.description();
+  return "ST0601 UAS Datalink LS";
 }
 
 // ----------------------------------------------------------------------------

@@ -12,7 +12,7 @@
 #ifndef ESTIMATE_PNP_TRAMPOLINE_TXX
 #define ESTIMATE_PNP_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/estimate_pnp.h>
 #include <vital/types/vector.h>
@@ -31,7 +31,7 @@ class algorithm_def_epnp_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<
          kwiver::vital::algo::estimate_pnp >,
@@ -55,7 +55,7 @@ class estimate_pnp_trampoline :
                 const kwiver::vital::camera_intrinsics_sptr cal,
                 std::vector<bool>& inliers )  const override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::camera_perspective_sptr,
         kwiver::vital::algo::estimate_pnp,
         estimate,

@@ -79,7 +79,6 @@ set( vital_public_headers
   iterator.h
   math_constants.h
   noncopyable.h
-  optional.h
   set.h
   signal.h
 
@@ -124,6 +123,7 @@ set( vital_public_headers
   types/geo_point.h
   types/geo_polygon.h
   types/geodesy.h
+  types/ground_control_point.h
   types/homography.h
   types/homography_f2f.h
   types/homography_f2w.h
@@ -141,6 +141,8 @@ set( vital_public_headers
   types/mesh.h
   types/metadata.h
   types/metadata_map.h
+  types/metadata_stream.h
+  types/metadata_stream_from_map.h
   types/metadata_tags.h
   types/metadata_traits.h
   types/object_track_set.h
@@ -165,6 +167,7 @@ set( vital_public_headers
   types/video_raw_image.h
   types/video_raw_metadata.h
   types/video_settings.h
+  types/video_uninterpreted_data.h
 )
 
 # ----------------------
@@ -206,6 +209,7 @@ set( vital_sources
   types/geo_point.cxx
   types/geo_polygon.cxx
   types/geodesy.cxx
+  types/ground_control_point.cxx
   types/homography.cxx
   types/homography_f2f.cxx
   types/homography_f2w.cxx
@@ -217,6 +221,8 @@ set( vital_sources
   types/local_geo_cs.cxx
   types/mesh.cxx
   types/metadata.cxx
+  types/metadata_stream.cxx
+  types/metadata_stream_from_map.cxx
   types/metadata_traits.cxx
   types/object_track_set.cxx
   types/point.cxx
@@ -233,6 +239,7 @@ set( vital_sources
   types/video_raw_image.cxx
   types/video_raw_metadata.cxx
   types/video_settings.cxx
+  types/video_uninterpreted_data.cxx
   types/uid.cxx
 )
 

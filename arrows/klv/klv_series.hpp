@@ -28,9 +28,9 @@ klv_series_format< Format >
 template < class Format >
 std::string
 klv_series_format< Format >
-::description() const
+::description_() const
 {
-  return "series of " + m_format.description();
+  return "Series (Type: " + m_format.description() + ")";
 }
 
 // ----------------------------------------------------------------------------

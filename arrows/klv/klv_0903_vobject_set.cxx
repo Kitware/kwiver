@@ -5,9 +5,11 @@
 /// \file
 /// Implementation of the KLV 0903 VObject local set parser.
 
-#include "klv_0903_vobject_set.h"
+#include <arrows/klv/klv_0903_vobject_set.h>
 
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_series.hpp>
+#include <arrows/klv/klv_string.h>
 #include <arrows/klv/klv_util.h>
 
 namespace kwiver {
@@ -31,9 +33,9 @@ klv_0903_vobject_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vobject_local_set_format
-::description() const
+::description_() const
 {
-  return "vobject local set of " + m_length_constraints.description();
+  return "ST0903 VObject LS";
 }
 
 // ----------------------------------------------------------------------------
@@ -50,26 +52,27 @@ klv_0903_vobject_set_traits_lookup()
       0 },
     { {},
       ENUM_AND_NAME( KLV_0903_VOBJECT_ONTOLOGY ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Ontology",
       "URI referring to a vObject ontology.",
-      { 0, 1 } },
+      0 },
     { {},
       ENUM_AND_NAME( KLV_0903_VOBJECT_ONTOLOGY_CLASS ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >(),
       "Ontology Class",
       "Value representing a target class or type, as defined by the Ontology tag.",
-      { 0, 1 } },
+      0 },
     { {},
       ENUM_AND_NAME( KLV_0903_VOBJECT_ONTOLOGY_ID ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Ontology ID",
       "Identifier for an ontology in the VMTI Ontology Series.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VOBJECT_CONFIDENCE ),
       std::make_shared< klv_imap_format >(
-        vital::interval< double >{ 0.0, 100.0 } ),
+        vital::interval< double >{ 0.0, 100.0 },
+        klv_length_constraints{ 1, 3 } ),
       "Confidence",
       "Level of confidence in the classification of the object.",
       { 0, 1 } } };

@@ -70,7 +70,7 @@ public:
   klv_1108_metric_implementer_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_1108_metric_implementer
@@ -93,7 +93,7 @@ public:
   klv_1108_metric_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

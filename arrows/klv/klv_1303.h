@@ -12,10 +12,10 @@
 #include <arrows/klv/klv_util.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
-#include <vital/optional.h>
 #include <vital/util/interval.h>
 
 #include <array>
+#include <optional>
 
 namespace kwiver {
 
@@ -59,7 +59,7 @@ struct KWIVER_ALGO_KLV_EXPORT klv_1303_mdap
   size_t element_size;
   klv_1303_apa apa;
   size_t apa_params_length;
-  kwiver::vital::optional< kwiver::vital::interval< double > > imap_params;
+  std::optional< kwiver::vital::interval< double > > imap_params;
 };
 
 // ----------------------------------------------------------------------------
@@ -74,15 +74,17 @@ DECLARE_TEMPLATE_CMP( klv_1303_mdap< T > )
 // ----------------------------------------------------------------------------
 /// Interprets data as a ST1303 MDAP/MDARRAY.
 template < class Format >
-class klv_1303_mdap_format
+class KWIVER_ALGO_KLV_EXPORT klv_1303_mdap_format
   : public klv_data_format_< klv_1303_mdap< typename Format::data_type > >
 {
 public:
   template < class... Args >
-  klv_1303_mdap_format( Args&&... args );
+  klv_1303_mdap_format( Args&&... args )
+    : m_format{ std::forward< Args >( args )... }
+  {}
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   using element_t = typename Format::data_type;

@@ -30,10 +30,17 @@ public:
 
   vital::metadata_map_sptr
   load_( std::istream& fin, std::string const& filename ) const override;
+  std::ios_base::openmode
+  load_open_mode( std::string const& filename ) const override;
 
   void
   save_( std::ostream& fout, vital::metadata_map_sptr data,
          std::string const& filename ) const override;
+  std::ios_base::openmode
+  save_open_mode( std::string const& filename ) const override;
+
+  vital::config_block_sptr get_configuration() const override;
+  void set_configuration( vital::config_block_sptr config ) override;
 
 private:
   class priv;

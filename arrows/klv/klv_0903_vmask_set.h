@@ -26,7 +26,7 @@ namespace klv {
 enum klv_0903_vmask_set_tag : klv_lds_key
 {
   KLV_0903_VMASK_UNKNOWN        = 0,
-  KLV_0903_VMASK_POLYGON        = 1,
+  KLV_0903_VMASK_PIXEL_CONTOUR  = 1,
   KLV_0903_VMASK_BITMASK_SERIES = 2,
 };
 
@@ -60,7 +60,7 @@ public:
   klv_0903_pixel_run_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0903_pixel_run
@@ -88,7 +88,7 @@ public:
   klv_0903_vmask_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

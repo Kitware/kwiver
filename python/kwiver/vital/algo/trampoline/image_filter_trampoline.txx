@@ -12,7 +12,7 @@
 #ifndef IMAGE_FILTER_TRAMPOLINE_TXX
 #define IMAGE_FILTER_TRAMPOLINE_TXX
 
-#include <python/kwiver/vital/util/pybind11.h>
+#include <pybind11/pybind11.h>
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/image_filter.h>
 #include <vital/types/detected_object_set.h>
@@ -33,7 +33,7 @@ class algorithm_def_if_trampoline :
 
     std::string type_name() const override
     {
-      VITAL_PYBIND11_OVERLOAD(
+      PYBIND11_OVERLOAD(
         std::string,
         kwiver::vital::algorithm_def<kwiver::vital::algo::image_filter>,
         type_name,
@@ -52,7 +52,7 @@ class image_filter_trampoline :
     kwiver::vital::image_container_sptr
       filter( kwiver::vital::image_container_sptr data ) override
     {
-      VITAL_PYBIND11_OVERLOAD_PURE(
+      PYBIND11_OVERLOAD_PURE(
         kwiver::vital::image_container_sptr,
         kwiver::vital::algo::image_filter,
         filter,

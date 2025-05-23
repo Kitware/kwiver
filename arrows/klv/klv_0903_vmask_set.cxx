@@ -49,9 +49,9 @@ klv_0903_pixel_run_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_pixel_run_format
-::description() const
+::description_() const
 {
-  return "pixel run of " + m_length_constraints.description();
+  return "ST0903 Pixel Run Pack";
 }
 
 // ----------------------------------------------------------------------------
@@ -102,9 +102,9 @@ klv_0903_vmask_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_vmask_local_set_format
-::description() const
+::description_() const
 {
-  return "vmask local set of " + m_length_constraints.description();
+  return "ST0903 VMask LS";
 }
 
 // ----------------------------------------------------------------------------
@@ -119,9 +119,9 @@ klv_0903_vmask_set_traits_lookup()
       "Unknown tag.",
       0 },
     { {},
-      ENUM_AND_NAME( KLV_0903_VMASK_POLYGON ),
+      ENUM_AND_NAME( KLV_0903_VMASK_PIXEL_CONTOUR ),
       std::make_shared< klv_uint_series_format >(),
-      "Polygon",
+      "Pixel Contour",
       "Series of points listed in clockwise order. Each point is represented "
       "by an integer indicating the pixel index. Uses the equation "
       "(row - 1) * width + column, where row and column are 1-indexed.",

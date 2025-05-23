@@ -12,7 +12,9 @@
 #include <arrows/klv/klv_0903_vtarget_pack.h>
 #include <arrows/klv/klv_1204.h>
 #include <arrows/klv/klv_checksum.h>
+#include <arrows/klv/klv_imap.h>
 #include <arrows/klv/klv_series.hpp>
+#include <arrows/klv/klv_string.h>
 
 namespace kv = kwiver::vital;
 
@@ -61,64 +63,64 @@ klv_0903_traits_lookup()
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VMTI_SYSTEM_NAME ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 32 } ),
       "VMTI System Name",
       "Name or description of the VMTI system producing the targets.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VERSION ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 2 } ),
       "VMTI LS Version",
       "Version of MISB ST 0903 used as the source standard when encoding this "
       "set.",
       1 },
     { {},
       ENUM_AND_NAME( KLV_0903_NUM_TARGETS_DETECTED ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Total Number of Targets Detected",
       "Total number of targets detected in a frame.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_NUM_TARGETS_REPORTED ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Number of Targets Reported",
       "Number of targets reported following a culling process.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_FRAME_NUMBER ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Frame Number",
       "Frame number identifying detected targets.",
-      { 0, 1 } },
+      0 },
     { {},
       ENUM_AND_NAME( KLV_0903_FRAME_WIDTH ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Frame Width",
       "Width of the Motion Imagery frame in pixels.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_FRAME_HEIGHT ),
-      std::make_shared< klv_uint_format >(),
+      std::make_shared< klv_uint_format >( klv_length_constraints{ 1, 3 } ),
       "Frame Height",
       "Height of the Motion Imagery frame in pixels.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_SOURCE_SENSOR ),
-      std::make_shared< klv_string_format >(),
+      std::make_shared< klv_utf_8_format >( klv_length_constraints{ 0, 128 } ),
       "VMTI Source Sensor",
       "Name of VMTI source sensor. Examples: 'EO Nose', 'EO Zoom (DLTV)'.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_HORIZONTAL_FOV ),
       std::make_shared< klv_imap_format >(
-        kv::interval< double >{ 0.0, 180.0 } ),
+        kv::interval< double >{ 0.0, 180.0 }, 2 ),
       "VMTI Horizontal FOV",
       "Horizonal field of view of sensor input to the VMTI process.",
       { 0, 1 } },
     { {},
       ENUM_AND_NAME( KLV_0903_VERTICAL_FOV ),
       std::make_shared< klv_imap_format >(
-        kv::interval< double >{ 0.0, 180.0 } ),
+        kv::interval< double >{ 0.0, 180.0 }, 2 ),
       "VMTI Vertical FOV",
       "Vertical field of view of sensor input to the VMTI process.",
       { 0, 1 } },
@@ -165,15 +167,15 @@ klv_0903_local_set_format
 // ----------------------------------------------------------------------------
 std::string
 klv_0903_local_set_format
-::description() const
+::description_() const
 {
-  return "vmti local set of " + m_length_constraints.description();
+  return "ST0903 VMTI LS";
 }
 
 // ----------------------------------------------------------------------------
 klv_checksum_packet_format const*
 klv_0903_local_set_format
-::checksum_format() const
+::packet_checksum_format() const
 {
   return &m_checksum_format;
 }

@@ -71,7 +71,7 @@ operator<<( std::ostream& os, klv_0903_vtrackitem_pack_tag tag );
 struct KWIVER_ALGO_KLV_EXPORT klv_0903_vtrackitem_pack
 {
   uint64_t id;
-  klv_local_set set;
+  klv_value set;
 };
 
 // ----------------------------------------------------------------------------
@@ -91,7 +91,7 @@ public:
   klv_0903_vtrackitem_pack_format();
 
   std::string
-  description() const override;
+  description_() const override;
 
 private:
   klv_0903_vtrackitem_pack
@@ -119,7 +119,7 @@ public:
   klv_0903_vtrackitem_local_set_format();
 
   std::string
-  description() const override;
+  description_() const override;
 };
 
 // ----------------------------------------------------------------------------

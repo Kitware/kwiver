@@ -13,8 +13,14 @@ namespace arrows {
 
 namespace ffmpeg {
 
+// ----------------------------------------------------------------------------
 ffmpeg_video_raw_metadata
 ::ffmpeg_video_raw_metadata() : packets{}
+{}
+
+// ----------------------------------------------------------------------------
+ffmpeg_video_raw_metadata::packet_info
+::packet_info() : packet{}, stream_settings{}
 {}
 
 } // namespace ffmpeg
