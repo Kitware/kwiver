@@ -4,5 +4,15 @@ KWIVER 2.2.0 Release Notes
 Updates
 -------
 
+Arrows: Core
+
+* Added image_io_tiled_multifile.
+
+Vital: Types
+
+* Added tiled_image_container.
+
+* Added tiled_image_container_simple.
+
 Bug Fixes
 ---------
