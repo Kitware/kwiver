@@ -36,6 +36,10 @@ kwiver_discover_gtests(core filter_features           LIBRARIES ${test_libraries
 kwiver_discover_gtests(core filter_tracks             LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core handle_descriptor_request_core
                                                       LIBRARIES ${test_libraries})
+# External image I/O algorithm required to test the tile multifile wrapper
+if(KWIVER_ENABLE_OPENCV)
+  kwiver_discover_gtests(core image_io_tiled_multifile  LIBRARIES ${test_libraries} kwiver_algo_ocv)
+endif()
 kwiver_discover_gtests(core initialize_object_tracks_threshold
                                                       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core interpolate_track_spline  LIBRARIES ${test_libraries})

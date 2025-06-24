@@ -25,6 +25,7 @@
 #include <vital/algo/filter_features.h>
 #include <vital/algo/filter_tracks.h>
 #include <vital/algo/handle_descriptor_request.h>
+#include <vital/algo/image_io.h>
 #include <vital/algo/image_object_detector.h>
 #include <vital/algo/initialize_object_tracks.h>
 #include <vital/algo/interpolate_track.h>
@@ -68,6 +69,7 @@
 #include <arrows/core/algo/filter_features_scale.h>
 #include <arrows/core/algo/filter_tracks.h>
 #include <arrows/core/algo/handle_descriptor_request_core.h>
+#include <arrows/core/algo/image_io_tiled_multifile.h>
 #include <arrows/core/algo/initialize_object_tracks_threshold.h>
 #include <arrows/core/algo/interpolate_track_spline.h>
 #include <arrows/core/algo/keyframe_selector_basic.h>
@@ -303,6 +305,10 @@ register_factories( kwiver::vital::plugin_loader& vpl )
 
   fact = vpl.add_factory< vital::algo::detected_object_filter,
     class_probability_filter >( "class_probability_filter" );
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
+
+  fact = vpl.add_factory< vital::algo::image_io,
+    image_io_tiled_multifile >( "tiled_multifile" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
 }
 
