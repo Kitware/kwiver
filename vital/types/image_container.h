@@ -47,6 +47,13 @@ public:
   /// The depth (or number of channels) of the image
   virtual size_t depth() const = 0;
 
+  /// Return the pixel traits of the image.
+  virtual image_pixel_traits
+  pixel_traits() const
+  {
+    return get_image().pixel_traits();
+  }
+
   /// Get an in-memory image class to access the data
   virtual image get_image() const = 0;
 

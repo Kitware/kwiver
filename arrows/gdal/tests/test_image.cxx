@@ -133,6 +133,7 @@ save_load_format(
   ASSERT_EQ( png_img.height(), out_img.height() );
   ASSERT_EQ( png_img.depth(), out_img.depth() );
   ASSERT_EQ( png_img.pixel_traits(), out_img.pixel_traits() );
+  ASSERT_EQ( out_img_container->pixel_traits(), out_img.pixel_traits() );
 
   EXPECT_TRUE( vital::equal_content( png_img, out_img ) );
 }
