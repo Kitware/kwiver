@@ -42,7 +42,7 @@ TEST ( match_features_homography, create )
   plugin_manager::instance().load_all_plugins();
 
   EXPECT_NE(
-    nullptr, create_algorithm< algo::match_features >( "homography" ) );
+    nullptr, create_algorithm< algo::match_features >( "homography_guided" ) );
 }
 
 // ----------------------------------------------------------------------------

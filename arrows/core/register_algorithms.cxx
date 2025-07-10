@@ -248,7 +248,7 @@ register_factories( kwiver::vital::plugin_loader& vpl )
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
 
   fact = vpl.add_factory< vital::algo::match_features,
-    match_features_homography >( "homography" );
+    match_features_homography >( "homography_guided" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
 
   fact = vpl.add_factory< vital::algo::compute_ref_homography,
