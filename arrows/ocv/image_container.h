@@ -60,6 +60,12 @@ public:
   virtual size_t
   depth() const { return data_.channels(); }
 
+  vital::image_pixel_traits
+  pixel_traits() const override
+  {
+    return ocv_to_vital( data_.type() );
+  }
+
 /// Get an in-memory image class to access the data
   virtual vital::image
   get_image() const { return ocv_to_vital( data_, RGB_COLOR ); }

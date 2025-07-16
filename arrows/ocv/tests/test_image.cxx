@@ -131,6 +131,7 @@ TYPED_TEST ( image_io, type )
 
   image_container_sptr c2 = io.load( image_path );
   kwiver::vital::image img2 = c2->get_image();
+  EXPECT_EQ( c2->pixel_traits(), img2.pixel_traits() );
   EXPECT_EQ( img.pixel_traits(), img2.pixel_traits() );
   EXPECT_EQ( img.depth(), img2.depth() );
   EXPECT_TRUE( equal_content( img, img2 ) );

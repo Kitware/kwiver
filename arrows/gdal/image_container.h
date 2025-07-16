@@ -50,6 +50,12 @@ public:
   depth() const
   { return static_cast< size_t >( gdal_dataset_->GetRasterCount() ); }
 
+  vital::image_pixel_traits
+  pixel_traits() const override
+  {
+    return pixel_traits_;
+  }
+
   /// Get image. Unlike other image containers must allocate memory
   virtual vital::image get_image() const;
 
