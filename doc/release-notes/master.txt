@@ -12,6 +12,8 @@ Arrows: Geocalc
 
 * Standardized behavior when given nonfinite input values.
 
+* Added derive_corner_points.
+
 Vital: Types
 
 * Added tiled_image_container.
