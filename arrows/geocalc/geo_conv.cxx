@@ -234,6 +234,12 @@ geo_conversion::operator()( vital::vector_2d const& point, int from, int to )
 vital::vector_3d
 geo_conversion::operator()( vital::vector_3d const& point, int from, int to )
 {
+  if( !point.allFinite() )
+  {
+    auto const nan = std::numeric_limits< double >::quiet_NaN();
+    return vital::vector_3d{ nan, nan, nan };
+  }
+
   auto const& conversion_map = get_conversion_map();
 
   // Check for a direct conversion

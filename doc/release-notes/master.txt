@@ -8,6 +8,10 @@ Arrows: Core
 
 * Added image_io_tiled_multifile.
 
+Arrows: Geocalc
+
+* Standardized behavior when given nonfinite input values.
+
 Vital: Types
 
 * Added tiled_image_container.

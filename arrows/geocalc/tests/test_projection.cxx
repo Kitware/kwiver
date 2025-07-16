@@ -240,3 +240,54 @@ TEST ( projection, raycast_wgs84_interior )
   EXPECT_NEAR( -E::a - 10.0, ( *result )[ 1 ], epsilon_meters );
   EXPECT_NEAR( 0.0, ( *result )[ 2 ], epsilon_meters );
 }
+
+// ----------------------------------------------------------------------------
+TEST ( projection, raycast_nonfinite )
+{
+  using E = arrows::geocalc::ellipsoid_wgs84;
+
+  auto const nan = std::numeric_limits< double >::quiet_NaN();
+  auto const inf = std::numeric_limits< double >::infinity();
+
+  EXPECT_THROW(
+    arrows::geocalc::raycast_ecef_to_ellipsoid(
+      vital::vector_3d( E::a + 10.0, 0.0, 0.0 ),
+      vital::vector_3d( -1.0, 0.0, 0.0 ), ECEF_WGS84, inf );
+    ,
+    std::runtime_error );
+
+  EXPECT_THROW(
+    arrows::geocalc::raycast_ecef_to_ellipsoid(
+      vital::vector_3d( E::a + 10.0, 0.0, 0.0 ),
+      vital::vector_3d( -1.0, 0.0, 0.0 ), ECEF_WGS84, nan );
+    ,
+    std::runtime_error );
+
+  EXPECT_THROW(
+    arrows::geocalc::raycast_ecef_to_ellipsoid(
+      vital::vector_3d( E::a + 10.0, 0.0, 0.0 ),
+      vital::vector_3d( -inf, 0.0, 0.0 ), ECEF_WGS84, 0.0 );
+    ,
+    std::runtime_error );
+
+  EXPECT_THROW(
+    arrows::geocalc::raycast_ecef_to_ellipsoid(
+      vital::vector_3d( E::a + 10.0, 0.0, 0.0 ),
+      vital::vector_3d( -nan, 0.0, 0.0 ), ECEF_WGS84, 0.0 );
+    ,
+    std::runtime_error );
+
+  EXPECT_THROW(
+    arrows::geocalc::raycast_ecef_to_ellipsoid(
+      vital::vector_3d( E::a + 10.0, 0.0, inf ),
+      vital::vector_3d( -1.0, 0.0, 0.0 ), ECEF_WGS84, 0.0 );
+    ,
+    std::runtime_error );
+
+  EXPECT_THROW(
+    arrows::geocalc::raycast_ecef_to_ellipsoid(
+      vital::vector_3d( E::a + 10.0, 0.0, nan ),
+      vital::vector_3d( -1.0, 0.0, 0.0 ), ECEF_WGS84, 0.0 );
+    ,
+    std::runtime_error );
+}
