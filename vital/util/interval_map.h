@@ -80,7 +80,7 @@ public:
 
   private:
     friend class interval_map;
-    friend class const_iterator;
+    friend class interval_map::const_iterator;
 
     iterator( container_iterator const& it ) : m_it{ it } {}
 
