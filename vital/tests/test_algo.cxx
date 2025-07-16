@@ -68,7 +68,7 @@ TEST ( algo, create_from_name )
   EXPECT_TRUE(
     kwiver::vital::has_algorithm_impl_name< kwiver::vital::algo::match_features >
     (
-      "homography" ) );
+      "homography_guided" ) );
   // does not have algorithm impl
   EXPECT_FALSE(
     kwiver::vital::has_algorithm_impl_name< kwiver::vital::algo::match_features >
@@ -76,7 +76,7 @@ TEST ( algo, create_from_name )
 
 
   //  create valid algorithm
-  auto valid = kwiver::vital::create_algorithm< kwiver::vital::algo::match_features >( "homography" );
+  auto valid = kwiver::vital::create_algorithm< kwiver::vital::algo::match_features >( "homography_guided" );
   EXPECT_NE( valid, nullptr );
 
 
@@ -84,7 +84,7 @@ TEST ( algo, create_from_name )
   kwiver::vital::algo::match_features_sptr mf = std::dynamic_pointer_cast< kwiver::vital::algo::match_features >( valid );
   EXPECT_EQ( !mf, false );
   // create correct impl
-  EXPECT_EQ( mf->impl_name(), "homography" );
+  EXPECT_EQ( mf->impl_name(), "homography_guided" );
 }
 
 TEST ( algo,  track_features_before_configuration )
@@ -109,7 +109,7 @@ TEST ( algo,  track_features_before_configuration )
   kwiver::vital::write_config( tf_config, std::cerr );
 
   std::cerr << "Setting mf algo impl" << std::endl;
-  tf_config->set_value( "feature_matcher:type", "homography" );
+  tf_config->set_value( "feature_matcher:type", "homography_guided" );
 
   std::cerr << "Contents of kwiver::vital::config_block after cb set:" <<
     std::endl;
@@ -124,8 +124,8 @@ TEST ( algo,  track_features_before_configuration )
 
   std::cerr << "Setting mf's mf algo type (in config)" << std::endl;
   tf_config->set_value(
-    "feature_matcher:homography:feature_matcher:type",
-    "homography" );
+    "feature_matcher:homography_guided:feature_matcher:type",
+    "homography_guided" );
 
   std::cerr << "Contents of kwiver::vital::config_block after set:" <<
     std::endl;
@@ -139,8 +139,8 @@ TEST ( algo,  track_features_before_configuration )
 
   std::cerr << "One more level for good measure" << std::endl;
   tf_config->set_value(
-    "feature_matcher:homography:feature_matcher:homography:feature_matcher:type",
-    "homography" );
+    "feature_matcher:homography_guided:feature_matcher:homography_guided:feature_matcher:type",
+    "homography_guided" );
 
   std::cerr << "Contents of cb after set:" << std::endl;
   kwiver::vital::write_config( tf_config, std::cerr );
@@ -153,8 +153,8 @@ TEST ( algo,  track_features_before_configuration )
 
   std::cerr << "One more level for good measure" << std::endl;
   tf_config->set_value(
-    "feature_matcher:homography:feature_matcher:homography:feature_matcher:homography:feature_matcher:type",
-    "homography" );
+    "feature_matcher:homography_guided:feature_matcher:homography_guided:feature_matcher:homography_guided:feature_matcher:type",
+    "homography_guided" );
 
   std::cerr << "Contents of cb after set:" << std::endl;
   kwiver::vital::write_config( tf_config, std::cerr );
@@ -193,7 +193,7 @@ TEST ( algo,  track_features_check_config )
   // Adding valid implementation name for match_features algo, but should
   // still fail as the underlying match_features impl wants another nested
   // algo specification.
-  config->set_value( "feature_matcher:type", "homography" );
+  config->set_value( "feature_matcher:type", "homography_guided" );
   std::cerr << "Modified configuration:" << std::endl;
   kwiver::vital::write_config( config, std::cerr );
   EXPECT_FALSE( tf_impl->check_configuration( config ) );
@@ -212,8 +212,9 @@ TEST ( algo,  track_features_check_config )
   // param check 1
   EXPECT_EQ(
     cb->get_value< std::string >( "feature_matcher:type" ),
-    "homography" );
+    "homography_guided" );
   // param check 2
   EXPECT_TRUE(
-    cb->has_value( "feature_matcher:homography:feature_matcher1:type" ) );
+    cb->has_value(
+      "feature_matcher:homography_guided:feature_matcher1:type" ) );
 }

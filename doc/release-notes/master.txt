@@ -17,6 +17,11 @@ Vital: Types
 Bug Fixes
 ---------
 
+Arrows: Core
+
+* Restored "homography" feature matching implementation name to
+  "homography_guided".
+
 Arrows: GDAL
 
 * Prevented segfault when saving image with null metadata.
