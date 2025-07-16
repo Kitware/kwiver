@@ -8,6 +8,8 @@ Arrows: Core
 
 * Added image_io_tiled_multifile.
 
+* Permitted calculation of pseudo-VNIIRS when an image object is not provided.
+
 Arrows: Geocalc
 
 * Standardized behavior when given nonfinite input values.

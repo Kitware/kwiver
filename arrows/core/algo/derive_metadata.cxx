@@ -390,7 +390,11 @@ compute_vniirs( double gsd, double rer, double snr )
 double
 compute_rer( VITAL_UNUSED kwiver::vital::image_container_scptr const& image )
 {
-  // TODO: Implement
+  if( image )
+  {
+    // TODO: Implement
+  }
+  // else
   return 0.3; // Dummy value within reasonable range
 }
 
@@ -398,7 +402,11 @@ compute_rer( VITAL_UNUSED kwiver::vital::image_container_scptr const& image )
 double
 compute_snr( VITAL_UNUSED kwiver::vital::image_container_scptr const& image )
 {
-  // TODO: Implement
+  if( image )
+  {
+    // TODO: Implement
+  }
+  // else
   return 15.0; // Dummy value within reasonable range
 }
 
@@ -498,11 +506,29 @@ derive_metadata
       auto const slant_range = compute_slant_range( updated_metadata );
       updated_metadata->add< kv::VITAL_META_SLANT_RANGE >( slant_range );
 
+      size_t frame_width = 0;
+      size_t frame_height = 0;
       if( input_image )
       {
-        auto const frame_width = input_image->width();
-        auto const frame_height = input_image->height();
+        frame_width = input_image->width();
+        frame_height = input_image->height();
+      }
+      else
+      {
+        auto const width_item =
+          updated_metadata->find( vital::VITAL_META_IMAGE_WIDTH );
+        auto const height_item =
+          updated_metadata->find( vital::VITAL_META_IMAGE_HEIGHT );
 
+        if( width_item && height_item )
+        {
+          frame_width = width_item.get< uint64_t >();
+          frame_height = height_item.get< uint64_t >();
+        }
+      }
+
+      if( frame_width && frame_height )
+      {
         // Compute GSD
         auto const gsd =
           compute_gsd( updated_metadata, frame_width, frame_height );
