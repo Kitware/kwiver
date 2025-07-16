@@ -112,3 +112,32 @@ TEST ( geo_conv, wgs84_geodetic_ecef )
     EXPECT_NEAR( ecef[ 2 ], converted_ecef[ 2 ], epsilon_meters );
   }
 }
+
+// ----------------------------------------------------------------------------
+TEST ( geo_conv, nonfinite )
+{
+  arrows::geocalc::geo_conversion converter;
+
+  auto const nan = std::numeric_limits< double >::quiet_NaN();
+  auto const inf = std::numeric_limits< double >::infinity();
+  for( auto const& point : {
+    vital::vector_3d{ nan, 0.0, 0.0 },
+    vital::vector_3d{ inf, 0.0, 0.0 },
+    vital::vector_3d{ 0.0, nan, 0.0 },
+    vital::vector_3d{ 0.0, inf, 0.0 },
+    vital::vector_3d{ 0.0, 0.0, nan },
+    vital::vector_3d{ 0.0, 0.0, inf },
+    vital::vector_3d{ nan, nan, nan },
+    vital::vector_3d{ inf, inf, inf }, } )
+  {
+    for( auto const& [ crs1, crs2 ] : {
+      std::make_pair( ECEF_WGS84, lat_lon_WGS84 ),
+      std::make_pair( lat_lon_WGS84, ECEF_WGS84 ), } )
+    {
+      auto const converted = converter( point, crs1, crs2 );
+      EXPECT_TRUE( std::isnan( converted[ 0 ] ) );
+      EXPECT_TRUE( std::isnan( converted[ 1 ] ) );
+      EXPECT_TRUE( std::isnan( converted[ 2 ] ) );
+    }
+  }
+}

@@ -25,7 +25,12 @@ raycast_ecef_to_ellipsoid_impl(
   double altitude,
   bool throw_on_interior_point )
 {
-  if( vector_in.isZero() )
+  if( !point.allFinite() )
+  {
+    throw std::runtime_error( "raycast_ecef_to_ellipsoid(): invalid point" );
+  }
+
+  if( vector_in.isZero() || !vector_in.allFinite() )
   {
     throw std::runtime_error( "raycast_ecef_to_ellipsoid(): invalid vector" );
   }
@@ -33,7 +38,7 @@ raycast_ecef_to_ellipsoid_impl(
   auto const a = E::a + altitude;
   auto const b = E::b + altitude;
 
-  if( a <= 0.0 || b <= 0.0 )
+  if( !std::isfinite( altitude ) || a <= 0.0 || b <= 0.0 )
   {
     throw std::runtime_error( "raycast_ecef_to_ellipsoid(): invalid altitude" );
   }
