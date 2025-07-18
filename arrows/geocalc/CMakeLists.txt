@@ -7,6 +7,8 @@ set( plugin_geocalc_headers
   )
 set( plugin_geocalc_sources )
 set( plugin_geocalc_classes
+  algo/derive_corner_points
+
   geo_conv
   projection
   )
