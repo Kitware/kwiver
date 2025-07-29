@@ -9,7 +9,7 @@
 
 .ubuntu2204:
     extends: .linux
-    image: "kitware/kwiver:ci-ubuntu22_04-20250307"
+    image: "kitware/kwiver:ci-ubuntu22_04-20250525"
 
 .ubuntu2204_arrows:
     extends:
