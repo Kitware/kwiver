@@ -30,6 +30,8 @@ Arrows: Core
 * Restored "homography" feature matching implementation name to
   "homography_guided".
 
+* Better handled noncontiguous frames in track_features_core.
+
 Arrows: GDAL
 
 * Prevented segfault when saving image with null metadata.
