@@ -1857,6 +1857,13 @@ ffmpeg_video_input::priv::open_video_state
     return;
   }
 
+  if( frame_number <= 0 )
+  {
+    seek_to_start();
+    advance();
+    return;
+  }
+
   // Get to the desired frame by seeking some number of frames before it, then
   // iterating forward. If we still don't have a frame image for that frame,
   // try again by seeking even further back. Finding the last keyframe is
