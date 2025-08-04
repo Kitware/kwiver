@@ -10,6 +10,7 @@
 #include <vital/io/eigen_io.h>
 #include <vital/vital_config.h>
 
+#include <arrows/ceres/logging.h>
 #include <arrows/ceres/options.h>
 #include <arrows/ceres/reprojection_error.h>
 #include <arrows/ceres/types.h>
@@ -113,6 +114,8 @@ void
 bundle_adjust
 ::initialize()
 {
+  init_logging();
+
   KWIVER_INITIALIZE_UNIQUE_PTR( priv, d_ );
   attach_logger( "arrows.ceres.bundle_adjust" );
 }
