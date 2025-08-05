@@ -351,11 +351,18 @@ track_features_core
   // and prefer those over the last frame (i.e. largest frame number)
   if( prev_frame >= frame_number && frame_number > 0 )
   {
-    active_set = std::make_shared< feature_track_set >(
-      prev_tracks->active_tracks( frame_number - 1 ) );
-    if( active_set && active_set->size() > 0 )
+    auto const frame_ids = prev_tracks->all_frame_ids();
+    auto it = frame_ids.lower_bound( frame_number );
+    if( it == frame_ids.begin() )
     {
-      prev_frame = frame_number - 1;
+      return prev_tracks;
+    }
+    --it;
+    active_set = std::make_shared< feature_track_set >(
+      prev_tracks->active_tracks( *it ) );
+    if( active_set->size() > 0 )
+    {
+      prev_frame = *it;
     }
   }
   if( !active_set )
