@@ -10,9 +10,12 @@ set( ceres_headers_public
   )
 set( ceres_headers_private
   lens_distortion.h
+  logging.h
   )
 
-set( ceres_sources )
+set( ceres_sources
+  logging.cxx
+  )
 set( ceres_classes
   bundle_adjust
   optimize_cameras

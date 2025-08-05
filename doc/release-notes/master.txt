@@ -4,6 +4,10 @@ KWIVER 2.2.0 Release Notes
 Updates
 -------
 
+Arrows: Ceres
+
+* Connect Ceres built-in logging to KWIVER logging.
+
 Arrows: Core
 
 * Added image_io_tiled_multifile.

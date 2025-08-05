@@ -7,6 +7,7 @@
 /// optimization.
 
 #include "optimize_cameras.h"
+#include <arrows/ceres/logging.h>
 #include <arrows/ceres/options.h>
 #include <arrows/ceres/reprojection_error.h>
 #include <vital/exceptions.h>
@@ -43,6 +44,8 @@ void
 optimize_cameras
 ::initialize()
 {
+  init_logging();
+
   KWIVER_INITIALIZE_UNIQUE_PTR( priv, d_ );
   attach_logger( "arrows.ceres.optimize_cameras" );
 }
