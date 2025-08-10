@@ -36,6 +36,12 @@ workflow:
     # Release jobs don't run otherwise
     - if: '$KWIVER_CI_RELEASE == "true"'
       when: never
+    # Dev upload jobs only run on main branch (not MR, not tag)
+    - if: '$KWIVER_CI_DEV_UPLOAD == "true" && $CI_COMMIT_BRANCH == "main" && $CI_MERGE_REQUEST_ID == null && $CI_COMMIT_TAG == null'
+      when: on_success
+    # Dev upload jobs don't run otherwise
+    - if: '$KWIVER_CI_DEV_UPLOAD == "true"'
+      when: never
     # MR jobs
     - if: "$CI_MERGE_REQUEST_ID"
       when: on_success

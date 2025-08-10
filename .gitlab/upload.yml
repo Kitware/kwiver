@@ -11,3 +11,31 @@
         - ls dist
         - dnf install -y --setopt=install_weak_deps=False twine
         - twine upload -u gitlab-ci-token -p $CI_JOB_TOKEN --repository-url https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi dist/*
+
+.pypi_kwiver_upload_dev:
+    image: "fedora:40"
+    stage: upload
+    tags:
+        - docker
+        - linux-x86_64
+        - build
+
+    script:
+        - dnf install -y --setopt=install_weak_deps=False twine curl jq
+
+        # Delete all existing dev packages before upload
+        - |
+          echo "Removing old development packages..."
+          packages=$(curl --silent --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+            "https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID/packages?package_type=pypi&per_page=100")
+
+          echo "$packages" | jq -r '.[] | select(.name == "kwiver" and (.version | test("\\.dev[0-9]+"))) | .id' | while read pkg_id; do
+            echo "Deleting dev package ID: $pkg_id"
+            curl --silent --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+              "https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID/packages/$pkg_id"
+          done
+
+        # Upload new wheels with automatic dev versioning
+        - cd build/
+        - ls dist
+        - twine upload -u gitlab-ci-token -p $CI_JOB_TOKEN --repository-url https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi dist/*

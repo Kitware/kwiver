@@ -15,7 +15,24 @@ PACKAGE_NAME = "kwiver"
 
 
 with open(SCRIPT_DIR / "VERSION.txt", "r") as f:
-    VERSION = f.read().strip()
+    VERSION_FROM_FILE = f.read().strip()
+
+
+# This will generate versions like:
+#   - On tags: "2.1.0"
+#   - On main: "2.1.1.dev123+g7f3a2b1.d20250110"
+try:
+    from setuptools_scm import get_version
+
+    VERSION = get_version(
+        root=SCRIPT_DIR,
+        fallback_version=VERSION_FROM_FILE,
+        local_scheme="node-and-date",  # Adds +g<hash>.d<date>
+    )
+except (ImportError, LookupError):
+    # Not in a git repo or setuptools-scm not installed
+    # Use VERSION.txt as-is
+    VERSION = VERSION_FROM_FILE
 
 
 with open(SCRIPT_DIR / "README.rst", "r") as f:
