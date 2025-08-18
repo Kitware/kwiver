@@ -50,8 +50,6 @@ ubuntu2204-arrows:test:
         - .linux_tester_tags
         - .cmake_test_artifacts
         - .rules
-    variables:
-        RUN_DEPENDENT: "true"
     needs:
         - ubuntu2204-arrows:build
 
@@ -71,8 +69,6 @@ wheel-linux-python38-x86_64:test:
         - .linux_tester_tags
         - .cmake_wheel_artifacts
         - .rules
-    variables:
-        RUN_DEPENDENT: "true"
     needs:
         - wheel-linux-python38-x86_64:build
 
@@ -91,8 +87,6 @@ wheel-linux-python38-x86_64_burnout:test:
         - .linux_tester_tags
         - .cmake_wheel_artifacts
         - .rules
-    variables:
-        RUN_DEPENDENT: "true"
     needs:
         - wheel-linux-python38-x86_64:build
 
@@ -115,8 +109,6 @@ windows-vs2022-ninja-arrows:test:
         - .windows_builder_tags
         - .cmake_test_artifacts
         - .rules
-    variables:
-        RUN_DEPENDENT: "true"
     needs:
         - windows-vs2022-ninja-arrows:build
 
@@ -136,8 +128,6 @@ wheel-windows-python38-x86_64:test:
         - .windows_builder_tags
         - .cmake_wheel_artifacts
         - .rules
-    variables:
-        RUN_DEPENDENT: "true"
     needs:
         - wheel-windows-python38-x86_64:build
 
@@ -156,8 +146,6 @@ wheel-windows-python38-x86_64_burnout:test:
         - .windows_builder_tags
         - .cmake_wheel_artifacts
         - .rules
-    variables:
-        RUN_DEPENDENT: "true"
     needs:
         - wheel-windows-python38-x86_64_burnout:build
 
@@ -166,7 +154,7 @@ wheel:kwiver:upload:
         - .pypi_kwiver_upload
         - .rules
     variables:
-        IS_FOR_RELEASE: "true"
+        KWIVER_CI_RELEASE: "true"
     needs:
         - wheel-linux-python38-x86_64:build
         - job: wheel-linux-python38-x86_64:test

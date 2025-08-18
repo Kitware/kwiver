@@ -1,25 +1,43 @@
+## Job variables:
+##   KWIVER_CI_RELEASE
+##     Set to "true" for release-related jobs
+
+# When to even consider running a pipeline
+workflow:
+  rules:
+    # Run for merge requests
+    - if: "$CI_MERGE_REQUEST_ID"
+      when: always
+      auto_cancel:
+        on_new_commit: interruptible
+    # If not MR, only run for main repo
+    - if: '$CI_PROJECT_PATH != "kwiver/kwiver"'
+      when: never
+    # Run for protected branches
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+      when: always
+      auto_cancel:
+        on_new_commit: interruptible
+    # Run for tags
+    - if: "$CI_COMMIT_TAG"
+      when: always
+    # Run for schedules
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+      auto_cancel:
+        on_new_commit: none
+    - when: never
+
 .rules:
-    rules:
-        # Dependent jobs run automatically
-        - if: '$CI_MERGE_REQUEST_ID && $RUN_DEPENDENT == "true"'
-          when: on_success
-        # Release jobs never run on MRs
-        - if: '$CI_MERGE_REQUEST_ID && $IS_FOR_RELEASE == "true"'
-          when: never
-        # MRs run automatically. Use "manual" to require a trigger.
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: on_success
-        # Non-protected branches without tags have no pipelines (MR source branches).
-        - if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_TAG == ""'
-          when: never
-        # If there is a tag and it doesn't match, skip the job.
-        - if: '$CI_PROJECT_PATH == "kwiver/kwiver" && $CI_COMMIT_TAG != ""'
-          when: never
-        # If it's a release job and in the project, skip the job.
-        - if: '$CI_PROJECT_PATH == "kwiver/kwiver" && $IS_FOR_RELEASE == "true"'
-          when: never
-        # Otherwise, if it is in the project, run the job.
-        - if: '$CI_PROJECT_PATH == "kwiver/kwiver"'
-          when: on_success
-        # Ignore everything else.
-        - when: never
+  rules:
+    # Release jobs only run on tags
+    - if: '$KWIVER_CI_RELEASE == "true" && $CI_COMMIT_TAG'
+      when: on_success
+    # Release jobs don't run otherwise
+    - if: '$KWIVER_CI_RELEASE == "true"'
+      when: never
+    # MR jobs
+    - if: "$CI_MERGE_REQUEST_ID"
+      when: on_success
+    # Normal jobs on the project run automatically.
+    - when: on_success
