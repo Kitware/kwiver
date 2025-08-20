@@ -42,6 +42,7 @@ ubuntu2204-arrows:build:
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .rules
+    interruptible: true
 
 ubuntu2204-arrows:test:
     extends:
@@ -50,6 +51,7 @@ ubuntu2204-arrows:test:
         - .linux_tester_tags
         - .cmake_test_artifacts
         - .rules
+    interruptible: true
     needs:
         - ubuntu2204-arrows:build
 
@@ -73,14 +75,7 @@ wheel-linux-python:build:
     variables:
         PYTHON_PREFIX: "/opt/python/cp${PYTHON_VERSION}-cp${PYTHON_VERSION}"
     script:
-        # Set CMAKE_CONFIGURATION based on wheel type
-        - |
-            if [[ "$WHEEL_TYPE" == "burnout" ]]; then
-                export CMAKE_CONFIGURATION="wheel_linux${PYTHON_VERSION}_x86_64_ffmpeg_opencv_python"
-            else
-                export CMAKE_CONFIGURATION="wheel_linux${PYTHON_VERSION}_x86_64_ceres_dbow2_ffmpeg_gdal_kpf_opencv_pdal_proj_python_uuid_vtk_vxl"
-            fi
-        - !reference [.cmake_build_wheel_linux, script]
+        - .gitlab/ci/build_wheel_linux.sh
 
 wheel-linux-python:test:
     stage: test
@@ -91,21 +86,12 @@ wheel-linux-python:test:
         - .cmake_wheel_artifacts
         - .rules
     image: "quay.io/pypa/manylinux_2_28_x86_64"
+    interruptible: true
     variables:
         KWIVER_PYTHON_PLUGIN_PATH: kwiver.vital.tests.alg
         PYTHON_PREFIX: "/opt/python/cp${PYTHON_VERSION}-cp${PYTHON_VERSION}"
     script:
-        - "$PYTHON_PREFIX/bin/python -m venv build/ci-test-venv"
-        - . build/ci-test-venv/bin/activate
-        - pip install -U pip
-        - pip install "pytest<=8.1"
-        - pip install dist/*-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-*.whl
-        - |
-            if [[ "$WHEEL_TYPE" == "burnout" ]]; then
-                pytest "./python/kwiver/vital/tests/burnout_smoke_test.py"
-            else
-                pytest
-            fi
+        - .gitlab/ci/test_wheel_linux.sh
     needs:
         - wheel-linux-python:build
 
@@ -120,6 +106,7 @@ windows-vs2022-ninja-arrows:build:
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .rules
+    interruptible: true
 
 windows-vs2022-ninja-arrows:test:
     extends:
@@ -128,6 +115,7 @@ windows-vs2022-ninja-arrows:test:
         - .windows_builder_tags
         - .cmake_test_artifacts
         - .rules
+    interruptible: true
     needs:
         - windows-vs2022-ninja-arrows:build
 
@@ -137,54 +125,26 @@ wheel-windows-python:build:
     extends:
         - .python-wheel-matrix
         - .wheel_windows_x86_64
-        - .cmake_build_wheel_windows
         - .windows_builder_tags
         - .cmake_wheel_artifacts
         - .rules
         - .warning_policy
     interruptible: true
     script:
-        - |
-            if ($env:WHEEL_TYPE -eq "burnout") {
-                $env:CMAKE_CONFIGURATION = "wheel_windows${env:PYTHON_VERSION}_x86_64_vs2022_ninja_ffmpeg_opencv_python"
-            } else {
-                $env:CMAKE_CONFIGURATION = "wheel_windows${env:PYTHON_VERSION}_x86_64_vs2022_ninja_ceres_ffmpeg_gdal_opencv_pdal_proj_python_qt_vtk_vxl"
-            }
-            echo "CMAKE_CONFIGURATION set to: $env:CMAKE_CONFIGURATION"
-        - |
-            $major = $env:PYTHON_VERSION.Substring(0,1)
-            $minor = $env:PYTHON_VERSION.Substring(1)
-            $env:PYTHON_VERSION_DOTTED = "$major.$minor"
-            $env:SCIKIT_BUILD_DIR = "${env:GIT_CLONE_PATH}\_skbuild\win-amd64-$env:PYTHON_VERSION_DOTTED\cmake-build"
-            echo "SCIKIT_BUILD_DIR set to: $env:SCIKIT_BUILD_DIR"
-        - !reference [.cmake_build_wheel_windows, script]
+        - .gitlab/ci/build_wheel_windows.ps1
 
 wheel-windows-python:test:
     stage: test
     extends:
         - .python-wheel-matrix
-        - .cmake_test_wheel_windows
         - .wheel_windows_x86_64
         - .windows_builder_tags
         - .cmake_wheel_artifacts
         - .rules
-    script:
-        - |
-            if ($env:WHEEL_TYPE -eq "burnout") {
-                $env:CMAKE_CONFIGURATION = "wheel_windows${env:PYTHON_VERSION}_x86_64_vs2022_ninja_ffmpeg_opencv_python"
-            } else {
-                $env:CMAKE_CONFIGURATION = "wheel_windows${env:PYTHON_VERSION}_x86_64_vs2022_ninja_ceres_ffmpeg_gdal_opencv_pdal_proj_python_qt_vtk_vxl"
-            }
-            echo "CMAKE_CONFIGURATION set to: $env:CMAKE_CONFIGURATION"
-        - !reference [.cmake_test_wheel_matrix_windows, script]
-        - pip install (Get-ChildItem dist\*-cp$env:PYTHON_VERSION-cp$env:PYTHON_VERSION-*.whl | % FullName)
-        - |
-            if ($env:WHEEL_TYPE -eq "burnout") {
-                pytest "./python/kwiver/vital/tests/burnout_smoke_test.py"
-            } else {
-                pytest
-            }
+        - .warning_policy
     interruptible: true
+    script:
+        - .gitlab/ci/test_wheel_windows.ps1
     needs:
         - wheel-windows-python:build
 
