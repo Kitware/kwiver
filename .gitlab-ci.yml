@@ -53,42 +53,61 @@ ubuntu2204-arrows:test:
     needs:
         - ubuntu2204-arrows:build
 
+.python-wheel-matrix:
+    parallel:
+        matrix:
+            - PYTHON_VERSION: ["38", "39", "310"]
+              WHEEL_TYPE: ["full", "burnout"]
+
 # linux python wheels
-wheel-linux-python38-x86_64:build:
+wheel-linux-python:build:
+    stage: build
     extends:
-        - .wheel_linux38_x86_64
-        - .cmake_build_wheel_linux
+        - .python-wheel-matrix
+        - .manylinux2014_x86_64
         - .linux_builder_tags
         - .cmake_wheel_artifacts
         - .rules
+        - .warning_policy
+    interruptible: true
+    variables:
+        PYTHON_PREFIX: "/opt/python/cp${PYTHON_VERSION}-cp${PYTHON_VERSION}"
+    script:
+        # Set CMAKE_CONFIGURATION based on wheel type
+        - |
+            if [[ "$WHEEL_TYPE" == "burnout" ]]; then
+                export CMAKE_CONFIGURATION="wheel_linux${PYTHON_VERSION}_x86_64_ffmpeg_opencv_python"
+            else
+                export CMAKE_CONFIGURATION="wheel_linux${PYTHON_VERSION}_x86_64_ceres_dbow2_ffmpeg_gdal_kpf_opencv_pdal_proj_python_uuid_vtk_vxl"
+            fi
+        - !reference [.cmake_build_wheel_linux, script]
 
-wheel-linux-python38-x86_64:test:
+wheel-linux-python:test:
+    stage: test
     extends:
-        - .test_wheel_linux38_x86_64
-        - .cmake_test_wheel_linux
+        - .python-wheel-matrix
+        - .manylinux2014_x86_64
         - .linux_tester_tags
         - .cmake_wheel_artifacts
         - .rules
+    image: "quay.io/pypa/manylinux_2_28_x86_64"
+    variables:
+        KWIVER_PYTHON_PLUGIN_PATH: kwiver.vital.tests.alg
+        PYTHON_PREFIX: "/opt/python/cp${PYTHON_VERSION}-cp${PYTHON_VERSION}"
+    script:
+        - "$PYTHON_PREFIX/bin/python -m venv build/ci-test-venv"
+        - . build/ci-test-venv/bin/activate
+        - pip install -U pip
+        - pip install "pytest<=8.1"
+        - pip install dist/*-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-*.whl
+        - |
+            if [[ "$WHEEL_TYPE" == "burnout" ]]; then
+                pytest "./python/kwiver/vital/tests/burnout_smoke_test.py"
+            else
+                pytest
+            fi
     needs:
-        - wheel-linux-python38-x86_64:build
-
-wheel-linux-python38-x86_64_burnout:build:
-    extends:
-        - .wheel_linux38_x86_64_burnout
-        - .cmake_build_wheel_linux
-        - .linux_builder_tags
-        - .cmake_wheel_artifacts
-        - .rules
-
-wheel-linux-python38-x86_64_burnout:test:
-    extends:
-        - .test_wheel_linux38_x86_64
-        - .cmake_test_burnout_wheel_linux
-        - .linux_tester_tags
-        - .cmake_wheel_artifacts
-        - .rules
-    needs:
-        - wheel-linux-python38-x86_64:build
+        - wheel-linux-python:build
 
 # Windows
 
@@ -113,41 +132,61 @@ windows-vs2022-ninja-arrows:test:
         - windows-vs2022-ninja-arrows:build
 
 # windows wheels
-wheel-windows-python38-x86_64:build:
+wheel-windows-python:build:
+    stage: build
     extends:
-        - .wheel_windows38_x86_64
+        - .python-wheel-matrix
+        - .wheel_windows_x86_64
         - .cmake_build_wheel_windows
         - .windows_builder_tags
         - .cmake_wheel_artifacts
         - .rules
+        - .warning_policy
+    interruptible: true
+    script:
+        - |
+            if ($env:WHEEL_TYPE -eq "burnout") {
+                $env:CMAKE_CONFIGURATION = "wheel_windows${env:PYTHON_VERSION}_x86_64_vs2022_ninja_ffmpeg_opencv_python"
+            } else {
+                $env:CMAKE_CONFIGURATION = "wheel_windows${env:PYTHON_VERSION}_x86_64_vs2022_ninja_ceres_ffmpeg_gdal_opencv_pdal_proj_python_qt_vtk_vxl"
+            }
+            echo "CMAKE_CONFIGURATION set to: $env:CMAKE_CONFIGURATION"
+        - |
+            $major = $env:PYTHON_VERSION.Substring(0,1)
+            $minor = $env:PYTHON_VERSION.Substring(1)
+            $env:PYTHON_VERSION_DOTTED = "$major.$minor"
+            $env:SCIKIT_BUILD_DIR = "${env:GIT_CLONE_PATH}\_skbuild\win-amd64-$env:PYTHON_VERSION_DOTTED\cmake-build"
+            echo "SCIKIT_BUILD_DIR set to: $env:SCIKIT_BUILD_DIR"
+        - !reference [.cmake_build_wheel_windows, script]
 
-wheel-windows-python38-x86_64:test:
+wheel-windows-python:test:
+    stage: test
     extends:
-        - .wheel_windows38_x86_64
+        - .python-wheel-matrix
         - .cmake_test_wheel_windows
+        - .wheel_windows_x86_64
         - .windows_builder_tags
         - .cmake_wheel_artifacts
         - .rules
+    script:
+        - |
+            if ($env:WHEEL_TYPE -eq "burnout") {
+                $env:CMAKE_CONFIGURATION = "wheel_windows${env:PYTHON_VERSION}_x86_64_vs2022_ninja_ffmpeg_opencv_python"
+            } else {
+                $env:CMAKE_CONFIGURATION = "wheel_windows${env:PYTHON_VERSION}_x86_64_vs2022_ninja_ceres_ffmpeg_gdal_opencv_pdal_proj_python_qt_vtk_vxl"
+            }
+            echo "CMAKE_CONFIGURATION set to: $env:CMAKE_CONFIGURATION"
+        - !reference [.cmake_test_wheel_matrix_windows, script]
+        - pip install (Get-ChildItem dist\*-cp$env:PYTHON_VERSION-cp$env:PYTHON_VERSION-*.whl | % FullName)
+        - |
+            if ($env:WHEEL_TYPE -eq "burnout") {
+                pytest "./python/kwiver/vital/tests/burnout_smoke_test.py"
+            } else {
+                pytest
+            }
+    interruptible: true
     needs:
-        - wheel-windows-python38-x86_64:build
-
-wheel-windows-python38-x86_64_burnout:build:
-    extends:
-        - .wheel_windows38_x86_64_burnout
-        - .cmake_build_wheel_windows
-        - .windows_builder_tags
-        - .cmake_wheel_artifacts
-        - .rules
-
-wheel-windows-python38-x86_64_burnout:test:
-    extends:
-        - .wheel_windows38_x86_64
-        - .cmake_test_burnout_wheel_windows
-        - .windows_builder_tags
-        - .cmake_wheel_artifacts
-        - .rules
-    needs:
-        - wheel-windows-python38-x86_64_burnout:build
+        - wheel-windows-python:build
 
 wheel:kwiver:upload:
     extends:
@@ -156,9 +195,28 @@ wheel:kwiver:upload:
     variables:
         KWIVER_CI_UPLOAD: "true"
     needs:
-        - wheel-linux-python38-x86_64:build
-        - job: wheel-linux-python38-x86_64:test
+        # Only include 'full' wheel builds, exclude 'burnout' to avoid conflicts
+        - job: "wheel-linux-python:build: [38, full]"
+          artifacts: true
+        - job: "wheel-linux-python:test: [38, full]"
           artifacts: false
-        - wheel-windows-python38-x86_64:build
-        - job: wheel-windows-python38-x86_64:test
+        - job: "wheel-linux-python:build: [39, full]"
+          artifacts: true
+        - job: "wheel-linux-python:test: [39, full]"
+          artifacts: false
+        - job: "wheel-linux-python:build: [310, full]"
+          artifacts: true
+        - job: "wheel-linux-python:test: [310, full]"
+          artifacts: false
+        - job: "wheel-windows-python:build: [38, full]"
+          artifacts: true
+        - job: "wheel-windows-python:test: [38, full]"
+          artifacts: false
+        - job: "wheel-windows-python:build: [39, full]"
+          artifacts: true
+        - job: "wheel-windows-python:test: [39, full]"
+          artifacts: false
+        - job: "wheel-windows-python:build: [310, full]"
+          artifacts: true
+        - job: "wheel-windows-python:test: [310, full]"
           artifacts: false

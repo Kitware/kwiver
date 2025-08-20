@@ -74,10 +74,13 @@
 
 ## Windows-specific scripts
 
-.before_script_windows: &before_script_windows
+.before_script_windows_cmake: &before_script_windows_cmake
     - $pwdpath = $pwd.Path
     - powershell -File ".gitlab/ci/cmake.ps1"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\cmake\bin;$env:PATH"
+
+.before_script_windows: &before_script_windows
+    - *before_script_windows_cmake
     - powershell -File ".gitlab/ci/ninja.ps1"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab;$env:PATH"
     - cmake --version
@@ -159,9 +162,7 @@
     stage: test
 
     script:
-        - $pwdpath = $pwd.Path
-        - powershell -File ".gitlab/ci/cmake.ps1"
-        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\cmake\bin;$env:PATH"
+        - *before_script_windows_cmake
         - *before_script_windows_setup_wheel_python
         # install the wheel in a clean venv
         - python -m venv $pwdpath\build\ci-test-venv
@@ -173,13 +174,24 @@
         - pytest
     interruptible: true
 
+.cmake_test_wheel_matrix_windows:
+    stage: test
+
+    script:
+        - *before_script_windows_cmake
+        - *before_script_windows_setup_wheel_python
+        # install the wheel in a clean venv
+        - python -m venv $pwdpath\build\ci-test-venv
+        - . .\build\ci-test-venv\Scripts\Activate.ps1
+        - python -m pip install --upgrade pip
+        # test dependencies
+        - pip install "pytest<=8.1"
+
 .cmake_test_burnout_wheel_windows:
     stage: test
 
     script:
-        - $pwdpath = $pwd.Path
-        - powershell -File ".gitlab/ci/cmake.ps1"
-        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\cmake\bin;$env:PATH"
+        - *before_script_windows_cmake
         - *before_script_windows_setup_wheel_python
         # install the wheel in a clean venv
         - python -m venv $pwdpath\build\ci-test-venv
