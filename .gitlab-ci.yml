@@ -154,27 +154,7 @@ wheel:kwiver:upload:
         - .pypi_kwiver_upload
         - .rules
     variables:
-        KWIVER_CI_RELEASE: "true"
-    needs:
-        - wheel-linux-python38-x86_64:build
-        - job: wheel-linux-python38-x86_64:test
-          artifacts: false
-        - wheel-linux-python38-x86_64_burnout:build
-        - job: wheel-linux-python38-x86_64_burnout:test
-          artifacts: false
-        - wheel-windows-python38-x86_64:build
-        - job: wheel-windows-python38-x86_64:test
-          artifacts: false
-        - wheel-windows-python38-x86_64_burnout:build
-        - job: wheel-windows-python38-x86_64_burnout:test
-          artifacts: false
-
-wheel:kwiver:upload:dev:
-    extends:
-        - .pypi_kwiver_upload_dev
-        - .rules
-    variables:
-        KWIVER_CI_DEV_UPLOAD: "true"
+        KWIVER_CI_UPLOAD: "true"
     needs:
         - wheel-linux-python38-x86_64:build
         - job: wheel-linux-python38-x86_64:test
