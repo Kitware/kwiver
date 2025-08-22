@@ -159,12 +159,6 @@ wheel:kwiver:upload:
         - wheel-linux-python38-x86_64:build
         - job: wheel-linux-python38-x86_64:test
           artifacts: false
-        - wheel-linux-python38-x86_64_burnout:build
-        - job: wheel-linux-python38-x86_64_burnout:test
-          artifacts: false
         - wheel-windows-python38-x86_64:build
         - job: wheel-windows-python38-x86_64:test
-          artifacts: false
-        - wheel-windows-python38-x86_64_burnout:build
-        - job: wheel-windows-python38-x86_64_burnout:test
           artifacts: false
