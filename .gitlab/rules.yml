@@ -1,6 +1,6 @@
 ## Job variables:
-##   KWIVER_CI_RELEASE
-##     Set to "true" for release-related jobs
+##   KWIVER_CI_UPLOAD
+##     Set to "true" for PyPI upload jobs (handles both release and dev uploads)
 
 # When to even consider running a pipeline
 workflow:
@@ -30,11 +30,11 @@ workflow:
 
 .rules:
   rules:
-    # Release jobs only run on tags
-    - if: '$KWIVER_CI_RELEASE == "true" && $CI_COMMIT_TAG'
+    # Upload jobs run on protected refs when not in MR
+    - if: '$KWIVER_CI_UPLOAD == "true" && $CI_COMMIT_REF_PROTECTED == "true" && $CI_MERGE_REQUEST_ID == null'
       when: on_success
-    # Release jobs don't run otherwise
-    - if: '$KWIVER_CI_RELEASE == "true"'
+    # Upload jobs don't run otherwise
+    - if: '$KWIVER_CI_UPLOAD == "true"'
       when: never
     # MR jobs
     - if: "$CI_MERGE_REQUEST_ID"
