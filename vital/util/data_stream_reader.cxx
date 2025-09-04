@@ -29,24 +29,18 @@ data_stream_reader
 {
   std::string line;
 
-  while( true )
+  while( std::getline( m_in_stream, line ) )
   {
-    if( !std::getline( m_in_stream, line ) )
-    {
-      // read failed.
-      return false;
-    }
-
     ++m_line_count;
 
     if( m_string_editor.edit( line ) )
     {
-      break;
+      str = line;
+      return true;
     }
   }   // end while
 
-  str = line;
-  return true;
+  return false;
 }
 
 // ----------------------------------------------------------------------------
