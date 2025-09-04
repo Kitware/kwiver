@@ -7,4 +7,4 @@
         - build
 
     script:
-        - .gitlab/ci/upload_pypi.sh build/
+        - .gitlab/ci/upload_pypi.sh

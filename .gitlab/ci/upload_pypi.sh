@@ -4,9 +4,6 @@
 
 set -e
 
-readonly build_path="$1"
-shift
-
 dnf install -y --setopt=install_weak_deps=False twine curl jq
 
 gitlab_api_url="https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID"
@@ -31,6 +28,5 @@ if [ -z "$CI_COMMIT_TAG" ]; then
   fi
 fi
 
-cd "$build_path"
 ls dist
 twine upload -u gitlab-ci-token -p "$CI_JOB_TOKEN" --repository-url "$gitlab_api_url/packages/pypi" dist/*
