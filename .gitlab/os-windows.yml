@@ -5,6 +5,7 @@
 .windows:
     variables:
         GIT_CLONE_PATH: "$CI_BUILDS_DIR\\kwiver-ext\\$CI_CONCURRENT_ID"
+        GIT_STRATEGY: clone
         # Turn off direct mode until we test it.
         BUILDCACHE_DIRECT_MODE: "false"
 
@@ -122,11 +123,13 @@
 
 .cmake_build_wheel_windows:
     stage: build
+    variables:
+        GIT_DEPTH: 0  # Full git history for setuptools-scm version generation
     script:
         - *before_script_windows
         - *before_script_windows_setup_wheel_python
         - *before_script_windows_venv
-        - pip install scikit-build delvewheel
+        - pip install scikit-build delvewheel "setuptools-scm>=6.2,<8"  # <8 to maintain compatibility with setuptools<61 in CI
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
         - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
         - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"

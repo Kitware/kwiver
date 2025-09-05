@@ -3,6 +3,7 @@ Scikit-build requires configuration to be passed to it's setup function.
 Support for setup.cfg is forthcoming (as of skbuild v0.12
 """
 
+import os
 from pathlib import Path
 from setuptools import find_packages
 
@@ -20,14 +21,14 @@ with open(SCRIPT_DIR / "VERSION.txt", "r") as f:
 
 # This will generate versions like:
 #   - On tags: "2.1.0"
-#   - On main: "2.1.1.dev123+g7f3a2b1.d20250110"
+#   - On main: "2.1.1.dev123+g7f3a2b1"
 try:
     from setuptools_scm import get_version
 
     VERSION = get_version(
         root=SCRIPT_DIR,
         fallback_version=VERSION_FROM_FILE,
-        local_scheme="node-and-date",  # Adds +g<hash>.d<date>
+        local_scheme="node",
     )
 except (ImportError, LookupError):
     # Not in a git repo or setuptools-scm not installed
@@ -38,6 +39,9 @@ except (ImportError, LookupError):
 with open(SCRIPT_DIR / "README.rst", "r") as f:
     LONG_DESCRIPTION = f.read()
 
+# Set environment variable for CMake to pick up
+# Adding f"-DKWIVER_VERSION={VERSION} to cmake_args didn't work
+os.environ["KWIVER_WHEEL_VERSION"] = VERSION
 
 setup(
     # Basic Metadata ###########################################################
