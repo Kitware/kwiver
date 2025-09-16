@@ -1448,9 +1448,10 @@ std::string SymbolProperties::GetBinary() const
   if (this->Binary=="/proc/self/exe")
     {
     std::string binary;
-    char buf[1024]={'\0'};
+    const int bufSize = 1024;
+    char buf[bufSize + 1]={'\0'};
     ssize_t ll=0;
-    if ((ll=readlink("/proc/self/exe",buf,1024))>0)
+    if ((ll=readlink("/proc/self/exe",buf,bufSize))>0)
       {
       buf[ll]='\0';
       binary=buf;
@@ -1781,7 +1782,8 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
   // node.
 
   int ierr=0;
-  char base[NI_MAXHOST];
+  // Extra byte for null character
+  char base[NI_MAXHOST + 1];
   ierr=gethostname(base,NI_MAXHOST);
   if (ierr)
     {
