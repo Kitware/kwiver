@@ -3166,23 +3166,22 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
 {
   this->NumberOfLogicalCPU = 0;
   this->NumberOfPhysicalCPU = 0;
-  std::string buffer;
 
-  FILE *fd = fopen("/proc/cpuinfo", "r" );
-  if ( !fd )
-    {
+  std::ifstream file("/proc/cpuinfo");
+
+  if (!file.is_open())
+  {
     std::cout << "Problem opening /proc/cpuinfo" << std::endl;
     return false;
-    }
+  }
 
-  size_t fileSize = 0;
-  while(!feof(fd))
-    {
-    buffer += static_cast<char>(fgetc(fd));
-    fileSize++;
-    }
-  fclose( fd );
-  buffer.resize(fileSize-2);
+  std::stringstream bufferStrm;
+  bufferStrm << file.rdbuf();
+
+  std::string buffer = bufferStrm.str();
+
+  file.close();
+
   // Number of logical CPUs (combination of multiple processors, multi-core
   // and hyperthreading)
   size_t pos = buffer.find("processor\t");
