@@ -147,9 +147,9 @@ string
 Timestamp
 ::getStringTime() const
 {
-  char buf[ 32 ];
-  sprintf( buf, "%.6f", this->getFloatTime() );
-  return string( buf );
+  std::stringstream ss;
+  ss << std::fixed << std::setprecision( 6 ) << this->getFloatTime();
+  return ss.str();
 }
 
 double
