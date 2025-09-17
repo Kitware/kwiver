@@ -71,13 +71,12 @@ public:
     std::stringstream ss( parent.get_past_frames_to_show() );
 
     unsigned next_int;
-    while( ss >> next_int )
+    std::string temp;
+    while( getline( ss, temp, ',' ) )
     {
-      result.push_back( next_int );
-
-      if( ss.peek() == ',' )
+      if( std::stringstream( temp ) >> next_int )
       {
-        ss.ignore();
+        result.push_back( next_int );
       }
     }
 
