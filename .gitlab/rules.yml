@@ -13,6 +13,11 @@ workflow:
     # If not MR, only run for main repo
     - if: '$CI_PROJECT_PATH != "kwiver/kwiver"'
       when: never
+    # Run for schedules
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+      auto_cancel:
+        on_new_commit: none
     # Run for protected branches
     - if: '$CI_COMMIT_REF_PROTECTED == "true"'
       when: always
@@ -21,11 +26,6 @@ workflow:
     # Run for tags
     - if: "$CI_COMMIT_TAG"
       when: always
-    # Run for schedules
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
-      auto_cancel:
-        on_new_commit: none
     - when: never
 
 .rules:
