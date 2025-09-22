@@ -299,12 +299,12 @@ inline void Realpath(const std::string& path,
   {
     if ( errorMessage )
     {
-      resolved_path = path;
+      *errorMessage = ex.what();
+      resolved_path = "";
     }
     else
     {
-      *errorMessage = ex.what();
-      resolved_path = "";
+      resolved_path = path;
     }
   }
 }

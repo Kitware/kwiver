@@ -601,10 +601,6 @@ void CommandLineArguments::GenerateHelp()
       }
     }
 
-  // Create format for that string
-  char format[80];
-  sprintf(format, "  %%-%us  ", static_cast<unsigned int>(maxlen));
-
   maxlen += 4; // For the space before and after the option
 
   // Print help for each option
