@@ -295,7 +295,7 @@ inline void Realpath(const std::string& path,
   {
     resolved_path = std::filesystem::canonical( path ).string();
   }
-  catch (const std::exception& ex)
+  catch ( std::exception const& ex )
   {
     if ( errorMessage )
     {

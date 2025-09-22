@@ -634,7 +634,7 @@ void CommandLineArguments::GenerateHelp()
         case CommandLineArguments::NO_ARGUMENT:
           break;
         case CommandLineArguments::CONCAT_ARGUMENT:
-          str << std::setw(maxlen) << std::left << " opt";
+          str << std::setw(maxlen) << std::left << "opt";
           break;
         case CommandLineArguments::SPACE_ARGUMENT:
           str << std::setw(maxlen) << std::left << " opt";

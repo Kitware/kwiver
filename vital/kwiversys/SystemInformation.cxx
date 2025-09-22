@@ -1448,10 +1448,10 @@ std::string SymbolProperties::GetBinary() const
   if (this->Binary=="/proc/self/exe")
     {
     std::string binary;
-    const int bufSize = 1024;
-    char buf[bufSize + 1]={'\0'};
+    constexpr int buffer_size = 1024;
+    char buf[buffer_size + 1]={'\0'};
     ssize_t ll=0;
-    if ((ll=readlink("/proc/self/exe",buf,bufSize))>0)
+    if ((ll=readlink("/proc/self/exe",buf,buffer_size))>0)
       {
       buf[ll]='\0';
       binary=buf;

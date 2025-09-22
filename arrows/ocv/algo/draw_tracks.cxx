@@ -72,7 +72,7 @@ public:
 
     unsigned next_int;
     std::string temp;
-    while( getline( ss, temp, ',' ) )
+    while( std::getline( ss, temp, ',' ) )
     {
       if( std::stringstream( temp ) >> next_int )
       {
