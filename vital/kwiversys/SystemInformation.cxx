@@ -1783,7 +1783,7 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
 
   int ierr=0;
   // Extra byte for null character
-  char base[NI_MAXHOST + 1];
+  char base[NI_MAXHOST + 1] = {'\0'};
   ierr=gethostname(base,NI_MAXHOST);
   if (ierr)
     {
