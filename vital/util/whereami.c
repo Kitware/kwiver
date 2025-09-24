@@ -240,7 +240,8 @@ int WAI_PREFIX(getModulePath)(char* out, int capacity, int* dirname_length)
 
     for (;;)
     {
-      char buffer[PATH_MAX < 1024 ? 1024 : PATH_MAX];
+      const int buffer_size = PATH_MAX < 1024 ? 1024 : PATH_MAX;
+      char buffer[buffer_size + 1] = {'\0'};
       uint64_t low, high;
       char perms[5];
       uint64_t offset;
@@ -248,7 +249,7 @@ int WAI_PREFIX(getModulePath)(char* out, int capacity, int* dirname_length)
       char path[PATH_MAX];
       uint32_t inode;
 
-      if (!fgets(buffer, sizeof(buffer), maps))
+      if (!fgets(buffer, buffer_size, maps))
         break;
 
       if (sscanf(buffer, "%" PRIx64 "-%" PRIx64 " %s %" PRIx64 " %x:%x %u %s\n", &low, &high, perms, &offset, &major, &minor, &inode, path) == 8)

@@ -213,7 +213,7 @@ struct kwsysProcess_s
   int SignalPipe;
 
   /* Buffer for pipe data.  */
-  char PipeBuffer[KWSYSPE_PIPE_BUFFER_SIZE];
+  char PipeBuffer[KWSYSPE_PIPE_BUFFER_SIZE + 1];
 
   /* Process IDs returned by the calls to fork.  Everything is volatile
      because the signal handler accesses them.  You must be very careful
