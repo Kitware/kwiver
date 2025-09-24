@@ -78,6 +78,10 @@ public:
       {
         result.push_back( next_int );
       }
+      else
+      {
+        break;
+      }
     }
 
     if( !result.empty() )
