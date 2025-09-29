@@ -129,7 +129,7 @@ function (kwiver_add_python_library    name    modpath)
   endif()
 
   set(pysuffix "${CMAKE_SHARED_MODULE_SUFFIX}")
-  if (WIN32 AND NOT CYTWIN)
+  if (WIN32 AND NOT CYGWIN)
     set(pysuffix .pyd)
   endif ()
 
