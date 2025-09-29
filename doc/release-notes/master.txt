@@ -20,6 +20,10 @@ Arrows: Geocalc
 
 * Added derive_corner_points.
 
+Vital: Exceptions
+
+* Omit file information from exception description when creating Release build.
+
 Vital: Types
 
 * Added tiled_image_container.
