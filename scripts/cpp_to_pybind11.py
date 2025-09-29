@@ -2,7 +2,7 @@
 # OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 # https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-""" cpp_to_pybind11.py:
+"""cpp_to_pybind11.py:
 
 Reads a C++ header file and creates C++ files with pybind11 bindings for
 the objects defined in the input file. cpp_to_pybind11.py uses pygccxml to parse
@@ -266,6 +266,7 @@ def create_class_implementation(
     stream(COMMAND_STRING)
     stream("")
     stream("#define KWIVER_PYBIND11_INCLUDE")
+    stream("#include <pybind11/eigen.h>")
     stream("#include <pybind11/pybind11.h>")
 
     stream("")
@@ -281,6 +282,8 @@ def create_class_implementation(
     cpp_class_name = Path(filename).stem
     stream(f"void {cpp_class_name}(py::module& m)")
     stream("{")
+    stream('  py::module::import("kwiver.vital.config");')
+    stream('  py::module::import("kwiver.vital.types");')
 
     (class_,) = algo_namespace.classes(cpp_class_name)
     parse_class(class_, stream)

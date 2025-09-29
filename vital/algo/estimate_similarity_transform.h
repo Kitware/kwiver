@@ -39,44 +39,44 @@ public:
 
   /// Estimate the similarity transform between two corresponding point sets
   ///
-  /// \param from List of length N of 3D points in the from space.
-  /// \param to   List of length N of 3D points in the to space.
-  /// \throws algorithm_exception When the from and to point sets are
+  /// \param src List of length N of 3D points in the src space.
+  /// \param dst List of length N of 3D points in the dst space.
+  /// \throws algorithm_exception When the src and dst point sets are
   ///                             misaligned, insufficient or degenerate.
   /// \returns An estimated similarity transform mapping 3D points in the
-  ///          \c from space to points in the \c to space.
+  ///          \c src space to points in the \c dst space.
   virtual kwiver::vital::similarity_d
   estimate_transform(
-    std::vector< kwiver::vital::vector_3d > const& from,
-    std::vector< kwiver::vital::vector_3d > const& to ) const = 0;
+    std::vector< kwiver::vital::vector_3d > const& src,
+    std::vector< kwiver::vital::vector_3d > const& dst ) const = 0;
 
   /// Estimate the similarity transform between two corresponding sets of
   /// cameras
   ///
-  /// \param from List of length N of cameras in the from space.
-  /// \param to   List of length N of cameras in the to space.
-  /// \throws algorithm_exception When the from and to point sets are
+  /// \param src List of length N of cameras in the src space.
+  /// \param dst List of length N of cameras in the dst space.
+  /// \throws algorithm_exception When the src and dst point sets are
   ///                             misaligned, insufficient or degenerate.
   /// \returns An estimated similarity transform mapping camera centers in the
-  ///          \c from space to camera centers in the \c to space.
+  ///          \c src space to camera centers in the \c dst space.
   virtual kwiver::vital::similarity_d
   estimate_transform(
-    std::vector< kwiver::vital::camera_perspective_sptr > const& from,
-    std::vector< kwiver::vital::camera_perspective_sptr > const& to ) const;
+    std::vector< kwiver::vital::camera_perspective_sptr > const& src,
+    std::vector< kwiver::vital::camera_perspective_sptr > const& dst ) const;
 
   /// Estimate the similarity transform between two corresponding sets of
   /// landmarks.
   ///
-  /// \param from List of length N of landmarks in the from space.
-  /// \param to   List of length N of landmarks in the to space.
-  /// \throws algorithm_exception When the from and to point sets are
+  /// \param src List of length N of landmarks in the src space.
+  /// \param dst List of length N of landmarks in the dst space.
+  /// \throws algorithm_exception When the src and dst point sets are
   ///                             misaligned, insufficient or degenerate.
   /// \returns An estinated similarity transform mapping landmark locations in
-  ///          the \c from space to located in the \c to space.
+  ///          the \c src space to located in the \c dst space.
   virtual kwiver::vital::similarity_d
   estimate_transform(
-    std::vector< kwiver::vital::landmark_sptr > const& from,
-    std::vector< kwiver::vital::landmark_sptr > const& to )
+    std::vector< kwiver::vital::landmark_sptr > const& src,
+    std::vector< kwiver::vital::landmark_sptr > const& dst )
   const;
 
   /// Estimate the similarity transform between two corresponding camera maps
@@ -88,16 +88,16 @@ public:
   ///
   /// \throws algorithm_exception When the from and to point sets are
   ///                             misaligned, insufficient or degenerate.
-  /// \param from Map of original cameras, sharing N frames with the transformed
-  ///             cameras, where N > 0.
-  /// \param to   Map of transformed cameras, sharing N frames with the original
-  ///             cameras, where N > 0.
+  /// \param src Map of original cameras, sharing N frames with the transformed
+  ///            cameras, where N > 0.
+  /// \param dst Map of transformed cameras, sharing N frames with the original
+  ///            cameras, where N > 0.
   /// \returns An estimated similarity transform mapping camera centers in the
-  ///          \c from space to camera centers in the \c to space.
+  ///          \c src space to camera centers in the \c dst space.
   virtual kwiver::vital::similarity_d
   estimate_transform(
-    kwiver::vital::camera_map_sptr const from,
-    kwiver::vital::camera_map_sptr const to ) const;
+    kwiver::vital::camera_map_sptr const src,
+    kwiver::vital::camera_map_sptr const dst ) const;
 
   /// Estimate the similarity transform between two corresponding landmark maps
   ///
@@ -108,16 +108,16 @@ public:
   ///
   /// \throws algorithm_exception When the from and to point sets are
   ///                             misaligned, insufficient or degenerate.
-  /// \param from Map of original landmarks, sharing N frames with the
-  ///             transformed landmarks, where N > 0.
-  /// \param to   Map of transformed landmarks, sharing N frames with the
-  ///             original landmarks, where N > 0.
+  /// \param src Map of original landmarks, sharing N frames with the
+  ///            transformed landmarks, where N > 0.
+  /// \param dst Map of transformed landmarks, sharing N frames with the
+  ///            original landmarks, where N > 0.
   /// \returns An estimated similarity transform mapping landmark centers in the
-  ///          \c from space to camera centers in the \c to space.
+  ///          \c src space to camera centers in the \c dst space.
   virtual kwiver::vital::similarity_d
   estimate_transform(
-    kwiver::vital::landmark_map_sptr const from,
-    kwiver::vital::landmark_map_sptr const to ) const;
+    kwiver::vital::landmark_map_sptr const src,
+    kwiver::vital::landmark_map_sptr const dst ) const;
 };
 
 /// Shared pointer for similarity transformation algorithms
