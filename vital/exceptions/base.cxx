@@ -39,10 +39,12 @@ vital_exception
   std::ostringstream sstr;
   sstr << m_what;
 
+#ifndef NDEBUG
   if( !m_file_name.empty() )
   {
     sstr << ", thrown from " << m_file_name << ":" << m_line_number;
   }
+#endif
 
   m_what_loc = sstr.str();
 
