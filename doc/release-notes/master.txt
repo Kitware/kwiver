@@ -39,3 +39,7 @@ Arrows: Core
 Arrows: GDAL
 
 * Prevented segfault when saving image with null metadata.
+
+CMake
+
+* Fixed Cygwin detection in Python utilities.
