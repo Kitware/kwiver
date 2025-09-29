@@ -134,11 +134,13 @@ set(_kwiver_python_algo_all_modules_content)
 string(CONCAT _kwiver_python_algo_all_modules_content
 "#include <pybind11/pybind11.h>\n"
 "#include <python/kwiver/vital/algo/algorithm.h>\n"
+"#include <python/kwiver/vital/algo/algorithm_capabilities.h>\n"
 "${_kwiver_python_algo_all_modules_includes}"
 "namespace kwiver::vital::python {\n"
 "PYBIND11_MODULE(algos,m)\n"
 "{\n"
 "   algorithm(m);\n"
+"   algorithm_capabilities(m);\n"
 "${_kwiver_python_algo_all_modules_load_algos}"
 "}\n"
 "} // namespace \n"
@@ -154,6 +156,7 @@ file(GENERATE
 set(module_sources
   algorithm.h
   algorithm.cxx
+  algorithm_capabilities.cxx
   algorithm_trampoline.txx
   "${CMAKE_CURRENT_BINARY_DIR}/algorithm_module.cxx"
   ${algo_sources}

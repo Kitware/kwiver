@@ -15,14 +15,6 @@ namespace kv = kwiver::vital;
 // ----------------------------------------------------------------------------
 PYBIND11_MODULE( _plugin_management, m )
 {
-  // -------------------------------------------------------------------------
-  m.def(
-    "plugin_manager_instance", &kv::plugin_manager::instance,
-    py::return_value_policy::reference,
-    // doc-string
-    "Returns the plugin manager singleton"
-  );
-
   py::enum_< kv::plugin_manager::plugin_type >( m, "PluginType" )
     .value( "PROCESSES", kv::plugin_manager::plugin_type::PROCESSES )
     .value( "ALGORITHMS", kv::plugin_manager::plugin_type::ALGORITHMS )
@@ -66,6 +58,14 @@ PYBIND11_MODULE( _plugin_management, m )
       "impl_names", &kv::plugin_manager::_impl_names,
       py::doc( "Get list of plugin implementation names for an interface." )
     );
+
+// -------------------------------------------------------------------------
+  m.def(
+    "plugin_manager_instance", &kv::plugin_manager::instance,
+    py::return_value_policy::reference,
+    // doc-string
+    "Returns the plugin manager singleton"
+  );
 
 // -------------------------------------------------------------------------
   py::class_< kv::implementation_factory_by_name< kv::say > >(

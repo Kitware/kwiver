@@ -150,6 +150,9 @@ using namespace kwiver::vital;
 
 PYBIND11_MODULE( detected_object, m )
 {
+  py::module::import( "kwiver.vital.types.geo_point" );
+  py::module::import( "kwiver.vital.types.point" );
+
   /*
    *
    *  Developer:

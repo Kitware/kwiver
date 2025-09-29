@@ -41,7 +41,7 @@ declare_feature( py::module& m, std::string const& typestr )
       py::arg( "mag" ) = 0.0,
       py::arg( "scale" ) = 1.0,
       py::arg( "angle" ) = 0.0,
-      py::arg( "rgb_color" ) = kv::rgb_color() )
+      py::arg_v( "rgb_color", kv::rgb_color(), "RGBColor(255, 255, 255)" ) )
     .def( "clone", &Class::clone )
     .def(
       "__str__", []( const Class& self ){
@@ -73,20 +73,22 @@ declare_feature( py::module& m, std::string const& typestr )
 using namespace kwiver::vital::python;
 PYBIND11_MODULE( feature, m )
 {
+  py::module::import( "kwiver.vital.types.color" );
+
   py::class_< kv::feature, std::shared_ptr< kv::feature > >( m, "Feature" )
     .def(
     "__eq__", []( const kv::feature& self, const kv::feature& other ){
       return self == other;
-    } )
+    }, py::arg( "other" ) )
     .def(
       "equal_except_for_angle",
       []( const kv::feature& self, const kv::feature& other ){
         return self.equal_except_for_angle( other );
-      } )
+      }, py::arg( "other" ) )
     .def(
       "__ne__", []( const kv::feature& self, const kv::feature& other ){
         return self != other;
-      } )
+      }, py::arg( "other" ) )
   ;
   declare_feature< float  >( m, "F" );
   declare_feature< double >( m, "D" );

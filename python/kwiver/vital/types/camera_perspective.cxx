@@ -42,6 +42,8 @@ public:
 PYBIND11_MODULE( camera_perspective, m )
 {
   py::module::import( "kwiver.vital.types.camera" );
+  py::module::import( "kwiver.vital.types.covariance" );
+  py::module::import( "kwiver.vital.types.rotation" );
   py::class_< kv::camera_perspective,
     std::shared_ptr< kv::camera_perspective >,
     kv::camera,

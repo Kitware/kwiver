@@ -14,20 +14,29 @@ namespace kv = kwiver::vital;
 using namespace kwiver::vital;
 
 template < typename T >
-void
+auto
 reg_landmark( py::module& m, std::string&& type_str )
 {
   using Class = kv::landmark_< T >;
 
   std::string py_class_name = std::string( "Landmark" ) + type_str;
-  py::class_< Class, kv::landmark, std::shared_ptr< Class >  >(
+  return py::class_< Class, kv::landmark, std::shared_ptr< Class >  >(
     m,
-    py_class_name.c_str() )
+    py_class_name.c_str() );
+}
+
+template < typename T, typename PyClass >
+void
+define_landmark( PyClass& pyclass )
+{
+  using Class = kv::landmark_< T >;
+
+  pyclass
     .def( py::init() )
     .def(
       py::init< Eigen::Matrix< T, 3, 1 > const&, T >(), py::arg( "loc" ),
       py::arg( "scale" ) = 1 )
-    .def( py::init< kv::landmark const& >() )
+    .def( py::init< kv::landmark const& >(), py::arg( "other" ) )
     .def_property_readonly(
       "data_type", ( [](Class const& self){
                        return demangle( self.data_type().name() );
@@ -49,7 +58,6 @@ reg_landmark( py::module& m, std::string&& type_str )
 PYBIND11_MODULE( landmark, m )
 {
   py::class_< kv::landmark, std::shared_ptr< kv::landmark > >( m, "Landmark" )
-    .def( "data_type",     &kv::landmark::data_type )
     .def( "loc",           &kv::landmark::loc )
     .def( "scale",         &kv::landmark::scale )
     .def( "normal",        &kv::landmark::normal )
@@ -59,6 +67,8 @@ PYBIND11_MODULE( landmark, m )
     .def( "cos_obs_angle",  &kv::landmark::cos_obs_angle )
   ;
 
-  reg_landmark< double >( m, "D" );
-  reg_landmark< float >( m, "F" );
+  auto pyclass_d = reg_landmark< double >( m, "D" );
+  auto pyclass_f = reg_landmark< float >( m, "F" );
+  define_landmark< double >( pyclass_d );
+  define_landmark< float >( pyclass_f );
 }

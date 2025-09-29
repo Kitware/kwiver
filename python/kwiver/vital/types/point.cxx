@@ -23,6 +23,8 @@ declare_point( py::module& m, std::string const& typestr )
   using vector_type = Eigen::Matrix< T, N, 1 >;
   using covariance_type = kv::covariance_< N, float >;
 
+  py::module::import( "kwiver.vital.types.covariance" );
+
   const std::string pyclass_name = std::string( "Point" ) + typestr;
 
   py::class_< Class,
@@ -30,7 +32,10 @@ declare_point( py::module& m, std::string const& typestr )
   p.def( py::init<>() );
   p.def(
     py::init< vector_type const&, covariance_type const& >(),
-    py::arg( "value" ), py::arg( "covariance" ) = covariance_type{} );
+    py::arg( "value" ),
+    py::arg_v(
+      "covariance", covariance_type{},
+      ( "Covar" + typestr + "()" ).c_str() ) );
   p.def(
     "__str__", []( Class const& self ){
       std::stringstream s;

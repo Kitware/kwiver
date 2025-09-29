@@ -46,6 +46,26 @@ database_query_set_descriptors(
 
 PYBIND11_MODULE( database_query, m )
 {
+  py::module::import( "kwiver.vital.types.geo_polygon" );
+  py::module::import( "kwiver.vital.types.timestamp" );
+  py::module::import( "kwiver.vital.types.track_descriptor" );
+  py::module::import( "kwiver.vital.types.uid" );
+
+  py::enum_< kv::query_filter >( m, "query_filter" )
+    .value( "IGNORE_FILTER", kv::query_filter::IGNORE_FILTER )
+    .value( "CONTAINS_WHOLLY", kv::query_filter::CONTAINS_WHOLLY )
+    .value( "CONTAINS_PARTLY", kv::query_filter::CONTAINS_PARTLY )
+    .value( "INTERSECTS", kv::query_filter::INTERSECTS )
+    .value( "INTERSECTS_INBOUND", kv::query_filter::INTERSECTS_INBOUND )
+    .value( "INTERSECTS_OUTBOUND", kv::query_filter::INTERSECTS_OUTBOUND )
+    .value( "DOES_NOT_CONTAIN", kv::query_filter::DOES_NOT_CONTAIN )
+  ;
+
+  py::enum_< kv::database_query::query_type >( m, "query_type" )
+    .value( "SIMILARITY", kv::database_query::query_type::SIMILARITY )
+    .value( "RETRIEVAL", kv::database_query::query_type::RETRIEVAL )
+  ;
+
   py::class_< kv::database_query, std::shared_ptr< kv::database_query > >(
     m,
     "DatabaseQuery" )
@@ -75,20 +95,5 @@ PYBIND11_MODULE( database_query, m )
     .def( "temporal_lower_bound", &kv::database_query::temporal_lower_bound )
     .def( "temporal_upper_bound", &kv::database_query::temporal_upper_bound )
     .def( "set_temporal_bounds", &kv::database_query::set_temporal_bounds )
-  ;
-
-  py::enum_< kv::query_filter >( m, "query_filter" )
-    .value( "IGNORE_FILTER", kv::query_filter::IGNORE_FILTER )
-    .value( "CONTAINS_WHOLLY", kv::query_filter::CONTAINS_WHOLLY )
-    .value( "CONTAINS_PARTLY", kv::query_filter::CONTAINS_PARTLY )
-    .value( "INTERSECTS", kv::query_filter::INTERSECTS )
-    .value( "INTERSECTS_INBOUND", kv::query_filter::INTERSECTS_INBOUND )
-    .value( "INTERSECTS_OUTBOUND", kv::query_filter::INTERSECTS_OUTBOUND )
-    .value( "DOES_NOT_CONTAIN", kv::query_filter::DOES_NOT_CONTAIN )
-  ;
-
-  py::enum_< kv::database_query::query_type >( m, "query_type" )
-    .value( "SIMILARITY", kv::database_query::query_type::SIMILARITY )
-    .value( "RETRIEVAL", kv::database_query::query_type::RETRIEVAL )
   ;
 }

@@ -43,7 +43,7 @@ PYBIND11_MODULE( camera, m )
     std::shared_ptr< kv::camera >,
     camera_trampoline >( m, "Camera" )
     .def( py::init<>() )
-    .def( "project",      &kv::camera::project )
+    .def( "project",      &kv::camera::project, py::arg( "point" ) )
     .def( "image_width",  &kv::camera::image_width )
     .def( "image_height", &kv::camera::image_height )
   ;

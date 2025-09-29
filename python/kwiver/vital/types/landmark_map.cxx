@@ -16,6 +16,8 @@ using namespace kwiver::vital;
 
 PYBIND11_MODULE( landmark_map, m )
 {
+  py::module::import( "kwiver.vital.types.landmark" );
+
   py::bind_map< map_landmark_t >( m, "LandmarkDict" );
 
   py::class_< landmark_map, std::shared_ptr< landmark_map > >(

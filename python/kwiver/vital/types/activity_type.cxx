@@ -14,8 +14,12 @@ PYBIND11_MODULE( activity_type, m )
   py::class_< kwiver::vital::activity_type,
     std::shared_ptr< kwiver::vital::activity_type > >( m, "ActivityType" )
     .def( py::init<>() )
-    .def( py::init< std::vector< std::string >, std::vector< double > >() )
-    .def( py::init< std::string, double >() )
+    .def(
+      py::init< std::vector< std::string >, std::vector< double > >(),
+      py::arg( "class_names" ), py::arg( "scores" ) )
+    .def(
+      py::init< std::string, double >(), py::arg( "class_name" ),
+      py::arg( "score" ) )
 
     .def(
       "has_class_name", &kwiver::vital::activity_type::has_class_name,

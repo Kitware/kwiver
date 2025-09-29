@@ -37,11 +37,15 @@ PYBIND11_MODULE( metadata_map, m )
     .def( py::init<>() )
     .def( "size",       &kv::metadata_map::size )
     .def( "metadata",   &kv::metadata_map::metadata )
-    .def( "has_item",   &kv::metadata_map::has_item )
     .def(
-      "get_item",   &kv::metadata_map::get_item,
-      py::return_value_policy::reference )
-    .def( "get_vector", &kv::metadata_map::get_vector )
+      "has_item",
+      &kv::metadata_map::has_item, py::arg( "tag" ), py::arg( "frame_id" ) )
+    .def(
+      "get_item",
+      &kv::metadata_map::get_item,
+      py::return_value_policy::reference, py::arg( "tag" ),
+      py::arg( "frame_id" ) )
+    .def( "get_vector", &kv::metadata_map::get_vector, py::arg( "frame_id" ) )
     .def( "frames",     &kv::metadata_map::frames )
   // Note that we are skipping the templated has and get methods.
   // Those methods are templated over the vital_metadata_tag enums
