@@ -79,7 +79,7 @@
     - . build/ci-venv/bin/activate
     - pip install -U pip
     - pip install -r ./python/requirements_dev.txt
-    - pip install scikit-build auditwheel
+    - pip install scikit-build auditwheel "setuptools-scm>=6.2,<8"  # <8 to maintain compatibility with setuptools<61 in CI
 
 .cmake_build_linux:
     stage: build
@@ -101,6 +101,8 @@
 .cmake_build_wheel_linux:
     stage: build
     extends: .warning_policy
+    variables:
+        GIT_DEPTH: 0  # Full git history for setuptools-scm version generation
 
     script:
         - *before_script_linux
