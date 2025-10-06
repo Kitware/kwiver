@@ -1,0 +1,21 @@
+KWIVER v2.1.1 Release Notes
+===========================
+
+This is a patch release of KWIVER that provides fixes over the previous v2.1.0
+release.
+
+Bug Fixes
+---------
+
+Arrows: DBOW2
+
+* Fixed potential buffer overflow.
+
+Arrows: OpenCV
+
+* Fixed potential buffer overflow.
+
+Vital:
+
+* Fixed multiple potential buffer overflows. This includes the updating of the
+  Realpath function to use std::filesystem.
