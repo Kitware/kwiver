@@ -435,14 +435,8 @@ public:
   bool
   get_line( std::istream& str, std::string& line )
   {
-    while( true )
+    while( std::getline( str, line ) )
     {
-      if( !std::getline( str, line ) )
-      {
-        // read failed.
-        return false;
-      }
-
       ++m_line_number; // count line number
       m_last_line = line; // save for error reporting
 
@@ -471,10 +465,10 @@ public:
 
       // There appears to be something left after removing comments
       // and trimming spaces. Return that to the caller.
-      break;
+      return true;
     } // end while
 
-    return true;
+    return false;
   }
 
   // --------------------------------------------------------------------------

@@ -1448,9 +1448,10 @@ std::string SymbolProperties::GetBinary() const
   if (this->Binary=="/proc/self/exe")
     {
     std::string binary;
-    char buf[1024]={'\0'};
+    constexpr int buffer_size = 1024;
+    char buf[buffer_size + 1]={'\0'};
     ssize_t ll=0;
-    if ((ll=readlink("/proc/self/exe",buf,1024))>0)
+    if ((ll=readlink("/proc/self/exe",buf,buffer_size))>0)
       {
       buf[ll]='\0';
       binary=buf;
@@ -1781,7 +1782,8 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
   // node.
 
   int ierr=0;
-  char base[NI_MAXHOST];
+  // Extra byte for null character
+  char base[NI_MAXHOST + 1] = {'\0'};
   ierr=gethostname(base,NI_MAXHOST);
   if (ierr)
     {
@@ -3164,23 +3166,22 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
 {
   this->NumberOfLogicalCPU = 0;
   this->NumberOfPhysicalCPU = 0;
-  std::string buffer;
 
-  FILE *fd = fopen("/proc/cpuinfo", "r" );
-  if ( !fd )
-    {
+  std::ifstream file("/proc/cpuinfo");
+
+  if (!file.is_open())
+  {
     std::cout << "Problem opening /proc/cpuinfo" << std::endl;
     return false;
-    }
+  }
 
-  size_t fileSize = 0;
-  while(!feof(fd))
-    {
-    buffer += static_cast<char>(fgetc(fd));
-    fileSize++;
-    }
-  fclose( fd );
-  buffer.resize(fileSize-2);
+  std::stringstream bufferStrm;
+  bufferStrm << file.rdbuf();
+
+  std::string buffer = bufferStrm.str();
+
+  file.close();
+
   // Number of logical CPUs (combination of multiple processors, multi-core
   // and hyperthreading)
   size_t pos = buffer.find("processor\t");

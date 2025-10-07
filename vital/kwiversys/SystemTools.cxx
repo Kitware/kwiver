@@ -32,6 +32,7 @@
 #include KWSYS_HEADER(Encoding.hxx)
 
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <set>
@@ -250,51 +251,6 @@ inline int Chdir(const std::string& dir)
   return _wchdir(KWSYS_NAMESPACE::Encoding::ToWide(dir).c_str());
   #endif
 }
-inline void Realpath(const std::string& path,
-                     std::string& resolved_path,
-                     std::string* errorMessage = 0)
-{
-  std::wstring tmp = KWSYS_NAMESPACE::Encoding::ToWide(path);
-  wchar_t *ptemp;
-  wchar_t fullpath[MAX_PATH];
-  DWORD bufferLen = GetFullPathNameW(tmp.c_str(),
-      sizeof(fullpath) / sizeof(fullpath[0]),
-      fullpath, &ptemp);
-  if( bufferLen < sizeof(fullpath)/sizeof(fullpath[0]) )
-    {
-    resolved_path = KWSYS_NAMESPACE::Encoding::ToNarrow(fullpath);
-    KWSYS_NAMESPACE::SystemTools::ConvertToUnixSlashes(resolved_path);
-    }
-  else if(errorMessage)
-    {
-    if(bufferLen)
-      {
-      *errorMessage = "Destination path buffer size too small.";
-      }
-    else if(unsigned int errorId = GetLastError())
-      {
-      LPSTR message = NULL;
-      DWORD size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER
-                                   | FORMAT_MESSAGE_FROM_SYSTEM
-                                   | FORMAT_MESSAGE_IGNORE_INSERTS,
-                                   NULL, errorId,
-                                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                                   (LPSTR)&message, 0, NULL);
-      *errorMessage = std::string(message, size);
-      LocalFree(message);
-      }
-    else
-      {
-      *errorMessage = "Unknown error.";
-      }
-
-    resolved_path = "";
-    }
-  else
-    {
-    resolved_path = path;
-    }
-}
 #else
 #include <sys/types.h>
 #include <fcntl.h>
@@ -316,37 +272,6 @@ inline int Chdir(const std::string& dir)
 {
   return chdir(dir.c_str());
 }
-inline void Realpath(const std::string& path,
-                     std::string& resolved_path,
-                     std::string* errorMessage = 0)
-{
-  char resolved_name[KWSYS_SYSTEMTOOLS_MAXPATH];
-
-  errno = 0;
-  char *ret = realpath(path.c_str(), resolved_name);
-  if(ret)
-    {
-    resolved_path = ret;
-    }
-  else if(errorMessage)
-    {
-    if(errno)
-      {
-      *errorMessage = strerror(errno);
-      }
-    else
-      {
-      *errorMessage = "Unknown error.";
-      }
-
-    resolved_path = "";
-    }
-  else
-    {
-    // if path resolution fails, return what was passed in
-    resolved_path = path;
-    }
-}
 #endif
 
 #if !defined(_WIN32) && defined(__COMO__)
@@ -361,6 +286,28 @@ extern char *strdup (__const char *__s) __THROW;
 extern int putenv (char *__string) __THROW;
 }
 #endif
+
+inline void Realpath(const std::string& path,
+                     std::string& resolved_path,
+                     std::string* errorMessage = 0)
+{
+  try
+  {
+    resolved_path = std::filesystem::canonical( path ).string();
+  }
+  catch ( std::exception const& ex )
+  {
+    if ( errorMessage )
+    {
+      *errorMessage = ex.what();
+      resolved_path = "";
+    }
+    else
+    {
+      resolved_path = path;
+    }
+  }
+}
 
 namespace KWSYS_NAMESPACE
 {

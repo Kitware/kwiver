@@ -26,6 +26,7 @@
 #include <map>
 #include <set>
 #include <sstream>
+#include <iomanip>
 #include <iostream>
 
 #include <stdio.h>
@@ -600,10 +601,6 @@ void CommandLineArguments::GenerateHelp()
       }
     }
 
-  // Create format for that string
-  char format[80];
-  sprintf(format, "  %%-%us  ", static_cast<unsigned int>(maxlen));
-
   maxlen += 4; // For the space before and after the option
 
   // Print help for each option
@@ -615,12 +612,11 @@ void CommandLineArguments::GenerateHelp()
     for ( sit = mpit->second.begin(); sit != mpit->second.end(); sit++ )
       {
       str << std::endl;
-      char argument[100];
       //13 comes from longest string that is going to be concatenated
       //the length(" opt opt ...") is 12 plus 1 for the \0 character
       if(sit->size() < 100-13)
       {
-        sprintf(argument, "%s", sit->c_str());
+        str << *sit;
       }
       else
       {
@@ -631,15 +627,21 @@ void CommandLineArguments::GenerateHelp()
       }
       switch ( this->Internals->Callbacks[*sit].ArgumentType )
         {
-        case CommandLineArguments::NO_ARGUMENT: break;
-        case CommandLineArguments::CONCAT_ARGUMENT: strcat(argument, "opt"); break;
-        case CommandLineArguments::SPACE_ARGUMENT:  strcat(argument, " opt"); break;
-        case CommandLineArguments::EQUAL_ARGUMENT:  strcat(argument, "=opt"); break;
-        case CommandLineArguments::MULTI_ARGUMENT:  strcat(argument, " opt opt ..."); break;
+        case CommandLineArguments::NO_ARGUMENT:
+          break;
+        case CommandLineArguments::CONCAT_ARGUMENT:
+          str << std::setw(maxlen) << std::left << "opt";
+          break;
+        case CommandLineArguments::SPACE_ARGUMENT:
+          str << std::setw(maxlen) << std::left << " opt";
+          break;
+        case CommandLineArguments::EQUAL_ARGUMENT:
+          str << std::setw(maxlen) << std::left << "=opt";
+          break;
+        case CommandLineArguments::MULTI_ARGUMENT:
+          str << std::setw(maxlen) << std::left << " opt opt ...";
+          break;
         }
-      char buffer[100];
-      sprintf(buffer, format, argument);
-      str << buffer;
       }
     const char* ptr = this->Internals->Callbacks[mpit->first].Help;
     size_t len = strlen(ptr);
