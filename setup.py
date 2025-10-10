@@ -100,7 +100,6 @@ setup(
     cmake_install_dir=f"./{PACKAGE_SRC}/{PACKAGE_NAME}",
     cmake_args=[
         "-DKWIVER_ENABLE_PYTHON=ON",
-        "-DKWIVER_PYTHON_MAJOR_VERSION=3",
         "-DPYBIND11_PYTHON_VERSION=3",
         "-DKWIVER_INSTALL_SET_UP_SCRIPT=OFF",
     ],

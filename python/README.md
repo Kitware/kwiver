@@ -4,10 +4,27 @@ Add to your ``setup.py`` entrypoints section a "kwiver_plugins" namespace.
 This namespace is defined in the ``kwiver.vital.plugins.constants`` module under
 the ``PLUGIN_NAMESPACE`` attribute.
 
+# Installing kwiver using pip
+From the repository root directory:
+```bash
+pip install --global-option="-Dfletch_DIR:=${HOME}/dev/fletch/build-master/install/share/cmake" .
+```
+
 # Building
-The required python packages areincluded in the source code.
+The required python packages are included in the source code.
 The runtime requirements are defined in the
 ``kwiver/src/python/requirements_dev.txt`` file.
+
+We recommend creating a virtual environment to house the python build
+dependencies.
+When creating your virtual environment be sure to *NOT* use the `--symlinks`
+option (this will case pathing issues within your build tree related to the
+python components).
+The following will create a virtual environment under a `venv` directory in
+your current working directory (adjust the path as desired):
+```bash
+python -m venv venv
+```
 
 Using the appropriate [virtual] environment with python activated, the python
 packages can be installed with::
