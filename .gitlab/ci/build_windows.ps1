@@ -1,6 +1,8 @@
 # Regular Windows build script
 # Used for standard CI builds (not wheels)
 
+$ErrorActionPreference = "Stop"
+
 # Set up build environment (CMake, Ninja, Qt, Fletch)
 . .gitlab/ci/setup_build_env_windows.ps1
 $pwdpath = $pwd.Path

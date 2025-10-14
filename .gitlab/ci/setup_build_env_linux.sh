@@ -1,8 +1,7 @@
 #!/bin/bash
-set -e
-
 # Common setup for Linux builds
 # Sets up CMake, Ninja, and adds them to PATH
+set -e
 
 .gitlab/ci/cmake.sh
 .gitlab/ci/ninja.sh
