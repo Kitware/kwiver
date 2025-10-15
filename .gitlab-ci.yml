@@ -42,7 +42,6 @@ ubuntu2204-arrows:build:
         - .linux_builder_tags
         - .cmake_build_artifacts
         - .rules
-    interruptible: true
 
 ubuntu2204-arrows:test:
     extends:
@@ -51,7 +50,6 @@ ubuntu2204-arrows:test:
         - .linux_tester_tags
         - .cmake_test_artifacts
         - .rules
-    interruptible: true
     needs:
         - ubuntu2204-arrows:build
 
@@ -106,7 +104,6 @@ windows-vs2022-ninja-arrows:build:
         - .windows_builder_tags
         - .cmake_build_artifacts
         - .rules
-    interruptible: true
 
 windows-vs2022-ninja-arrows:test:
     extends:
@@ -115,7 +112,6 @@ windows-vs2022-ninja-arrows:test:
         - .windows_builder_tags
         - .cmake_test_artifacts
         - .rules
-    interruptible: true
     needs:
         - windows-vs2022-ninja-arrows:build
 
