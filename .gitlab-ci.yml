@@ -155,28 +155,7 @@ wheel:kwiver:upload:
     variables:
         KWIVER_CI_UPLOAD: "true"
     needs:
-        # Only include 'full' wheel builds, exclude 'burnout' to avoid conflicts
-        - job: "wheel-linux-python:build: [38, full]"
+        - job: wheel-linux-python:build
           artifacts: true
-        - job: "wheel-linux-python:test: [38, full]"
-          artifacts: false
-        - job: "wheel-linux-python:build: [39, full]"
+        - job: wheel-windows-python:build
           artifacts: true
-        - job: "wheel-linux-python:test: [39, full]"
-          artifacts: false
-        - job: "wheel-linux-python:build: [310, full]"
-          artifacts: true
-        - job: "wheel-linux-python:test: [310, full]"
-          artifacts: false
-        - job: "wheel-windows-python:build: [38, full]"
-          artifacts: true
-        - job: "wheel-windows-python:test: [38, full]"
-          artifacts: false
-        - job: "wheel-windows-python:build: [39, full]"
-          artifacts: true
-        - job: "wheel-windows-python:test: [39, full]"
-          artifacts: false
-        - job: "wheel-windows-python:build: [310, full]"
-          artifacts: true
-        - job: "wheel-windows-python:test: [310, full]"
-          artifacts: false

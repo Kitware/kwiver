@@ -28,5 +28,5 @@ if [ -z "$CI_COMMIT_TAG" ]; then
   fi
 fi
 
-ls dist
-twine upload -u gitlab-ci-token -p "$CI_JOB_TOKEN" --repository-url "$gitlab_api_url/packages/pypi" dist/*
+ls dist-full
+twine upload -u gitlab-ci-token -p "$CI_JOB_TOKEN" --repository-url "$gitlab_api_url/packages/pypi" dist-full/*

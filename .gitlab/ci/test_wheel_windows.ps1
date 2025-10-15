@@ -16,7 +16,7 @@ python -m venv $pwdpath\build\ci-test-venv
 python -m pip install --upgrade pip
 pip install "pytest<=8.1"
 
-$wheelPath = Get-ChildItem dist\*-cp$env:PYTHON_VERSION-cp$env:PYTHON_VERSION-*.whl | % FullName
+$wheelPath = Get-ChildItem dist-$env:WHEEL_TYPE\*-cp$env:PYTHON_VERSION-cp$env:PYTHON_VERSION-*.whl | % FullName
 pip install $wheelPath
 
 if ($env:WHEEL_TYPE -eq "burnout") {

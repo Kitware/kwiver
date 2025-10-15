@@ -29,13 +29,11 @@ Invoke-Expression -Command .gitlab/ci/buildcache.ps1
 Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
 buildcache --show-stats
 
-python setup.py bdist_wheel -- -C $env:GIT_CLONE_PATH/.gitlab/ci/configure_wheel.cmake > $env:GIT_CLONE_PATH/skbuild_output.log
+python setup.py bdist_wheel -- -C $env:GIT_CLONE_PATH/.gitlab/ci/configure_wheel.cmake | Out-File -FilePath "$env:GIT_CLONE_PATH/skbuild_output.log"
 
+New-Item -ItemType Directory -Force -Path "dist-$env:WHEEL_TYPE"
 $wheelPath = Get-ChildItem dist\*.whl | % FullName
 delvewheel show --add-path "$env:SCIKIT_BUILD_DIR\bin;$env:CI_PROJECT_DIR\.gitlab\fletch\bin" $wheelPath | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
-delvewheel repair --add-path "$env:SCIKIT_BUILD_DIR\bin;$env:CI_PROJECT_DIR\.gitlab\fletch\bin" $wheelPath | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
-
-Rename-Item -Path dist -NewName dist-orig
-Rename-Item -Path wheelhouse -NewName dist
+delvewheel repair --add-path "$env:SCIKIT_BUILD_DIR\bin;$env:CI_PROJECT_DIR\.gitlab\fletch\bin" --wheel-dir "dist-$env:WHEEL_TYPE" $wheelPath | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
 
 buildcache --show-stats
