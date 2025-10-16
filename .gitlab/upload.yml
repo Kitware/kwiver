@@ -5,6 +5,8 @@
         - docker
         - linux-x86_64
         - build
+    environment:
+        name: pypi-upload
 
     script:
         - .gitlab/ci/upload_pypi.sh
