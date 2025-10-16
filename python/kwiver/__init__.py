@@ -92,3 +92,7 @@ def _setup_projdb_path() -> None:
 _logging_onetime_init()
 _add_library_paths()
 _setup_projdb_path()
+
+# Wait for environment to be properly set up before importing submodules
+from . import tools
+from . import vital
