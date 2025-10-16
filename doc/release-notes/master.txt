@@ -20,6 +20,10 @@ Arrows: Geocalc
 
 * Added derive_corner_points.
 
+Python
+
+* Added automatic .pyi stub generation.
+
 Vital: Exceptions
 
 * Omit file information from exception description when creating Release build.

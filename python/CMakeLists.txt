@@ -27,3 +27,8 @@ if(NOT SKBUILD)
 endif()
 
 add_subdirectory(kwiver)
+
+# Run python stub generation on installed module
+if(SKBUILD)
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E env \"PYTHONPATH=${CMAKE_INSTALL_PREFIX}/..\" pybind11-stubgen kwiver -o \"${CMAKE_INSTALL_PREFIX}/..\")")
+endif()
