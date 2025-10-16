@@ -28,6 +28,7 @@
             - build/CMakeCache.txt
             - build/bin/
             - build/lib/
+            - build/Lib/
             - build/tests/bin/
             - build/tests/data/
             - build/setup_KWIVER.sh
