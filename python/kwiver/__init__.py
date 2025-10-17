@@ -66,15 +66,13 @@ def _add_library_paths() -> None:
             if path.exists():
                 os.add_dll_directory(str(path))
                 logging.getLogger(__name__).debug(f"Adding {path} to dll search paths")
-        # xxx(python310) it look like this is not need for python310
-        if sys.version_info[:2] == (
-            3,
-            8,
-        ):
-            path = (Path(__file__).parents[1] / "kwiver.libs").resolve()
-            if path.exists():
-                os.environ["PATH"] = f"{str(path)}{os.pathsep}{os.environ['PATH']}"
-                logging.getLogger(__name__).debug(f"Adding {path} to PATH")
+        # Add kwiver.libs to PATH when using wheels
+        # This ensures KWIVER's C++ plugin loader (LoadLibraryW) can find DLLs
+        # since it doesn't use Python's os.add_dll_directory() search paths
+        path = (Path(__file__).parents[1] / "kwiver.libs").resolve()
+        if path.exists():
+            os.environ["PATH"] = f"{str(path)}{os.pathsep}{os.environ['PATH']}"
+            logging.getLogger(__name__).debug(f"Adding {path} to PATH")
 
 
 def _setup_projdb_path() -> None:

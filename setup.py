@@ -14,7 +14,6 @@ SCRIPT_DIR = Path(__file__).parent
 PACKAGE_SRC = "python"
 PACKAGE_NAME = "kwiver"
 
-
 with open(SCRIPT_DIR / "VERSION.txt", "r") as f:
     VERSION_FROM_FILE = f.read().strip()
 
@@ -43,6 +42,11 @@ with open(SCRIPT_DIR / "README.rst", "r") as f:
 # Adding f"-DKWIVER_VERSION={VERSION} to cmake_args didn't work
 os.environ["KWIVER_WHEEL_VERSION"] = VERSION
 
+# NumPy 2.0+ requires pybind11 2.12+ but CI currently uses 2.10.3
+# Python 3.8: Safe - NumPy 2.0 dropped Python 3.8 support, pip installs 1.24.4
+# Python 3.9+: Requires constraint to prevent NumPy 2.0 which causes segfaults
+numpy_requirement = "numpy>=1.13.0,<2.0"
+
 setup(
     # Basic Metadata ###########################################################
     name=PACKAGE_NAME,
@@ -60,6 +64,8 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Operating System :: Unix",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
@@ -83,7 +89,7 @@ setup(
         ],
     ),
     # Requirements #############################################################
-    install_requires=["numpy"],
+    install_requires=[numpy_requirement],
     # extras_require=[],
     tests_require=["pytest"],
     # Entry-Points #############################################################
@@ -98,7 +104,6 @@ setup(
     },
     # Scikit-Build Stuff #######################################################
     cmake_minimum_required_version="3.15",  # matches primary CMakeLists.txt req
-    cmake_source_dir=SCRIPT_DIR.as_posix(),
     # Where build libraries and such will be installed into in order to be
     # within the package module space.
     cmake_install_dir=f"./{PACKAGE_SRC}/{PACKAGE_NAME}",

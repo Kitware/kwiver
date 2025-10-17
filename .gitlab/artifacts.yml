@@ -64,8 +64,7 @@
         paths:
             - skbuild_output.log
             - wheel_output.log
-
-            - dist/*.whl
+            - dist-${WHEEL_TYPE}/*.whl
 
 
 

@@ -46,20 +46,6 @@
 .wheel_windows_x86_64:
     extends: .windows_vs2022
 
-.wheel_windows38_x86_64:
-    extends: .wheel_windows_x86_64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_windows38_x86_64_vs2022_ninja_ceres_ffmpeg_gdal_opencv_pdal_proj_python_qt_vtk_vxl
-        SCIKIT_BUILD_DIR: "${GIT_CLONE_PATH}\\_skbuild\\win-amd64-3.8\\cmake-build"
-
-# minimal wheel for burnout tool
-.wheel_windows38_x86_64_burnout:
-    extends: .wheel_windows_x86_64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_windows38_x86_64_vs2022_ninja_ffmpeg_opencv_python
-        SCIKIT_BUILD_DIR: "${GIT_CLONE_PATH}\\_skbuild\\win-amd64-3.8\\cmake-build"
 
 ## Tags
 
@@ -74,119 +60,17 @@
 
 ## Windows-specific scripts
 
-.before_script_windows: &before_script_windows
-    - $pwdpath = $pwd.Path
-    - powershell -File ".gitlab/ci/cmake.ps1"
-    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\cmake\bin;$env:PATH"
-    - powershell -File ".gitlab/ci/ninja.ps1"
-    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab;$env:PATH"
-    - cmake --version
-    - ninja --version
-    - cmake -P .gitlab/ci/download_qt.cmake
-    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\qt\bin;$env:PATH"
-    - cmake -P .gitlab/ci/download_fletch.cmake
-    - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\fletch\bin;$pwdpath\.gitlab\fletch\x64\vc17\bin"
-
-.before_script_windows_setup_python: &before_script_windows_setup_python
-    - cmake -P .gitlab/ci/download_python.cmake
-    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\python;$env:PATH"
-    - Set-Item -Force -Path "env:PYTHONHOME" -Value "$pwdpath\.gitlab\python"
-
-.before_script_windows_setup_wheel_python: &before_script_windows_setup_wheel_python
-    - cmake -P .gitlab/ci/download_wheel_python.cmake
-    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\python;$env:PATH"
-    - Set-Item -Force -Path "env:PYTHONHOME" -Value "$pwdpath\.gitlab\python"
-
-.before_script_windows_venv: &before_script_windows_venv
-    - python -m venv $pwdpath\build\ci-venv
-    # This may be necessary when running manually.
-    # Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-    - . .\build\ci-venv\Scripts\Activate.ps1
-    - python -m pip install --upgrade pip
-    - pip install -qq -r $pwdpath\.gitlab\ci\requirements_dev-windows.txt
-
 .cmake_build_windows:
     stage: build
 
     script:
-        - *before_script_windows
-        - *before_script_windows_setup_python
-        - *before_script_windows_venv
-        - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
-        - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
-        - buildcache --show-stats
-        - ctest -VV -S .gitlab/ci/ctest_configure.cmake
-        - ctest -VV -S .gitlab/ci/ctest_build.cmake
-        - buildcache --show-stats
+        - .gitlab/ci/build_windows.ps1
     interruptible: true
 
-.cmake_build_wheel_windows:
-    stage: build
-    variables:
-        GIT_DEPTH: 0  # Full git history for setuptools-scm version generation
-    script:
-        - *before_script_windows
-        - *before_script_windows_setup_wheel_python
-        - *before_script_windows_venv
-        - pip install scikit-build delvewheel "setuptools-scm>=6.2,<8"  # <8 to maintain compatibility with setuptools<61 in CI
-        - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
-        - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
-        - buildcache --show-stats
-        - "python setup.py bdist_wheel -- -C $env:GIT_CLONE_PATH/.gitlab/ci/configure_wheel.cmake > $env:GIT_CLONE_PATH/skbuild_output.log"
-        - delvewheel show --add-path "$env:SCIKIT_BUILD_DIR\bin;$env:CI_PROJECT_DIR\.gitlab\fletch\bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
-        - delvewheel repair --add-path "$env:SCIKIT_BUILD_DIR\bin;$env:CI_PROJECT_DIR\.gitlab\fletch\bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
-        - Rename-Item -Path dist -NewName dist-orig
-        - Rename-Item -Path wheelhouse -NewName dist
-        - buildcache --show-stats
-    interruptible: true
 
 .cmake_test_windows:
     stage: test
 
     script:
-        - *before_script_windows
-        - *before_script_windows_setup_python
-        - . .\build\ci-venv\Scripts\Activate.ps1
-        - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - . build/setup_KWIVER.ps1
-        - Set-Item -Force -Path "env:KWIVER_DEFAULT_LOG_LEVEL" -Value "DEBUG"
-        - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
-    interruptible: true
-
-.cmake_test_wheel_windows:
-    stage: test
-
-    script:
-        - $pwdpath = $pwd.Path
-        - powershell -File ".gitlab/ci/cmake.ps1"
-        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\cmake\bin;$env:PATH"
-        - *before_script_windows_setup_wheel_python
-        # install the wheel in a clean venv
-        - python -m venv $pwdpath\build\ci-test-venv
-        - . .\build\ci-test-venv\Scripts\Activate.ps1
-        - python -m pip install --upgrade pip
-        # test dependencies
-        - pip install "pytest<=8.1"
-        - pip install (Get-ChildItem dist\*.whl | % FullName)
-        - pytest
-    interruptible: true
-
-.cmake_test_burnout_wheel_windows:
-    stage: test
-
-    script:
-        - $pwdpath = $pwd.Path
-        - powershell -File ".gitlab/ci/cmake.ps1"
-        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\cmake\bin;$env:PATH"
-        - *before_script_windows_setup_wheel_python
-        # install the wheel in a clean venv
-        - python -m venv $pwdpath\build\ci-test-venv
-        - . .\build\ci-test-venv\Scripts\Activate.ps1
-        - python -m pip install --upgrade pip
-        # test dependencies
-        - pip install "pytest<=8.1"
-        - pip install (Get-ChildItem dist\*.whl | % FullName)
-        - pytest "./python/kwiver/vital/tests/burnout_smoke_test.py"
+        - .gitlab/ci/test_windows.ps1
     interruptible: true
