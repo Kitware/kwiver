@@ -27,7 +27,6 @@ try:
     VERSION = get_version(
         root=SCRIPT_DIR,
         fallback_version=VERSION_FROM_FILE,
-        local_scheme="node",
     )
 except (ImportError, LookupError):
     # Not in a git repo or setuptools-scm not installed

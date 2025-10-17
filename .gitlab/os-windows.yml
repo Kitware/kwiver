@@ -5,7 +5,6 @@
 .windows:
     variables:
         GIT_CLONE_PATH: "$CI_BUILDS_DIR\\kwiver-ext\\$CI_CONCURRENT_ID"
-        GIT_STRATEGY: clone
         # Turn off direct mode until we test it.
         BUILDCACHE_DIRECT_MODE: "false"
 
