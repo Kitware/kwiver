@@ -31,9 +31,11 @@ solver_options
   config->set_value(
     "num_threads", o.num_threads,
     "Number of threads to use" );
+#if CERES_VERSION_MAJOR < 2
   config->set_value(
     "num_linear_solver_threads", o.num_linear_solver_threads,
     "Number of threads to use in the linear solver" );
+#endif
   config->set_value(
     "max_num_iterations", o.max_num_iterations,
     "Maximum number of iteration of allow" );
@@ -82,7 +84,9 @@ solver_options
 options.vname = config->get_value< vtype >(#vname, options.vname );
 
   GET_VALUE( int,    num_threads );
+#if CERES_VERSION_MAJOR < 2
   GET_VALUE( int,    num_linear_solver_threads );
+#endif
   GET_VALUE( int,    max_num_iterations );
   GET_VALUE( double, function_tolerance );
   GET_VALUE( double, gradient_tolerance );

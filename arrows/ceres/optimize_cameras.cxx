@@ -187,9 +187,15 @@ optimize_cameras
     else if( !constant_intrinsics.empty() )
     {
       // set a subset of parameters in the block constant
+#if CERES_VERSION_MAJOR >= 2
+      problem.SetManifold(
+        &cip[ 0 ],
+        new ::ceres::SubsetManifold( 5 + ndp, constant_intrinsics ) );
+#else
       problem.SetParameterization(
         &cip[ 0 ],
         new ::ceres::SubsetParameterization( 5 + ndp, constant_intrinsics ) );
+#endif
     }
   }
   // Set the landmarks constant
@@ -322,9 +328,15 @@ optimize_cameras
   else if( !constant_intrinsics.empty() )
   {
     // set a subset of parameters in the block constant
+#if CERES_VERSION_MAJOR >= 2
+    problem.SetManifold(
+      &cam_intrinsic_params[ 0 ],
+      new ::ceres::SubsetManifold( 5 + ndp, constant_intrinsics ) );
+#else
     problem.SetParameterization(
       &cam_intrinsic_params[ 0 ],
       new ::ceres::SubsetParameterization( 5 + ndp, constant_intrinsics ) );
+#endif
   }
 
   // If the loss function was added to a residual block, ownership was

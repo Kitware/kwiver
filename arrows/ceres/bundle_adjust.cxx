@@ -531,12 +531,17 @@ bundle_adjust
     else if( !constant_intrinsics.empty() )
     {
       // set a subset of parameters in the block constant
+#if CERES_VERSION_MAJOR >= 2
+      problem.SetManifold(
+        &cip[ 0 ],
+        new ::ceres::SubsetManifold( 5 + ndp, constant_intrinsics ) );
+#else
       problem.SetParameterization(
         &cip[ 0 ],
         new ::ceres::SubsetParameterization(
-          5 +
-          ndp,
+          5 + ndp,
           constant_intrinsics ) );
+#endif
     }
   }
 

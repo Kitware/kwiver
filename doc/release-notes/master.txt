@@ -8,6 +8,8 @@ Arrows: Ceres
 
 * Connect Ceres built-in logging to KWIVER logging.
 
+* Added support for interface changes in Ceres v2.
+
 Arrows: Core
 
 * Added image_io_tiled_multifile.
