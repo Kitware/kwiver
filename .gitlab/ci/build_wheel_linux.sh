@@ -25,7 +25,7 @@ echo "CMAKE_CONFIGURATION: $CMAKE_CONFIGURATION"
 . build/ci-venv/bin/activate
 pip install -U pip
 pip install -r ./python/requirements_dev.txt
-pip install scikit-build auditwheel
+pip install scikit-build auditwheel "setuptools-scm>=6.2,<8"
 
 .gitlab/ci/sccache.sh
 sccache --start-server

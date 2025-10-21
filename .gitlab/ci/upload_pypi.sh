@@ -19,9 +19,9 @@ if [ -z "$CI_COMMIT_TAG" ]; then
   if [ -n "$dev_packages" ]; then
     echo "$dev_packages" | while IFS='|' read -r version pkg_id; do
       echo "Deleting Version: $version, ID: $pkg_id"
-      curl --silent --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
-        "$gitlab_api_url/packages/$pkg_id"
-      echo "  Successfully deleted package ID: $pkg_id"
+      curl --silent --fail-with-body --request DELETE \
+        --header "PRIVATE-TOKEN: $PYPI_DELETE_TOKEN" \
+        "$gitlab_api_url/packages/$pkg_id" || exit 1
     done
   else
     echo "No dev packages found"
