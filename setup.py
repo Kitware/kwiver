@@ -20,13 +20,14 @@ with open(SCRIPT_DIR / "VERSION.txt", "r") as f:
 
 # This will generate versions like:
 #   - On tags: "2.1.0"
-#   - On main: "2.1.1.dev123+g7f3a2b1"
+#   - On main: "2.1.1.dev123" (no git hash for Windows/Linux reproducibility)
 try:
     from setuptools_scm import get_version
 
     VERSION = get_version(
         root=SCRIPT_DIR,
         fallback_version=VERSION_FROM_FILE,
+        local_scheme="no-local-version",
     )
 except (ImportError, LookupError):
     # Not in a git repo or setuptools-scm not installed
