@@ -16,7 +16,7 @@ if(NOT SKBUILD)
   # Create egg info for the packages mentioned in the entrypoints entry of setup.py
   add_custom_target(install_egg_info ALL
     COMMENT "Install python egg info in the build directory"
-    COMMAND ${PYTHON_EXECUTABLE} ${KWIVER_SOURCE_DIR}/setup.py egg_info --egg-base ${KWIVER_BINARY_DIR}/${python_site_packages}
+    COMMAND ${Python_EXECUTABLE} ${KWIVER_SOURCE_DIR}/setup.py egg_info --egg-base ${KWIVER_BINARY_DIR}/${python_site_packages}
     )
 
   kwiver_install(

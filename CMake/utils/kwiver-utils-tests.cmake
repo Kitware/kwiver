@@ -22,7 +22,7 @@
 #   kwiver_test_runner
 #     A top-level executable (possibly with arguments) to run the main
 #     test-name executable under. As an example, for any tests which are
-#     Python, this should be set to ${PYTHON_EXECUTABLE} since Python files by
+#     Python, this should be set to ${Python_EXECUTABLE} since Python files by
 #     themselves are not executable on all platforms. For c++ test this symbol
 #     is left empty since the test is already executable.
 #

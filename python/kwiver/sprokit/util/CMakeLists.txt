@@ -13,7 +13,7 @@ kwiver_add_library(sprokit_python_util
   ${python_util_headers})
 
 target_link_libraries(sprokit_python_util
-  LINK_PUBLIC     ${PYTHON_LIBRARIES}
+  LINK_PUBLIC     ${Python_LIBRARIES}
   LINK_PRIVATE    ${Boost_IOSTREAMS_LIBRARY}
                   ${Boost_SYSTEM_LIBRARY}
                   vital_python_util)

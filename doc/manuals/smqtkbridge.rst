@@ -160,9 +160,9 @@ To configure the build::
 
 Verify that the PYTHON specifications are correct (assuming you installed miniconda in ~/miniconda)::
 
-    PYTHON_EXECUTABLE           ~/miniconda/bin/python
-    PYTHON_INCLUDE_DIR          ~/miniconda/include/python2.7
-    PYTHON_LIBRARY              ~/miniconda/lib/libpython2.7.so
+    Python_EXECUTABLE           ~/miniconda/bin/python
+    Python_INCLUDE_DIRS         ~/miniconda/include/python2.7
+    Python_LIBRARY              ~/miniconda/lib/libpython2.7.so
 
 And finally, build KWIVER::
 

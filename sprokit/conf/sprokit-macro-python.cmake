@@ -93,13 +93,13 @@ function (sprokit_add_python_module    path     modpath    module)
         "${python_module_id}"
         "${pyfile_src}"
         "${pyfile_dst}"
-        PYTHON_EXECUTABLE)
+        Python_EXECUTABLE)
   else()
       sprokit_configure_file_w_uid("${python_configure_id}"
         "${python_module_id}"
         "${pyfile_src}"
         "${pyfile_dst}"
-        PYTHON_EXECUTABLE)
+        Python_EXECUTABLE)
   endif()
 
   # Force installation of the test into the tests module

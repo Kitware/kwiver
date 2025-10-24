@@ -31,6 +31,11 @@
 #     If set, the suffix will be appended to the subdirectory for the target.
 #     This is placed after the CMAKE_BUILD_TYPE subdirectory if necessary.
 #
+#   add_library_function
+#     If set, modifies the add_library function utilized in
+#     `kwiver_add_library` to an alternative as might be provided by a
+#     supporting package to build specific kinds of libraries (e.g. python).
+#
 
 include(CMakeParseArguments)
 include (GenerateExportHeader)
@@ -234,12 +239,21 @@ endmacro()
 # unless "no_export" was set.
 #
 # An export header will be created unless "no_export_header" is set.
+#
+# The bog-standard `add_library` CMake function will be used unless
+# `add_library_function` is set, specifying an alternative function to use
+# instead. This functionality exists to support when an alternative
+# function exists to better support the creation of a specific library.
+# For example, Python module libraries.
 #-
 function(kwiver_add_library     name)
   string(TOUPPER "${name}" upper_name)
   message(STATUS "Making library \"${name}\"")
 
-  add_library("${name}" ${ARGN})
+  if( NOT DEFINED add_library_function )
+    set( add_library_function "add_library" )
+  endif()
+  cmake_language( CALL "${add_library_function}" "${name}" ${ARGN} )
 
   _kwiver_check_and_set_library_dir()
   _kwiver_validate_path_value(library_dir "${library_dir}")

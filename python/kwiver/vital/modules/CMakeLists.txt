@@ -18,7 +18,7 @@ if (KWIVER_ENABLE_TOOLS)
                      vital_logger
                      vital_vpm
                      ${${pybind11_library}}
-                     ${PYTHON_LIBRARIES}
+                     ${Python_LIBRARIES}
                    )
 endif()
 

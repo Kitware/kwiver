@@ -112,7 +112,7 @@ function (kwiver_add_python_library    name    modpath)
   # implicitly include the python libraries under the PRIVATE linkage.
   # This assumes ``find_package(Python)`` was performed before invoking this
   # function, which should be a general requirement anyway.
-  # we link to pybind11::module  instead of directly to PYTHON_LIBRARIES. This
+  # we link to pybind11::module  instead of directly to Python_LIBRARIES. This
   # is required when building wheel while still makes the code work outside
   # the wheels.
   list(INSERT PYLIB_PRIVATE 0 pybind11::module)
@@ -217,12 +217,12 @@ function (kwiver_add_python_module path     modpath    module)
     kwiver_symlink_file("python${python_arch}-${safe_modpath}-${module}"
       "${pyfile_src}"
       "${pyfile_dst}"
-      PYTHON_EXECUTABLE)
+      Python_EXECUTABLE)
   else()
     kwiver_configure_file("python${python_arch}-${safe_modpath}-${module}"
       "${pyfile_src}"
       "${pyfile_dst}"
-      PYTHON_EXECUTABLE)
+      Python_EXECUTABLE)
   endif()
 
   # install the configured binary to pypkg_install_path
