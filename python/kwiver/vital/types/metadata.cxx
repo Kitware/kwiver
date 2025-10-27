@@ -73,6 +73,8 @@ adder( metadata& self, py::object data, vital_metadata_tag tag )
 // ----------------------------------------------------------------------------
 PYBIND11_MODULE( metadata, m )
 {
+  py::module::import( "kwiver.vital.types.metadata_tags" );
+
   py::class_< metadata_item,
     std::shared_ptr< metadata_item > >( m, "MetadataItem" )
     .def(

@@ -13,6 +13,8 @@ namespace kv = kwiver::vital;
 
 PYBIND11_MODULE( activity, m )
 {
+  py::module::import( "kwiver.vital.types.timestamp" );
+
   py::class_< kv::activity,
     std::shared_ptr< kv::activity > >( m, "Activity" )
     .def( py::init<>() )
@@ -28,8 +30,8 @@ PYBIND11_MODULE( activity, m )
       py::arg( "activity_label" ) = kv::UNDEFINED_ACTIVITY,
       py::arg( "activity_confidence" ) = -1.0,
       py::arg( "activity_type" ) = nullptr,
-      py::arg( "start_time" ) = kv::timestamp( -1, -1 ),
-      py::arg( "end_time" ) = kv::timestamp( -1, -1 ),
+      py::arg_v( "start_time", kv::timestamp( -1, -1 ), "Timestamp()" ),
+      py::arg_v( "end_time", kv::timestamp( -1, -1 ), "Timestamp()" ),
       py::arg( "participants" ) = nullptr )
     .def_property(
       "id", &kv::activity::id,

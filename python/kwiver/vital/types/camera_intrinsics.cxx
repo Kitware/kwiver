@@ -61,24 +61,33 @@ PYBIND11_MODULE( camera_intrinsics, m )
       "map",
       ( kv::vector_2d ( kv::camera_intrinsics::* )(
         const kv::vector_2d& ) const ) &
-      kv::camera_intrinsics::map )
+      kv::camera_intrinsics::map, py::arg( "norm_pt" ) )
     .def(
       "map",
       ( kv::vector_2d ( kv::camera_intrinsics::* )(
         const kv::vector_3d& ) const ) &
-      kv::camera_intrinsics::map )
-    .def( "unmap",           &kv::camera_intrinsics::unmap )
-    .def( "distort",         &kv::camera_intrinsics::distort )
-    .def( "undistort",       &kv::camera_intrinsics::undistort )
+      kv::camera_intrinsics::map, py::arg( "norm_pt" ) )
+    .def(
+      "unmap",
+      &kv::camera_intrinsics::unmap,
+      py::arg( "norm_pt" ) )
+    .def(
+      "distort",
+      &kv::camera_intrinsics::distort,
+      py::arg( "norm_pt" ) )
+    .def(
+      "undistort",
+      &kv::camera_intrinsics::undistort,
+      py::arg( "norm_pt" ) )
     // is_map_valid overloads
     .def(
       "is_map_valid",
       ( bool ( kv::camera_intrinsics::* )( const kv::vector_2d& ) const ) &
-      kv::camera_intrinsics::is_map_valid )
+      kv::camera_intrinsics::is_map_valid, py::arg( "norm_pt" ) )
     .def(
       "is_map_valid",
       ( bool ( kv::camera_intrinsics::* )( const kv::vector_3d& ) const ) &
-      kv::camera_intrinsics::is_map_valid )
+      kv::camera_intrinsics::is_map_valid, py::arg( "norm_pt" ) )
 
     .def(
       "__str__", []( const kv::camera_intrinsics& self ){
@@ -101,7 +110,7 @@ PYBIND11_MODULE( camera_intrinsics, m )
       py::arg( "aspect_ratio" ) = 1.0, py::arg( "skew" ) = 0.0,
       py::arg( "dist_coeffs" ) = vector_t(),  py::arg( "image_width" ) = 0,
       py::arg( "image_height" ) = 0 )
-    .def( py::init< const kv::camera_intrinsics& >() )
+    .def( py::init< const kv::camera_intrinsics& >(), py::arg( "base" ) )
     .def(
       py::init< const kv::matrix_3x3d&, const vector_t& >(),
       py::arg( "K" ), py::arg( "d" ) = vector_t() )
@@ -120,28 +129,31 @@ PYBIND11_MODULE( camera_intrinsics, m )
       &kv::simple_camera_intrinsics::get_max_distort_radius_sq )
     .def(
       "set_focal_length",
-      &kv::simple_camera_intrinsics::set_focal_length )
+      &kv::simple_camera_intrinsics::set_focal_length,
+      py::arg( "focal_length" ) )
     .def(
       "set_principal_point",
-      &kv::simple_camera_intrinsics::set_principal_point )
+      &kv::simple_camera_intrinsics::set_principal_point, py::arg( "pp" ) )
     .def(
       "set_aspect_ratio",
-      &kv::simple_camera_intrinsics::set_aspect_ratio )
+      &kv::simple_camera_intrinsics::set_aspect_ratio,
+      py::arg( "aspect_ratio" ) )
     .def(
       "set_skew",
-      &kv::simple_camera_intrinsics::set_skew )
+      &kv::simple_camera_intrinsics::set_skew, py::arg( "skew" ) )
     .def(
       "set_image_width",
-      &kv::simple_camera_intrinsics::set_image_width )
+      &kv::simple_camera_intrinsics::set_image_width, py::arg( "width" ) )
     .def(
       "set_image_height",
-      &kv::simple_camera_intrinsics::set_image_height )
+      &kv::simple_camera_intrinsics::set_image_height, py::arg( "height" ) )
     .def(
       "set_dist_coeffs",
-      &kv::simple_camera_intrinsics::set_dist_coeffs )
+      &kv::simple_camera_intrinsics::set_dist_coeffs, py::arg( "d" ) )
     .def_static(
       "max_distort_radius_sq",
-      &kv::simple_camera_intrinsics::max_distort_radius_sq )
+      &kv::simple_camera_intrinsics::max_distort_radius_sq, py::arg( "a" ),
+      py::arg( "b" ), py::arg( "c" ) )
   ;
 }
 

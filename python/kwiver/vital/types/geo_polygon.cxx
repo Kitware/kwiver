@@ -16,6 +16,8 @@ namespace kv = kwiver::vital;
 
 PYBIND11_MODULE( geo_polygon, m )
 {
+  py::module::import( "kwiver.vital.types.polygon" );
+
   py::class_< kv::geo_polygon, std::shared_ptr< kv::geo_polygon > >(
     m,
     "GeoPolygon" )

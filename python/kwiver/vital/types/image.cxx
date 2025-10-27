@@ -8,11 +8,19 @@
 #include <python/kwiver/vital/types/image.h>
 #include <vital/types/image.h>
 
+#include <cstdint>
+
 namespace kwiver {
 
 namespace vital {
 
 namespace python {
+
+std::intptr_t
+first_pixel_address( std::shared_ptr< image_t >& self )
+{
+  return reinterpret_cast< std::intptr_t >( self->first_pixel() );
+}
 
 pixel_traits::pixel_type
 kwiver::vital::python::image
@@ -593,14 +601,10 @@ void kwiver::vital::python::image
     py::init( &kwiver::vital::python::image::new_image ),
     py::arg( "width" ) = 0, py::arg( "height" ) = 0, py::arg( "depth" ) = 1,
     py::arg( "interleave" ) = false,
-    py::arg( "pixel_type" ) = pixel_traits::pixel_type::UNSIGNED,
+    py::arg_v(
+      "pixel_type", pixel_traits::pixel_type::UNSIGNED,
+      "Types.PIXEL_UNSIGNED" ),
     py::arg( "bytes" ) = 1 )
-    .def(
-      py::init( &kwiver::vital::python::image::new_image_from_data ),
-      py::arg( "first_pixel" ), py::arg( "width" ), py::arg( "height" ),
-      py::arg( "depth" ),
-      py::arg( "w_step" ), py::arg( "h_step" ), py::arg( "d_step" ),
-      py::arg( "pixel_type" ), py::arg( "bytes" ) )
 
   // create initializer from typed numpy arrays
 #define init_from_numpy( T )                                              \
@@ -630,7 +634,7 @@ void kwiver::vital::python::image
     .def( "w_step", &image_t::w_step )
     .def( "h_step", &image_t::h_step )
     .def( "d_step", &image_t::d_step )
-    .def( "first_pixel_address", &kwiver::vital::python::image::first_pixel )
+    .def( "first_pixel_address", &first_pixel_address )
     .def( "pixel_type", &kwiver::vital::python::image::pixel_type )
     .def( "pixel_type_name", &kwiver::vital::python::image::pixel_type_name )
     .def( "pixel_num_bytes", &kwiver::vital::python::image::pixel_num_bytes )

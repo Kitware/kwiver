@@ -26,7 +26,9 @@ PYBIND11_MODULE( metadata_traits, m )
       } )
     .def( "description", &metadata_tag_traits::description );
 
-  m.def( "tag_traits_by_tag",       &tag_traits_by_tag );
-  m.def( "tag_traits_by_name",      &tag_traits_by_name );
-  m.def( "tag_traits_by_enum_name", &tag_traits_by_enum_name );
+  m.def( "tag_traits_by_tag",       &tag_traits_by_tag, py::arg( "tag" ) );
+  m.def( "tag_traits_by_name",      &tag_traits_by_name, py::arg( "name" ) );
+  m.def(
+    "tag_traits_by_enum_name", &tag_traits_by_enum_name,
+    py::arg( "enum_name" ) );
 }

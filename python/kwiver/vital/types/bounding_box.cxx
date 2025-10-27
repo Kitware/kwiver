@@ -50,8 +50,12 @@ bounding_box( py::module& m, const char* typestr )
         4000.0
 
     )" )
-    .def( py::init< Eigen::Matrix< T, 2, 1 >, Eigen::Matrix< T, 2, 1 > >() )
-    .def( py::init< Eigen::Matrix< T, 2, 1 >, T, T >() )
+    .def(
+    py::init< Eigen::Matrix< T, 2, 1 >, Eigen::Matrix< T, 2, 1 > >(),
+    py::arg( "upper_left" ), py::arg( "lower_right" ) )
+    .def(
+      py::init< Eigen::Matrix< T, 2, 1 >, T, T >(), py::arg( "upper_left" ),
+      py::arg( "width" ), py::arg( "height" ) )
     .def(
       py::init< T, T, T, T >(),
       py::doc(
@@ -63,7 +67,8 @@ bounding_box( py::module& m, const char* typestr )
             ymin (float):  min y coord
             xmax (float):  max x coord
             ymax (float):  max y coord
-        )" )
+        )" ),
+      py::arg( "xmin" ), py::arg( "ymin" ), py::arg( "xmax" ), py::arg( "ymax" )
     )
     .def(
       py::init<>(),
@@ -84,7 +89,7 @@ bounding_box( py::module& m, const char* typestr )
     .def( "width", &bbox::width )
     .def( "height", &bbox::height )
     .def( "area", &bbox::area )
-    .def( "contains", &bbox::contains )
+    .def( "contains", &bbox::contains, py::arg( "point" ) )
 
     .def(
       "__nice__", [](bbox& self) -> std::string {
@@ -121,8 +126,16 @@ bounding_box( py::module& m, const char* typestr )
           py::globals(), locals );
         return locals[ "retval" ].cast< std::string >();
       } )
-    .def( "__eq__", [](bbox self, bbox other){ return self == other; } )
-    .def( "__ne__", [](bbox self, bbox other){ return self != other; } )
+    .def(
+      "__eq__",
+      [](bbox self, bbox other){
+        return self == other;
+      }, py::arg( "other" ) )
+    .def(
+      "__ne__",
+      [](bbox self, bbox other){
+        return self != other;
+      }, py::arg( "other" ) )
   ;
 }
 

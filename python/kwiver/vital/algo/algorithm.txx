@@ -19,15 +19,18 @@ register_algorithm( py::class_< Args... >& c )
 {
   c.def_static(
     "create_algorithm",
-    &kwiver::vital::create_algorithm< INTERFACE > );
+    &kwiver::vital::create_algorithm< INTERFACE >,
+    py::arg( "implementation_name" ) );
 
   c.def_static(
     "create",
-    &kwiver::vital::create_algorithm< INTERFACE > );
+    &kwiver::vital::create_algorithm< INTERFACE >,
+    py::arg( "implementation_name" ) );
 
   c.def_static(
     "has_algorithm_impl_name",
-    &kwiver::vital::has_algorithm_impl_name< INTERFACE > );
+    &kwiver::vital::has_algorithm_impl_name< INTERFACE >,
+    py::arg( "implementation_name" ) );
 
   c.def_static(
     "registered_names",
@@ -35,7 +38,8 @@ register_algorithm( py::class_< Args... >& c )
 
   c.def_static(
     "get_nested_algo_configuration",
-    &kwiver::vital::get_nested_algo_configuration< INTERFACE > );
+    &kwiver::vital::get_nested_algo_configuration< INTERFACE >,
+    py::arg( "name" ), py::arg( "config" ), py::arg( "nested_algo" ) );
   c.def_static(
     "set_nested_algo_configuration",
     [](std::string const& name, kwiver::vital::config_block_sptr config){
@@ -44,10 +48,11 @@ register_algorithm( py::class_< Args... >& c )
         name, config,
         nested_algo );
       return nested_algo;
-    } );
+    }, py::arg( "name" ), py::arg( "config" ) );
   c.def_static(
     "check_nested_algo_configuration",
-    &kwiver::vital::check_nested_algo_configuration< INTERFACE > );
+    &kwiver::vital::check_nested_algo_configuration< INTERFACE >,
+    py::arg( "name" ), py::arg( "config" ) );
 }
 
 } // namespace kwiver::vital::python

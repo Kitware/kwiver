@@ -12,6 +12,8 @@ namespace py = pybind11;
 
 PYBIND11_MODULE( camera_map, m )
 {
+  py::module::import( "kwiver.vital.types.camera_perspective" );
+
   py::class_< kwiver::vital::simple_camera_map,
     std::shared_ptr< kwiver::vital::simple_camera_map > >( m, "CameraMap" )
     .def( py::init<>() )
@@ -33,7 +35,7 @@ PYBIND11_MODULE( camera_map, m )
                 c_ptr ) );
           }
           return kwiver::vital::simple_camera_map( cm );
-        } ) )
+        } ), py::arg( "cameras" ) )
     .def_property_readonly( "size", &kwiver::vital::simple_camera_map::size )
     .def(
       "as_dict", [](kwiver::vital::simple_camera_map& cm){

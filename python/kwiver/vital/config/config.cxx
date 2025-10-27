@@ -134,10 +134,6 @@ config( py::module& m )
                      ConfigKeys
                      Config
                    )pbdoc";
-  m.def(
-    "empty_config", &kv::config_block::empty_config,
-    py::arg( "name" ) = kv::config_block_key_t(),
-    R"pbdoc(Returns an empty :class:`kwiver.vital.config.Config` object)pbdoc" );
 
   py::bind_vector< std::vector< std::string > >(
     m, "ConfigKeys",
@@ -294,6 +290,12 @@ config( py::module& m )
     .def(
       "__delitem__", &kv::python::config_delitem,
       R"pbdoc(Magic function to remove a key)pbdoc" );
+
+// ----------------------------------------------------------------------------"
+  m.def(
+    "empty_config", &kv::config_block::empty_config,
+    py::arg( "name" ) = kv::config_block_key_t(),
+    R"pbdoc(Returns an empty :class:`kwiver.vital.config.Config` object)pbdoc" );
 
 // ----------------------------------------------------------------------------"
   py::class_< kv::config_difference, std::shared_ptr< kv::config_difference > >(

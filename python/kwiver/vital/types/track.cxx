@@ -38,8 +38,8 @@ PYBIND11_MODULE( track, m )
 {
   py::class_< kwiver::vital::track_state,
     std::shared_ptr< kwiver::vital::track_state > >( m, "TrackState" )
-    .def( py::init< int64_t >() )
-    .def( py::self == py::self )
+    .def( py::init< int64_t >(), py::arg( "frame_id" ) )
+    .def( py::self == py::self, py::arg( "other" ) )
     .def_property(
       "frame_id", &kwiver::vital::track_state::frame,
       &kwiver::vital::track_state::set_frame )
@@ -61,18 +61,18 @@ PYBIND11_MODULE( track, m )
       [](kwiver::vital::track& self,
          std::shared_ptr< kwiver::vital::track_state > track_state){
         return self.append( track_state );
-      } )
+      }, py::arg( "state" ) )
     .def(
       "append", [](kwiver::vital::track& self, kwiver::vital::track& track){
         return self.append( track );
-      } )
-    .def( "find_state", &track_find_state )
+      }, py::arg( "track" ) )
+    .def( "find_state", &track_find_state, py::arg( "frame_id" ) )
     .def(
       "__iter__", [](const kwiver::vital::track& self){
         return py::make_iterator( self.begin(), self.end() );
       }, py::keep_alive< 0, 1 >() )
     .def( "__len__", &kwiver::vital::track::size )
-    .def( "__getitem__", &track_find_state )
+    .def( "__getitem__", &track_find_state, py::arg( "frame_id" ) )
     .def_property(
       "id", &kwiver::vital::track::id,
       &kwiver::vital::track::set_id )

@@ -14,6 +14,9 @@ namespace kv = kwiver::vital;
 
 PYBIND11_MODULE( descriptor_request, m )
 {
+  py::module::import( "kwiver.vital.types.timestamp" );
+  py::module::import( "kwiver.vital.types.uid" );
+
   py::class_< kwiver::vital::descriptor_request,
     std::shared_ptr< kwiver::vital::descriptor_request > >(
     m,

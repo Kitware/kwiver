@@ -477,6 +477,22 @@ kwiver_add_python_library(
           vital
 )
 
+kwiver_add_python_library(
+  video_raw_image
+  "${THIS_MODULE}"
+  SOURCES video_raw_image.cxx
+  PRIVATE pybind11::pybind11
+          vital
+)
+
+kwiver_add_python_library(
+  video_raw_metadata
+  "${THIS_MODULE}"
+  SOURCES video_raw_metadata.cxx
+  PRIVATE pybind11::pybind11
+          vital
+)
+
 #if(NOT SKBUILD)
 #  kwiver_create_python_init(vital/types
 #    types

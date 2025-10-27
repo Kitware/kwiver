@@ -21,6 +21,8 @@ namespace kv = kwiver::vital;
 
 PYBIND11_MODULE( _config, m )
 {
+  py::module::import( "kwiver.vital.types.geo_polygon" );
+
   m.doc() =
     R"pbdoc(
     Config module for vital
@@ -35,13 +37,6 @@ PYBIND11_MODULE( _config, m )
     ConfigKeys
     Config
   )pbdoc";
-
-  // ---------------------------------------------------------------------------
-  m.def(
-    "empty_config", &kv::config_block::empty_config,
-    R"pbdoc(Returns an empty :class:`kwiver.vital.config.Config` object)pbdoc",
-    py::arg( "name" ) = kv::config_block_key_t()
-  );
 
   // ---------------------------------------------------------------------------
   // TODO: Why is this a thing? What is it for?
@@ -208,6 +203,13 @@ PYBIND11_MODULE( _config, m )
   ;
 
   // ---------------------------------------------------------------------------
+  m.def(
+    "empty_config", &kv::config_block::empty_config,
+    R"pbdoc(Returns an empty :class:`kwiver.vital.config.Config` object)pbdoc",
+    py::arg( "name" ) = kv::config_block_key_t()
+  );
+
+  // ---------------------------------------------------------------------------
   py::class_< kv::config_difference, std::shared_ptr< kv::config_difference > >(
     m, "ConfigDifference",
     "Represents difference between two config blocks" )
@@ -235,7 +237,7 @@ PYBIND11_MODULE( _config, m )
       kv::config_path_t const&,
       kv::config_path_list_t const&, bool ) ) & kv::read_config_file,
     py::arg( "file_path" ),
-    py::arg( "search_paths" ) = kv::config_path_list_t(),
+    py::arg_v( "search_paths", kv::config_path_list_t(), "[]" ),
     py::arg( "use_system_paths" ) = true,
     // doc-string copied from C++ class
     R"pbdoc(

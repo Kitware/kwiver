@@ -18,6 +18,8 @@ namespace python {
 void
 algorithm( py::module& m )
 {
+  py::module::import( "kwiver.vital.config" );
+
   // import the module containing the binding of the pluggable class so we can
   // use it as a parent here.
   // Having kwiver::vital::pluggable in the hierarcy is improtant because the
@@ -35,10 +37,12 @@ algorithm( py::module& m )
     &kwiver::vital::algorithm::set_impl_name )
     .def_static( "interface_name", &kwiver::vital::algorithm::interface_name )
     .def( "get_configuration", &kwiver::vital::algorithm::get_configuration )
-    .def( "set_configuration", &kwiver::vital::algorithm::set_configuration )
+    .def(
+      "set_configuration", &kwiver::vital::algorithm::set_configuration,
+      py::arg( "config" ) )
     .def(
       "check_configuration",
-      &kwiver::vital::algorithm::check_configuration );
+      &kwiver::vital::algorithm::check_configuration, py::arg( "config" ) );
 }
 
 } // namespace python
