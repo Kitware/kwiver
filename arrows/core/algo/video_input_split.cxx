@@ -193,7 +193,7 @@ bool
 video_input_split
 ::next_frame(
   kwiver::vital::timestamp& ts,               // returns timestamp
-  uint32_t timeout )
+  vital::time_usec_t timeout )
 {
   // Check for at end of data
   if( this->end_of_video() )
@@ -230,7 +230,7 @@ video_input_split
 ::seek_frame(
   kwiver::vital::timestamp& ts,               // returns timestamp
   kwiver::vital::timestamp::frame_t frame_number,
-  uint32_t timeout )
+  vital::time_usec_t timeout )
 {
   // if timeout is not supported by both sources
   // then do not pass a time out value to either

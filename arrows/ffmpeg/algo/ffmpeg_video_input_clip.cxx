@@ -259,7 +259,7 @@ ffmpeg_video_input_clip
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input_clip
-::next_frame( vital::timestamp& ts, uint32_t timeout )
+::next_frame( vital::timestamp& ts, vital::time_usec_t timeout )
 {
   if( end_of_video() )
   {
@@ -286,7 +286,7 @@ bool
 ffmpeg_video_input_clip
 ::seek_frame(
   vital::timestamp& ts, vital::timestamp::frame_t frame_number,
-  uint32_t timeout )
+  vital::time_usec_t timeout )
 {
   if( frame_number > 1 )
   {

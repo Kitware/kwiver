@@ -223,7 +223,7 @@ bool
 video_input_pos
 ::next_frame(
   kwiver::vital::timestamp& ts,               // returns timestamp
-  VITAL_UNUSED uint32_t timeout )                 // not supported
+  VITAL_UNUSED vital::time_usec_t timeout )   // not supported
 {
   // reset current metadata packet and timestamp
   d->d_metadata = nullptr;
@@ -274,7 +274,7 @@ video_input_pos
 ::seek_frame(
   kwiver::vital::timestamp& ts,               // returns timestamp
   kwiver::vital::timestamp::frame_t frame_number,
-  VITAL_UNUSED uint32_t timeout )
+  VITAL_UNUSED vital::time_usec_t timeout )
 {
   // reset current metadata packet and timestamp
   d->d_metadata = nullptr;

@@ -42,7 +42,7 @@ public:
   num_frames() const override { return 0; }
 
   bool
-  next_frame( timestamp& ts, uint32_t = 0 ) override
+  next_frame( timestamp& ts, time_usec_t = 0 ) override
   {
     if( end_of_video() )
     {
@@ -68,7 +68,7 @@ public:
   }
 
   bool
-  seek_frame( timestamp&, frame_id_t, uint32_t = 0 ) override
+  seek_frame( timestamp&, frame_id_t, time_usec_t = 0 ) override
   {
     return false;
   }

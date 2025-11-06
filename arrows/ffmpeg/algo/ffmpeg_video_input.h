@@ -113,14 +113,15 @@ public:
   size_t num_frames() const override;
   double frame_rate() override;
 
-  bool next_frame( vital::timestamp& ts, uint32_t timeout = 0 ) override;
+  bool next_frame(
+    vital::timestamp& ts, vital::time_usec_t timeout = 0 ) override;
   bool seek_frame(
     vital::timestamp& ts, vital::timestamp::frame_t frame_number,
-    uint32_t timeout = 0 ) override;
+    vital::time_usec_t timeout = 0 ) override;
 
   bool seek_frame_(
     vital::timestamp& ts, vital::timestamp::frame_t frame_number,
-    seek_mode mode, uint32_t timeout = 0 );
+    seek_mode mode, vital::time_usec_t timeout = 0 );
 
   vital::timestamp frame_timestamp() const override;
   vital::image_container_sptr frame_image() override;
