@@ -26,6 +26,12 @@ class KWIVER_ALGO_CORE_EXPORT image_io_tiled_multifile
   PLUGGABLE_IMPL(
     image_io_tiled_multifile,
     "Read and write tiled images as a directory of separate files.",
+    PARAM_DEFAULT(
+      omit_single_file_suffix, bool,
+      "If true, saving an image with only a single tile will omit the "
+      "location suffix, i.e. file.png instead of file.0000.0000.png",
+      false
+    ),
     PARAM(
       image_io, vital::algo::image_io_sptr,
       "Image I/O algorithm used on individual files." )
@@ -40,7 +46,9 @@ class KWIVER_ALGO_CORE_EXPORT image_io_tiled_multifile
 
   void save_(
     std::string const& filename,
-    vital::image_container_sptr data ) const;
+    vital::image_container_sptr data ) const override;
+
+  bool skip_path_validation_() const override;
 
 private:
   void initialize() override;

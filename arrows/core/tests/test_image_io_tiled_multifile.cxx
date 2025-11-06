@@ -13,6 +13,10 @@
 #include <vital/types/image_container.h>
 #include <vital/types/tiled_image_container_simple.h>
 
+#include <filesystem>
+
+#include <cstdio>
+
 using namespace kwiver;
 using namespace kwiver::arrows;
 
@@ -26,7 +30,51 @@ main( int argc, char** argv )
 }
 
 // ----------------------------------------------------------------------------
-TEST ( image_io_tiled_multifile, create )
+class image_io_tiled_multifile : public ::testing::Test
+{
+  void
+  SetUp() override
+  {
+    io.set_image_io( std::make_shared< ocv::image_io >() );
+
+    tiles =
+      std::make_shared< vital::simple_tiled_image_container >(
+        256, 256, 4, 4, 3 );
+
+    // Create tile images
+    vital::image image1{
+      tiles->tile_width(), tiles->tile_height(), tiles->depth(),
+      true, tiles->get_image().pixel_traits() };
+    vital::image image2{
+      tiles->tile_width(), tiles->tile_height(), tiles->depth(),
+      true, tiles->get_image().pixel_traits() };
+
+    // Fill tiles with data
+    auto ptr1 = static_cast< uint8_t* >( image1.first_pixel() );
+    auto ptr2 = static_cast< uint8_t* >( image2.first_pixel() );
+    for( size_t i = 0; i < image1.size(); ++i )
+    {
+      *ptr1 = i % 256;
+      *ptr2 = ( i + 127 ) % 256;
+      ++ptr1;
+      ++ptr2;
+    }
+
+    tile1 =
+      std::make_shared< vital::simple_image_container >( image1 );
+    tile2 =
+      std::make_shared< vital::simple_image_container >( image2 );
+  }
+
+public:
+  core::image_io_tiled_multifile io;
+  std::shared_ptr< vital::simple_tiled_image_container > tiles;
+  vital::image_container_sptr tile1;
+  vital::image_container_sptr tile2;
+};
+
+// ----------------------------------------------------------------------------
+TEST_F ( image_io_tiled_multifile, create )
 {
   EXPECT_NE(
     nullptr, vital::create_algorithm<
@@ -34,38 +82,56 @@ TEST ( image_io_tiled_multifile, create )
 }
 
 // ----------------------------------------------------------------------------
-TEST ( image_io_tiled_multifile, round_trip )
+TEST_F ( image_io_tiled_multifile, file_does_not_exist )
+{
+  EXPECT_THROW( io.load( "DoesNotExist.png" ), vital::path_not_exists );
+}
+
+// ----------------------------------------------------------------------------
+TEST_F ( image_io_tiled_multifile, omit_single_file_suffix )
 {
   auto const path = kwiver::testing::temp_file_name( "test-", ".png" );
-  core::image_io_tiled_multifile io;
-  io.set_image_io( std::make_shared< ocv::image_io >() );
+  std::remove( path.c_str() );
 
-  // Create example image tiles
-  auto const tiles =
-    std::make_shared< vital::simple_tiled_image_container >(
-      256, 256, 4, 4, 3 );
-  vital::image image1{
-    tiles->tile_width(), tiles->tile_height(), tiles->depth(),
-    true, tiles->get_image().pixel_traits() };
-  vital::image image2{
-    tiles->tile_width(), tiles->tile_height(), tiles->depth(),
-    true, tiles->get_image().pixel_traits() };
+  // Assemble tiles into overall image
+  tiles->set_tile( 0, 1, tile1 );
 
-  // Fill tiles with data
-  auto ptr1 = static_cast< uint8_t* >( image1.first_pixel() );
-  auto ptr2 = static_cast< uint8_t* >( image2.first_pixel() );
-  for( size_t i = 0; i < image1.size(); ++i )
-  {
-    *ptr1 = i % 256;
-    *ptr2 = ( i + 127 ) % 256;
-    ++ptr1;
-    ++ptr2;
-  }
+  auto const path1 = path.substr( 0, path.size() - 4 ) + ".0001.0000.png";
 
-  auto const tile1 =
-    std::make_shared< vital::simple_image_container >( image1 );
-  auto const tile2 =
-    std::make_shared< vital::simple_image_container >( image2 );
+  io.set_omit_single_file_suffix( false );
+  EXPECT_FALSE( std::filesystem::exists( path1 ) );
+  io.save( path, tiles );
+  EXPECT_FALSE( std::filesystem::exists( path ) );
+  EXPECT_TRUE( std::filesystem::exists( path1 ) );
+  EXPECT_NE( nullptr, io.load( path ) );
+  std::remove( path1.c_str() );
+
+  io.set_omit_single_file_suffix( true );
+  EXPECT_FALSE( std::filesystem::exists( path ) );
+  io.save( path, tiles );
+  EXPECT_TRUE( std::filesystem::exists( path ) );
+  EXPECT_FALSE( std::filesystem::exists( path1 ) );
+  EXPECT_NE( nullptr, io.load( path ) );
+  std::remove( path.c_str() );
+
+  tiles->set_tile( 2, 3, tile2 );
+
+  auto const path2 = path.substr( 0, path.size() - 4 ) + ".0003.0002.png";
+
+  io.save( path, tiles );
+  EXPECT_FALSE( std::filesystem::exists( path ) );
+  EXPECT_TRUE( std::filesystem::exists( path1 ) );
+  EXPECT_TRUE( std::filesystem::exists( path2 ) );
+  EXPECT_NE( nullptr, io.load( path ) );
+  std::remove( path1.c_str() );
+  std::remove( path2.c_str() );
+}
+
+// ----------------------------------------------------------------------------
+TEST_F ( image_io_tiled_multifile, round_trip )
+{
+  auto const path = kwiver::testing::temp_file_name( "test-", ".png" );
+  std::remove( path.c_str() );
 
   // Assemble tiles into overall image
   tiles->set_tile( 0, 1, tile1 );

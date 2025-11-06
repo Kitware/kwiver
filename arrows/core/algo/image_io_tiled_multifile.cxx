@@ -51,6 +51,17 @@ image_io_tiled_multifile
     throw std::runtime_error( "No filename stub given in path" );
   }
 
+  std::shared_ptr< vital::simple_tiled_image_container > result;
+  if( c_omit_single_file_suffix && std::filesystem::exists( path ) )
+  {
+    auto const tile = c_image_io->load( path.string() );
+    result = std::make_shared< vital::simple_tiled_image_container >(
+      tile->width(), tile->height(), 1, 1, tile->depth(),
+      tile->get_image().pixel_traits() );
+    result->set_tile( 0, 0, tile );
+    return result;
+  }
+
   size_t max_y = 0;
   size_t max_x = 0;
 
@@ -59,20 +70,15 @@ image_io_tiled_multifile
   for( auto const& entry :
        std::filesystem::directory_iterator{ path.parent_path() } )
   {
-    auto base = entry.path();
+    auto base = path;
     base.replace_extension();
-    if( base.string().size() < 10 )
-    {
-      continue;
-    }
-    base = base.string().substr( 0, base.string().size() - 10 );
 
-    auto extension = entry.path().extension();
     auto entry_filename = entry.path().string();
 
     std::smatch match;
     if( std::regex_match( entry_filename, match, pattern ) &&
-        match[ 1 ].str() == base && match[ 4 ].str() == extension.string() )
+        match[ 1 ].str() == base.string() &&
+        match[ 4 ].str() == path.extension().string() )
     {
       size_t y = std::stoull( match[ 2 ].str() );
       size_t x = std::stoull( match[ 3 ].str() );
@@ -82,7 +88,10 @@ image_io_tiled_multifile
     }
   }
 
-  std::shared_ptr< vital::simple_tiled_image_container > result;
+  if( paths.empty() )
+  {
+    VITAL_THROW( vital::path_not_exists, filename );
+  }
 
   for( auto const& [ tile_path, y, x ] : paths )
   {
@@ -133,12 +142,15 @@ image_io_tiled_multifile
     first = false;
 
     std::filesystem::path out_path{ path };
-    std::stringstream ss;
-    ss
-      << std::setfill( '0' )
-      << std::setw( 4 ) << y  << "."
-      << std::setw( 4 ) << x << out_path.extension().string();
-    out_path.replace_extension( ss.str() );
+    if( tiles->tile_count() > 1 || !c_omit_single_file_suffix )
+    {
+      std::stringstream ss;
+      ss
+        << std::setfill( '0' )
+        << std::setw( 4 ) << y << "."
+        << std::setw( 4 ) << x << out_path.extension().string();
+      out_path.replace_extension( ss.str() );
+    }
     c_image_io->save( out_path.string(), tiles->get_tile( x, y ) );
   }
 }
@@ -148,6 +160,14 @@ void
 image_io_tiled_multifile
 ::initialize()
 {}
+
+// ----------------------------------------------------------------------------
+bool
+image_io_tiled_multifile
+::skip_path_validation_() const
+{
+  return true;
+}
 
 } // namespace core
 
