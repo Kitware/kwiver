@@ -135,6 +135,15 @@ private:
   virtual kwiver::vital::metadata_sptr load_metadata_(
     std::string const& filename ) const;
 
+  /// Return \c true if the implementation will handle its own filepath
+  /// validation for \param filename.
+  ///
+  /// Some implementations may be capable of loading and saving from
+  /// non-filesystem paths, e.g. network URLs. Returning \c true here
+  /// indicates that no error should be thrown even if a path is not a
+  /// valid image filepath on disk.
+  virtual bool skip_path_validation_() const;
+
   algorithm_capabilities m_capabilities;
 };
 
