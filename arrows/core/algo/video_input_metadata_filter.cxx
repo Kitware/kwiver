@@ -171,7 +171,7 @@ video_input_metadata_filter
 // ----------------------------------------------------------------------------
 bool
 video_input_metadata_filter
-::next_frame( kv::timestamp& ts, uint32_t timeout )
+::next_frame( kv::timestamp& ts, vital::time_usec_t timeout )
 {
   if( !m_d->video_input() )
   {
@@ -187,7 +187,7 @@ video_input_metadata_filter
 ::seek_frame(
   kv::timestamp& ts,
   kv::timestamp::frame_t frame_number,
-  uint32_t timeout )
+  vital::time_usec_t timeout )
 {
   if( !m_d->video_input() )
   {

@@ -26,6 +26,10 @@ Python
 
 * Added automatic .pyi stub generation.
 
+Vital: Algo
+
+* Change video_input timeout parameter type to microseconds instead of seconds.
+
 Vital: Exceptions
 
 * Omit file information from exception description when creating Release build.

@@ -182,7 +182,7 @@ video_input_buffered_metadata_filter
 // ----------------------------------------------------------------------------
 bool
 video_input_buffered_metadata_filter
-::next_frame( kv::timestamp& out_ts, uint32_t timeout )
+::next_frame( kv::timestamp& out_ts, vital::time_usec_t timeout )
 {
   if( end_of_video() )
   {
@@ -262,7 +262,7 @@ video_input_buffered_metadata_filter
 // ----------------------------------------------------------------------------
 bool
 video_input_buffered_metadata_filter
-::seek_frame( kv::timestamp&, kv::timestamp::frame_t, uint32_t )
+::seek_frame( kv::timestamp&, kv::timestamp::frame_t, kv::time_usec_t )
 {
   return false;
 }

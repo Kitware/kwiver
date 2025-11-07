@@ -235,7 +235,7 @@ bool
 video_input_filter
 ::next_frame(
   kwiver::vital::timestamp& ts,               // returns timestamp
-  uint32_t timeout )                              // not supported
+  vital::time_usec_t timeout )                // not supported
 {
   // Check for at end of data
   if( d->d_at_eov )
@@ -279,7 +279,7 @@ video_input_filter
 ::seek_frame(
   kwiver::vital::timestamp& ts,               // returns timestamp
   kwiver::vital::timestamp::frame_t frame_number,
-  uint32_t timeout )                              // not supported
+  vital::time_usec_t timeout )                // not supported
 {
   // Check if requested frame is valid
   if( ( d->c_stop_after_frame() != 0 &&

@@ -2428,7 +2428,7 @@ bool
 ffmpeg_video_input
 ::next_frame(
   kv::timestamp& ts,
-  VITAL_UNUSED uint32_t timeout )
+  VITAL_UNUSED vital::time_usec_t timeout )
 {
   d->assert_open( "next_frame()" );
 
@@ -2465,7 +2465,7 @@ ffmpeg_video_input
 ::seek_frame(
   kv::timestamp& ts,
   kv::timestamp::frame_t frame_number,
-  uint32_t timeout )
+  vital::time_usec_t timeout )
 {
   return seek_frame_( ts, frame_number, SEEK_MODE_EXACT, timeout );
 }
@@ -2475,7 +2475,7 @@ bool
 ffmpeg_video_input
 ::seek_frame_(
   kv::timestamp& ts, kv::timestamp::frame_t frame_number,
-  ffmpeg_video_input::seek_mode mode, uint32_t timeout )
+  ffmpeg_video_input::seek_mode mode, vital::time_usec_t timeout )
 {
   d->assert_open( "seek_frame()" );
 

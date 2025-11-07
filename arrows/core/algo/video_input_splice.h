@@ -58,12 +58,12 @@ public:
 
   virtual bool next_frame(
     kwiver::vital::timestamp& ts,
-    uint32_t timeout = 0 );
+    vital::time_usec_t timeout = 0 );
 
   virtual bool seek_frame(
     kwiver::vital::timestamp& ts,
     kwiver::vital::timestamp::frame_t frame_number,
-    uint32_t timeout = 0 );
+    vital::time_usec_t timeout = 0 );
 
   virtual kwiver::vital::timestamp frame_timestamp() const;
   virtual kwiver::vital::image_container_sptr frame_image();

@@ -777,7 +777,7 @@ bool
 vidl_ffmpeg_video_input
 ::next_frame(
   kwiver::vital::timestamp& ts,
-  VITAL_UNUSED uint32_t timeout )
+  VITAL_UNUSED vital::time_usec_t timeout )
 {
   if( d->d_at_eov )
   {
@@ -837,7 +837,7 @@ vidl_ffmpeg_video_input
 ::seek_frame(
   kwiver::vital::timestamp& ts,               // returns timestamp
   kwiver::vital::timestamp::frame_t frame_number,
-  VITAL_UNUSED uint32_t timeout )
+  VITAL_UNUSED vital::time_usec_t timeout )
 {
   // is stream open?
   if( !d->d_video_stream.is_open() )

@@ -287,7 +287,7 @@ bool
 video_input_splice
 ::next_frame(
   kwiver::vital::timestamp& ts,               // returns timestamp
-  uint32_t timeout )
+  vital::time_usec_t timeout )
 {
   bool status = false;
   kwiver::vital::timestamp::frame_t frame_number = 1;
@@ -340,7 +340,7 @@ video_input_splice
 ::seek_frame(
   kwiver::vital::timestamp& ts,               // returns timestamp
   kwiver::vital::timestamp::frame_t frame_number,
-  VITAL_UNUSED uint32_t timeout )
+  VITAL_UNUSED vital::time_usec_t timeout )
 {
   using frame_t = kwiver::vital::timestamp::frame_t;
 

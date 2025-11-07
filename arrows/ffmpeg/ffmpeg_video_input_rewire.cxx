@@ -301,7 +301,7 @@ ffmpeg_video_input_rewire
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input_rewire
-::next_frame( vital::timestamp& ts, uint32_t timeout )
+::next_frame( vital::timestamp& ts, vital::time_usec_t timeout )
 {
   auto result = false;
   for( auto& [ index, source ] : d->video_sources )
@@ -326,7 +326,7 @@ ffmpeg_video_input_rewire
 ::seek_frame(
   VITAL_UNUSED vital::timestamp& ts,
   VITAL_UNUSED vital::timestamp::frame_t frame_number,
-  VITAL_UNUSED uint32_t timeout )
+  VITAL_UNUSED vital::time_usec_t timeout )
 {
   return false;
 }

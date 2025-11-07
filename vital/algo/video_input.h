@@ -214,7 +214,7 @@ public:
   /// will return \b false.
   ///
   /// \param[out] ts Time stamp of new frame.
-  /// \param[in] timeout Number of seconds to wait. 0 = no timeout.
+  /// \param[in] timeout Number of microseconds to wait. 0 = no timeout.
   ///
   /// \return \b true if frame returned, \b false if end of video.
   ///
@@ -222,7 +222,7 @@ public:
   /// \throws video_stream_exception when there is an error in the video stream.
   virtual bool next_frame(
     kwiver::vital::timestamp& ts,
-    uint32_t timeout = 0 ) = 0;
+    kwiver::vital::time_usec_t timeout = 0 ) = 0;
 
   /// \brief Seek to the given frame number in video stream.
   ///
@@ -247,7 +247,7 @@ public:
   ///
   /// \param[out] ts Time stamp of new frame.
   /// \param[in] frame_number The frame to seek to.
-  /// \param[in] timeout Number of seconds to wait. 0 = no timeout.
+  /// \param[in] timeout Number of microseconds to wait. 0 = no timeout.
   ///
   /// \return \b true if frame returned, \b false if end of video.
   ///
@@ -256,7 +256,7 @@ public:
   virtual bool seek_frame(
     kwiver::vital::timestamp& ts,
     kwiver::vital::timestamp::frame_t frame_number,
-    uint32_t timeout = 0 ) = 0;
+    kwiver::vital::time_usec_t timeout = 0 ) = 0;
 
   /// \brief Obtain the time stamp of the current frame.
   ///
