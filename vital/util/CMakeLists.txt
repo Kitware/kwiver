@@ -20,6 +20,7 @@ set( public_headers
   enumerate_matrix.h
   bounded_buffer.h
   source_location.h
+  catch_signal.h
   data_stream_reader.h
   hex_dump.h
   interval.h
@@ -65,6 +66,7 @@ set( sources
   demangle.cxx
   source_location.cxx
 
+  catch_signal.cxx
   data_stream_reader.cxx
   hex_dump.cxx
   string.cxx

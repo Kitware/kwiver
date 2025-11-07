@@ -40,6 +40,10 @@ Vital: Types
 
 * Added tiled_image_container_simple.
 
+Vital: Utils
+
+* Added catch_sigint().
+
 Bug Fixes
 ---------
 
