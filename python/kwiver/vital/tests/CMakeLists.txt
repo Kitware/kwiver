@@ -12,6 +12,7 @@ set(__testable_modnames
   test_activity_type
   test_bounding_box
   test_camera
+  test_camera_from_metadata
   test_camera_intrinsics
   test_category_hierarchy
   test_config

@@ -9,3 +9,11 @@ kwiver_add_python_library(
   PRIVATE pybind11::pybind11
           vital
 )
+
+kwiver_add_python_library(
+  camera_from_metadata
+  "${THIS_MODULE}"
+  SOURCES camera_from_metadata.cxx
+  PRIVATE pybind11::pybind11
+          vital
+)
