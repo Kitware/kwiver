@@ -12,35 +12,15 @@
 #include <vital/plugin_management/plugin_manager.h>
 #include <vital/types/geodesy.h>
 
+#include <limits>
+
 using namespace kwiver;
 namespace geocalc = arrows::geocalc;
 
 // ----------------------------------------------------------------------------
-int
-main( int argc, char* argv[] )
+vital::metadata_sptr
+create_base_metadata()
 {
-  ::testing::InitGoogleTest( &argc, argv );
-  TEST_LOAD_PLUGINS();
-
-  return RUN_ALL_TESTS();
-}
-
-// ----------------------------------------------------------------------------
-TEST ( derive_corner_points, create )
-{
-  EXPECT_NE(
-    nullptr,
-    vital::create_algorithm< vital::algo::metadata_filter >(
-      "derive_corner_points" ) );
-}
-
-// ----------------------------------------------------------------------------
-TEST ( derive_corner_points, filter_simple )
-{
-  geocalc::derive_corner_points filter;
-
-  // Values taken from frame 4 of public WASABI video:
-  // 20151007_064904_dstoMX20HD__EON_High_013.mpg
   auto metadata = std::make_shared< vital::metadata >();
   metadata->add< vital::VITAL_META_PLATFORM_HEADING_ANGLE >(
     45.57747768368048 );
@@ -67,6 +47,77 @@ TEST ( derive_corner_points, filter_simple )
     vital::geo_point{
     vital::vector_3d{
       138.53192434577827, -34.80403506886402, 5.497825589379659 },
+    vital::SRID::lat_lon_WGS84 } );
+  return metadata;
+}
+
+// ----------------------------------------------------------------------------
+int
+main( int argc, char* argv[] )
+{
+  ::testing::InitGoogleTest( &argc, argv );
+  TEST_LOAD_PLUGINS();
+
+  return RUN_ALL_TESTS();
+}
+
+// ----------------------------------------------------------------------------
+TEST ( derive_corner_points, create )
+{
+  EXPECT_NE(
+    nullptr,
+    vital::create_algorithm< vital::algo::metadata_filter >(
+      "derive_corner_points" ) );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( derive_corner_points, filter_simple )
+{
+  geocalc::derive_corner_points filter;
+
+  auto metadata = create_base_metadata();
+
+  std::vector< vital::vector_2d > corners = {
+    vital::vector_2d{ 138.53232947899156, -34.804032779975806 },
+    vital::vector_2d{ 138.53182134580879, -34.804332624331408 },
+    vital::vector_2d{ 138.53151692367675, -34.804032779975806 },
+    vital::vector_2d{ 138.53202047908312, -34.803730646731992 } };
+
+  auto const results = filter.filter( { metadata }, nullptr );
+  ASSERT_EQ( 1, results.size() );
+  ASSERT_NE( nullptr, results[ 0 ] );
+  ASSERT_TRUE( results[ 0 ]->has( vital::VITAL_META_CORNER_POINTS ) );
+
+  auto const filtered_corners =
+    results[ 0 ]->find( vital::VITAL_META_CORNER_POINTS )
+    .get< vital::geo_polygon >()
+    .polygon( vital::SRID::lat_lon_WGS84 )
+    .get_vertices();
+  ASSERT_EQ( 4, filtered_corners.size() );
+
+  for( size_t i = 0; i < 4; ++i )
+  {
+    SCOPED_TRACE( i );
+    for( size_t j = 0; j < 2; ++j )
+    {
+      SCOPED_TRACE( j );
+      EXPECT_NEAR( corners[ i ][ j ], filtered_corners[ i ][ j ], 2.0e-5 );
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+TEST ( derive_corner_points, altitude_only_with_nan_latlon )
+{
+  geocalc::derive_corner_points filter;
+
+  auto metadata = create_base_metadata();
+  metadata->add< vital::VITAL_META_FRAME_CENTER >(
+    vital::geo_point{
+    vital::vector_3d{
+      std::numeric_limits< double >::quiet_NaN(),
+      std::numeric_limits< double >::quiet_NaN(),
+      5.497825589379659 },
     vital::SRID::lat_lon_WGS84 } );
 
   std::vector< vital::vector_2d > corners = {
@@ -96,4 +147,24 @@ TEST ( derive_corner_points, filter_simple )
       EXPECT_NEAR( corners[ i ][ j ], filtered_corners[ i ][ j ], 2.0e-5 );
     }
   }
+}
+
+// ----------------------------------------------------------------------------
+TEST ( derive_corner_points, skip_all_nan_frame_center )
+{
+  geocalc::derive_corner_points filter;
+
+  auto metadata = create_base_metadata();
+  metadata->add< vital::VITAL_META_FRAME_CENTER >(
+    vital::geo_point{
+    vital::vector_3d{
+      std::numeric_limits< double >::quiet_NaN(),
+      std::numeric_limits< double >::quiet_NaN(),
+      std::numeric_limits< double >::quiet_NaN() },
+    vital::SRID::lat_lon_WGS84 } );
+
+  auto const results = filter.filter( { metadata }, nullptr );
+  ASSERT_EQ( 1, results.size() );
+  ASSERT_NE( nullptr, results[ 0 ] );
+  ASSERT_FALSE( results[ 0 ]->has( vital::VITAL_META_CORNER_POINTS ) );
 }
