@@ -14,6 +14,8 @@
 #include <vital/types/geodesy.h>
 #include <vital/types/rotation.h>
 
+#include <optional>
+
 namespace kwiver {
 
 namespace arrows {
@@ -56,6 +58,26 @@ is_valid( vital::metadata_item const& item )
   }
 
   return true;
+}
+
+// ----------------------------------------------------------------------------
+std::optional< double >
+extract_altitude( vital::metadata_item const& frame_center_item )
+{
+  if( !frame_center_item )
+  {
+    return std::nullopt;
+  }
+
+  auto const altitude =
+    frame_center_item.get< vital::geo_point >().location()[ 2 ];
+
+  if( std::isfinite( altitude ) )
+  {
+    return altitude;
+  }
+
+  return std::nullopt;
 }
 
 } // namespace <anonymous>
@@ -123,9 +145,11 @@ derive_corner_points
       is_valid< double >( sensor_roll_item ) &&
       is_valid< double >( platform_roll_item );
 
+    auto const altitude = extract_altitude( frame_center_item );
+
     if(
       !is_valid< vital::geo_point >( sensor_location_item ) ||
-      !is_valid< vital::geo_point >( frame_center_item ) ||
+      !altitude.has_value() ||
       ( !abs_sensor_rotation_available && !rel_sensor_rotation_available ) ||
       !is_valid< double >( sensor_hfov_item ) ||
       !is_valid< double >( sensor_vfov_item ) )
@@ -139,11 +163,6 @@ derive_corner_points
       sensor_location.location( vital::SRID::lat_lon_WGS84 );
     auto const sensor_ecef_location =
       sensor_location.location( vital::SRID::ECEF_WGS84 );
-
-    auto const frame_center =
-      frame_center_item
-      .get< vital::geo_point >()
-      .location( vital::SRID::lat_lon_WGS84 );
 
     // Combine rotations and convert to proper coordinate system
     vital::rotation_d geodetic_rotation;
@@ -196,7 +215,7 @@ derive_corner_points
                 sensor_ecef_location,
                 ecef_rotation * corner_rotation * vital::vector_3d{ 1, 0, 0 },
                 vital::SRID::ECEF_WGS84,
-                frame_center[ 2 ] ) )
+                *altitude ) )
         {
           auto const corner_geodetic =
             converter(
