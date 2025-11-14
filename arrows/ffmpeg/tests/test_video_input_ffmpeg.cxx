@@ -638,3 +638,44 @@ TEST_F ( ffmpeg_video_input, format_name )
 
   CALL_TEST( expect_eq_videos, input2, input1 );
 }
+
+// ----------------------------------------------------------------------------
+TEST_F ( ffmpeg_video_input, next_frame_timeout )
+{
+  ffmpeg::ffmpeg_video_input input;
+  input.open( ffmpeg_video_path );
+
+  kv::timestamp ts;
+  for( size_t i = 0; i < 30; ++i )
+  {
+    EXPECT_THROW(
+      input.next_frame( ts, 1 );
+      ,
+      kv::video_input_timeout_exception );
+    EXPECT_TRUE( input.next_frame( ts, 1'000'000 ) );
+    EXPECT_EQ( i + 1, ts.get_frame() );
+    ASSERT_NE( nullptr, input.frame_image() );
+    EXPECT_EQ( i + 1, decode_barcode( *input.frame_image() ) );
+  }
+}
+
+// ----------------------------------------------------------------------------
+TEST_F ( ffmpeg_video_input, seek_frame_timeout )
+{
+  ffmpeg::ffmpeg_video_input input;
+  input.open( ffmpeg_video_path );
+
+  kv::timestamp ts;
+  input.next_frame( ts );
+  for( auto i : { 1, 15, 8, 30, 12 } )
+  {
+    EXPECT_THROW(
+      input.seek_frame( ts, i + 1, 1 );
+      ,
+      kv::video_input_timeout_exception );
+    EXPECT_TRUE( input.seek_frame( ts, i, 1'000'000 ) );
+    EXPECT_EQ( i, ts.get_frame() );
+    ASSERT_NE( nullptr, input.frame_image() );
+    EXPECT_EQ( i, decode_barcode( *input.frame_image() ) );
+  }
+}

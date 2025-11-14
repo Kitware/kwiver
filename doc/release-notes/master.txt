@@ -20,6 +20,8 @@ Arrows: FFmpeg
 
 * Added format_name config option.
 
+* Implemented timeout functionality.
+
 Arrows: Geocalc
 
 * Standardized behavior when given nonfinite input values.
