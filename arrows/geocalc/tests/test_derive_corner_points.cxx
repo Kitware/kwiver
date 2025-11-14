@@ -77,7 +77,7 @@ TEST ( derive_corner_points, filter_simple )
 
   auto metadata = create_base_metadata();
 
-  std::vector< vital::vector_2d > corners = {
+  std::vector< vital::vector_2d > expected_corners = {
     vital::vector_2d{ 138.53232947899156, -34.804032779975806 },
     vital::vector_2d{ 138.53182134580879, -34.804332624331408 },
     vital::vector_2d{ 138.53151692367675, -34.804032779975806 },
@@ -101,7 +101,9 @@ TEST ( derive_corner_points, filter_simple )
     for( size_t j = 0; j < 2; ++j )
     {
       SCOPED_TRACE( j );
-      EXPECT_NEAR( corners[ i ][ j ], filtered_corners[ i ][ j ], 2.0e-5 );
+      EXPECT_NEAR(
+        expected_corners[ i ][ j ], filtered_corners[ i ][ j ],
+        2.0e-5 );
     }
   }
 }
@@ -120,11 +122,11 @@ TEST ( derive_corner_points, altitude_only_with_nan_latlon )
       5.497825589379659 },
     vital::SRID::lat_lon_WGS84 } );
 
-  std::vector< vital::vector_2d > corners = {
-    vital::vector_2d{ 138.53232947899156, -34.804032779975806 },
-    vital::vector_2d{ 138.53182134580879, -34.804332624331408 },
-    vital::vector_2d{ 138.53151692367675, -34.804032779975806 },
-    vital::vector_2d{ 138.53202047908312, -34.803730646731992 } };
+  std::vector< vital::vector_2d > expected_corners = {
+    vital::vector_2d{ 138.53236499433206, -34.804064572349347 },
+    vital::vector_2d{ 138.53187025547868, -34.804375687947555 },
+    vital::vector_2d{ 138.53156096073721, -34.804070633053733 },
+    vital::vector_2d{ 138.53205342688352, -34.803760671453098 } };
 
   auto const results = filter.filter( { metadata }, nullptr );
   ASSERT_EQ( 1, results.size() );
@@ -144,27 +146,48 @@ TEST ( derive_corner_points, altitude_only_with_nan_latlon )
     for( size_t j = 0; j < 2; ++j )
     {
       SCOPED_TRACE( j );
-      EXPECT_NEAR( corners[ i ][ j ], filtered_corners[ i ][ j ], 2.0e-5 );
+      EXPECT_NEAR(
+        expected_corners[ i ][ j ], filtered_corners[ i ][ j ],
+        2.0e-5 );
     }
   }
 }
 
 // ----------------------------------------------------------------------------
-TEST ( derive_corner_points, skip_all_nan_frame_center )
+TEST ( derive_corner_points, missing_frame_center_uses_zero_elevation )
 {
   geocalc::derive_corner_points filter;
 
   auto metadata = create_base_metadata();
-  metadata->add< vital::VITAL_META_FRAME_CENTER >(
-    vital::geo_point{
-    vital::vector_3d{
-      std::numeric_limits< double >::quiet_NaN(),
-      std::numeric_limits< double >::quiet_NaN(),
-      std::numeric_limits< double >::quiet_NaN() },
-    vital::SRID::lat_lon_WGS84 } );
+  metadata->erase( vital::VITAL_META_FRAME_CENTER );
+
+  std::vector< vital::vector_2d > expected_corners = {
+    vital::vector_2d{ 138.53236499433206, -34.804064572349347 },
+    vital::vector_2d{ 138.53187025547868, -34.804375687947555 },
+    vital::vector_2d{ 138.53156096073721, -34.804070633053733 },
+    vital::vector_2d{ 138.53205342688352, -34.803760671453098 } };
 
   auto const results = filter.filter( { metadata }, nullptr );
   ASSERT_EQ( 1, results.size() );
   ASSERT_NE( nullptr, results[ 0 ] );
-  ASSERT_FALSE( results[ 0 ]->has( vital::VITAL_META_CORNER_POINTS ) );
+  ASSERT_TRUE( results[ 0 ]->has( vital::VITAL_META_CORNER_POINTS ) );
+
+  auto const filtered_corners =
+    results[ 0 ]->find( vital::VITAL_META_CORNER_POINTS )
+    .get< vital::geo_polygon >()
+    .polygon( vital::SRID::lat_lon_WGS84 )
+    .get_vertices();
+  ASSERT_EQ( 4, filtered_corners.size() );
+
+  for( size_t i = 0; i < 4; ++i )
+  {
+    SCOPED_TRACE( i );
+    for( size_t j = 0; j < 2; ++j )
+    {
+      SCOPED_TRACE( j );
+      EXPECT_NEAR(
+        expected_corners[ i ][ j ], filtered_corners[ i ][ j ],
+        2.0e-5 );
+    }
+  }
 }
