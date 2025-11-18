@@ -6,3 +6,5 @@ Updates
 
 Bug Fixes
 ---------
+
+* Fixed segfault in init_cameras_landmarks when writing cameras

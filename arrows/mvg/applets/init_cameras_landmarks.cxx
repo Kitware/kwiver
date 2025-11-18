@@ -441,6 +441,10 @@ config->get_value< type >( bc + #name, K_def.name() )
         output_cameras_directory + "/" + get_filename( fn ) + ".krtd";
       kv::path_t out_path( out_fname );
       auto cam_ptr = std::dynamic_pointer_cast< camera_perspective >( cam );
+      if( !cam_ptr )
+      {
+        continue;
+      }
       write_krtd_file( *cam_ptr, out_path );
     }
 
