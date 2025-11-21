@@ -17,3 +17,6 @@ Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
 Set-Item -Force -Path "env:KWIVER_DEFAULT_LOG_LEVEL" -Value "DEBUG"
 
 ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
+if ($LASTEXITCODE -ne 0) {
+    throw "ctest failed with exit code $LASTEXITCODE"
+}
