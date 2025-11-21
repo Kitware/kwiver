@@ -450,10 +450,58 @@ ffmpeg_video_output::impl::open_video_state
   // Allocate output format context
   {
     AVFormatContext* tmp = nullptr;
+
+    // Attempt to derive output format from configuration
+    auto const& format_name = parent.parent.c_format_name;
+    if( !output_format && !format_name.empty() )
+    {
+      output_format =
+        av_guess_format( format_name.c_str(), nullptr, nullptr );
+
+      if( !output_format )
+      {
+        LOG_ERROR(
+          parent.logger,
+          "Unrecognized format name in config: " << format_name );
+      }
+    }
+
+    // Attempt to derive output format from filename
+    if( !output_format )
+    {
+      output_format =
+        av_guess_format( nullptr, video_name.c_str(), nullptr );
+    }
+
+    // Attempt to derive output format from video settings
+    if( !video_settings.format_name.empty() )
+    {
+      output_format =
+        av_guess_format(
+          video_settings.format_name.c_str(), nullptr, nullptr );
+
+      if( !output_format )
+      {
+        LOG_ERROR(
+          parent.logger,
+          "Unrecognized format name in video settings: "
+            << video_settings.format_name );
+      }
+    }
+
+    if( !output_format )
+    {
+      LOG_ERROR(
+        parent.logger,
+        "Could not deduce output format from filename: " << video_name );
+    }
+
+    // This will throw if we couldn't determine the output format
     throw_error_code(
       avformat_alloc_output_context2(
-        &tmp, nullptr, nullptr, video_name.c_str() ),
+        &tmp, output_format, nullptr, video_name.c_str() ),
       "Could not allocate format context" );
+
     format_context.reset( tmp );
   }
   output_format = format_context->oformat;

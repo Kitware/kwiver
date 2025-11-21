@@ -952,8 +952,24 @@ ffmpeg_video_input::priv::open_video_state
     // Open the file
     {
       AVFormatContext* ptr = nullptr;
+
+      AVInputFormat const* input_format = nullptr;
+      auto const& format_name = parent.parent.c_format_name;
+      if( !format_name.empty() )
+      {
+        input_format = av_find_input_format( format_name.c_str() );
+
+        if( !input_format )
+        {
+          LOG_ERROR(
+            parent.logger,
+            "Unrecognized format name in config: " << format_name );
+        }
+      }
+
       auto const err =
-        avformat_open_input( &ptr, path.c_str(), NULL, &format_options );
+        avformat_open_input(
+          &ptr, path.c_str(), input_format, &format_options );
 
       if( format_options )
       {

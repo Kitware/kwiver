@@ -6,9 +6,11 @@
 /// \brief test opening/closing a video file
 
 #include <test_gtest.h>
+#include <test_tmpfn.h>
 
 #include <arrows/core/algo/video_input_filter.h>
 #include <arrows/ffmpeg/algo/ffmpeg_video_input.h>
+#include <arrows/ffmpeg/tests/common.h>
 #include <arrows/tests/test_video_input.h>
 
 #include <vital/exceptions/io.h>
@@ -17,6 +19,7 @@
 
 #include <kwiversys/SystemTools.hxx>
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -611,4 +614,27 @@ TEST_F ( ffmpeg_video_input, hflip_filter_desc )
   hflip_frame =
     kv::simple_image_container( hflip_image( frame->get_image() ) );
   EXPECT_EQ( decode_barcode( hflip_frame ), 2 );
+}
+
+// ----------------------------------------------------------------------------
+TEST_F ( ffmpeg_video_input, format_name )
+{
+  // Copy test video to a filename with an unrecognized extension
+  auto const tmp_path = kwiver::testing::temp_file_name(
+    "test-", ".wrongextension" );
+  _tmp_file_deleter tmp_deleter{ tmp_path };
+  std::filesystem::copy_file(
+    ffmpeg_video_path, tmp_path,
+    std::filesystem::copy_options::overwrite_existing );
+
+  // Manually set the file format
+  ffmpeg::ffmpeg_video_input input1;
+  input1.set_format_name( "mp4" );
+  input1.open( tmp_path );
+
+  // Ensure the file reads as normal
+  ffmpeg::ffmpeg_video_input input2;
+  input2.open( ffmpeg_video_path );
+
+  CALL_TEST( expect_eq_videos, input2, input1 );
 }

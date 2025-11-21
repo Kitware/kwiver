@@ -16,6 +16,10 @@ Arrows: Core
 
 * Permitted calculation of pseudo-VNIIRS when an image object is not provided.
 
+Arrows: FFmpeg
+
+* Added format_name config option.
+
 Arrows: Geocalc
 
 * Standardized behavior when given nonfinite input values.
