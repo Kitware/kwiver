@@ -34,6 +34,10 @@ Vital: Exceptions
 
 * Omit file information from exception description when creating Release build.
 
+Vital: Logging
+
+* Improved format of log messages.
+
 Vital: Types
 
 * Added tiled_image_container.
