@@ -69,7 +69,12 @@ public:
     PARAM_DEFAULT(
       approximate, bool,
       "When set to true, may use faster but inexact image processing.",
-      false ) );
+      false ),
+    PARAM_DEFAULT(
+      format_name, std::string,
+      "String identifying the video format to use. Will override any guesses "
+      "based on file extension or contents of the file.",
+      "" ) );
 
   virtual ~ffmpeg_video_output();
   bool check_configuration( vital::config_block_sptr config ) const override;

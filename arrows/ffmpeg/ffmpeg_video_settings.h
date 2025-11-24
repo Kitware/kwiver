@@ -57,6 +57,10 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   /// Desired frame rate of the video. Must be set in most cases.
   AVRational frame_rate;
 
+  // Name of video format to use, in case it cannot be derived from the
+  // filename.
+  std::string format_name;
+
   /// FFmpeg's parameters determining how the video codec is set up. Notably,
   /// height and width must be set before opening a video.
   codec_parameters_uptr parameters;

@@ -37,6 +37,7 @@ ffmpeg_video_settings
 ffmpeg_video_settings
 ::ffmpeg_video_settings( ffmpeg_video_settings const& other )
   : frame_rate{ other.frame_rate },
+    format_name{ other.format_name },
     parameters{ avcodec_parameters_alloc() },
     klv_streams{ other.klv_streams },
     audio_streams{ other.audio_streams },
@@ -53,6 +54,7 @@ ffmpeg_video_settings
 ffmpeg_video_settings
 ::ffmpeg_video_settings( ffmpeg_video_settings&& other )
   : frame_rate{ std::move( other.frame_rate ) },
+    format_name{ std::move( other.format_name ) },
     parameters{ std::move( other.parameters ) },
     klv_streams{ std::move( other.klv_streams ) },
     audio_streams{ std::move( other.audio_streams ) },
@@ -68,6 +70,7 @@ ffmpeg_video_settings
   AVRational frame_rate,
   std::vector< klv::klv_stream_settings > const& klv_streams )
   : frame_rate( frame_rate ),
+    format_name{},
     parameters{ avcodec_parameters_alloc() },
     klv_streams{ klv_streams },
     time_base{ 0, 1 },
@@ -94,6 +97,7 @@ ffmpeg_video_settings
 ::operator=( ffmpeg_video_settings const& other )
 {
   frame_rate = other.frame_rate;
+  format_name = other.format_name;
   parameters.reset( avcodec_parameters_alloc() );
   throw_error_code(
     avcodec_parameters_copy( parameters.get(), other.parameters.get() ),
@@ -111,6 +115,7 @@ ffmpeg_video_settings
 ::operator=( ffmpeg_video_settings&& other )
 {
   frame_rate = std::move( other.frame_rate );
+  format_name = std::move( other.format_name );
   parameters = std::move( other.parameters );
   klv_streams = std::move( other.klv_streams );
   time_base = std::move( other.time_base );

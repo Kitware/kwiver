@@ -352,3 +352,53 @@ TEST_F ( ffmpeg_video_output, generic_open )
 
   os.close();
 }
+
+// ----------------------------------------------------------------------------
+// Test that we can write, then read a video with a manually-specified format
+TEST_F ( ffmpeg_video_output, round_trip_format_name )
+{
+  auto const src_path = data_dir + "/" + short_video_name;
+
+  // No file extension
+  auto const tmp_path =
+    kwiver::testing::temp_file_name( "test-ffmpeg-output-", "" );
+
+  kv::timestamp ts;
+  ffmpeg::ffmpeg_video_input is;
+  is.open( src_path );
+
+  ffmpeg::ffmpeg_video_output os;
+  os.set_format_name( "mp4" );
+  os.open( tmp_path, is.implementation_settings().get() );
+
+  _tmp_file_deleter tmp_file_deleter{ tmp_path };
+
+  // Write to a temporary file
+  for( is.next_frame( ts ); !is.end_of_video(); is.next_frame( ts ) )
+  {
+    auto const image = is.frame_image();
+    os.add_image( image, ts );
+  }
+  os.close();
+  is.close();
+
+  // Determined experimentally. 6.5 / 256 is non-negligable compression, but
+  // you can still see what the image is supposed to be
+  auto image_epsilon = 6.5;
+
+  // Hardware decoding produces a lower-quality image
+  if( is.get_cuda_enabled() )
+  {
+    image_epsilon = 10.5;
+  }
+
+  // Read the temporary file back in
+  ffmpeg::ffmpeg_video_input src_is;
+  src_is.open( src_path );
+
+  ffmpeg::ffmpeg_video_input tmp_is;
+  tmp_is.set_format_name( "mp4" );
+  tmp_is.open( tmp_path );
+
+  CALL_TEST( expect_eq_videos, src_is, tmp_is, image_epsilon );
+}
