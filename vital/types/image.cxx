@@ -300,6 +300,24 @@ image
          static_cast< ptrdiff_t >( sizes[ 0 ].second * sizes[ 1 ].second );
 }
 
+// ----------------------------------------------------------------------------
+image
+image
+::empty_copy( bool interleave ) const
+{
+  return { width_, height_, depth_, interleave, pixel_traits_ };
+}
+
+// ----------------------------------------------------------------------------
+image
+image
+::copy( bool interleave ) const
+{
+  auto img = empty_copy( interleave );
+  img.copy_from( *this );
+  return img;
+}
+
 /// Deep copy the image data from another image into this one
 void
 image

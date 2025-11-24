@@ -47,7 +47,10 @@ set( public_headers
   token_type_sysenv.h
   tokenize.h
   transform_image.h
+  tuple_utils.h
   visit.h
+  visit_image.h
+  visit_image.txx
   wrap_text_block.h
   file_md5.h
   )

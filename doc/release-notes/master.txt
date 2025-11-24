@@ -52,6 +52,8 @@ Vital: Utils
 
 * Added catch_sigint().
 
+* Added visit_image_*().
+
 Bug Fixes
 ---------
 
