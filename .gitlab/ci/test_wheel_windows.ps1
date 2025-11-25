@@ -22,7 +22,13 @@ pip install $wheelPath
 if ($env:WHEEL_TYPE -eq "burnout") {
     Write-Host "Running burnout smoke test..."
     pytest "./python/kwiver/vital/tests/burnout_smoke_test.py"
+    if ($LASTEXITCODE -ne 0) {
+        throw "pytest failed with exit code $LASTEXITCODE"
+    }
 } else {
     Write-Host "Running full test suite..."
     pytest
+    if ($LASTEXITCODE -ne 0) {
+        throw "pytest failed with exit code $LASTEXITCODE"
+    }
 }
