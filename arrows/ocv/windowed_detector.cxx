@@ -89,33 +89,9 @@ public:
   bool m_black_pad;
 
   // Helper functions
-  struct region_info
-  {
-    explicit region_info( cv::Rect r, double s1 )
-     : original_roi( r ), edge_filter( -1 ),
-       right_border( false ), bottom_border( false ),
-       scale1( s1 ), shiftx( 0 ), shifty( 0 ), scale2( 1.0 )
-    {}
-
-    explicit region_info( cv::Rect r, int ef, bool rb, bool bb,
-      double s1, int sx, int sy, double s2 )
-     : original_roi( r ), edge_filter( ef ),
-       right_border( rb ), bottom_border( bb ),
-       scale1( s1 ), shiftx( sx ), shifty( sy ), scale2( s2 )
-    {}
-
-    cv::Rect original_roi;
-    int edge_filter;
-    bool right_border;
-    bool bottom_border;
-    double scale1;
-    int shiftx, shifty;
-    double scale2;
-  };
-
   vital::detected_object_set_sptr scale_detections(
     const vital::detected_object_set_sptr detections,
-    const region_info& roi );
+    const windowed_region_prop& roi );
 
   vital::algo::image_object_detector_sptr m_detector;
   vital::logger_handle_t m_logger;
@@ -285,7 +261,7 @@ windowed_detector
   cv::Rect original_dims( 0, 0, cv_image.cols, cv_image.rows );
 
   std::vector< cv::Mat > regions_to_process;
-  std::vector< priv::region_info > region_properties;
+  std::vector< priv::windowed_region_prop > region_properties;
 
   if( mode == "original_and_resized" )
   {
@@ -296,7 +272,7 @@ windowed_detector
       regions_to_process.push_back( cv_image );
 
       region_properties.push_back(
-        priv::region_info( original_dims, 1.0 ) );
+        priv::windowed_region_prop( original_dims, 1.0 ) );
     }
     else
     {
@@ -305,7 +281,7 @@ windowed_detector
         regions_to_process.push_back( cv_resized_image );
 
         region_properties.push_back(
-          priv::region_info( original_dims, 1.0 / scale_factor ) );
+          priv::windowed_region_prop( original_dims, 1.0 / scale_factor ) );
       }
 
       double scaled_original_scale = scale_image_maintaining_ar( cv_image,
@@ -314,7 +290,7 @@ windowed_detector
       regions_to_process.push_back( scaled_original );
 
       region_properties.push_back(
-        priv::region_info( original_dims, 1.0 / scaled_original_scale ) );
+        priv::windowed_region_prop( original_dims, 1.0 / scaled_original_scale ) );
     }
   }
   else if( mode != "chip" && mode != "chip_and_original" )
@@ -322,7 +298,7 @@ windowed_detector
     regions_to_process.push_back( cv_resized_image );
 
     region_properties.push_back(
-      priv::region_info( original_dims, 1.0 / scale_factor ) );
+      priv::windowed_region_prop( original_dims, 1.0 / scale_factor ) );
   }
   else
   {
@@ -360,7 +336,7 @@ windowed_detector
         regions_to_process.push_back( scaled_crop );
 
         region_properties.push_back(
-          priv::region_info( original_roi,
+          priv::windowed_region_prop( original_roi,
             d->m_chip_edge_filter,
             ( li + d->m_chip_step_width ) >=
               ( cv_resized_image.cols - d->m_chip_width + d->m_chip_step_width ),
@@ -385,14 +361,14 @@ windowed_detector
         regions_to_process.push_back( scaled_original );
 
         region_properties.push_back(
-          priv::region_info( original_dims, 1.0 / scaled_original_scale ) );
+          priv::windowed_region_prop( original_dims, 1.0 / scaled_original_scale ) );
       }
       else
       {
         regions_to_process.push_back( cv_image );
 
         region_properties.push_back(
-          priv::region_info( original_dims, 1.0 ) );
+          priv::windowed_region_prop( original_dims, 1.0 ) );
       }
     }
   }
@@ -441,7 +417,7 @@ vital::detected_object_set_sptr
 windowed_detector::priv
 ::scale_detections(
   const vital::detected_object_set_sptr dets,
-  const region_info& info )
+  const windowed_region_prop& info )
 {
   if( info.scale1 != 1.0 )
   {
