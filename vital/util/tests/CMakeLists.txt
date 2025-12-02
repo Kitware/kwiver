@@ -11,10 +11,7 @@ set( test_libraries vital vital_vpm kwiversys )
 ##############################
 
 kwiver_discover_gtests(vital any_converter        LIBRARIES ${test_libraries})
-# Temporary disabling on windows
-if (NOT WIN32)
-    kwiver_discover_gtests(vital catch_signal         LIBRARIES ${test_libraries})
-endif()
+kwiver_discover_gtests(vital catch_signal         LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital data_stream_reader   LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital interval             LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital interval_map         LIBRARIES ${test_libraries})

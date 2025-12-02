@@ -19,6 +19,8 @@
 #endif
 
 #include <atomic>
+#include <chrono>
+#include <thread>
 
 using namespace kwiver::vital;
 
@@ -36,6 +38,7 @@ initialize()
 #ifdef _WIN32
   FreeConsole();
   AllocConsole();
+  SetConsoleCtrlHandler( nullptr, false );
 #endif
 }
 
@@ -44,12 +47,14 @@ void
 raise_sigint()
 {
 #ifdef _WIN32
-  GenerateConsoleCtrlEvent( CTRL_C_EVENT, GetCurrentProcessId() );
+  GenerateConsoleCtrlEvent( CTRL_C_EVENT, 0 );
 #endif
 
 #ifdef __unix__
   kill( getpid(), SIGINT );
 #endif
+
+  std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
 }
 
 } // namespace <anonymous>
