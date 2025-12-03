@@ -7,7 +7,17 @@ apt-get update
 
 # Install system dependencies
 apt-get install -y --no-install-recommends \
-    ca-certificates zlib1g-dev curl
+    ca-certificates zlib1g-dev libcurl4-openssl-dev libssl-dev
+
+# Install more recent version of cmake from source
+apt-get purge -y cmake cmake-data
+cmake_version=3.27.8
+wget https://github.com/Kitware/CMake/releases/download/v$cmake_version/cmake-$cmake_version.tar.gz
+tar -xzvf cmake-$cmake_version.tar.gz
+cd cmake-$cmake_version/
+./bootstrap
+make -j$(nproc)
+make install
 
 # Install Qt system dependencies. Derived from https://wiki.qt.io/Building_Qt_5_from_Git
 apt-get install -y libpng-dev libglx-dev freeglut3-dev libfontconfig1-dev \
@@ -20,13 +30,17 @@ apt-get install -y --no-install-recommends \
 
 # Development tools
 apt-get install -y --no-install-recommends \
-    cmake make gcc g++ pkg-config cmake-curses-gui nano
+    make gcc g++ pkg-config nano
 
 # Python dependencies
 apt-get install -y --no-install-recommends \
     python3 libpython3-dev python3-distutils python3-pip \
     python3-venv python3-numpy python-is-python3
 # Qt 5.12.8 Qtqml requires a "python", provided by python-is-python3
+
+# metis for colmap
+apt-get install -y --no-install-recommends \
+    libmetis-dev
 
 # setuptools pinned to 58.0.0 to fix GDAL build error
 pip install setuptools==58.0.0
