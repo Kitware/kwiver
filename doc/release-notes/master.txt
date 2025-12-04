@@ -48,6 +48,8 @@ Vital: Types
 
 * Added tiled_image_container_simple.
 
+* Added VITAL_META_IMAGE_CORRUPT.
+
 Vital: Utils
 
 * Added catch_sigint().
