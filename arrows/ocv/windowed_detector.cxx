@@ -56,37 +56,12 @@ class windowed_detector::priv
 {
 public:
   priv()
-    : m_mode( DISABLED )
-    , m_scale( 1.0 )
-    , m_chip_width( 1000 )
-    , m_chip_height( 1000 )
-    , m_chip_step_width( 500 )
-    , m_chip_step_height( 500 )
-    , m_chip_edge_filter( -1 )
-    , m_chip_edge_max_prob( -1.0 )
-    , m_chip_adaptive_thresh( 2000000 )
-    , m_batch_size( 1 )
-    , m_min_detection_dim( 2 )
-    , m_original_to_chip_size( false )
-    , m_black_pad( false )
   {}
 
   ~priv() {}
 
-  // Items from the config
-  rescale_option m_mode;
-  double m_scale;
-  int m_chip_width;
-  int m_chip_height;
-  int m_chip_step_width;
-  int m_chip_step_height;
-  int m_chip_edge_filter;
-  double m_chip_edge_max_prob;
-  int m_chip_adaptive_thresh;
-  int m_batch_size;
-  int m_min_detection_dim;
-  bool m_original_to_chip_size;
-  bool m_black_pad;
+  // Settings from the config
+  window_settings m_settings;
 
   // Helper functions
   vital::detected_object_set_sptr scale_detections(
@@ -122,34 +97,8 @@ windowed_detector
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
 
-  rescale_option_converter conv;
-  config->set_value( "mode", conv.to_string( d->m_mode ),
-    "Pre-processing resize option, can be: disabled, maintain_ar, scale, "
-    "chip, chip_and_original, original_and_resized, or adaptive." );
-  config->set_value( "scale", d->m_scale,
-    "Image scaling factor used when mode is scale or chip." );
-  config->set_value( "chip_height", d->m_chip_height,
-    "When in chip mode, the chip height." );
-  config->set_value( "chip_width", d->m_chip_width,
-    "When in chip mode, the chip width." );
-  config->set_value( "chip_step_height", d->m_chip_step_height,
-    "When in chip mode, the chip step size between chips." );
-  config->set_value( "chip_step_width", d->m_chip_step_width,
-    "When in chip mode, the chip step size between chips." );
-  config->set_value( "chip_edge_filter", d->m_chip_edge_filter,
-    "If using chipping, filter out detections this pixel count near borders." );
-  config->set_value( "chip_edge_max_prob", d->m_chip_edge_max_prob,
-    "If using chipping, maximum type probability for edge detections" );
-  config->set_value( "chip_adaptive_thresh", d->m_chip_adaptive_thresh,
-    "If using adaptive selection, total pixel count at which we start to chip." );
-  config->set_value( "batch_size", d->m_batch_size,
-    "Optional processing batch size to send to the detector." );
-  config->set_value( "min_detection_dim", d->m_min_detection_dim,
-    "Minimum detection dimension in original image space." );
-  config->set_value( "original_to_chip_size", d->m_original_to_chip_size,
-    "Optionally enforce the input image is the specified chip size" );
-  config->set_value( "black_pad", d->m_black_pad,
-    "Black pad the edges of resized chips to ensure consistent dimensions" );
+  // Merge window settings configuration
+  config->merge_config( d->m_settings.config() );
 
   vital::algo::image_object_detector::get_nested_algo_configuration(
     "detector", config, d->m_detector );
@@ -170,20 +119,8 @@ windowed_detector
 
   config->merge_config( config_in );
 
-  rescale_option_converter conv;
-  this->d->m_mode = conv.from_string( config->get_value< std::string >( "mode" ) );
-  this->d->m_scale = config->get_value< double >( "scale" );
-  this->d->m_chip_width = config->get_value< int >( "chip_width" );
-  this->d->m_chip_height = config->get_value< int >( "chip_height" );
-  this->d->m_chip_step_width = config->get_value< int >( "chip_step_width" );
-  this->d->m_chip_step_height = config->get_value< int >( "chip_step_height" );
-  this->d->m_chip_edge_filter = config->get_value< int >( "chip_edge_filter" );
-  this->d->m_chip_edge_max_prob = config->get_value< double >( "chip_edge_max_prob" );
-  this->d->m_chip_adaptive_thresh = config->get_value< int >( "chip_adaptive_thresh" );
-  this->d->m_batch_size = config->get_value< int >( "batch_size" );
-  this->d->m_min_detection_dim = config->get_value< int >( "min_detection_dim" );
-  this->d->m_original_to_chip_size = config->get_value< bool >( "original_to_chip_size" );
-  this->d->m_black_pad = config->get_value< bool >( "black_pad" );
+  // Set window settings from configuration
+  d->m_settings.set_config( config );
 
   vital::algo::image_object_detector::set_nested_algo_configuration(
     "detector", config, d->m_detector );
@@ -216,7 +153,7 @@ windowed_detector
   cv::Mat cv_image = arrows::ocv::image_container::vital_to_ocv(
     image_data->get_image(), arrows::ocv::image_container::RGB_COLOR );
 
-  rescale_option mode = d->m_mode;
+  rescale_option mode = d->m_settings.mode;
 
   if( cv_image.rows == 0 || cv_image.cols == 0 )
   {
@@ -225,11 +162,11 @@ windowed_detector
   }
   else if( mode == ADAPTIVE )
   {
-    if( ( cv_image.rows * cv_image.cols ) >= d->m_chip_adaptive_thresh )
+    if( ( cv_image.rows * cv_image.cols ) >= d->m_settings.chip_adaptive_thresh )
     {
       mode = CHIP_AND_ORIGINAL;
     }
-    else if( d->m_original_to_chip_size )
+    else if( d->m_settings.original_to_chip_size )
     {
       mode = MAINTAIN_AR;
     }
@@ -250,7 +187,7 @@ windowed_detector
   {
     scale_factor = format_image( cv_image, cv_resized_image,
       ( mode == ORIGINAL_AND_RESIZED ? SCALE : mode ),
-      d->m_scale, d->m_chip_width, d->m_chip_height );
+      d->m_settings.scale, d->m_settings.chip_width, d->m_settings.chip_height );
   }
   else
   {
@@ -269,7 +206,7 @@ windowed_detector
   {
     cv::Mat scaled_original;
 
-    if( cv_image.rows <= d->m_chip_height && cv_image.cols <= d->m_chip_width )
+    if( cv_image.rows <= d->m_settings.chip_height && cv_image.cols <= d->m_settings.chip_width )
     {
       regions_to_process.push_back( cv_image );
 
@@ -278,7 +215,7 @@ windowed_detector
     }
     else
     {
-      if( ( cv_image.rows * cv_image.cols ) >= d->m_chip_adaptive_thresh )
+      if( ( cv_image.rows * cv_image.cols ) >= d->m_settings.chip_adaptive_thresh )
       {
         regions_to_process.push_back( cv_resized_image );
 
@@ -287,7 +224,7 @@ windowed_detector
       }
 
       double scaled_original_scale = scale_image_maintaining_ar( cv_image,
-        scaled_original, d->m_chip_width, d->m_chip_height, d->m_black_pad );
+        scaled_original, d->m_settings.chip_width, d->m_settings.chip_height, d->m_settings.black_pad );
 
       regions_to_process.push_back( scaled_original );
 
@@ -306,16 +243,16 @@ windowed_detector
   {
     // Chip up scaled image
     for( int li = 0;
-         li < cv_resized_image.cols - d->m_chip_width + d->m_chip_step_width;
-         li += d->m_chip_step_width )
+         li < cv_resized_image.cols - d->m_settings.chip_width + d->m_settings.chip_step_width;
+         li += d->m_settings.chip_step_width )
     {
-      int ti = std::min( li + d->m_chip_width, cv_resized_image.cols );
+      int ti = std::min( li + d->m_settings.chip_width, cv_resized_image.cols );
 
       for( int lj = 0;
-           lj < cv_resized_image.rows - d->m_chip_height + d->m_chip_step_height;
-           lj += d->m_chip_step_height )
+           lj < cv_resized_image.rows - d->m_settings.chip_height + d->m_settings.chip_step_height;
+           lj += d->m_settings.chip_step_height )
       {
-        int tj = std::min( lj + d->m_chip_height, cv_resized_image.rows );
+        int tj = std::min( lj + d->m_settings.chip_height, cv_resized_image.rows );
 
         if( tj-lj < 0 || ti-li < 0 )
         {
@@ -332,18 +269,18 @@ windowed_detector
         cv::Mat scaled_crop, tmp_cropped;
 
         double scaled_crop_scale = scale_image_maintaining_ar(
-          cropped_chip, scaled_crop, d->m_chip_width, d->m_chip_height,
-          d->m_black_pad );
+          cropped_chip, scaled_crop, d->m_settings.chip_width, d->m_settings.chip_height,
+          d->m_settings.black_pad );
 
         regions_to_process.push_back( scaled_crop );
 
         region_properties.push_back(
           priv::windowed_region_prop( original_roi,
-            d->m_chip_edge_filter,
-            ( li + d->m_chip_step_width ) >=
-              ( cv_resized_image.cols - d->m_chip_width + d->m_chip_step_width ),
-            ( lj + d->m_chip_step_height ) >=
-              ( cv_resized_image.rows - d->m_chip_height + d->m_chip_step_height ),
+            d->m_settings.chip_edge_filter,
+            ( li + d->m_settings.chip_step_width ) >=
+              ( cv_resized_image.cols - d->m_settings.chip_width + d->m_settings.chip_step_width ),
+            ( lj + d->m_settings.chip_step_height ) >=
+              ( cv_resized_image.rows - d->m_settings.chip_height + d->m_settings.chip_step_height ),
             1.0 / scaled_crop_scale,
             li, lj,
             1.0 / scale_factor ) );
@@ -355,10 +292,10 @@ windowed_detector
     {
       cv::Mat scaled_original;
 
-      if( d->m_original_to_chip_size )
+      if( d->m_settings.original_to_chip_size )
       {
         double scaled_original_scale = scale_image_maintaining_ar( cv_image,
-          scaled_original, d->m_chip_width, d->m_chip_height, d->m_black_pad );
+          scaled_original, d->m_settings.chip_width, d->m_settings.chip_height, d->m_settings.black_pad );
 
         regions_to_process.push_back( scaled_original );
 
@@ -376,7 +313,7 @@ windowed_detector
   }
 
   // Process all regions
-  unsigned max_count = d->m_batch_size;
+  unsigned max_count = d->m_settings.batch_size;
 
   for( unsigned i = 0; i < regions_to_process.size(); i+= max_count )
   {
@@ -403,7 +340,7 @@ windowed_detector
     }
   }
 
-  const int min_dim = d->m_min_detection_dim;
+  const int min_dim = d->m_settings.min_detection_dim;
 
   detections->filter([&min_dim](kwiver::vital::detected_object_sptr dos)
   {
@@ -459,14 +396,14 @@ windowed_detector::priv
         ( !info.right_border && det->bounding_box().max_x() > roi.x + roi.width - dist ) ||
         ( !info.bottom_border && det->bounding_box().max_y() > roi.y + roi.height - dist ) )
     {
-      if( m_chip_edge_max_prob <= 0.0 )
+      if( m_settings.chip_edge_max_prob <= 0.0 )
       {
         continue;
       }
 
-      if( det->confidence() > m_chip_edge_max_prob )
+      if( det->confidence() > m_settings.chip_edge_max_prob )
       {
-        det->set_confidence( m_chip_edge_max_prob );
+        det->set_confidence( m_settings.chip_edge_max_prob );
       }
       if( det->type() )
       {
@@ -475,9 +412,9 @@ windowed_detector::priv
         dot->get_most_likely( top_class );
         double score = dot->score( top_class );
 
-        if( score > m_chip_edge_max_prob )
+        if( score > m_settings.chip_edge_max_prob )
         {
-          double scale = m_chip_edge_max_prob / score;
+          double scale = m_settings.chip_edge_max_prob / score;
 
           for( auto name : dot->class_names() )
           {

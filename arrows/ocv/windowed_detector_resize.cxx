@@ -39,6 +39,86 @@ namespace kwiver {
 namespace arrows {
 namespace ocv {
 
+// =============================================================================
+window_settings
+::window_settings()
+  : mode( DISABLED )
+  , scale( 1.0 )
+  , chip_width( 1000 )
+  , chip_height( 1000 )
+  , chip_step_width( 500 )
+  , chip_step_height( 500 )
+  , chip_edge_filter( -1 )
+  , chip_edge_max_prob( -1.0 )
+  , chip_adaptive_thresh( 2000000 )
+  , batch_size( 1 )
+  , min_detection_dim( 2 )
+  , original_to_chip_size( false )
+  , black_pad( false )
+{}
+
+// -----------------------------------------------------------------------------
+vital::config_block_sptr
+window_settings
+::config() const
+{
+  vital::config_block_sptr config = vital::config_block::empty_config();
+
+  rescale_option_converter conv;
+  config->set_value( "mode", conv.to_string( mode ),
+    "Pre-processing resize option, can be: disabled, maintain_ar, scale, "
+    "chip, chip_and_original, original_and_resized, or adaptive." );
+  config->set_value( "scale", scale,
+    "Image scaling factor used when mode is scale or chip." );
+  config->set_value( "chip_height", chip_height,
+    "When in chip mode, the chip height." );
+  config->set_value( "chip_width", chip_width,
+    "When in chip mode, the chip width." );
+  config->set_value( "chip_step_height", chip_step_height,
+    "When in chip mode, the chip step size between chips." );
+  config->set_value( "chip_step_width", chip_step_width,
+    "When in chip mode, the chip step size between chips." );
+  config->set_value( "chip_edge_filter", chip_edge_filter,
+    "If using chipping, filter out detections this pixel count near borders." );
+  config->set_value( "chip_edge_max_prob", chip_edge_max_prob,
+    "If using chipping, maximum type probability for edge detections" );
+  config->set_value( "chip_adaptive_thresh", chip_adaptive_thresh,
+    "If using adaptive selection, total pixel count at which we start to chip." );
+  config->set_value( "batch_size", batch_size,
+    "Optional processing batch size to send to the detector." );
+  config->set_value( "min_detection_dim", min_detection_dim,
+    "Minimum detection dimension in original image space." );
+  config->set_value( "original_to_chip_size", original_to_chip_size,
+    "Optionally enforce the input image is the specified chip size" );
+  config->set_value( "black_pad", black_pad,
+    "Black pad the edges of resized chips to ensure consistent dimensions" );
+
+  return config;
+}
+
+// -----------------------------------------------------------------------------
+void
+window_settings
+::set_config( vital::config_block_sptr config )
+{
+  rescale_option_converter conv;
+  mode = conv.from_string( config->get_value< std::string >( "mode" ) );
+  scale = config->get_value< double >( "scale" );
+  chip_width = config->get_value< int >( "chip_width" );
+  chip_height = config->get_value< int >( "chip_height" );
+  chip_step_width = config->get_value< int >( "chip_step_width" );
+  chip_step_height = config->get_value< int >( "chip_step_height" );
+  chip_edge_filter = config->get_value< int >( "chip_edge_filter" );
+  chip_edge_max_prob = config->get_value< double >( "chip_edge_max_prob" );
+  chip_adaptive_thresh = config->get_value< int >( "chip_adaptive_thresh" );
+  batch_size = config->get_value< int >( "batch_size" );
+  min_detection_dim = config->get_value< int >( "min_detection_dim" );
+  original_to_chip_size = config->get_value< bool >( "original_to_chip_size" );
+  black_pad = config->get_value< bool >( "black_pad" );
+}
+
+// =============================================================================
+
 
 double
 scale_image_maintaining_ar( const cv::Mat& src, cv::Mat& dst,

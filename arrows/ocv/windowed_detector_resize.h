@@ -67,8 +67,8 @@ struct window_settings
   window_settings();
   ~window_settings() {}
 
-  vital::config_block_sptr 
-  set_config_block()
+  vital::config_block_sptr config() const;
+  void set_config( vital::config_block_sptr cfg );
 
   rescale_option mode;
   double scale;
@@ -83,7 +83,7 @@ struct window_settings
   int min_detection_dim;
   bool original_to_chip_size;
   bool black_pad;
-}
+};
 
 struct windowed_region_prop
 {
