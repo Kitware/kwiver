@@ -84,6 +84,7 @@ struct window_settings
   int min_detection_dim;
   bool original_to_chip_size;
   bool black_pad;
+  bool preserve_boundary_detections;
 };
 
 struct windowed_region_prop
@@ -145,6 +146,14 @@ vital::detected_object_set_sptr
 scale_detections_to_region(
   const vital::detected_object_set_sptr detections,
   const windowed_region_prop& region_info );
+
+void
+separate_boundary_detections(
+  const vital::detected_object_set_sptr detections,
+  int region_width,
+  int region_height,
+  vital::detected_object_set_sptr& boundary_detections,
+  vital::detected_object_set_sptr& interior_detections );
 
 } } }
 

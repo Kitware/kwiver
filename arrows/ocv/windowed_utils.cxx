@@ -55,6 +55,7 @@ window_settings
   , min_detection_dim( 2 )
   , original_to_chip_size( false )
   , black_pad( false )
+  , preserve_boundary_detections( false )
 {}
 
 // -----------------------------------------------------------------------------
@@ -92,6 +93,8 @@ window_settings
     "Optionally enforce the input image is the specified chip size" );
   config->set_value( "black_pad", black_pad,
     "Black pad the edges of resized chips to ensure consistent dimensions" );
+  config->set_value( "preserve_boundary_detections", preserve_boundary_detections,
+    "Pass through detections touching tile boundaries unmodified in refiner" );
 
   return config;
 }
@@ -115,6 +118,7 @@ window_settings
   min_detection_dim = config->get_value< int >( "min_detection_dim" );
   original_to_chip_size = config->get_value< bool >( "original_to_chip_size" );
   black_pad = config->get_value< bool >( "black_pad" );
+  preserve_boundary_detections = config->get_value< bool >( "preserve_boundary_detections" );
 }
 
 // =============================================================================
@@ -501,6 +505,50 @@ scale_detections_to_region(
 
   return vital::detected_object_set_sptr(
     new vital::detected_object_set( region_dets ) );
+}
+
+// -----------------------------------------------------------------------------
+void
+separate_boundary_detections(
+  const vital::detected_object_set_sptr detections,
+  int region_width,
+  int region_height,
+  vital::detected_object_set_sptr& boundary_detections,
+  vital::detected_object_set_sptr& interior_detections )
+{
+  boundary_detections = std::make_shared< vital::detected_object_set >();
+  interior_detections = std::make_shared< vital::detected_object_set >();
+
+  if( !detections )
+  {
+    return;
+  }
+
+  for( auto det : *detections )
+  {
+    if( !det )
+    {
+      continue;
+    }
+
+    vital::bounding_box_d bbox = det->bounding_box();
+
+    // Check if detection touches any boundary
+    bool touches_boundary =
+      ( bbox.min_x() <= 0.0 ) ||
+      ( bbox.min_y() <= 0.0 ) ||
+      ( bbox.max_x() >= region_width - 1 ) ||
+      ( bbox.max_y() >= region_height - 1 );
+
+    if( touches_boundary )
+    {
+      boundary_detections->add( det );
+    }
+    else
+    {
+      interior_detections->add( det );
+    }
+  }
 }
 
 } } } // end namespace

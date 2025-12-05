@@ -182,6 +182,32 @@ windowed_refiner
       continue;
     }
 
+    vital::detected_object_set_sptr detections_to_refine = region_detections;
+    vital::detected_object_set_sptr boundary_dets;
+
+    // Optionally separate boundary detections to pass through unmodified
+    if( d->m_settings.preserve_boundary_detections )
+    {
+      vital::detected_object_set_sptr interior_dets;
+      separate_boundary_detections( region_detections,
+        regions_to_process[i].cols, regions_to_process[i].rows,
+        boundary_dets, interior_dets );
+      detections_to_refine = interior_dets;
+
+      // If boundary detections exist, scale them back and add to output
+      if( boundary_dets && !boundary_dets->empty() )
+      {
+        refined_detections->add( d->scale_detections( boundary_dets,
+          region_properties[i] ) );
+      }
+
+      // Skip refinement if no interior detections
+      if( !interior_dets || interior_dets->empty() )
+      {
+        continue;
+      }
+    }
+
     // Convert region to image container
     vital::image_container_sptr region_image(
       new ocv::image_container( regions_to_process[i],
@@ -189,7 +215,7 @@ windowed_refiner
 
     // Refine detections in this region
     vital::detected_object_set_sptr region_refined =
-      d->m_refiner->refine( region_image, region_detections );
+      d->m_refiner->refine( region_image, detections_to_refine );
 
     // Scale refined detections back to original image space
     if( region_refined && !region_refined->empty() )
