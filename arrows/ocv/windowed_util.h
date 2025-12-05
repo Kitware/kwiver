@@ -37,6 +37,7 @@
 #include <opencv2/core/core.hpp>
 
 #include <vital/algo/image_object_detector.h>
+#include <vital/util/enum_converter.h>
 
 namespace kwiver {
 namespace arrows {

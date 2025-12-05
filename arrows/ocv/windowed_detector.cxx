@@ -200,7 +200,7 @@ windowed_detector
   cv::Rect original_dims( 0, 0, cv_image.cols, cv_image.rows );
 
   std::vector< cv::Mat > regions_to_process;
-  std::vector< priv::windowed_region_prop > region_properties;
+  std::vector< windowed_region_prop > region_properties;
 
   if( mode == ORIGINAL_AND_RESIZED )
   {
@@ -211,7 +211,7 @@ windowed_detector
       regions_to_process.push_back( cv_image );
 
       region_properties.push_back(
-        priv::windowed_region_prop( original_dims, 1.0 ) );
+        windowed_region_prop( original_dims, 1.0 ) );
     }
     else
     {
@@ -220,7 +220,7 @@ windowed_detector
         regions_to_process.push_back( cv_resized_image );
 
         region_properties.push_back(
-          priv::windowed_region_prop( original_dims, 1.0 / scale_factor ) );
+          windowed_region_prop( original_dims, 1.0 / scale_factor ) );
       }
 
       double scaled_original_scale = scale_image_maintaining_ar( cv_image,
@@ -229,7 +229,7 @@ windowed_detector
       regions_to_process.push_back( scaled_original );
 
       region_properties.push_back(
-        priv::windowed_region_prop( original_dims, 1.0 / scaled_original_scale ) );
+        windowed_region_prop( original_dims, 1.0 / scaled_original_scale ) );
     }
   }
   else if( mode != CHIP && mode != CHIP_AND_ORIGINAL )
@@ -237,7 +237,7 @@ windowed_detector
     regions_to_process.push_back( cv_resized_image );
 
     region_properties.push_back(
-      priv::windowed_region_prop( original_dims, 1.0 / scale_factor ) );
+      windowed_region_prop( original_dims, 1.0 / scale_factor ) );
   }
   else
   {
@@ -275,7 +275,7 @@ windowed_detector
         regions_to_process.push_back( scaled_crop );
 
         region_properties.push_back(
-          priv::windowed_region_prop( original_roi,
+          windowed_region_prop( original_roi,
             d->m_settings.chip_edge_filter,
             ( li + d->m_settings.chip_step_width ) >=
               ( cv_resized_image.cols - d->m_settings.chip_width + d->m_settings.chip_step_width ),
@@ -300,14 +300,14 @@ windowed_detector
         regions_to_process.push_back( scaled_original );
 
         region_properties.push_back(
-          priv::windowed_region_prop( original_dims, 1.0 / scaled_original_scale ) );
+          windowed_region_prop( original_dims, 1.0 / scaled_original_scale ) );
       }
       else
       {
         regions_to_process.push_back( cv_image );
 
         region_properties.push_back(
-          priv::windowed_region_prop( original_dims, 1.0 ) );
+          windowed_region_prop( original_dims, 1.0 ) );
       }
     }
   }
