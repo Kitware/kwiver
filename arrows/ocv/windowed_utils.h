@@ -141,6 +141,11 @@ prepare_image_regions(
   std::vector< cv::Mat >& regions_to_process,
   std::vector< windowed_region_prop >& region_properties );
 
+vital::detected_object_set_sptr
+scale_detections_to_region(
+  const vital::detected_object_set_sptr detections,
+  const windowed_region_prop& region_info );
+
 } } }
 
 #endif /* KWIVER_ARROWS_OCV_WINDOWED_UTILS */

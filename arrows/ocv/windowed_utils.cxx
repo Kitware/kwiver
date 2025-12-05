@@ -434,4 +434,73 @@ prepare_image_regions(
   }
 }
 
+// -----------------------------------------------------------------------------
+vital::detected_object_set_sptr
+scale_detections_to_region(
+  const vital::detected_object_set_sptr detections,
+  const windowed_region_prop& region_info )
+{
+  if( !detections || detections->empty() )
+  {
+    return std::make_shared< vital::detected_object_set >();
+  }
+
+  const cv::Rect& roi = region_info.original_roi;
+  std::vector< vital::detected_object_sptr > region_dets;
+
+  // Filter and transform detections that overlap with this region
+  for( auto det : *detections )
+  {
+    if( !det )
+    {
+      continue;
+    }
+
+    vital::bounding_box_d det_box = det->bounding_box();
+    vital::bounding_box_d roi_box( roi.x, roi.y, roi.x + roi.width, roi.y + roi.height );
+
+    // Check if detection overlaps with this region
+    vital::bounding_box_d overlap = vital::intersection( roi_box, det_box );
+    if( overlap.area() <= 0 )
+    {
+      continue;
+    }
+
+    // Clone the detection so we don't modify the original
+    auto region_det = det->clone();
+
+    // Apply inverse scale2 transformation (divide by scale2)
+    if( region_info.scale2 != 1.0 )
+    {
+      vital::detected_object_set_sptr temp_set = std::make_shared< vital::detected_object_set >();
+      temp_set->add( region_det );
+      temp_set->scale( 1.0 / region_info.scale2 );
+      region_det = *temp_set->begin();
+    }
+
+    // Apply inverse shift transformation (subtract shift)
+    if( region_info.shiftx != 0 || region_info.shifty != 0 )
+    {
+      vital::detected_object_set_sptr temp_set = std::make_shared< vital::detected_object_set >();
+      temp_set->add( region_det );
+      temp_set->shift( -region_info.shiftx, -region_info.shifty );
+      region_det = *temp_set->begin();
+    }
+
+    // Apply inverse scale1 transformation (divide by scale1)
+    if( region_info.scale1 != 1.0 )
+    {
+      vital::detected_object_set_sptr temp_set = std::make_shared< vital::detected_object_set >();
+      temp_set->add( region_det );
+      temp_set->scale( 1.0 / region_info.scale1 );
+      region_det = *temp_set->begin();
+    }
+
+    region_dets.push_back( region_det );
+  }
+
+  return vital::detected_object_set_sptr(
+    new vital::detected_object_set( region_dets ) );
+}
+
 } } } // end namespace
