@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2019 by Kitware, Inc.
+ * Copyright 2025 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@
 #include <sstream>
 #include <exception>
 #include <limits>
+#include <set>
 
 namespace kwiver {
 namespace arrows {
@@ -55,18 +56,15 @@ namespace ocv {
 class windowed_refiner::priv
 {
 public:
-  priv()
-  {}
+  priv() {}
 
   ~priv() {}
 
   // Settings from the config
   window_settings m_settings;
 
-  // Helper functions
-  vital::detected_object_set_sptr scale_detections(
-    const vital::detected_object_set_sptr detections,
-    const windowed_region_prop& roi );
+  bool m_process_boundary_dets;
+  bool m_overlapping_proc_once;
 
   vital::algo::refine_detections_sptr m_refiner;
   vital::logger_handle_t m_logger;
@@ -100,6 +98,12 @@ windowed_refiner
   // Merge window settings configuration
   config->merge_config( d->m_settings.config() );
 
+  // Other refiner-specific settings
+  config->set_value( "process_boundary_dets", d->m_process_boundary_dets,
+    "Pass through detections touching tile boundaries unmodified in refiner" );
+  config->set_value( "overlapping_proc_once", d->m_overlapping_proc_once,
+    "Only refine each detection when it overlaps multiple tiles in refiner" );
+
   vital::algo::refine_detections::get_nested_algo_configuration(
     "refiner", config, d->m_refiner );
 
@@ -119,8 +123,10 @@ windowed_refiner
 
   config->merge_config( config_in );
 
-  // Set window settings from configuration
   d->m_settings.set_config( config );
+
+  d->m_process_boundary_dets = config->get_value< bool >( "process_boundary_dets" );
+  d->m_overlapping_proc_once = config->get_value< bool >( "overlapping_proc_once" );
 
   vital::algo::refine_detections::set_nested_algo_configuration(
     "refiner", config, d->m_refiner );
@@ -167,61 +173,107 @@ windowed_refiner
   prepare_image_regions( cv_image, d->m_settings, regions_to_process, region_properties );
 
   // Run refiner
-  vital::detected_object_set_sptr refined_detections = std::make_shared< vital::detected_object_set >();
+  vital::detected_object_set_sptr refined_detections =
+    std::make_shared< vital::detected_object_set >();
+
+  // Track which original detections have been processed (if option enabled)
+  std::set< vital::detected_object_sptr > processed_detections;
 
   // Process all regions
   for( unsigned i = 0; i < regions_to_process.size(); i++ )
   {
-    // Scale input detections to this region
-    vital::detected_object_set_sptr region_detections =
-      scale_detections_to_region( detections, region_properties[i] );
+    // Get mapping of original to scaled detections for this region
+    std::vector< vital::detected_object_sptr > original_dets;
+    std::vector< vital::detected_object_sptr > scaled_dets;
+    scale_detections_to_region_with_mapping( detections, region_properties[i],
+      original_dets, scaled_dets );
 
     // Skip empty regions if there are no detections
-    if( !region_detections || region_detections->empty() )
+    if( original_dets.empty() )
     {
       continue;
     }
 
-    vital::detected_object_set_sptr detections_to_refine = region_detections;
-    vital::detected_object_set_sptr boundary_dets;
+    // Separate detections by processing category
+    vital::detected_object_set_sptr detections_to_refine =
+      std::make_shared< vital::detected_object_set >();
+    vital::detected_object_set_sptr detections_to_pass_through =
+      std::make_shared< vital::detected_object_set >();
+    std::vector< vital::detected_object_sptr > original_to_refine;
 
-    // Optionally separate boundary detections to pass through unmodified
-    if( d->m_settings.preserve_boundary_detections )
+    for( size_t j = 0; j < original_dets.size(); j++ )
     {
-      vital::detected_object_set_sptr interior_dets;
-      separate_boundary_detections( region_detections,
-        regions_to_process[i].cols, regions_to_process[i].rows,
-        boundary_dets, interior_dets );
-      detections_to_refine = interior_dets;
+      auto original_det = original_dets[j];
+      auto scaled_det = scaled_dets[j];
 
-      // If boundary detections exist, scale them back and add to output
-      if( boundary_dets && !boundary_dets->empty() )
+      // Check if already processed (if option enabled)
+      if( d->m_overlapping_proc_once &&
+          processed_detections.find( original_det ) != processed_detections.end() )
       {
-        refined_detections->add( d->scale_detections( boundary_dets,
-          region_properties[i] ) );
+        // Skip - already processed in a previous region
+        continue;
       }
 
-      // Skip refinement if no interior detections
-      if( !interior_dets || interior_dets->empty() )
+      // Check if detection touches boundary (if option enabled)
+      bool touches_boundary = false;
+      if( d->m_process_boundary_dets )
       {
-        continue;
+        vital::bounding_box_d bbox = scaled_det->bounding_box();
+        touches_boundary =
+          ( bbox.min_x() <= 0.0 ) ||
+          ( bbox.min_y() <= 0.0 ) ||
+          ( bbox.max_x() >= regions_to_process[i].cols - 1 ) ||
+          ( bbox.max_y() >= regions_to_process[i].rows - 1 );
+      }
+
+      if( touches_boundary )
+      {
+        // Pass through unmodified
+        detections_to_pass_through->add( scaled_det );
+        processed_detections.insert( original_det );
+      }
+      else
+      {
+        // Queue for refinement
+        detections_to_refine->add( scaled_det );
+        original_to_refine.push_back( original_det );
       }
     }
 
-    // Convert region to image container
-    vital::image_container_sptr region_image(
-      new ocv::image_container( regions_to_process[i],
-        ocv::image_container::RGB_COLOR ) );
-
-    // Refine detections in this region
-    vital::detected_object_set_sptr region_refined =
-      d->m_refiner->refine( region_image, detections_to_refine );
-
-    // Scale refined detections back to original image space
-    if( region_refined && !region_refined->empty() )
+    // Scale and add pass-through detections to output
+    if( !detections_to_pass_through->empty() )
     {
-      refined_detections->add( d->scale_detections( region_refined,
-        region_properties[i] ) );
+      refined_detections->add( rescale_detections( detections_to_pass_through,
+        region_properties[i], d->m_settings.chip_edge_max_prob ) );
+    }
+
+    // Refine the remaining detections
+    if( !detections_to_refine->empty() )
+    {
+      // Convert region to image container
+      vital::image_container_sptr region_image(
+        new ocv::image_container( regions_to_process[i],
+          ocv::image_container::RGB_COLOR ) );
+
+      // Refine detections in this region
+      vital::detected_object_set_sptr region_refined =
+        d->m_refiner->refine( region_image, detections_to_refine );
+
+      // Scale refined detections back to original image space
+      if( region_refined && !region_refined->empty() )
+      {
+        refined_detections->add( rescale_detections( region_refined,
+          region_properties[i], d->m_settings.chip_edge_max_prob ) );
+      }
+
+      // Mark these detections as processed
+      if( d->m_overlapping_proc_once )
+      {
+        for( auto original_det : original_to_refine )
+        {
+          processed_detections.insert( original_det );
+        }
+      }
     }
   }
 
@@ -235,16 +287,6 @@ windowed_refiner
 
   return refined_detections;
 } // windowed_refiner::refine
-
-
-vital::detected_object_set_sptr
-windowed_refiner::priv
-::scale_detections(
-  const vital::detected_object_set_sptr dets,
-  const windowed_region_prop& info )
-{
-  return ocv::scale_detections( dets, info, m_settings.chip_edge_max_prob );
-}
 
 
 } } } // end namespace

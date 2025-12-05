@@ -63,11 +63,6 @@ public:
   // Settings from the config
   window_settings m_settings;
 
-  // Helper functions
-  vital::detected_object_set_sptr scale_detections(
-    const vital::detected_object_set_sptr detections,
-    const windowed_region_prop& roi );
-
   vital::algo::image_object_detector_sptr m_detector;
   vital::logger_handle_t m_logger;
 };
@@ -190,8 +185,8 @@ windowed_detector
 
     for( unsigned j = 0; j < batch_size; j++ )
     {
-      detections->add( d->scale_detections( out[ j ],
-        region_properties[ i + j ] ) );
+      detections->add( rescale_detections( out[ j ],
+        region_properties[ i + j ], d->m_settings.chip_edge_max_prob ) );
     }
   }
 
@@ -205,16 +200,5 @@ windowed_detector
 
   return detections;
 } // windowed_detector::detect
-
-
-vital::detected_object_set_sptr
-windowed_detector::priv
-::scale_detections(
-  const vital::detected_object_set_sptr dets,
-  const windowed_region_prop& info )
-{
-  return ocv::scale_detections( dets, info, m_settings.chip_edge_max_prob );
-}
-
 
 } } } // end namespace

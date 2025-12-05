@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2019 by Kitware, Inc.
+ * Copyright 2025 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,23 +84,14 @@ struct window_settings
   int min_detection_dim;
   bool original_to_chip_size;
   bool black_pad;
-  bool preserve_boundary_detections;
 };
 
 struct windowed_region_prop
 {
-  explicit windowed_region_prop( cv::Rect r, double s1 )
-   : original_roi( r ), edge_filter( -1 ),
-     right_border( false ), bottom_border( false ),
-     scale1( s1 ), shiftx( 0 ), shifty( 0 ), scale2( 1.0 )
-  {}
+  explicit windowed_region_prop( cv::Rect r, double s1 );
 
-  explicit windowed_region_prop( cv::Rect r, int ef, bool rb, bool bb,
-    double s1, int sx, int sy, double s2 )
-   : original_roi( r ), edge_filter( ef ),
-     right_border( rb ), bottom_border( bb ),
-     scale1( s1 ), shiftx( sx ), shifty( sy ), scale2( s2 )
-  {}
+  explicit windowed_region_prop( cv::Rect r, int ef, bool rb,
+    bool bb, double s1, int sx, int sy, double s2 );
 
   cv::Rect original_roi;
   int edge_filter;
@@ -130,7 +121,7 @@ format_image(
   bool pad = false );
 
 vital::detected_object_set_sptr
-scale_detections(
+rescale_detections(
   const vital::detected_object_set_sptr detections,
   const windowed_region_prop& region_info,
   double chip_edge_max_prob );
@@ -142,10 +133,21 @@ prepare_image_regions(
   std::vector< cv::Mat >& regions_to_process,
   std::vector< windowed_region_prop >& region_properties );
 
+void scale_detections(
+  vital::detected_object_set_sptr& detections,
+  const windowed_region_prop& region_info );
+
 vital::detected_object_set_sptr
 scale_detections_to_region(
   const vital::detected_object_set_sptr detections,
   const windowed_region_prop& region_info );
+
+void
+scale_detections_to_region_with_mapping(
+  const vital::detected_object_set_sptr detections,
+  const windowed_region_prop& region_info,
+  std::vector< vital::detected_object_sptr >& original_detections,
+  std::vector< vital::detected_object_sptr >& scaled_detections );
 
 void
 separate_boundary_detections(

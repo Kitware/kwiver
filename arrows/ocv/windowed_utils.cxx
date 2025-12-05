@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2019 by Kitware, Inc.
+ * Copyright 2025 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,6 @@ window_settings
   , min_detection_dim( 2 )
   , original_to_chip_size( false )
   , black_pad( false )
-  , preserve_boundary_detections( false )
 {}
 
 // -----------------------------------------------------------------------------
@@ -93,8 +92,6 @@ window_settings
     "Optionally enforce the input image is the specified chip size" );
   config->set_value( "black_pad", black_pad,
     "Black pad the edges of resized chips to ensure consistent dimensions" );
-  config->set_value( "preserve_boundary_detections", preserve_boundary_detections,
-    "Pass through detections touching tile boundaries unmodified in refiner" );
 
   return config;
 }
@@ -118,11 +115,26 @@ window_settings
   min_detection_dim = config->get_value< int >( "min_detection_dim" );
   original_to_chip_size = config->get_value< bool >( "original_to_chip_size" );
   black_pad = config->get_value< bool >( "black_pad" );
-  preserve_boundary_detections = config->get_value< bool >( "preserve_boundary_detections" );
 }
 
 // =============================================================================
 
+windowed_region_prop
+::windowed_region_prop( cv::Rect r, double s1 )
+ : original_roi( r ), edge_filter( -1 ),
+   right_border( false ), bottom_border( false ),
+   scale1( s1 ), shiftx( 0 ), shifty( 0 ), scale2( 1.0 )
+{}
+
+windowed_region_prop
+::windowed_region_prop( cv::Rect r, int ef, bool rb, bool bb,
+  double s1, int sx, int sy, double s2 )
+ : original_roi( r ), edge_filter( ef ),
+   right_border( rb ), bottom_border( bb ),
+   scale1( s1 ), shiftx( sx ), shifty( sy ), scale2( s2 )
+{}
+
+// =============================================================================
 
 double
 scale_image_maintaining_ar( const cv::Mat& src, cv::Mat& dst,
@@ -203,7 +215,7 @@ format_image( const cv::Mat& src, cv::Mat& dst, rescale_option option,
 
 // -----------------------------------------------------------------------------
 vital::detected_object_set_sptr
-scale_detections(
+rescale_detections(
   const vital::detected_object_set_sptr detections,
   const windowed_region_prop& region_info,
   double chip_edge_max_prob )
@@ -439,6 +451,30 @@ prepare_image_regions(
 }
 
 // -----------------------------------------------------------------------------
+void scale_detections(
+  vital::detected_object_set_sptr& detections,
+  const windowed_region_prop& region_info )
+{
+  // Apply inverse scale2 transformation (divide by scale2)
+  if( region_info.scale2 != 1.0 )
+  {
+    detections->scale( 1.0 / region_info.scale2 );
+  }
+
+  // Apply inverse shift transformation (subtract shift)
+  if( region_info.shiftx != 0 || region_info.shifty != 0 )
+  {
+    detections->shift( -region_info.shiftx, -region_info.shifty );
+  }
+
+  // Apply inverse scale1 transformation (divide by scale1)
+  if( region_info.scale1 != 1.0 )
+  {
+    detections->scale( 1.0 / region_info.scale1 );
+  }
+}
+
+// -----------------------------------------------------------------------------
 vital::detected_object_set_sptr
 scale_detections_to_region(
   const vital::detected_object_set_sptr detections,
@@ -449,7 +485,12 @@ scale_detections_to_region(
     return std::make_shared< vital::detected_object_set >();
   }
 
-  const cv::Rect& roi = region_info.original_roi;
+  const vital::bounding_box_d roi_box(
+    region_info.original_roi.x,
+    region_info.original_roi.y,
+    region_info.original_roi.x + region_info.original_roi.width,
+    region_info.original_roi.y + region_info.original_roi.height );
+
   std::vector< vital::detected_object_sptr > region_dets;
 
   // Filter and transform detections that overlap with this region
@@ -460,51 +501,77 @@ scale_detections_to_region(
       continue;
     }
 
-    vital::bounding_box_d det_box = det->bounding_box();
-    vital::bounding_box_d roi_box( roi.x, roi.y, roi.x + roi.width, roi.y + roi.height );
-
     // Check if detection overlaps with this region
+    vital::bounding_box_d det_box = det->bounding_box();
     vital::bounding_box_d overlap = vital::intersection( roi_box, det_box );
+
     if( overlap.area() <= 0 )
     {
       continue;
     }
 
     // Clone the detection so we don't modify the original
-    auto region_det = det->clone();
-
-    // Apply inverse scale2 transformation (divide by scale2)
-    if( region_info.scale2 != 1.0 )
-    {
-      vital::detected_object_set_sptr temp_set = std::make_shared< vital::detected_object_set >();
-      temp_set->add( region_det );
-      temp_set->scale( 1.0 / region_info.scale2 );
-      region_det = *temp_set->begin();
-    }
-
-    // Apply inverse shift transformation (subtract shift)
-    if( region_info.shiftx != 0 || region_info.shifty != 0 )
-    {
-      vital::detected_object_set_sptr temp_set = std::make_shared< vital::detected_object_set >();
-      temp_set->add( region_det );
-      temp_set->shift( -region_info.shiftx, -region_info.shifty );
-      region_det = *temp_set->begin();
-    }
-
-    // Apply inverse scale1 transformation (divide by scale1)
-    if( region_info.scale1 != 1.0 )
-    {
-      vital::detected_object_set_sptr temp_set = std::make_shared< vital::detected_object_set >();
-      temp_set->add( region_det );
-      temp_set->scale( 1.0 / region_info.scale1 );
-      region_det = *temp_set->begin();
-    }
-
-    region_dets.push_back( region_det );
+    region_dets.push_back( det->clone() );
   }
 
-  return vital::detected_object_set_sptr(
-    new vital::detected_object_set( region_dets ) );
+  vital::detected_object_set_sptr output =
+    std::make_shared< vital::detected_object_set >( region_dets );
+
+  scale_detections( output, region_info );
+  
+  return output;
+}
+
+// -----------------------------------------------------------------------------
+void
+scale_detections_to_region_with_mapping(
+  const vital::detected_object_set_sptr detections,
+  const windowed_region_prop& region_info,
+  std::vector< vital::detected_object_sptr >& original_detections,
+  std::vector< vital::detected_object_sptr >& scaled_detections )
+{
+  original_detections.clear();
+  scaled_detections.clear();
+
+  if( !detections || detections->empty() )
+  {
+    return;
+  }
+
+  const vital::bounding_box_d roi_box(
+    region_info.original_roi.x,
+    region_info.original_roi.y,
+    region_info.original_roi.x + region_info.original_roi.width,
+    region_info.original_roi.y + region_info.original_roi.height );
+
+  std::vector< vital::detected_object_sptr > region_dets;
+
+  // Filter and transform detections that overlap with this region
+  for( auto det : *detections )
+  {
+    if( !det )
+    {
+      continue;
+    }
+
+    // Check if detection overlaps with this region
+    vital::bounding_box_d det_box = det->bounding_box();
+    vital::bounding_box_d overlap = vital::intersection( roi_box, det_box );
+
+    if( overlap.area() <= 0 )
+    {
+      continue;
+    }
+
+    // Clone the detection so we don't modify the original
+    scaled_detections.push_back( det->clone() );
+    original_detections.push_back( det );
+  }
+
+  auto scaled_set =
+    std::make_shared< vital::detected_object_set >( scaled_detections );
+
+  scale_detections( scaled_set, region_info );
 }
 
 // -----------------------------------------------------------------------------
