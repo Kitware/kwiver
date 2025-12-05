@@ -29,7 +29,7 @@
  */
 
 #include "windowed_detector.h"
-#include "windowed_detector_resize.h"
+#include "windowed_util.h"
 
 #include <vital/util/wall_timer.h>
 #include <vital/exceptions/io.h>

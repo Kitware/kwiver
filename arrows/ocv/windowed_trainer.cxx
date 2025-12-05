@@ -29,7 +29,7 @@
  */
 
 #include "windowed_trainer.h"
-#include "windowed_detector_resize.h"
+#include "windowed_util.h"
 
 #include <vital/util/cpu_timer.h>
 #include <vital/algo/image_io.h>

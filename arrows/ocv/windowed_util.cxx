@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "windowed_detector_resize.h"
+#include "windowed_util.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
 

@@ -28,8 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KWIVER_ARROWS_OCV_WINDOWED_RESIZE
-#define KWIVER_ARROWS_OCV_WINDOWED_RESIZE
+#ifndef KWIVER_ARROWS_OCV_WINDOWED_UTIL
+#define KWIVER_ARROWS_OCV_WINDOWED_UTIL
 
 
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
@@ -119,4 +119,4 @@ format_image( const cv::Mat& src, cv::Mat& dst, rescale_option option,
 
 } } }
 
-#endif /* KWIVER_ARROWS_OCV_WINDOWED_RESIZE */
+#endif /* KWIVER_ARROWS_OCV_WINDOWED_UTIL */
