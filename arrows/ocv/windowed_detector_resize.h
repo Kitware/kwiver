@@ -52,13 +52,24 @@ enum rescale_option {
   ADAPTIVE
 };
 
-ENUM_CONVERTER( mode_converter, error_mode_t,
-                { "abort",   ERROR_ABORT },
-                { "skip",    ERROR_SKIP }
+ENUM_CONVERTER( rescale_option_converter, rescale_option,
+    { "disabled",             DISABLED },
+    { "maintain_ar",          MAINTAIN_AR },
+    { "scale",                SCALE },
+    { "chip",                 CHIP },
+    { "chip_and_original",    CHIP_AND_ORIGINAL },
+    { "original_and_resized", ORIGINAL_AND_RESIZED },
+    { "adaptive",             ADAPTIVE }
   )
 
 struct window_settings
 {
+  window_settings();
+  ~window_settings() {}
+
+  vital::config_block_sptr 
+  set_config_block()
+
   rescale_option mode;
   double scale;
   int chip_width;
@@ -72,27 +83,7 @@ struct window_settings
   int min_detection_dim;
   bool original_to_chip_size;
   bool black_pad;
-
-  window_settings() {}
-  ~window_settings() {}
-
-  config_block()
-  set_config_block()
 }
-
-  this->d->m_mode = config->get_value< std::string >( "mode" );
-  this->d->m_scale = config->get_value< double >( "scale" );
-  this->d->m_chip_width = config->get_value< int >( "chip_width" );
-  this->d->m_chip_height = config->get_value< int >( "chip_height" );
-  this->d->m_chip_step_width = config->get_value< int >( "chip_step_width" );
-  this->d->m_chip_step_height = config->get_value< int >( "chip_step_height" );
-  this->d->m_chip_edge_filter = config->get_value< int >( "chip_edge_filter" );
-  this->d->m_chip_edge_max_prob = config->get_value< double >( "chip_edge_max_prob" );
-  this->d->m_chip_adaptive_thresh = config->get_value< int >( "chip_adaptive_thresh" );
-  this->d->m_batch_size = config->get_value< int >( "batch_size" );
-  this->d->m_min_detection_dim = config->get_value< int >( "min_detection_dim" );
-  this->d->m_original_to_chip_size = config->get_value< bool >( "original_to_chip_size" );
-  this->d->m_black_pad = config->get_value< bool >( "black_pad" );
 
 struct windowed_region_prop
 {
@@ -118,14 +109,12 @@ struct windowed_region_prop
   double scale2;
 };
 
-std::string str_to_rescale_opt( const std::string& str );
-
 double
 scale_image_maintaining_ar( const cv::Mat& src, cv::Mat& dst,
                             int width, int height, bool pad = false );
 
 double
-format_image( const cv::Mat& src, cv::Mat& dst, std::string option,
+format_image( const cv::Mat& src, cv::Mat& dst, rescale_option option,
               double scale_factor, int width, int height, bool pad = false );
 
 } } }

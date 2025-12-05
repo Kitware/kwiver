@@ -56,7 +56,7 @@ class windowed_detector::priv
 {
 public:
   priv()
-    : m_mode( "disabled" )
+    : m_mode( DISABLED )
     , m_scale( 1.0 )
     , m_chip_width( 1000 )
     , m_chip_height( 1000 )
@@ -74,7 +74,7 @@ public:
   ~priv() {}
 
   // Items from the config
-  std::string m_mode;
+  rescale_option m_mode;
   double m_scale;
   int m_chip_width;
   int m_chip_height;
@@ -122,9 +122,10 @@ windowed_detector
   // Get base config from base class
   vital::config_block_sptr config = vital::algorithm::get_configuration();
 
-  config->set_value( "mode", d->m_mode,
+  rescale_option_converter conv;
+  config->set_value( "mode", conv.to_string( d->m_mode ),
     "Pre-processing resize option, can be: disabled, maintain_ar, scale, "
-    "chip, chip_and_original, or adaptive." );
+    "chip, chip_and_original, original_and_resized, or adaptive." );
   config->set_value( "scale", d->m_scale,
     "Image scaling factor used when mode is scale or chip." );
   config->set_value( "chip_height", d->m_chip_height,
@@ -169,7 +170,8 @@ windowed_detector
 
   config->merge_config( config_in );
 
-  this->d->m_mode = config->get_value< std::string >( "mode" );
+  rescale_option_converter conv;
+  this->d->m_mode = conv.from_string( config->get_value< std::string >( "mode" ) );
   this->d->m_scale = config->get_value< double >( "scale" );
   this->d->m_chip_width = config->get_value< int >( "chip_width" );
   this->d->m_chip_height = config->get_value< int >( "chip_height" );
@@ -214,26 +216,26 @@ windowed_detector
   cv::Mat cv_image = arrows::ocv::image_container::vital_to_ocv(
     image_data->get_image(), arrows::ocv::image_container::RGB_COLOR );
 
-  std::string mode = d->m_mode;
+  rescale_option mode = d->m_mode;
 
   if( cv_image.rows == 0 || cv_image.cols == 0 )
   {
     LOG_WARN( d->m_logger, "Input image is empty." );
     return std::make_shared< vital::detected_object_set >();
   }
-  else if( mode == "adaptive" )
+  else if( mode == ADAPTIVE )
   {
     if( ( cv_image.rows * cv_image.cols ) >= d->m_chip_adaptive_thresh )
     {
-      mode = "chip_and_original";
+      mode = CHIP_AND_ORIGINAL;
     }
     else if( d->m_original_to_chip_size )
     {
-      mode = "maintain_ar";
+      mode = MAINTAIN_AR;
     }
     else
     {
-      mode = "disabled";
+      mode = DISABLED;
     }
   }
 
@@ -244,10 +246,10 @@ windowed_detector
   // resizes image if enabled
   double scale_factor = 1.0;
 
-  if( mode != "disabled" )
+  if( mode != DISABLED )
   {
     scale_factor = format_image( cv_image, cv_resized_image,
-      ( mode == "original_and_resized" ? "scale" : mode ),
+      ( mode == ORIGINAL_AND_RESIZED ? SCALE : mode ),
       d->m_scale, d->m_chip_width, d->m_chip_height );
   }
   else
@@ -263,7 +265,7 @@ windowed_detector
   std::vector< cv::Mat > regions_to_process;
   std::vector< priv::windowed_region_prop > region_properties;
 
-  if( mode == "original_and_resized" )
+  if( mode == ORIGINAL_AND_RESIZED )
   {
     cv::Mat scaled_original;
 
@@ -293,7 +295,7 @@ windowed_detector
         priv::windowed_region_prop( original_dims, 1.0 / scaled_original_scale ) );
     }
   }
-  else if( mode != "chip" && mode != "chip_and_original" )
+  else if( mode != CHIP && mode != CHIP_AND_ORIGINAL )
   {
     regions_to_process.push_back( cv_resized_image );
 
@@ -349,7 +351,7 @@ windowed_detector
     }
 
     // Extract full sized image chip if enabled
-    if( mode == "chip_and_original" )
+    if( mode == CHIP_AND_ORIGINAL )
     {
       cv::Mat scaled_original;
 

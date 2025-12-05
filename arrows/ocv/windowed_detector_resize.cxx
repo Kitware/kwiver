@@ -86,17 +86,17 @@ scale_image_maintaining_ar( const cv::Mat& src, cv::Mat& dst,
 }
 
 double
-format_image( const cv::Mat& src, cv::Mat& dst, std::string option,
+format_image( const cv::Mat& src, cv::Mat& dst, rescale_option option,
               double scale_factor, int width, int height, bool pad )
 {
   double scale = 1.0;
 
-  if( option == "maintain_ar" )
+  if( option == MAINTAIN_AR )
   {
     scale = scale_image_maintaining_ar( src, dst, width, height, pad );
   }
-  else if( option == "chip" || option == "scale" ||
-           option == "chip_and_original" )
+  else if( option == CHIP || option == SCALE ||
+           option == CHIP_AND_ORIGINAL )
   {
     if( scale_factor == 1.0 )
     {
@@ -110,7 +110,8 @@ format_image( const cv::Mat& src, cv::Mat& dst, std::string option,
   }
   else
   {
-    throw std::runtime_error( "Invalid resize option: " + option );
+    rescale_option_converter conv;
+    throw std::runtime_error( "Invalid resize option: " + conv.to_string( option ) );
   }
 
   return scale;
