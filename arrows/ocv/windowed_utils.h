@@ -111,12 +111,22 @@ struct windowed_region_prop
 };
 
 double
-scale_image_maintaining_ar( const cv::Mat& src, cv::Mat& dst,
-                            int width, int height, bool pad = false );
+scale_image_maintaining_ar(
+  const cv::Mat& src,
+  cv::Mat& dst,
+  int width,
+  int height,
+  bool pad = false );
 
 double
-format_image( const cv::Mat& src, cv::Mat& dst, rescale_option option,
-              double scale_factor, int width, int height, bool pad = false );
+format_image(
+  const cv::Mat& src,
+  cv::Mat& dst,
+  rescale_option option,
+  double scale_factor,
+  int width,
+  int height,
+  bool pad = false );
 
 vital::detected_object_set_sptr
 scale_detections(
