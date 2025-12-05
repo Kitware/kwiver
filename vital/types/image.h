@@ -507,6 +507,20 @@ public:
                                                          j + d_step_ * k ];
   }
 
+  /// Allocate an uninitialized image with the same shape and type.
+  ///
+  /// \param interleave
+  ///   If true, channels are interleaved (RGBRGB...). If false, channels are
+  ///   stored in separate planes (RRR...GGG...BBB...).
+  image empty_copy( bool interleave = false ) const;
+
+  /// Copy pixels into newly allocated memory.
+  ///
+  /// \param interleave
+  ///   If true, channels are interleaved (RGBRGB...). If false, channels are
+  ///   stored in separate planes (RRR...GGG...BBB...).
+  image copy( bool interleave = false ) const;
+
   /// Deep copy the image data from another image into this one
   void copy_from( const image& other );
 

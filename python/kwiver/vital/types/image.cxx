@@ -624,9 +624,11 @@ void kwiver::vital::python::image
   init_from_numpy( double )
   init_from_numpy( bool )
 
+    .def( "empty_copy", &image_t::copy, py::arg( "interleave" ) = false )
+    .def( "copy", &image_t::copy, py::arg( "interleave" ) = false )
     .def(
-    "copy_from", &image_t::copy_from,
-    py::arg( "other" ) )
+      "copy_from", &image_t::copy_from,
+      py::arg( "other" ) )
     .def( "size", &image_t::size )
     .def( "width", &image_t::width )
     .def( "height", &image_t::height )
