@@ -197,4 +197,241 @@ format_image( const cv::Mat& src, cv::Mat& dst, rescale_option option,
   return scale;
 }
 
+// -----------------------------------------------------------------------------
+vital::detected_object_set_sptr
+scale_detections(
+  const vital::detected_object_set_sptr detections,
+  const windowed_region_prop& region_info,
+  double chip_edge_max_prob )
+{
+  // Apply first scale transformation
+  if( region_info.scale1 != 1.0 )
+  {
+    detections->scale( region_info.scale1 );
+  }
+
+  // Apply shift transformation
+  if( region_info.shiftx != 0 || region_info.shifty != 0 )
+  {
+    detections->shift( region_info.shiftx, region_info.shifty );
+  }
+
+  // Apply second scale transformation
+  if( region_info.scale2 != 1.0 )
+  {
+    detections->scale( region_info.scale2 );
+  }
+
+  const int dist = region_info.edge_filter;
+
+  // If no edge filtering, return detections as-is
+  if( dist < 0 )
+  {
+    return detections;
+  }
+
+  // Filter detections near edges
+  const cv::Rect& roi = region_info.original_roi;
+  std::vector< vital::detected_object_sptr > filtered_dets;
+
+  for( auto det : *detections )
+  {
+    if( !det )
+    {
+      continue;
+    }
+
+    // Check if detection is near an edge
+    if( ( roi.x > 0 && det->bounding_box().min_x() < roi.x + dist ) ||
+        ( roi.y > 0 && det->bounding_box().min_y() < roi.y + dist ) ||
+        ( !region_info.right_border && det->bounding_box().max_x() > roi.x + roi.width - dist ) ||
+        ( !region_info.bottom_border && det->bounding_box().max_y() > roi.y + roi.height - dist ) )
+    {
+      // If chip_edge_max_prob is disabled (<=0), skip edge detections
+      if( chip_edge_max_prob <= 0.0 )
+      {
+        continue;
+      }
+
+      // Clamp detection confidence to chip_edge_max_prob
+      if( det->confidence() > chip_edge_max_prob )
+      {
+        det->set_confidence( chip_edge_max_prob );
+      }
+
+      // Clamp detection type scores to chip_edge_max_prob
+      if( det->type() )
+      {
+        auto dot = det->type();
+        std::string top_class;
+        dot->get_most_likely( top_class );
+        double score = dot->score( top_class );
+
+        if( score > chip_edge_max_prob )
+        {
+          double scale = chip_edge_max_prob / score;
+
+          for( auto name : dot->class_names() )
+          {
+            dot->set_score( name, dot->score( name ) * scale );
+          }
+        }
+      }
+    }
+
+    filtered_dets.push_back( det );
+  }
+
+  return vital::detected_object_set_sptr(
+    new vital::detected_object_set( filtered_dets ) );
+}
+
+// -----------------------------------------------------------------------------
+void
+prepare_image_regions(
+  const cv::Mat& image,
+  const window_settings& settings,
+  std::vector< cv::Mat >& regions_to_process,
+  std::vector< windowed_region_prop >& region_properties )
+{
+  // Clear output vectors
+  regions_to_process.clear();
+  region_properties.clear();
+
+  // Determine the processing mode
+  rescale_option mode = settings.mode;
+
+  if( mode == ADAPTIVE )
+  {
+    if( ( image.rows * image.cols ) >= settings.chip_adaptive_thresh )
+    {
+      mode = CHIP_AND_ORIGINAL;
+    }
+    else if( settings.original_to_chip_size )
+    {
+      mode = MAINTAIN_AR;
+    }
+    else
+    {
+      mode = DISABLED;
+    }
+  }
+
+  // Resize image if enabled
+  cv::Mat resized_image;
+  double scale_factor = 1.0;
+
+  if( mode != DISABLED )
+  {
+    scale_factor = format_image( image, resized_image,
+      ( mode == ORIGINAL_AND_RESIZED ? SCALE : mode ),
+      settings.scale, settings.chip_width, settings.chip_height );
+  }
+  else
+  {
+    resized_image = image;
+  }
+
+  cv::Rect original_dims( 0, 0, image.cols, image.rows );
+
+  // Create regions based on mode
+  if( mode == ORIGINAL_AND_RESIZED )
+  {
+    cv::Mat scaled_original;
+
+    if( image.rows <= settings.chip_height && image.cols <= settings.chip_width )
+    {
+      regions_to_process.push_back( image );
+      region_properties.push_back( windowed_region_prop( original_dims, 1.0 ) );
+    }
+    else
+    {
+      if( ( image.rows * image.cols ) >= settings.chip_adaptive_thresh )
+      {
+        regions_to_process.push_back( resized_image );
+        region_properties.push_back( windowed_region_prop( original_dims, 1.0 / scale_factor ) );
+      }
+
+      double scaled_original_scale = scale_image_maintaining_ar( image,
+        scaled_original, settings.chip_width, settings.chip_height, settings.black_pad );
+
+      regions_to_process.push_back( scaled_original );
+      region_properties.push_back( windowed_region_prop( original_dims, 1.0 / scaled_original_scale ) );
+    }
+  }
+  else if( mode != CHIP && mode != CHIP_AND_ORIGINAL )
+  {
+    regions_to_process.push_back( resized_image );
+    region_properties.push_back( windowed_region_prop( original_dims, 1.0 / scale_factor ) );
+  }
+  else
+  {
+    // Chip up scaled image
+    for( int li = 0;
+         li < resized_image.cols - settings.chip_width + settings.chip_step_width;
+         li += settings.chip_step_width )
+    {
+      int ti = std::min( li + settings.chip_width, resized_image.cols );
+
+      for( int lj = 0;
+           lj < resized_image.rows - settings.chip_height + settings.chip_step_height;
+           lj += settings.chip_step_height )
+      {
+        int tj = std::min( lj + settings.chip_height, resized_image.rows );
+
+        if( tj-lj < 0 || ti-li < 0 )
+        {
+          continue;
+        }
+
+        cv::Rect resized_roi( li, lj, ti-li, tj-lj );
+        cv::Rect original_roi( li / scale_factor,
+                               lj / scale_factor,
+                               (ti-li) / scale_factor,
+                               (tj-lj) / scale_factor );
+
+        cv::Mat cropped_chip = resized_image( resized_roi );
+        cv::Mat scaled_crop;
+
+        double scaled_crop_scale = scale_image_maintaining_ar(
+          cropped_chip, scaled_crop, settings.chip_width, settings.chip_height,
+          settings.black_pad );
+
+        regions_to_process.push_back( scaled_crop );
+
+        region_properties.push_back(
+          windowed_region_prop( original_roi,
+            settings.chip_edge_filter,
+            ( li + settings.chip_step_width ) >=
+              ( resized_image.cols - settings.chip_width + settings.chip_step_width ),
+            ( lj + settings.chip_step_height ) >=
+              ( resized_image.rows - settings.chip_height + settings.chip_step_height ),
+            1.0 / scaled_crop_scale,
+            li, lj,
+            1.0 / scale_factor ) );
+      }
+    }
+
+    // Extract full sized image chip if enabled
+    if( mode == CHIP_AND_ORIGINAL )
+    {
+      cv::Mat scaled_original;
+
+      if( settings.original_to_chip_size )
+      {
+        double scaled_original_scale = scale_image_maintaining_ar( image,
+          scaled_original, settings.chip_width, settings.chip_height, settings.black_pad );
+
+        regions_to_process.push_back( scaled_original );
+        region_properties.push_back( windowed_region_prop( original_dims, 1.0 / scaled_original_scale ) );
+      }
+      else
+      {
+        regions_to_process.push_back( image );
+        region_properties.push_back( windowed_region_prop( original_dims, 1.0 ) );
+      }
+    }
+  }
+}
+
 } } } // end namespace

@@ -118,6 +118,19 @@ double
 format_image( const cv::Mat& src, cv::Mat& dst, rescale_option option,
               double scale_factor, int width, int height, bool pad = false );
 
+vital::detected_object_set_sptr
+scale_detections(
+  const vital::detected_object_set_sptr detections,
+  const windowed_region_prop& region_info,
+  double chip_edge_max_prob );
+
+void
+prepare_image_regions(
+  const cv::Mat& image,
+  const window_settings& settings,
+  std::vector< cv::Mat >& regions_to_process,
+  std::vector< windowed_region_prop >& region_properties );
+
 } } }
 
 #endif /* KWIVER_ARROWS_OCV_WINDOWED_UTILS */
