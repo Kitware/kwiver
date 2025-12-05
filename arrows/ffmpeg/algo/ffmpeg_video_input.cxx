@@ -2083,6 +2083,9 @@ ffmpeg_video_input::priv::open_video_state
   md.add< kv::VITAL_META_IMAGE_WIDTH >( frame->frame->width );
   md.add< kv::VITAL_META_IMAGE_HEIGHT >( frame->frame->height );
 
+  md.add< kv::VITAL_META_IMAGE_CORRUPT >(
+    frame->frame->flags & AV_FRAME_FLAG_CORRUPT );
+
   // Add frame rate
   if( frame_rate().num > 0 )
   {
