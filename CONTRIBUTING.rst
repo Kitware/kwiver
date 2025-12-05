@@ -133,3 +133,22 @@ grouped into a single executable for each class, group of cooperating classes
 follow the examples of other tests to integrate with the testing infrastructure
 automatically. In Python, name functions so that they start with ``test_`` and
 they will be picked up automatically.
+
+
+Releases
+========
+
+To release a new version:
+
+1. Tag the release commit and push::
+
+     git tag v2.1.2
+     git push origin v2.1.2
+
+2. CI automatically builds and uploads wheels to PyPI
+
+3. Bump ``VERSION.txt`` to next patch version for development::
+
+     echo "2.1.3" > VERSION.txt
+     git commit -am "Bump version to 2.1.3 for development"
+     git push
