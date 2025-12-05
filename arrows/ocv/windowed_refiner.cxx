@@ -56,7 +56,10 @@ namespace ocv {
 class windowed_refiner::priv
 {
 public:
-  priv() {}
+  priv()
+    : m_process_boundary_dets( false )
+    , m_overlapping_proc_once( true )
+  {}
 
   ~priv() {}
 
@@ -102,7 +105,7 @@ windowed_refiner
   config->set_value( "process_boundary_dets", d->m_process_boundary_dets,
     "Pass through detections touching tile boundaries unmodified in refiner" );
   config->set_value( "overlapping_proc_once", d->m_overlapping_proc_once,
-    "Only refine each detection when it overlaps multiple tiles in refiner" );
+    "Only refine each detection once if it appears in multiple tiles" );
 
   vital::algo::refine_detections::get_nested_algo_configuration(
     "refiner", config, d->m_refiner );
@@ -172,7 +175,6 @@ windowed_refiner
 
   prepare_image_regions( cv_image, d->m_settings, regions_to_process, region_properties );
 
-  // Run refiner
   vital::detected_object_set_sptr refined_detections =
     std::make_shared< vital::detected_object_set >();
 
@@ -185,8 +187,9 @@ windowed_refiner
     // Get mapping of original to scaled detections for this region
     std::vector< vital::detected_object_sptr > original_dets;
     std::vector< vital::detected_object_sptr > scaled_dets;
-    scale_detections_to_region_with_mapping( detections, region_properties[i],
-      original_dets, scaled_dets );
+
+    scale_detections_to_region_with_mapping( detections,
+      region_properties[i], original_dets, scaled_dets );
 
     // Skip empty regions if there are no detections
     if( original_dets.empty() )
