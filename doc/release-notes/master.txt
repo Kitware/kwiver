@@ -68,6 +68,10 @@ Arrows: GDAL
 
 * Prevented segfault when saving image with null metadata.
 
+Arrows: OCV
+
+* Prevented crash when estimate_homography produces an empty matrix.
+
 CMake
 
 * Fixed Cygwin detection in Python utilities.

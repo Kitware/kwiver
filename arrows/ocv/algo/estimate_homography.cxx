@@ -61,6 +61,12 @@ estimate_homography
     OPENCV_METHOD_RANSAC,
     inlier_scale,
     inliers_mat );
+
+  if( H.empty() )
+  {
+    return nullptr;
+  }
+
   inliers.resize( inliers_mat.rows );
   for( unsigned i = 0; i < inliers.size(); ++i )
   {
