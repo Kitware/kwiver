@@ -52,7 +52,7 @@ window_settings
   , chip_edge_max_prob( -1.0 )
   , chip_adaptive_thresh( 2000000 )
   , batch_size( 1 )
-  , min_detection_dim( 2 )
+  , min_detection_dim( 1 )
   , original_to_chip_size( false )
   , black_pad( false )
 {}
