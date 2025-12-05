@@ -202,9 +202,9 @@ function (kwiver_discover_gtests MODULE NAME)
   endif()
   list(APPEND _LIBRARIES GTest::GTest)
 
-  set(EXTRA_ARGS TEST_PREFIX ${MODULE}:)
+  set(EXTRA_ARGS TEST_PREFIX ${MODULE}: DISCOVERY_TIMEOUT 60)
   if (_ARGUMENTS)
-    list(APPEND EXTRA_ARGS EXTRA_ARGS ${_ARGUMENTS} DISCOVERY_TIMEOUT 60)
+    list(APPEND EXTRA_ARGS EXTRA_ARGS ${_ARGUMENTS})
   endif()
 
   kwiver_build_test(${MODULE}-${NAME} _LIBRARIES ${_SOURCES})
