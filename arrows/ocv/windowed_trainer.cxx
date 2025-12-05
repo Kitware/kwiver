@@ -66,7 +66,7 @@ public:
     , m_chip_subdirectory( "cached_chips" )
     , m_chip_format( "png" )
     , m_skip_format( false )
-    , m_mode( "disabled" )
+    , m_mode( DISABLED )
     , m_scale( 1.0 )
     , m_chip_width( 1000 )
     , m_chip_height( 1000 )
@@ -99,7 +99,7 @@ public:
   std::string m_chip_subdirectory;
   std::string m_chip_format;
   bool m_skip_format;
-  std::string m_mode;
+  rescale_option m_mode;
   double m_scale;
   int m_chip_width;
   int m_chip_height;
@@ -131,7 +131,7 @@ public:
   void format_image_from_memory(
     const cv::Mat& image,
     vital::detected_object_set_sptr groundtruth,
-    const std::string format_method,
+    const rescale_option format_method,
     std::vector< std::string >& formatted_names,
     std::vector< vital::detected_object_set_sptr >& formatted_truth );
 
@@ -185,9 +185,10 @@ windowed_trainer
   config->set_value( "skip_format", d->m_skip_format,
     "Skip file formatting, assume that the train_directory is pre-populated "
     "with all files required for model training." );
-  config->set_value( "mode", d->m_mode,
+  rescale_option_converter conv;
+  config->set_value( "mode", conv.to_string( d->m_mode ),
     "Pre-processing resize option, can be: disabled, maintain_ar, scale, "
-    "chip, or chip_and_original." );
+    "chip, chip_and_original, original_and_resized, or adaptive." );
   config->set_value( "scale", d->m_scale,
     "Image scaling factor used when mode is scale or chip." );
   config->set_value( "chip_height", d->m_chip_height,
@@ -262,7 +263,8 @@ windowed_trainer
   this->d->m_train_directory = config->get_value< std::string >( "train_directory" );
   this->d->m_chip_format = config->get_value< std::string >( "chip_format" );
   this->d->m_skip_format = config->get_value< bool >( "skip_format" );
-  this->d->m_mode = config->get_value< std::string >( "mode" );
+  rescale_option_converter conv;
+  this->d->m_mode = conv.from_string( config->get_value< std::string >( "mode" ) );
   this->d->m_scale = config->get_value< double >( "scale" );
   this->d->m_chip_width = config->get_value< int >( "chip_width" );
   this->d->m_chip_height = config->get_value< int >( "chip_height" );
@@ -504,7 +506,7 @@ windowed_trainer::priv
 
     const std::string image_fn = image_names[fid];
 
-    if( m_mode == "disabled" && !m_always_write_image && !m_ensure_standard )
+    if( m_mode == DISABLED && !m_always_write_image && !m_ensure_standard )
     {
       formatted_names.push_back( image_fn );
       formatted_truth.push_back( groundtruth[fid] );
@@ -517,7 +519,7 @@ windowed_trainer::priv
     cv::Mat original_image;
     vital::detected_object_set_sptr filtered_truth;
 
-    std::string format_mode = m_mode;
+    rescale_option format_mode = m_mode;
     std::string ext = image_fn.substr( image_fn.find_last_of( "." ) + 1 );
 
     try
@@ -539,7 +541,7 @@ windowed_trainer::priv
     }
 
     // Early exit don't need to read all images every iteration
-    if( format_mode == "adaptive" )
+    if( format_mode == ADAPTIVE )
     {
       if( ( original_image.rows * original_image.cols ) < m_chip_adaptive_thresh )
       {
@@ -551,7 +553,7 @@ windowed_trainer::priv
               ( original_image.channels() != 3 ||
                !( ext == "jpg" || ext == "png" || ext == "jpeg" ) ) ) )
         {
-          format_mode = "maintain_ar";
+          format_mode = MAINTAIN_AR;
         }
         else
         {
@@ -565,10 +567,10 @@ windowed_trainer::priv
       }
       else
       {
-        format_mode = "chip_and_original";
+        format_mode = CHIP_AND_ORIGINAL;
       }
     }
-    else if( format_mode == "original_and_resized" )
+    else if( format_mode == ORIGINAL_AND_RESIZED )
     {
       if( original_image.rows <= m_chip_height &&
           original_image.cols <= m_chip_width )
@@ -581,7 +583,7 @@ windowed_trainer::priv
         continue;
       }
 
-      format_mode = "maintain_ar";
+      format_mode = MAINTAIN_AR;
 
       if( ( original_image.rows * original_image.cols ) >= m_chip_adaptive_thresh )
       {
@@ -605,7 +607,7 @@ windowed_trainer::priv
 ::format_image_from_memory(
   const cv::Mat& image,
   vital::detected_object_set_sptr groundtruth,
-  const std::string format_method,
+  const rescale_option format_method,
   std::vector< std::string >& formatted_names,
   std::vector< vital::detected_object_set_sptr >& formatted_truth )
 {
@@ -615,7 +617,7 @@ windowed_trainer::priv
 
   double resized_scale = 1.0;
 
-  if( format_method != "disabled" )
+  if( format_method != DISABLED )
   {
     resized_scale = format_image( image, resized_image,
       format_method, m_scale, m_chip_width, m_chip_height, m_black_pad );
@@ -628,7 +630,7 @@ windowed_trainer::priv
     scaled_groundtruth = groundtruth;
   }
 
-  if( format_method != "chip" && format_method != "chip_and_original" )
+  if( format_method != CHIP && format_method != CHIP_AND_ORIGINAL )
   {
     vital::bounding_box_d roi_box( 0, 0, resized_image.cols, resized_image.rows );
 
@@ -708,7 +710,7 @@ windowed_trainer::priv
     }
 
     // Process full sized image if enabled
-    if( format_method == "chip_and_original" )
+    if( format_method == CHIP_AND_ORIGINAL )
     {
       cv::Mat scaled_original;
 
