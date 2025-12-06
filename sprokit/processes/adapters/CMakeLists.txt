@@ -12,6 +12,7 @@ set( lib_sources
 
   embedded_pipeline.cxx
   embedded_pipeline_extension.cxx
+  subprocess_embedded_pipeline.cxx
 
   adapter_base.h           adapter_base.cxx
   input_adapter_process.h  input_adapter_process.cxx
@@ -25,6 +26,7 @@ set( public_headers
   output_adapter.h
   embedded_pipeline.h
   embedded_pipeline_extension.h
+  subprocess_embedded_pipeline.h
   )
 
 
@@ -82,6 +84,21 @@ kwiver_add_plugin( kwiver_epx_test
   PRIVATE         kwiver_adapter
                   vital_config
 )
+
+###
+# Pipeline worker executable for subprocess embedded pipelines
+kwiver_add_executable( kwiver_pipeline_worker
+  kwiver_pipeline_worker.cxx
+  )
+
+target_link_libraries( kwiver_pipeline_worker
+  PRIVATE
+    kwiver_adapter
+    sprokit_pipeline
+    vital
+    vital_logger
+    vital_vpm
+  )
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )
