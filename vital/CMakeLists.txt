@@ -85,6 +85,7 @@ set( vital_public_headers
   io/camera_from_metadata.h
   io/camera_io.h
   io/camera_map_io.h
+  io/camera_rig_io.h
   io/eigen_io.h
   io/landmark_map_io.h
   io/mesh_io.h
@@ -179,6 +180,7 @@ set( vital_sources
   io/camera_from_metadata.cxx
   io/camera_io.cxx
   io/camera_map_io.cxx
+  io/camera_rig_io.cxx
   io/landmark_map_io.cxx
   io/mesh_io.cxx
   io/metadata_io.cxx
