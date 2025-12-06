@@ -53,7 +53,8 @@ set( ocv_headers_public
   split_image_horizontally.h
   track_features_klt.h
   windowed_detector.h
-  windowed_detector_resize.h
+  windowed_refiner.h
+  windowed_utils.h
   windowed_trainer.h
   )
 kwiver_install_headers(
@@ -117,7 +118,8 @@ set( ocv_sources
   split_image_horizontally.cxx
   track_features_klt.cxx
   windowed_detector.cxx
-  windowed_detector_resize.cxx
+  windowed_refiner.cxx
+  windowed_utils.cxx
   windowed_trainer.cxx
   )
 

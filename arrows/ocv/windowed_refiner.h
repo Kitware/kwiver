@@ -28,28 +28,52 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KWIVER_ARROWS_OCV_WINDOWED_RESIZE
-#define KWIVER_ARROWS_OCV_WINDOWED_RESIZE
+#ifndef KWIVER_ARROWS_OCV_WINDOWED_REFINER
+#define KWIVER_ARROWS_OCV_WINDOWED_REFINER
 
 
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
-#include <opencv2/core/core.hpp>
-
-#include <vital/algo/image_object_detector.h>
+#include <vital/algo/refine_detections.h>
 
 namespace kwiver {
 namespace arrows {
 namespace ocv {
 
-double
-scale_image_maintaining_ar( const cv::Mat& src, cv::Mat& dst,
-                            int width, int height, bool pad = false );
+// -----------------------------------------------------------------------------
+/**
+ * @brief Window an arbitrary detection refiner over an image
+ *
+ * This process applies a detection refinement algorithm across multiple
+ * windowed regions of an image, scaling input detections to each region.
+ */
+class KWIVER_ALGO_OCV_EXPORT windowed_refiner
+  : public vital::algorithm_impl< windowed_refiner,
+      vital::algo::refine_detections >
+{
+public:
 
-double
-format_image( const cv::Mat& src, cv::Mat& dst, std::string option,
-              double scale_factor, int width, int height, bool pad = false );
+  PLUGIN_INFO( "ocv_windowed_refiner",
+               "Window some other arbitrary refiner across the image" )
+
+  windowed_refiner();
+  virtual ~windowed_refiner();
+
+  virtual vital::config_block_sptr get_configuration() const;
+
+  virtual void set_configuration( vital::config_block_sptr config );
+  virtual bool check_configuration( vital::config_block_sptr config ) const;
+
+  virtual vital::detected_object_set_sptr refine(
+    vital::image_container_sptr image_data,
+    vital::detected_object_set_sptr detections ) const;
+
+private:
+
+  class priv;
+  const std::unique_ptr< priv > d;
+};
 
 } } }
 
-#endif /* KWIVER_ARROWS_OCV_WINDOWED_DETECTOR */
+#endif /* KWIVER_ARROWS_OCV_WINDOWED_REFINER */
