@@ -4,6 +4,10 @@
 
 #include "merge_detections_suppress_in_regions.h"
 
+#include <cctype>
+#include <string>
+#include <algorithm>
+
 namespace kwiver {
 namespace arrows {
 namespace core {
@@ -19,7 +23,8 @@ public:
     borderline_class( "" ),
     borderline_scale_factor( 0.5 ),
     min_overlap( 0.5 ),
-    output_region_classes( true )
+    output_region_classes( true ),
+    case_sensitive( false )
   {}
 
   /// Destructor
@@ -31,7 +36,29 @@ public:
   double borderline_scale_factor;
   double min_overlap;
   bool output_region_classes;
+  bool case_sensitive;
+
+  /// Functions
+  bool compare_classes( const std::string& c1, const std::string& c2 );
 };
+
+
+/// Helper Function
+bool
+merge_detections_suppress_in_regions::priv
+::compare_classes( const std::string& c1, const std::string& c2 )
+{
+  if( case_sensitive )
+  {
+    return c1 == c2;
+  }
+
+  return std::equal( c1.begin(), c1.end(), c2.begin(), c2.end(),
+    []( const unsigned char& i, const unsigned char& j )
+    {
+      return std::tolower( i ) == std::tolower( j );
+    } );
+}
 
 
 /// Constructor
@@ -73,7 +100,10 @@ merge_detections_suppress_in_regions
     "it's discarded or reduced. Range [0.0,1.0]." );
 
   config->set_value( "output_region_classes", d->output_region_classes,
-    "Add suppression and borderline classes to output" );
+    "Add suppression and borderline classes to output." );
+
+  config->set_value( "case_sensitive", d->case_sensitive,
+    "Treat class names as case sensitive or insensitive." );
 
   return config;
 }
@@ -91,7 +121,8 @@ merge_detections_suppress_in_regions
   d->borderline_class = config->get_value< std::string >( "borderline_class" );
   d->borderline_scale_factor = config->get_value< double >( "borderline_scale_factor" );
   d->min_overlap = config->get_value< double >( "min_overlap" );
-  d->output_region_classes = config->get_value< double >( "output_region_classes" );
+  d->output_region_classes = config->get_value< bool >( "output_region_classes" );
+  d->case_sensitive = config->get_value< bool >( "case_sensitive" );
 }
 
 /// Check that the algorithm's currently configuration is valid
@@ -146,12 +177,13 @@ merge_detections_suppress_in_regions
             region->type()->get_most_likely( reg_class );
           }
 
-          if( d->suppression_class == reg_class ||
+          if( d->compare_classes( d->suppression_class, reg_class ) ||
               ( d->suppression_class.empty() && d->borderline_class.empty() ) )
           {
             should_add = false;
           }
-          else if( !d->borderline_class.empty() && d->borderline_class == reg_class )
+          else if( !d->borderline_class.empty() &&
+                    d->compare_classes( d->borderline_class, reg_class ) )
           {
             should_adjust = true;
           }

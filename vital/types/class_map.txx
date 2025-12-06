@@ -350,7 +350,9 @@ class_map< T >
 
   std::vector< std::string > output;
 
-  for( size_t i = 0; i < std::min( classes.size(), n ); ++i )
+  const size_t osize = ( n == 0 ? classes.size() : std::min( classes.size(), n ) );
+
+  for( size_t i = 0; i < osize; ++i )
   {
     output.push_back( *classes[i] );
   }
