@@ -6,7 +6,9 @@
 
 #include <vital/config/config_block.h>
 
-#include <boost/thread/thread.hpp>
+#include <atomic>
+#include <thread>
+#include <vector>
 
 /**
  * \file thread_pool_scheduler.cxx
@@ -25,9 +27,26 @@ class thread_pool_scheduler::priv
 
     size_t const num_threads;
 
-    bool complete;
+    std::atomic<bool> complete{false};
 
-    boost::thread_group thread_pool;
+    std::vector<std::thread> thread_pool;
+
+    void join_all()
+    {
+      for (auto& t : thread_pool)
+      {
+        if (t.joinable())
+        {
+          t.join();
+        }
+      }
+      thread_pool.clear();
+    }
+
+    void request_stop()
+    {
+      complete = true;
+    }
 
     static kwiver::vital::config_block_key_t const config_num_threads;
 };
@@ -39,7 +58,7 @@ thread_pool_scheduler
   : scheduler(pipe, config)
   , d()
 {
-  unsigned const hardware_concurrency = boost::thread::hardware_concurrency();
+  unsigned const hardware_concurrency = std::thread::hardware_concurrency();
   size_t const num_threads = config->get_value<size_t>(priv::config_num_threads, hardware_concurrency - 1);
 
   d.reset(new priv(num_threads));
@@ -69,7 +88,7 @@ void
 thread_pool_scheduler
 ::_wait()
 {
-  d->thread_pool.join_all();
+  d->join_all();
 }
 
 void
@@ -90,8 +109,7 @@ void
 thread_pool_scheduler
 ::_stop()
 {
-  d->complete = true;
-  d->thread_pool.interrupt_all();
+  d->request_stop();
 }
 
 thread_pool_scheduler::priv
@@ -100,6 +118,7 @@ thread_pool_scheduler::priv
   , complete(false)
   , thread_pool()
 {
+  thread_pool.reserve(num_threads_);
 }
 
 thread_pool_scheduler::priv
