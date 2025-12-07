@@ -10,7 +10,6 @@
 #include "types.h"
 
 #include <vital/any.h>
-#include <boost/operators.hpp>
 
 #include <string>
 
@@ -30,7 +29,6 @@ namespace sprokit {
  * \ingroup base_classes
  */
 class SPROKIT_PIPELINE_EXPORT datum
-  : boost::equality_comparable<sprokit::datum>
 {
   public:
     /// Information about an error that occurred within a process.
@@ -148,6 +146,15 @@ class SPROKIT_PIPELINE_EXPORT datum
      * \returns True if \p dat and \c *this definitely have the same value, false otherwise.
      */
     bool operator == (datum const& dat) const;
+
+    /**
+     * \brief Compare two data for inequality.
+     *
+     * \param dat The datum to compare to.
+     *
+     * \returns True if \p dat and \c *this definitely have different values, false otherwise.
+     */
+    bool operator != (datum const& dat) const;
 
   private:
     SPROKIT_PIPELINE_NO_EXPORT datum(type_t ty);
