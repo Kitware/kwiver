@@ -11,8 +11,7 @@
 #include <vital/algo/read_object_track_set.h>
 #include <vital/algo/read_track_descriptor_set.h>
 
-#include <boost/filesystem.hpp>
-
+#include <filesystem>
 #include <tuple>
 
 namespace kwiver {
@@ -489,16 +488,14 @@ void perform_query_process::priv
   // List all files to check
   std::vector< std::string > basenames;
 
-  boost::filesystem::path dir( database_folder );
+  std::filesystem::path dir( database_folder );
 
-  for( boost::filesystem::directory_iterator file_iter( dir );
-       file_iter != boost::filesystem::directory_iterator();
-       ++file_iter )
+  for( auto const& entry : std::filesystem::directory_iterator( dir ) )
   {
-    if( boost::filesystem::is_regular_file( *file_iter ) &&
-        file_iter->path().extension().string() == index_postfix )
+    if( std::filesystem::is_regular_file( entry ) &&
+        entry.path().extension().string() == index_postfix )
     {
-      basenames.push_back( file_iter->path().stem().string() );
+      basenames.push_back( entry.path().stem().string() );
     }
   }
 

@@ -5,9 +5,8 @@
 #ifndef SPROKIT_TEST_TEST_COMMON_H
 #define SPROKIT_TEST_TEST_COMMON_H
 
-#include <boost/function.hpp>
-
 #include <exception>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <string>
@@ -61,20 +60,20 @@ typedef std::string testname_t;
     }                                       \
   } while (false)
 
-#define DECLARE_TEST_MAP()                                    \
-  namespace                                                   \
-  {                                                           \
-    typedef boost::function<void TEST_ARGS> test_function_t;  \
-    typedef std::map<testname_t, test_function_t> test_map_t; \
-  }                                                           \
-  test_map_t __all_tests;                                     \
-  struct __add_test                                           \
-  {                                                           \
-    __add_test(testname_t const& name,                        \
-               test_function_t const& func)                   \
-    {                                                         \
-      __all_tests[name] = func;                               \
-    }                                                         \
+#define DECLARE_TEST_MAP()                                     \
+  namespace                                                    \
+  {                                                            \
+    typedef std::function<void TEST_ARGS> test_function_t;     \
+    typedef std::map<testname_t, test_function_t> test_map_t;  \
+  }                                                            \
+  test_map_t __all_tests;                                      \
+  struct __add_test                                            \
+  {                                                            \
+    __add_test(testname_t const& name,                         \
+               test_function_t const& func)                    \
+    {                                                          \
+      __all_tests[name] = func;                                \
+    }                                                          \
   }                                                           \
 
 #define TEST_PROPERTY(property, value, ...)

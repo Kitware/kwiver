@@ -17,7 +17,7 @@
 
 #include <sprokit/pipeline/process_exception.h>
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace kwiver {
 
@@ -127,7 +127,7 @@ handle_descriptor_request_process
 
   if( request )
   {
-    boost::filesystem::path p( request->data_location() );
+    std::filesystem::path p( request->data_location() );
     filename = p.stem().string();
     stream_id = filename;
   }
