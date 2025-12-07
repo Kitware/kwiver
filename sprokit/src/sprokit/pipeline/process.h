@@ -15,18 +15,7 @@
 #include <vital/config/config_difference.h>
 #include <vital/logger/logger.h>
 #include <vital/plugin_management/plugin_info.h>
-
-#ifdef WIN32
-#pragma warning (push)
-#pragma warning (disable : 4146)
-#pragma warning (disable : 4244)
-#pragma warning (disable : 4267)
-#endif
-
-#include <boost/rational.hpp>
-#ifdef WIN32
-#pragma warning (pop)
-#endif
+#include <vital/util/rational.h>
 
 #include <set>
 #include <string>
@@ -137,7 +126,7 @@ class SPROKIT_PIPELINE_EXPORT process
     /// out a global multiplier for all process the same anyways
     /// (modulo overflowing the uint64_t stamp counter which I hope
     /// isn't common).
-    typedef boost::rational<frequency_component_t> port_frequency_t;
+    typedef kwiver::vital::rational<frequency_component_t> port_frequency_t;
 
     /// The type for a flag on a port.
     ///\todo Add descriptions of predefined port flags.

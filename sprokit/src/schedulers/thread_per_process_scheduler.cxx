@@ -12,12 +12,13 @@
 #include <sprokit/pipeline/scheduler_exception.h>
 #include <sprokit/pipeline/utils.h>
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/thread.hpp>
-
+#include <atomic>
 #include <memory>
+#include <mutex>
+#include <shared_mutex>
 #include <sstream>
+#include <thread>
+#include <vector>
 
 /**
  * \file thread_per_process_scheduler.cxx
@@ -36,12 +37,35 @@ class thread_per_process_scheduler::priv
 
     void run_process(process_t const& process);
 
-    std::unique_ptr<boost::thread_group> process_threads;
+    std::vector<std::thread> process_threads;
+    std::atomic<bool> m_stop_requested{false};
 
-    typedef boost::shared_mutex mutex_t;
-    typedef boost::shared_lock<mutex_t> shared_lock_t;
+    typedef std::shared_mutex mutex_t;
+    typedef std::shared_lock<mutex_t> shared_lock_t;
 
     mutable mutex_t m_pause_mutex;
+
+    void join_all()
+    {
+      for (auto& t : process_threads)
+      {
+        if (t.joinable())
+        {
+          t.join();
+        }
+      }
+      process_threads.clear();
+    }
+
+    void request_stop()
+    {
+      m_stop_requested = true;
+    }
+
+    bool stop_requested() const
+    {
+      return m_stop_requested;
+    }
 };
 
 // ------------------------------------------------------------------
@@ -102,13 +126,14 @@ thread_per_process_scheduler
   pipeline_t const p = pipeline();
   process::names_t const names = p->process_names();
 
-  d->process_threads.reset(new boost::thread_group);
+  d->m_stop_requested = false;
+  d->process_threads.clear();
 
   for (process::name_t const& name : names)
   {
     process_t const process = pipeline()->process_by_name(name);
 
-    d->process_threads->create_thread(std::bind(&priv::run_process, d.get(), process));
+    d->process_threads.emplace_back(std::bind(&priv::run_process, d.get(), process));
   }
 }
 
@@ -117,7 +142,7 @@ void
 thread_per_process_scheduler
 ::_wait()
 {
-  d->process_threads->join_all();
+  d->join_all();
 }
 
 // ------------------------------------------------------------------
@@ -141,7 +166,7 @@ void
 thread_per_process_scheduler
 ::_stop()
 {
-  d->process_threads->interrupt_all();
+  d->request_stop();
 }
 
 // ============================================================================
@@ -187,9 +212,11 @@ thread_per_process_scheduler::priv
 
     (void)lock;
 
-    // This call allows an exception to be thrown (boost::thread_interrupted)
-    // Since this exception is not caught, it causes the thread to terminate.
-    boost::this_thread::interruption_point();
+    // Check if stop was requested
+    if (stop_requested())
+    {
+      break;
+    }
 
     process->step();
 

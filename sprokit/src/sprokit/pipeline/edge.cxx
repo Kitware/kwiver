@@ -10,13 +10,11 @@
 
 #include <vital/logger/logger.h>
 
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-
+#include <condition_variable>
 #include <deque>
+#include <functional>
+#include <mutex>
+#include <shared_mutex>
 
 /**
  * \file edge.cxx
@@ -66,6 +64,14 @@ edge_datum_t
           pointers_equal(stamp, rhs.stamp));
 }
 
+// ------------------------------------------------------------------
+bool
+edge_datum_t
+::operator != (edge_datum_t const& rhs) const
+{
+  return !(*this == rhs);
+}
+
 // This config parameter is used internally to signal that the edge
 // has no dependency. See process::flag_input_nodep for additional
 // description.
@@ -108,14 +114,12 @@ class edge::priv
 
     edge_queue_t q;
 
-    boost::condition_variable_any cond_have_data;
-    boost::condition_variable_any cond_have_space;
+    std::condition_variable_any cond_have_data;
+    std::condition_variable_any cond_have_space;
 
-    typedef boost::shared_mutex mutex_t;
-    typedef boost::shared_lock<mutex_t> shared_lock_t;
-    typedef boost::upgrade_lock<mutex_t> upgrade_lock_t;
-    typedef boost::unique_lock<mutex_t> unique_lock_t;
-    typedef boost::upgrade_to_unique_lock<mutex_t> upgrade_to_unique_lock_t;
+    typedef std::shared_mutex mutex_t;
+    typedef std::shared_lock<mutex_t> shared_lock_t;
+    typedef std::unique_lock<mutex_t> unique_lock_t;
 
     mutable mutex_t mutex;
     mutable mutex_t complete_mutex;
@@ -231,8 +235,7 @@ edge
 
   priv::shared_lock_t lock(d->mutex);
 
-  d->cond_have_data.wait(lock,
-      boost::bind(&priv::edge_queue_t::size, &d->q) > idx);
+  d->cond_have_data.wait(lock, [this, idx]() { return d->q.size() > idx; });
 
   return d->q.at(idx);
 }
@@ -245,18 +248,11 @@ edge
   d->complete_check();
 
   {
-    priv::upgrade_lock_t lock(d->mutex);
+    priv::unique_lock_t lock(d->mutex);
 
-    d->cond_have_data.wait(lock,
-        !boost::bind(&priv::edge_queue_t::empty, &d->q));
+    d->cond_have_data.wait(lock, [this]() { return !d->q.empty(); });
 
-    {
-      priv::upgrade_to_unique_lock_t const write_lock(lock);
-
-      (void)write_lock;
-
-      d->q.pop_front();
-    }
+    d->q.pop_front();
   }
 
   d->cond_have_space.notify_one();
@@ -423,8 +419,8 @@ edge::priv
   }
 
   {
-    upgrade_lock_t lock(mutex);
-    boost::function<bool ()> const predicate = !boost::bind(&sprokit::edge::priv::full_of_data, this);
+    unique_lock_t lock(mutex);
+    auto predicate = [this]() { return !full_of_data(); };
 
     if (duration)
     {
@@ -439,13 +435,7 @@ edge::priv
       cond_have_space.wait(lock, predicate);
     }
 
-    {
-      upgrade_to_unique_lock_t const write_lock(lock);
-
-      (void)write_lock;
-
-      q.push_back(datum);
-    }
+    q.push_back(datum);
   }
 
   cond_have_data.notify_one();
@@ -463,8 +453,8 @@ edge::priv
   edge_datum_t dat;
 
   {
-    upgrade_lock_t lock(mutex);
-    boost::function<bool ()> const predicate = !boost::bind(&edge_queue_t::empty, &q);
+    unique_lock_t lock(mutex);
+    auto predicate = [this]() { return !q.empty(); };
 
     if (duration)
     {
@@ -479,14 +469,7 @@ edge::priv
     }
 
     dat = q.front();
-
-    {
-      upgrade_to_unique_lock_t const write_lock(lock);
-
-      (void)write_lock;
-
-      q.pop_front();
-    }
+    q.pop_front();
   }
 
   cond_have_space.notify_one();

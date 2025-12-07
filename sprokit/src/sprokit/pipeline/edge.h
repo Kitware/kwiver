@@ -12,17 +12,7 @@
 
 #include "types.h"
 
-#ifdef WIN32
-#pragma warning (push)
-#pragma warning (disable : 4244)
-#pragma warning (disable : 4267)
-#endif
-#include <boost/chrono/system_clocks.hpp>
-#include <boost/operators.hpp>
-#ifdef WIN32
-#pragma warning (pop)
-#endif
-
+#include <chrono>
 #include <optional>
 #include <vector>
 
@@ -40,7 +30,6 @@ namespace sprokit {
  * \brief The packet of data that actually exists within edges.
  */
 class SPROKIT_PIPELINE_EXPORT edge_datum_t
-  : private boost::equality_comparable< edge_datum_t >
 {
 public:
   /**
@@ -69,6 +58,15 @@ public:
    * \returns True if \p a and \p b are the same, false otherwise.
    */
   bool operator==( edge_datum_t const& rhs ) const;
+
+  /**
+   * \brief Compare two \ref edge_datum_t packets for inequality.
+   *
+   * \param rhs The second packet.
+   *
+   * \returns True if \p a and \p b are different, false otherwise.
+   */
+  bool operator!=( edge_datum_t const& rhs ) const;
 
   /// The datum on the edge.
   datum_t datum;
@@ -227,7 +225,7 @@ public:
    */
   void pop_datum();
 
-  typedef boost::chrono::high_resolution_clock clock_t;
+  typedef std::chrono::steady_clock clock_t;
   typedef clock_t::duration duration_t;
 
   /**
@@ -320,5 +318,4 @@ private:
 
 }
 
-template struct boost::equality_comparable< sprokit::edge_datum_t >;
 #endif // SPROKIT_PIPELINE_EDGE_H
