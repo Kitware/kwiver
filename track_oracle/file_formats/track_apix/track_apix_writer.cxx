@@ -3,7 +3,9 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 #include "track_apix_writer.h"
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
+#include <cmath>
+#include <ctime>
 #include <fstream>
 #include <geographic/geo_coords.h>
 #include <iostream>
@@ -17,7 +19,6 @@ using std::floor;
 using std::string;
 
 using kwiver::geographic::geo_coords;
-using namespace boost::posix_time;
 
 namespace  // anon
 {
@@ -145,37 +146,34 @@ reformat_time(
   int& utc_time_ms,
   string& time_string )
 {
-  long hours = static_cast< long >( floor( t_in_s / ( 60 * 60 ) ) );
-  long minutes = static_cast< long >( floor(
-    ( t_in_s - ( hours * 60 * 60 ) ) /
-    ( 60 ) ) );
-  long seconds = static_cast< long >( floor(
-    ( t_in_s -
-      ( ( ( hours * 60 ) + minutes ) *
-        60 ) ) ) );
-  long ms = static_cast< long >( floor(
-    ( t_in_s -
-      ( ( ( ( ( hours * 60 ) + minutes ) *
-            60 ) + seconds ) ) ) * 1000 ) );
-  time_duration duration( hours, minutes, seconds, 0 );
-  duration += milliseconds( ms );
+  // Convert seconds since epoch to time components
+  auto total_seconds = static_cast< long long >( floor( t_in_s ) );
+  int ms = static_cast< int >( floor( ( t_in_s - total_seconds ) * 1000 ) );
 
-  ptime frame_time( boost::gregorian::date( 1970, 1, 1 ), duration );
-  int time_of_day_ms =
-    static_cast< int >( frame_time.time_of_day().total_milliseconds() -
-                        ( frame_time.time_of_day().total_seconds() * 1000 ) );
+  // Use std::chrono to handle the time point
+  std::chrono::system_clock::time_point tp =
+    std::chrono::system_clock::from_time_t( static_cast< std::time_t >( total_seconds ) );
+
+  // Convert to time_t and then to tm structure
+  std::time_t time_val = std::chrono::system_clock::to_time_t( tp );
+  std::tm* tm_utc = std::gmtime( &time_val );
+
+  // Extract time of day components
+  int hours = tm_utc->tm_hour;
+  int minutes = tm_utc->tm_min;
+  int seconds = tm_utc->tm_sec;
 
   time_string = vul_sprintf(
     time_format_string.c_str(),
-    static_cast< short >( frame_time.date().year() ),
-    static_cast< short >( frame_time.date().month() ),
-    static_cast< short >( frame_time.date().day() ),
-    frame_time.time_of_day().hours(),
-    frame_time.time_of_day().minutes(),
-    frame_time.time_of_day().seconds(),
-    time_of_day_ms );
+    static_cast< short >( tm_utc->tm_year + 1900 ),
+    static_cast< short >( tm_utc->tm_mon + 1 ),
+    static_cast< short >( tm_utc->tm_mday ),
+    hours,
+    minutes,
+    seconds,
+    ms );
 
-  utc_time = duration.total_seconds();
+  utc_time = total_seconds;
   utc_time_ms = ms;
 }
 

@@ -245,7 +245,7 @@ public:
    *
    * \param duration The maximum amount of time to wait.
    *
-   * \returns The next datum available from the edge, or \c boost::none if the timeout was reached.
+   * \returns The next datum available from the edge, or \c std::nullopt if the timeout was reached.
    */
   std::optional< edge_datum_t > try_get_datum( duration_t const& duration );
 

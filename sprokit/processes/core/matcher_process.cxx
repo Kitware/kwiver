@@ -18,7 +18,7 @@
 
 #include <sprokit/pipeline/process_exception.h>
 
-#include <boost/iterator/counting_iterator.hpp>
+#include <numeric>
 
 namespace algo = kwiver::vital::algo;
 
@@ -185,10 +185,11 @@ matcher_process
       }
 
       // find the set of unmatched active track indices
+      std::vector< unsigned > all_indices( vf.size() );
+      std::iota( all_indices.begin(), all_indices.end(), 0u );
       std::vector< unsigned > unmatched;
       std::back_insert_iterator< std::vector< unsigned > > unmatched_insert_itr( unmatched );
-      std::set_difference( boost::counting_iterator< unsigned > ( 0 ),
-                           boost::counting_iterator< unsigned > ( static_cast< unsigned int > ( vf.size() ) ),
+      std::set_difference( all_indices.begin(), all_indices.end(),
                            matched.begin(), matched.end(),
                            unmatched_insert_itr );
 
