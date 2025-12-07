@@ -15,11 +15,12 @@
 
 #include <boost/graph/directed_graph.hpp>
 #include <boost/graph/topological_sort.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/thread.hpp>
 
+#include <atomic>
 #include <deque>
+#include <mutex>
+#include <shared_mutex>
+#include <thread>
 #include <iterator>
 #include <map>
 #include <queue>
@@ -43,10 +44,11 @@ class sync_scheduler::priv
 
     void run(pipeline_t const& pipe);
 
-    boost::thread thread;
+    std::thread thread;
+    std::atomic<bool> stop_requested{false};
 
-    typedef boost::shared_mutex mutex_t;
-    typedef boost::shared_lock<mutex_t> shared_lock_t;
+    typedef std::shared_mutex mutex_t;
+    typedef std::shared_lock<mutex_t> shared_lock_t;
 
     mutable mutex_t mut;
 };
@@ -112,7 +114,8 @@ void
 sync_scheduler
 ::_start()
 {
-  d->thread = boost::thread(std::bind(&priv::run, d.get(), pipeline()));
+  d->stop_requested = false;
+  d->thread = std::thread(&priv::run, d.get(), pipeline());
 }
 
 // ----------------------------------------------------------------------------
@@ -144,13 +147,14 @@ void
 sync_scheduler
 ::_stop()
 {
-  d->thread.interrupt();
+  d->stop_requested = true;
 }
 
 // ============================================================================
 sync_scheduler::priv
 ::priv()
   : thread()
+  , stop_requested(false)
   , mut()
 {
 }
@@ -197,7 +201,11 @@ sync_scheduler::priv
 
     (void)lock;
 
-    boost::this_thread::interruption_point();
+    // Check if stop was requested
+    if (stop_requested)
+    {
+      break;
+    }
 
     process_t proc = processes.front();
     processes.pop();
