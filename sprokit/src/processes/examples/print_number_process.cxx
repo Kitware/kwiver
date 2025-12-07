@@ -9,8 +9,7 @@
 #include <vital/config/config_block.h>
 #include <sprokit/pipeline/process_exception.h>
 
-#include <boost/filesystem/fstream.hpp>
-
+#include <fstream>
 #include <string>
 
 /**
@@ -32,7 +31,7 @@ class print_number_process::priv
 
     path_t const path;
 
-    boost::filesystem::ofstream fout;
+    std::ofstream fout;
 
     static kwiver::vital::config_block_key_t const config_path;
     static port_t const port_input;
@@ -81,7 +80,7 @@ print_number_process
   if (d->path.empty())
   {
     static std::string const reason = "The path given was empty";
-    kwiver::vital::config_block_value_t const value = d->path.string<kwiver::vital::config_block_value_t>();
+    kwiver::vital::config_block_value_t const value = d->path.string();
 
     VITAL_THROW( invalid_configuration_value_exception,
                  name(), priv::config_path, value, reason);
@@ -91,7 +90,7 @@ print_number_process
 
   if (!d->fout.good())
   {
-    std::string const file_path = d->path.string<std::string>();
+    std::string const file_path = d->path.string();
     std::string const reason = "Failed to open the path: " + file_path;
 
     VITAL_THROW( invalid_configuration_exception,

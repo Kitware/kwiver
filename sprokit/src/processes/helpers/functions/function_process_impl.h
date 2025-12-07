@@ -7,7 +7,7 @@
 
 #include "function_process.h"
 
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
 /**
  * \file function_process_impl.h
@@ -562,7 +562,7 @@ CLASS_NAME(name)                                                      \
                                                                       \
   oports(DECLARE_RESULT_VARS, LINES)                                  \
                                                                       \
-  boost::tie(oports(RESULT, ARGS)) = func(iports(IPORT_ARGS, ARGS));  \
+  std::tie(oports(RESULT, ARGS)) = func(iports(IPORT_ARGS, ARGS));  \
                                                                       \
   oports(PUSH_TO_OPORT, LINES)                                        \
                                                                       \
