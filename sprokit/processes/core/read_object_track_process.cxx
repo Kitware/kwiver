@@ -72,15 +72,15 @@ void read_object_track_process
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
 
   // validate configuration
-  if( ! algo::read_object_track_set::check_nested_algo_configuration_using_trait(
-          reader, algo_config ) )
+  if( ! check_nested_algo_configuration_using_trait(
+          reader, algo_config, d->m_reader ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
                  "Configuration check failed." );
   }
 
   // instantiate image reader and converter based on config type
-  algo::read_object_track_set::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     reader,
     algo_config,
     d->m_reader );

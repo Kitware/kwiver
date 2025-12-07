@@ -84,6 +84,19 @@ public:
   virtual sprokit::process_t create_object(kwiver::vital::config_block_sptr const& config) = 0;
 
   void copy_attributes( sprokit::process_t proc );
+
+  // Implement pure virtual methods from plugin_factory base class
+  // Sprokit processes use their own configuration mechanism, so these are stubs
+  kwiver::vital::pluggable_sptr from_config( kwiver::vital::config_block_sptr const cb ) const override
+  {
+    // Sprokit processes are not pluggable in the same way as vital algorithms
+    return nullptr;
+  }
+
+  void get_default_config( kwiver::vital::config_block& cb ) const override
+  {
+    // Sprokit processes configure themselves differently
+  }
 };
 
 // ----------------------------------------------------------------------------

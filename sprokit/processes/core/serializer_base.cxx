@@ -6,6 +6,8 @@
 
 #include <vital/util/hex_dump.h>
 #include <vital/config/config_block_formatter.h>
+#include <vital/algo/algorithm.txx>
+#include <vital/algo/data_serializer.h>
 
 #include <string>
 #include <sstream>
@@ -78,15 +80,13 @@ serializer_base
         LOG_TRACE( m_logger, "Creating algorithm for (config block):\n" << ss.str() << std::endl );
       }
 
-      vital::algorithm_sptr base_nested_algo;
-
       // create serialization algorithm
-      vital::algorithm::set_nested_algo_configuration( ser_algo_type, // data type name
-                                                       ser_algo_type, // config block name
-                                                       algo_config,
-                                                       base_nested_algo );
+      vital::algo::data_serializer_sptr serializer_algo;
+      vital::set_nested_algo_configuration( ser_algo_type, // config block name
+                                            algo_config,
+                                            serializer_algo );
 
-      elem_spec.m_serializer = std::dynamic_pointer_cast< vital::algo::data_serializer > ( base_nested_algo );
+      elem_spec.m_serializer = serializer_algo;
       if ( ! elem_spec.m_serializer )
       {
         std::stringstream ss;
@@ -96,9 +96,8 @@ serializer_base
         VITAL_THROW( sprokit::invalid_configuration_exception, m_proc.name(), ss.str() );
       }
 
-      if ( ! vital::algorithm::check_nested_algo_configuration( ser_algo_type,
-                                                                ser_algo_type,
-                                                                algo_config ) )
+      if ( ! vital::check_nested_algo_configuration< vital::algo::data_serializer >(
+               ser_algo_type, algo_config ) )
       {
         VITAL_THROW( sprokit::invalid_configuration_exception,
                      m_proc.name(), "Configuration check failed." );

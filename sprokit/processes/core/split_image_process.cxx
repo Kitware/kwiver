@@ -52,7 +52,7 @@ void split_image_process
 {
   kwiver::vital::config_block_sptr algo_config = get_config();
 
-  algo::split_image::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     split_image, algo_config, d->m_image_splitter );
 
   if( !d->m_image_splitter )
@@ -60,12 +60,12 @@ void split_image_process
     VITAL_THROW( sprokit::invalid_configuration_exception,
       name(), "Unable to create \"split_image\"" );
   }
-  algo::split_image::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     split_image, algo_config, d->m_image_splitter );
 
   // Check config so it will give run-time diagnostic of config problems
-  if( !algo::split_image::check_nested_algo_configuration_using_trait(
-        split_image, algo_config ) )
+  if( !check_nested_algo_configuration_using_trait(
+        split_image, algo_config, d->m_image_splitter ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
       "Configuration check failed." );

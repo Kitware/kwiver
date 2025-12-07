@@ -122,7 +122,7 @@ void close_loops_process
   kwiver::vital::config_block_sptr algo_config = get_config();
 
   // Instantiate the configured algorithm
-  algo::close_loops::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     close_loops,
     algo_config,
     d->m_loop_closer );
@@ -133,15 +133,15 @@ void close_loops_process
       "Unable to create close_loops" );
   }
 
-  algo::close_loops::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     close_loops,
     algo_config,
     d->m_loop_closer);
 
   //// Check config so it will give run-time diagnostic if any config problems
   // are found
-  if ( ! algo::close_loops::check_nested_algo_configuration_using_trait(
-         close_loops, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         close_loops, algo_config, d->m_loop_closer ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
       "Configuration check failed." );

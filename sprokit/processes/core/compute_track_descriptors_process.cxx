@@ -84,7 +84,7 @@ void compute_track_descriptors_process
 
   vital::config_block_sptr algo_config = get_config();
 
-  algo::compute_track_descriptors::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     computer,
     algo_config,
     d->m_computer );
@@ -95,14 +95,14 @@ void compute_track_descriptors_process
                  name(), "Unable to create compute_track_descriptors" );
   }
 
-  algo::compute_track_descriptors::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     computer,
     algo_config,
     d->m_computer );
 
   // Check config so it will give run-time diagnostic of config problems
-  if( !algo::compute_track_descriptors::check_nested_algo_configuration_using_trait(
-        computer, algo_config ) )
+  if( !check_nested_algo_configuration_using_trait(
+        computer, algo_config, d->m_computer ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception,
                  name(), "Configuration check failed." );

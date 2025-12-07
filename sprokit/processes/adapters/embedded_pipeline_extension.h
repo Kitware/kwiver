@@ -26,6 +26,8 @@ namespace kwiver {
 class KWIVER_ADAPTER_EXPORT embedded_pipeline_extension
 {
 public:
+  /// Interface name for plugin factory
+  static std::string interface_name() { return "embedded_pipeline_extension"; }
 
   /* @brief Context passed to loaded extension
    *
@@ -118,6 +120,53 @@ protected:
 using embedded_pipeline_extension_sptr = std::shared_ptr< embedded_pipeline_extension >;
 
 // ============================================================================
+/// Factory class for embedded pipeline extensions
+class KWIVER_ADAPTER_EXPORT epx_factory
+  : public kwiver::vital::plugin_factory
+{
+public:
+  epx_factory( const std::string& type,
+               const std::string& itype )
+    : plugin_factory( itype )
+  {
+    this->add_attribute( PLUGIN_NAME, type );
+  }
+
+  virtual ~epx_factory() = default;
+
+  virtual embedded_pipeline_extension_sptr create_object() = 0;
+
+  // Implement pure virtual methods from plugin_factory base class
+  kwiver::vital::pluggable_sptr from_config( kwiver::vital::config_block_sptr const ) const override
+  {
+    return nullptr;
+  }
+
+  void get_default_config( kwiver::vital::config_block& ) const override
+  {
+  }
+};
+
+// ============================================================================
+/// Templated factory for concrete EPX types
+template< typename T >
+class epx_factory_impl
+  : public epx_factory
+{
+public:
+  epx_factory_impl( const std::string& type,
+                    const std::string& itype )
+    : epx_factory( type, itype )
+  {
+  }
+
+  virtual embedded_pipeline_extension_sptr create_object() override
+  {
+    return std::make_shared< T >();
+  }
+};
+
+// ============================================================================
 /// Derived class to register Embedded Pipeline Extensions
 /**
  * Embedded Pipeline Extension Registrar
@@ -161,11 +210,11 @@ public:
   {
     using kvpf = kwiver::vital::plugin_factory;
 
-    kwiver::vital::plugin_factory* fact = new kwiver::vital::plugin_factory_0< epx_t >(
+    kwiver::vital::plugin_factory* fact = new epx_factory_impl< epx_t >(
+      epx_t::_plugin_name,
       typeid( kwiver::embedded_pipeline_extension ).name() );
 
-    fact->add_attribute( kvpf::PLUGIN_NAME,      epx_t::_plugin_name )
-      .add_attribute( kvpf::PLUGIN_DESCRIPTION,  epx_t::_plugin_description )
+    fact->add_attribute( kvpf::PLUGIN_DESCRIPTION,  epx_t::_plugin_description )
       .add_attribute( kvpf::PLUGIN_MODULE_NAME,  this->module_name() )
       .add_attribute( kvpf::PLUGIN_ORGANIZATION, this->organization() )
       .add_attribute( kwiver::vital::plugin_factory::PLUGIN_CATEGORY, "embedded-pipeline-extension" )

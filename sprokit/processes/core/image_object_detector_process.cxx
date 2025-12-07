@@ -50,12 +50,12 @@ _configure()
   vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::image_object_detector::check_nested_algo_configuration_using_trait( detector, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait( detector, algo_config, d->m_detector ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
-  vital::algo::image_object_detector::set_nested_algo_configuration_using_trait( detector, algo_config, d->m_detector );
+  set_nested_algo_configuration_using_trait( detector, algo_config, d->m_detector );
   if ( ! d->m_detector )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create detector" );
