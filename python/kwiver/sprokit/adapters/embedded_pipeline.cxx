@@ -55,26 +55,26 @@ PYBIND11_MODULE(embedded_pipeline, m)
         ksp::embedded_pipeline_trampoline> ep(m, "EmbeddedPipeline");
   ep.def(init<>())
   .def("build_pipeline", &ksp::build_pipeline,
-    call_guard<kwiver::vital::python::gil_scoped_release>(),
+    call_guard<pybind11::gil_scoped_release>(),
     arg("desc_file"),
     arg("def_dir") = "")
   .def("send", &kwiver::embedded_pipeline::send,
-    call_guard<kwiver::vital::python::gil_scoped_release>())
+    call_guard<pybind11::gil_scoped_release>())
   .def("send_end_of_input", &kwiver::embedded_pipeline::send_end_of_input,
-    call_guard<kwiver::vital::python::gil_scoped_release>())
+    call_guard<pybind11::gil_scoped_release>())
   .def("receive", &kwiver::embedded_pipeline::receive,
-    call_guard<kwiver::vital::python::gil_scoped_release>())
+    call_guard<pybind11::gil_scoped_release>())
   .def("full", &kwiver::embedded_pipeline::full,
-    call_guard<kwiver::vital::python::gil_scoped_release>())
+    call_guard<pybind11::gil_scoped_release>())
   .def("empty", &kwiver::embedded_pipeline::empty,
-    call_guard<kwiver::vital::python::gil_scoped_release>())
+    call_guard<pybind11::gil_scoped_release>())
   .def("at_end", &kwiver::embedded_pipeline::at_end)
   .def("start", &kwiver::embedded_pipeline::start,
-    call_guard<kwiver::vital::python::gil_scoped_release>())
+    call_guard<pybind11::gil_scoped_release>())
   .def("wait", &kwiver::embedded_pipeline::wait,
-    call_guard<kwiver::vital::python::gil_scoped_release>())
+    call_guard<pybind11::gil_scoped_release>())
   .def("stop", &kwiver::embedded_pipeline::stop,
-    call_guard<kwiver::vital::python::gil_scoped_release>())
+    call_guard<pybind11::gil_scoped_release>())
   .def("input_port_names", &kwiver::embedded_pipeline::input_port_names)
   .def("output_port_names", &kwiver::embedded_pipeline::output_port_names)
   .def("input_adapter_connected",
@@ -83,13 +83,13 @@ PYBIND11_MODULE(embedded_pipeline, m)
       &ksp::wrap_embedded_pipeline::output_adapter_connected)
   .def("connect_input_adapter",
       static_cast<bool (kwiver::embedded_pipeline::*)()>(&ksp::wrap_embedded_pipeline::connect_input_adapter),
-      call_guard<kwiver::vital::python::gil_scoped_release>())
+      call_guard<pybind11::gil_scoped_release>())
   .def("connect_output_adapter",
       static_cast<bool (kwiver::embedded_pipeline::*)()>(&ksp::wrap_embedded_pipeline::connect_output_adapter),
-      call_guard<kwiver::vital::python::gil_scoped_release>())
+      call_guard<pybind11::gil_scoped_release>())
   .def("update_config",
       static_cast<void (kwiver::embedded_pipeline::*)(kwiver::vital::config_block_sptr)>(&ksp::wrap_embedded_pipeline::update_config),
-      call_guard<kwiver::vital::python::gil_scoped_release>())
+      call_guard<pybind11::gil_scoped_release>())
   ;
   ep.doc() = R"(
         Python bindings for kwiver::embedded_pipeline
