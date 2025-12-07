@@ -26,7 +26,7 @@
 
 // -- DEBUG
 #if defined DEBUG
-#include <arrows/algorithms/ocv/image_container.h>
+#include <arrows/ocv/image_container.h>
 #include <opencv2/highgui/highgui.hpp>
 using namespace cv;
 #endif
@@ -111,17 +111,17 @@ void frame_list_process
 
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
 
-  algo::image_io::set_nested_algo_configuration_using_trait( image_reader, algo_config, d->m_image_reader);
+  set_nested_algo_configuration_using_trait( image_reader, algo_config, d->m_image_reader);
   if ( ! d->m_image_reader )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
              "Unable to create image_reader." );
   }
 
-  algo::image_io::get_nested_algo_configuration_using_trait( image_reader, algo_config, d->m_image_reader);
+  get_nested_algo_configuration_using_trait( image_reader, algo_config, d->m_image_reader);
 
   // instantiate image reader and converter based on config type
-  if ( ! algo::image_io::check_nested_algo_configuration_using_trait( image_reader, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait( image_reader, algo_config, d->m_image_reader ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
@@ -187,7 +187,7 @@ void frame_list_process
 
     // --- debug
 #if defined DEBUG
-    cv::Mat image = algorithms::ocv::image_container::vital_to_ocv( img_c->get_image() );
+    cv::Mat image = arrows::ocv::image_container::vital_to_ocv( img_c->get_image() );
     namedWindow( "Display window", cv::WINDOW_NORMAL );// Create a window for display.
     imshow( "Display window", image );                   // Show our image inside it.
 

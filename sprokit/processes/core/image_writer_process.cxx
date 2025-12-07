@@ -25,7 +25,7 @@
 
 // -- DEBUG
 #if defined DEBUG
-#include <arrows/algorithms/ocv/image_container.h>
+#include <arrows/ocv/image_container.h>
 #include <opencv2/highgui/highgui.hpp>
 using namespace cv;
 #endif
@@ -89,7 +89,7 @@ void image_writer_process
   // Get algo config entries
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
 
-  algo::image_io::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     image_writer,
     algo_config,
     d->m_image_writer);
@@ -100,9 +100,9 @@ void image_writer_process
   }
 
   // instantiate image reader and converter based on config type
-  if ( ! algo::image_io::check_nested_algo_configuration_using_trait(
+  if ( ! check_nested_algo_configuration_using_trait(
          image_writer,
-         algo_config ) )
+         algo_config, d->m_image_writer ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }

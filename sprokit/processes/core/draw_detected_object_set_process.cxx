@@ -78,13 +78,13 @@ void draw_detected_object_set_process
   auto algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::draw_detected_object_set::check_nested_algo_configuration_using_trait(
-         draw_algo, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         draw_algo, algo_config, d->m_algo ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
-  vital::algo::draw_detected_object_set::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     draw_algo,
     algo_config,
     d->m_algo );

@@ -128,7 +128,7 @@ void perform_query_process
 
   if( d->external_handler )
   {
-    algo::read_track_descriptor_set::set_nested_algo_configuration_using_trait(
+    set_nested_algo_configuration_using_trait(
       descriptor_reader,
       algo_config,
       d->descriptor_reader );
@@ -139,20 +139,21 @@ void perform_query_process
         name(), "Unable to create descriptor reader" );
     }
 
-    algo::read_track_descriptor_set::get_nested_algo_configuration_using_trait(
+    get_nested_algo_configuration_using_trait(
       descriptor_reader,
       algo_config,
       d->descriptor_reader );
 
-    if( !algo::read_track_descriptor_set::check_nested_algo_configuration_using_trait(
+    if( !check_nested_algo_configuration_using_trait(
           descriptor_reader,
-          algo_config ) )
+          algo_config,
+          d->descriptor_reader ) )
     {
       VITAL_THROW( sprokit::invalid_configuration_exception,
                    name(), "Configuration check failed." );
     }
 
-  algo::read_object_track_set::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     track_reader,
     algo_config,
     d->track_reader );
@@ -163,14 +164,15 @@ void perform_query_process
                    name(), "Unable to create track reader" );
     }
 
-    algo::read_object_track_set::get_nested_algo_configuration_using_trait(
+    get_nested_algo_configuration_using_trait(
       track_reader,
       algo_config,
       d->track_reader );
 
-    if( !algo::read_object_track_set::check_nested_algo_configuration_using_trait(
+    if( !check_nested_algo_configuration_using_trait(
           track_reader,
-          algo_config ) )
+          algo_config,
+          d->track_reader ) )
     {
       VITAL_THROW( sprokit::invalid_configuration_exception,
                    name(), "Configuration check failed." );

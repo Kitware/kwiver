@@ -88,6 +88,9 @@ class SPROKIT_PIPELINE_EXPORT process
     /// Process description
     typedef std::string description_t;
 
+    /// Interface name for plugin factory
+    static std::string interface_name() { return "process"; }
+
     /// A group of types.
     typedef std::vector<type_t> types_t;
 

@@ -57,7 +57,7 @@ void initialize_object_tracks_process
 
   vital::config_block_sptr algo_config = get_config();
 
-  algo::initialize_object_tracks::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     track_initializer,
     algo_config,
     d->m_track_initializer );
@@ -68,14 +68,14 @@ void initialize_object_tracks_process
                  "Unable to create initialize_object_tracks" );
   }
 
-  algo::initialize_object_tracks::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     track_initializer,
     algo_config,
     d->m_track_initializer );
 
   // Check config so it will give run-time diagnostic of config problems
-  if( !algo::initialize_object_tracks::check_nested_algo_configuration_using_trait(
-        track_initializer, algo_config ) )
+  if( !check_nested_algo_configuration_using_trait(
+        track_initializer, algo_config, d->m_track_initializer ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
                  "Configuration check failed." );

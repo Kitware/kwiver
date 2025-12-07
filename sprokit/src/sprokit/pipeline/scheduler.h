@@ -40,6 +40,9 @@ class SPROKIT_PIPELINE_EXPORT scheduler
     /// Scheduler description
     typedef std::string description_t;
 
+    /// Interface name for plugin factory
+    static std::string interface_name() { return "scheduler"; }
+
     /**
      * \brief Destructor.
      */

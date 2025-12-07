@@ -219,7 +219,7 @@ class process::priv
     mutex_t reconfigure_mut;
 
     kwiver::vital::logger_handle_t m_logger;
-    std::unique_ptr< sprokit::process_instrumentation > m_proc_instrumentation; // instrumentation provider
+    std::shared_ptr< sprokit::process_instrumentation > m_proc_instrumentation; // instrumentation provider
 
     // List of properties that are associated with this object
     properties_t m_properties;
@@ -647,7 +647,7 @@ process
                     + kwiver::vital::config_block::block_sep() + instr_prov );
 
       instrumentation_factory ifact;
-      d->m_proc_instrumentation.reset( ifact.create( instr_prov ) );
+      d->m_proc_instrumentation = ifact.create( instr_prov, instr_block );
       d->m_proc_instrumentation->set_process( *this );
 
       kwiver::vital::config_block_sptr prov_block = instr_block->subblock_view( instr_prov );

@@ -93,24 +93,26 @@ void compute_homography_process
   kwiver::vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! algo::compute_ref_homography::check_nested_algo_configuration_using_trait(
+  if ( ! check_nested_algo_configuration_using_trait(
          homography_generator,
-         algo_config ) )
+         algo_config,
+         d->m_compute_homog ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
-  algo::compute_ref_homography::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     homography_generator,
     algo_config,
     d->m_compute_homog );
+
   if ( ! d->m_compute_homog )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
              "Unable to create compute_ref_homography" );
   }
 
-  algo::compute_ref_homography::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     homography_generator,
     algo_config,
     d->m_compute_homog );
