@@ -13,8 +13,7 @@
 #include <sprokit/pipeline/scheduler_exception.h>
 #include <sprokit/pipeline/utils.h>
 
-#include <boost/graph/directed_graph.hpp>
-#include <boost/graph/topological_sort.hpp>
+#include <vital/util/directed_graph.h>
 
 #include <atomic>
 #include <deque>
@@ -246,8 +245,8 @@ sync_scheduler::priv
 // ----------------------------------------------------------------------------
 namespace {
 
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, process::name_t> pipeline_graph_t;
-typedef boost::graph_traits<pipeline_graph_t>::vertex_descriptor vertex_t;
+typedef kwiver::vital::directed_graph<process::name_t> pipeline_graph_t;
+typedef pipeline_graph_t::vertex_descriptor vertex_t;
 typedef std::deque<vertex_t> vertices_t;
 typedef std::map<process::name_t, vertex_t> vertex_map_t;
 
@@ -269,7 +268,7 @@ sorted_names(pipeline_t const& pipe)
 
     for (process::name_t const& name : names)
     {
-      vertex_t s = boost::add_vertex(graph);
+      vertex_t s = graph.add_vertex();
       graph[s] = name;
       vertex_map[name] = s;
     }
@@ -311,7 +310,7 @@ sorted_names(pipeline_t const& pipe)
 
         vertex_t const s = vertex_map[sender_name];
 
-        boost::add_edge(s, t, graph);
+        graph.add_edge(s, t);
       }
     }
   }
@@ -320,9 +319,9 @@ sorted_names(pipeline_t const& pipe)
 
   try
   {
-    boost::topological_sort(graph, std::front_inserter(vertices));
+    kwiver::vital::topological_sort(graph, std::front_inserter(vertices));
   }
-  catch (boost::not_a_dag const&)
+  catch (kwiver::vital::not_a_dag_exception const&)
   {
     /// \todo Throw an exception.
     LOG_ERROR( logger, "Pipeline is not a DAG" );
