@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(fletch_version "v20240404.0")
-set(fletch_commit "c310f3cee87448a31ffbbb8f24c4bdd828bae071")
+set(fletch_version "v20260204.0")
+set(fletch_commit "55011ba9def8837302e202cf602a95a50f56ae18")
 
 # Determine the tarball to download. ci-smtk-ci-developer-{date}-{git-sha}.tar.gz
 # 20231127: Enable Python in bundles
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vs2022")
-  set(fletch_checksum "e8bac0bab42377ff65dca02fde31dae6df3dfd46fc1699d2ace29c409a237f4f")
+  set(fletch_checksum "a5ca8a61ba5aed352aab5cdc37eb744c15f98d5fd594f6422f0647ffa0e7dfe3")
   set(fletch_platform "windows-x86_64")
   set(fletch_ext "zip")
 else ()
