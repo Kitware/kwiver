@@ -30,8 +30,11 @@ public:
     PARAM_DEFAULT(
       overwrite, bool,
       "When set to true, will replace existing corner point metadata.",
-      false
-    )
+      false ),
+    PARAM_DEFAULT(
+      default_altitude, double,
+      "Altitude to use when frame center is not available or invalid.",
+      0.0 ),
   )
 
   bool check_configuration( vital::config_block_sptr config ) const override;

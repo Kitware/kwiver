@@ -64,6 +64,7 @@ set( classes
   match_descriptor_sets
   match_features
   merge_images
+  metadata_filter
   metadata_map_io
   optimize_cameras
   read_object_track_set
