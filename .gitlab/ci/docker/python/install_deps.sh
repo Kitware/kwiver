@@ -3,7 +3,7 @@
 set -e
 
 yum install -y --setopt=install_weak_deps=False \
-    git-core gcc-c++ openssl-devel libcurl-devel
+    git-core openssl-devel libcurl-devel
 
 # Development tools
 yum install -y --setopt=install_weak_deps=False \
