@@ -261,7 +261,7 @@ ffmpeg_image_io
   // Configure codec
   codec_context->width = data->width();
   codec_context->height = data->height();
-  codec_context->time_base = AV_TIME_BASE_Q;
+  codec_context->time_base = AVRational{ 1, AV_TIME_BASE };
   if( d->quality >= 0 )
   {
     codec_context->flags |= AV_CODEC_FLAG_QSCALE;
