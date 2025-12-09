@@ -53,7 +53,7 @@ class KWIVER_ALGO_OCV_EXPORT windowed_refiner
 {
 public:
 
-  PLUGIN_INFO( "ocv_windowed_refiner",
+  PLUGIN_INFO( "ocv_windowed",
                "Window some other arbitrary refiner across the image" )
 
   windowed_refiner();
