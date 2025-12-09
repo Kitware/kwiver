@@ -196,8 +196,8 @@ derive_corner_points_from_frame(
             *corner_ecef, vital::SRID::ECEF_WGS84,
             vital::SRID::lat_lon_WGS84 );
         corners.emplace_back( corner_geodetic[ 0 ], corner_geodetic[ 1 ] );
+        continue;
       }
-      continue;
     }
     catch( std::runtime_error const& )
     {
