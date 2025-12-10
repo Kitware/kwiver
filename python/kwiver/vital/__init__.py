@@ -5,6 +5,5 @@ from . import io
 from . import plugin_management
 from . import plugins
 from . import test_interface
-from . import tests
 from . import types
 from . import util
