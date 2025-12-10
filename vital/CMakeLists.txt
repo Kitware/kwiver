@@ -266,6 +266,8 @@ kwiver_add_library( vital
   ${CMAKE_CURRENT_BINARY_DIR}/vital_config.h
   )
 
+find_package(ZLIB)
+
 target_link_libraries( vital
   PRIVATE         kwiversys
   PUBLIC          vital_config
@@ -274,6 +276,11 @@ target_link_libraries( vital
                   vital_util
                   Eigen3::Eigen
   )
+
+if(ZLIB_FOUND)
+  target_link_libraries( vital PRIVATE ZLIB::ZLIB )
+  target_compile_definitions( vital PRIVATE KWIVER_ENABLE_ZLIB )
+endif()
 
 ###
 #

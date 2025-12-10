@@ -14,8 +14,15 @@
 
 #include <kwiversys/SystemTools.hxx>
 
+#ifdef KWIVER_ENABLE_ZLIB
+#include <zlib.h>
+#include <cstring>
+#include <map>
+#endif
+
 #include <fstream>
 #include <stdexcept>
+#include <vector>
 
 namespace { // anon
 
@@ -64,6 +71,322 @@ public:
       );
   }
 };
+
+#ifdef KWIVER_ENABLE_ZLIB
+// -----------------------------------------------------------------------------
+// NPZ file reading utilities
+// NPZ files are ZIP archives containing .npy files
+// -----------------------------------------------------------------------------
+
+#pragma pack(push, 1)
+struct zip_local_file_header
+{
+  uint32_t signature;        // 0x04034b50
+  uint16_t version_needed;
+  uint16_t flags;
+  uint16_t compression;
+  uint16_t mod_time;
+  uint16_t mod_date;
+  uint32_t crc32;
+  uint32_t compressed_size;
+  uint32_t uncompressed_size;
+  uint16_t filename_len;
+  uint16_t extra_len;
+};
+#pragma pack(pop)
+
+// Read a little-endian value from a byte buffer
+template<typename T>
+T read_le( const unsigned char* data )
+{
+  T value = 0;
+  for( size_t i = 0; i < sizeof(T); ++i )
+  {
+    value |= static_cast<T>(data[i]) << (8 * i);
+  }
+  return value;
+}
+
+// Parse a NumPy array header to get shape and dtype info
+// Returns true if successful, populates shape and is_fortran_order
+bool parse_npy_header( const std::vector<unsigned char>& data,
+                       std::vector<size_t>& shape,
+                       bool& is_fortran_order,
+                       char& dtype_char,
+                       size_t& dtype_size,
+                       size_t& header_size )
+{
+  // NPY format: magic string + version + header_len + header (Python dict as string)
+  if( data.size() < 10 )
+  {
+    return false;
+  }
+
+  // Check magic number: 0x93NUMPY
+  if( data[0] != 0x93 || data[1] != 'N' || data[2] != 'U' ||
+      data[3] != 'M' || data[4] != 'P' || data[5] != 'Y' )
+  {
+    return false;
+  }
+
+  uint8_t major_version = data[6];
+  // uint8_t minor_version = data[7];
+
+  uint32_t header_len;
+  size_t header_start;
+  if( major_version == 1 )
+  {
+    header_len = read_le<uint16_t>( &data[8] );
+    header_start = 10;
+  }
+  else
+  {
+    header_len = read_le<uint32_t>( &data[8] );
+    header_start = 12;
+  }
+
+  if( data.size() < header_start + header_len )
+  {
+    return false;
+  }
+
+  header_size = header_start + header_len;
+
+  // Parse the header string (simplified Python dict parser)
+  std::string header( data.begin() + header_start, data.begin() + header_start + header_len );
+
+  // Find 'fortran_order': False or True
+  is_fortran_order = ( header.find("'fortran_order': True") != std::string::npos ||
+                       header.find("'fortran_order':True") != std::string::npos );
+
+  // Find 'descr': '<f8' or similar
+  auto descr_pos = header.find("'descr':");
+  if( descr_pos == std::string::npos )
+  {
+    return false;
+  }
+
+  auto quote_start = header.find("'", descr_pos + 8);
+  if( quote_start == std::string::npos )
+  {
+    return false;
+  }
+  auto quote_end = header.find("'", quote_start + 1);
+  if( quote_end == std::string::npos )
+  {
+    return false;
+  }
+  std::string descr = header.substr( quote_start + 1, quote_end - quote_start - 1 );
+
+  // Parse dtype: e.g., "<f8" means little-endian float64
+  if( descr.size() < 2 )
+  {
+    return false;
+  }
+  dtype_char = descr[1];  // 'f' for float, 'i' for int, etc.
+  dtype_size = std::stoul( descr.substr(2) );
+
+  // Find 'shape': (3, 3) or (3,) or ()
+  auto shape_pos = header.find("'shape':");
+  if( shape_pos == std::string::npos )
+  {
+    return false;
+  }
+
+  auto paren_start = header.find("(", shape_pos);
+  auto paren_end = header.find(")", paren_start);
+  if( paren_start == std::string::npos || paren_end == std::string::npos )
+  {
+    return false;
+  }
+
+  std::string shape_str = header.substr( paren_start + 1, paren_end - paren_start - 1 );
+  shape.clear();
+
+  // Parse comma-separated integers (handles Python 2 long literals like "3L")
+  size_t pos = 0;
+  while( pos < shape_str.size() )
+  {
+    // Skip whitespace and commas
+    while( pos < shape_str.size() && (shape_str[pos] == ' ' || shape_str[pos] == ',') )
+    {
+      ++pos;
+    }
+    if( pos >= shape_str.size() )
+    {
+      break;
+    }
+
+    // Read number
+    size_t num_start = pos;
+    while( pos < shape_str.size() && shape_str[pos] >= '0' && shape_str[pos] <= '9' )
+    {
+      ++pos;
+    }
+    if( pos > num_start )
+    {
+      shape.push_back( std::stoul( shape_str.substr(num_start, pos - num_start) ) );
+    }
+
+    // Skip any trailing characters after number (e.g., 'L' from Python 2 long literals)
+    while( pos < shape_str.size() && shape_str[pos] != ',' && shape_str[pos] != ')' )
+    {
+      ++pos;
+    }
+  }
+
+  return true;
+}
+
+// Decompress zlib-compressed data
+std::vector<unsigned char> decompress_zlib( const unsigned char* compressed_data,
+                                            size_t compressed_size,
+                                            size_t uncompressed_size )
+{
+  std::vector<unsigned char> result( uncompressed_size );
+
+  z_stream strm;
+  strm.zalloc = Z_NULL;
+  strm.zfree = Z_NULL;
+  strm.opaque = Z_NULL;
+  strm.avail_in = static_cast<uInt>(compressed_size);
+  strm.next_in = const_cast<unsigned char*>(compressed_data);
+  strm.avail_out = static_cast<uInt>(uncompressed_size);
+  strm.next_out = result.data();
+
+  // Use -MAX_WBITS for raw deflate (no zlib header)
+  if( inflateInit2(&strm, -MAX_WBITS) != Z_OK )
+  {
+    return {};
+  }
+
+  int ret = inflate(&strm, Z_FINISH);
+  inflateEnd(&strm);
+
+  if( ret != Z_STREAM_END )
+  {
+    return {};
+  }
+
+  return result;
+}
+
+// Read NPZ file and extract arrays as map of name -> double vector
+std::map<std::string, std::vector<double>> read_npz_arrays( const std::string& filename,
+                                                             std::map<std::string, std::vector<size_t>>& shapes )
+{
+  std::map<std::string, std::vector<double>> arrays;
+
+  std::ifstream file( filename, std::ios::binary );
+  if( !file )
+  {
+    return arrays;
+  }
+
+  // Read entire file
+  file.seekg( 0, std::ios::end );
+  size_t file_size = file.tellg();
+  file.seekg( 0, std::ios::beg );
+
+  std::vector<unsigned char> file_data( file_size );
+  file.read( reinterpret_cast<char*>(file_data.data()), file_size );
+  file.close();
+
+  // Parse ZIP entries
+  size_t offset = 0;
+  while( offset + sizeof(zip_local_file_header) < file_size )
+  {
+    // Check for local file header signature
+    uint32_t sig = read_le<uint32_t>( &file_data[offset] );
+    if( sig != 0x04034b50 )
+    {
+      break;  // No more local file headers
+    }
+
+    const zip_local_file_header* hdr =
+      reinterpret_cast<const zip_local_file_header*>( &file_data[offset] );
+
+    size_t filename_start = offset + sizeof(zip_local_file_header);
+    std::string entry_name( file_data.begin() + filename_start,
+                            file_data.begin() + filename_start + hdr->filename_len );
+
+    size_t data_start = filename_start + hdr->filename_len + hdr->extra_len;
+
+    // Get the array data
+    std::vector<unsigned char> npy_data;
+    if( hdr->compression == 0 )
+    {
+      // Stored (no compression)
+      npy_data.assign( file_data.begin() + data_start,
+                       file_data.begin() + data_start + hdr->uncompressed_size );
+    }
+    else if( hdr->compression == 8 )
+    {
+      // Deflate compression
+      npy_data = decompress_zlib( &file_data[data_start],
+                                  hdr->compressed_size,
+                                  hdr->uncompressed_size );
+    }
+
+    if( !npy_data.empty() )
+    {
+      // Parse NPY header
+      std::vector<size_t> shape;
+      bool is_fortran_order;
+      char dtype_char;
+      size_t dtype_size;
+      size_t header_size;
+
+      if( parse_npy_header( npy_data, shape, is_fortran_order, dtype_char, dtype_size, header_size ) )
+      {
+        // Calculate total number of elements
+        size_t num_elements = 1;
+        for( size_t dim : shape )
+        {
+          num_elements *= dim;
+        }
+
+        // Extract array data
+        std::vector<double> values( num_elements );
+        const unsigned char* array_data = npy_data.data() + header_size;
+
+        for( size_t i = 0; i < num_elements; ++i )
+        {
+          if( dtype_char == 'f' && dtype_size == 8 )
+          {
+            // float64
+            double val;
+            std::memcpy( &val, array_data + i * 8, 8 );
+            values[i] = val;
+          }
+          else if( dtype_char == 'f' && dtype_size == 4 )
+          {
+            // float32
+            float val;
+            std::memcpy( &val, array_data + i * 4, 4 );
+            values[i] = static_cast<double>(val);
+          }
+        }
+
+        // Remove .npy extension from name if present
+        std::string array_name = entry_name;
+        if( array_name.size() > 4 && array_name.substr(array_name.size() - 4) == ".npy" )
+        {
+          array_name = array_name.substr(0, array_name.size() - 4);
+        }
+
+        arrays[array_name] = values;
+        shapes[array_name] = shape;
+      }
+    }
+
+    // Move to next entry
+    offset = data_start + hdr->compressed_size;
+  }
+
+  return arrays;
+}
+#endif // KWIVER_ENABLE_ZLIB
 
 } // end anon namespace
 
@@ -183,6 +506,119 @@ read_stereo_rig_yaml( path_t const& FN )
   return camera_rig_stereo_sptr();
 }
 
+#ifdef KWIVER_ENABLE_ZLIB
+camera_rig_stereo_sptr
+read_stereo_rig_npz( path_t const& FN )
+{
+  // Read all arrays from NPZ file
+  std::map<std::string, std::vector<size_t>> shapes;
+  auto arrays = read_npz_arrays( FN, shapes );
+
+  if( arrays.empty() )
+  {
+    LOG_ERROR( logger, "Failed to read NPZ file or no arrays found: " + FN );
+    return camera_rig_stereo_sptr();
+  }
+
+  // Expected arrays in the NPZ file:
+  // - R: 3x3 rotation matrix
+  // - T: 3x1 translation vector
+  // - cameraMatrixL: 3x3 left camera intrinsic matrix
+  // - cameraMatrixR: 3x3 right camera intrinsic matrix
+  // - distCoeffsL: distortion coefficients for left camera
+  // - distCoeffsR: distortion coefficients for right camera
+
+  auto find_array = [&arrays]( const std::string& name ) -> const std::vector<double>* {
+    auto it = arrays.find( name );
+    return ( it != arrays.end() ) ? &it->second : nullptr;
+  };
+
+  const auto* R_arr = find_array( "R" );
+  const auto* T_arr = find_array( "T" );
+  const auto* K1_arr = find_array( "cameraMatrixL" );
+  const auto* K2_arr = find_array( "cameraMatrixR" );
+  const auto* dist1_arr = find_array( "distCoeffsL" );
+  const auto* dist2_arr = find_array( "distCoeffsR" );
+
+  if( !R_arr || !T_arr || !K1_arr || !K2_arr )
+  {
+    LOG_ERROR( logger, "NPZ file missing required arrays (R, T, cameraMatrixL, cameraMatrixR)" );
+    return camera_rig_stereo_sptr();
+  }
+
+  // Extract left camera intrinsics from 3x3 matrix
+  // K = [fx  0  cx]
+  //     [0  fy  cy]
+  //     [0   0   1]
+  double fx_left = (*K1_arr)[0];
+  double fy_left = (*K1_arr)[4];
+  double cx_left = (*K1_arr)[2];
+  double cy_left = (*K1_arr)[5];
+
+  // Extract right camera intrinsics
+  double fx_right = (*K2_arr)[0];
+  double fy_right = (*K2_arr)[4];
+  double cx_right = (*K2_arr)[2];
+  double cy_right = (*K2_arr)[5];
+
+  // Extract distortion coefficients (k1, k2, p1, p2)
+  vector_4d dist_left = { 0, 0, 0, 0 };
+  vector_4d dist_right = { 0, 0, 0, 0 };
+
+  if( dist1_arr && dist1_arr->size() >= 4 )
+  {
+    dist_left[0] = (*dist1_arr)[0];
+    dist_left[1] = (*dist1_arr)[1];
+    dist_left[2] = (*dist1_arr)[2];
+    dist_left[3] = (*dist1_arr)[3];
+  }
+
+  if( dist2_arr && dist2_arr->size() >= 4 )
+  {
+    dist_right[0] = (*dist2_arr)[0];
+    dist_right[1] = (*dist2_arr)[1];
+    dist_right[2] = (*dist2_arr)[2];
+    dist_right[3] = (*dist2_arr)[3];
+  }
+
+  // Build intrinsics
+  intrinsics_builder left_intrinsics( fx_left, fy_left, cx_left, cy_left, dist_left );
+  intrinsics_builder right_intrinsics( fx_right, fy_right, cx_right, cy_right, dist_right );
+
+  // Build left camera (at origin with identity rotation)
+  vector_3d center = { 0, 0, 0 };
+  rotation_d rotation;
+  auto left_cam = std::make_shared<simple_camera_perspective>(
+    center, rotation, left_intrinsics.make_intrinsics()
+  );
+
+  // Extract rotation matrix (3x3, row-major)
+  Eigen::Matrix<double, 3, 3> rm;
+  for( int i = 0; i < 3; ++i )
+  {
+    for( int j = 0; j < 3; ++j )
+    {
+      rm(i, j) = (*R_arr)[i * 3 + j];
+    }
+  }
+
+  // Extract translation vector
+  vector_3d tv;
+  tv[0] = (*T_arr)[0];
+  tv[1] = (*T_arr)[1];
+  tv[2] = (*T_arr)[2];
+
+  // Build right camera with rotation and translation relative to left
+  rotation = rotation_d( rm );
+  auto right_cam = std::make_shared<simple_camera_perspective>(
+    center, rotation, right_intrinsics.make_intrinsics()
+  );
+  right_cam->set_translation( tv );
+
+  return std::make_shared<camera_rig_stereo>( left_cam, right_cam );
+}
+#endif // KWIVER_ENABLE_ZLIB
+
 camera_rig_stereo_sptr
 read_stereo_rig( path_t const& FN )
 {
@@ -195,6 +631,12 @@ read_stereo_rig( path_t const& FN )
   {
     return read_stereo_rig_yaml(FN);
   }
+#ifdef KWIVER_ENABLE_ZLIB
+  else if ( ext == ".npz" )
+  {
+    return read_stereo_rig_npz(FN);
+  }
+#endif
   else
   {
     LOG_ERROR( logger, "unable to read stereo rig: unsupported extension "+ext );
