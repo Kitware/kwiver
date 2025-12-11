@@ -56,10 +56,10 @@ public:
       throw std::logic_error("trying to build a camera from uninitialized intrinsics");
     }
 
-    double focal_length = 0.5*(fx_+fy_);
+    double focal_length = fx_;
     double dx = 2*cx_, dy = 2*cy_;
     kwiver::vital::vector_2d principal_point(cx_, cy_);
-    auto const aspect_ratio = 1.0, skew = 0.0;
+    auto const aspect_ratio = fx_ / fy_, skew = 0.0;
 
     return std::make_shared<kwiver::vital::simple_camera_intrinsics>(
       focal_length,
@@ -691,11 +691,12 @@ write_stereo_rig_json( camera_rig_stereo_sptr rig, std::string const & FN )
         dynamic_cast<camera_perspective const&>( *rig->camera(name) );
       auto const & intr = *cam.intrinsics();
       auto const & f = intr.focal_length();
+      auto const & aspect = intr.aspect_ratio();
       auto const & c = intr.principal_point();
       auto const & d = intr.dist_coeffs();
       auto const & dlen = d.size();
       ar( cereal::make_nvp( "fx_" + name, f) );
-      ar( cereal::make_nvp( "fy_" + name, f) );
+      ar( cereal::make_nvp( "fy_" + name, f / aspect) );
       ar( cereal::make_nvp( "cx_" + name, c[0]) );
       ar( cereal::make_nvp( "cy_" + name, c[1]) );
       ar( cereal::make_nvp( "k1_" + name, dlen > 0 ? d[0] : 0.0 ) );
