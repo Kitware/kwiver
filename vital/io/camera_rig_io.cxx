@@ -37,7 +37,7 @@ class intrinsics_builder
 private:
   bool valid_;
   double fx_, fy_, cx_, cy_;
-  kwiver::vital::vector_4d dist_;
+  Eigen::VectorXd dist_;
 
 public:
   intrinsics_builder(): valid_(false) {}
@@ -45,7 +45,7 @@ public:
                       double fy,                // focal point y
                       double cx,                // principal point x
                       double cy,                // principal point y
-                      const kwiver::vital::vector_4d& dist ) // distance parameters
+                      const Eigen::VectorXd& dist ) // distortion parameters
     : valid_(true), fx_(fx), fy_(fy), cx_(cx), cy_(cy), dist_(dist)
   {}
 
@@ -453,11 +453,19 @@ read_stereo_rig_json( path_t const& FN )
     ar ( cereal::make_nvp( "cx_" + name, cx) );
     ar ( cereal::make_nvp( "cy_" + name, cy) );
 
-    vector_4d dist;
+    // Read distortion coefficients: k1, k2, p1, p2, k3
+    Eigen::VectorXd dist(5);
+    dist.setZero();
     ar( cereal::make_nvp( "k1_" + name, dist[0] ) );
     ar( cereal::make_nvp( "k2_" + name, dist[1] ) );
     ar( cereal::make_nvp( "p1_" + name, dist[2] ) );
     ar( cereal::make_nvp( "p2_" + name, dist[3] ) );
+    // k3 is optional depending on the input
+    try {
+      ar( cereal::make_nvp( "k3_" + name, dist[4] ) );
+    } catch( ... ) {
+      dist[4] = 0.0;
+    }
 
     intrinsics_lr[name] = intrinsics_builder( fx, fy, cx, cy, dist );
   }
@@ -561,24 +569,28 @@ read_stereo_rig_npz( path_t const& FN )
   double cx_right = (*K2_arr)[2];
   double cy_right = (*K2_arr)[5];
 
-  // Extract distortion coefficients (k1, k2, p1, p2)
-  vector_4d dist_left = { 0, 0, 0, 0 };
-  vector_4d dist_right = { 0, 0, 0, 0 };
+  // Extract distortion coefficients (k1, k2, p1, p2, k3)
+  Eigen::VectorXd dist_left(5);
+  Eigen::VectorXd dist_right(5);
+  dist_left.setZero();
+  dist_right.setZero();
 
-  if( dist1_arr && dist1_arr->size() >= 4 )
+  if( dist1_arr )
   {
-    dist_left[0] = (*dist1_arr)[0];
-    dist_left[1] = (*dist1_arr)[1];
-    dist_left[2] = (*dist1_arr)[2];
-    dist_left[3] = (*dist1_arr)[3];
+    size_t n = std::min( dist1_arr->size(), size_t(5) );
+    for( size_t i = 0; i < n; ++i )
+    {
+      dist_left[i] = (*dist1_arr)[i];
+    }
   }
 
-  if( dist2_arr && dist2_arr->size() >= 4 )
+  if( dist2_arr )
   {
-    dist_right[0] = (*dist2_arr)[0];
-    dist_right[1] = (*dist2_arr)[1];
-    dist_right[2] = (*dist2_arr)[2];
-    dist_right[3] = (*dist2_arr)[3];
+    size_t n = std::min( dist2_arr->size(), size_t(5) );
+    for( size_t i = 0; i < n; ++i )
+    {
+      dist_right[i] = (*dist2_arr)[i];
+    }
   }
 
   // Build intrinsics
@@ -703,6 +715,7 @@ write_stereo_rig_json( camera_rig_stereo_sptr rig, std::string const & FN )
       ar( cereal::make_nvp( "k2_" + name, dlen > 1 ? d[1] : 0.0 ) );
       ar( cereal::make_nvp( "p1_" + name, dlen > 2 ? d[2] : 0.0 ) );
       ar( cereal::make_nvp( "p2_" + name, dlen > 3 ? d[3] : 0.0 ) );
+      ar( cereal::make_nvp( "k3_" + name, dlen > 4 ? d[4] : 0.0 ) );
       if ( name == "left" )
       {
         Rl = cam.rotation().matrix();
