@@ -7,7 +7,7 @@ apt-get update
 
 # Install system dependencies
 apt-get install -y --no-install-recommends \
-    ca-certificates zlib1g-dev libcurl4-openssl-dev libssl-dev
+    ca-certificates curl zlib1g-dev libcurl4-openssl-dev libssl-dev
 
 # Install Qt system dependencies. Derived from https://wiki.qt.io/Building_Qt_5_from_Git
 apt-get install -y libpng-dev libglx-dev freeglut3-dev libfontconfig1-dev \
