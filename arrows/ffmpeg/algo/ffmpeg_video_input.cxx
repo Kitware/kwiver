@@ -392,8 +392,6 @@ public:
     kv::video_raw_metadata_sptr raw_metadata;
 
     kv::video_uninterpreted_data_sptr uninterpreted_data;
-
-    bool is_draining;
   };
 
   struct open_video_state
@@ -422,7 +420,9 @@ public:
     bool advance( bool is_first_frame_of_seek = false );
     void clear_state_for_seek();
     void seek_to_start();
-    void seek( kv::frame_id_t frame_number, seek_mode mode );
+    void seek(
+      kv::frame_id_t frame_number, seek_mode mode,
+      kv::time_usec_t timeout = 0 );
     void set_video_metadata( kv::metadata& md );
     double curr_time() const;
     double duration() const;
@@ -431,6 +431,9 @@ public:
     kv::frame_id_t frame_number() const;
     kv::timestamp timestamp() const;
     kv::video_settings_uptr implementation_settings() const;
+    void set_timeout( kv::time_usec_t timeout );
+    void check_timeout();
+    bool check_timeout_error( int err );
 
     priv* parent;
     kv::logger_handle_t logger;
@@ -475,8 +478,10 @@ public:
 
     bool lookahead_at_eof;
     bool at_eof;
+    bool is_draining;
 
     std::optional< clock_t::time_point > frame_real_time;
+    std::optional< clock_t::time_point > active_timeout;
   };
 
   ffmpeg_video_input& parent;
@@ -660,8 +665,7 @@ ffmpeg_video_input::priv::frame_state
     raw_image{},
     metadata{},
     raw_metadata{},
-    uninterpreted_data{},
-    is_draining{ false }
+    uninterpreted_data{}
 {
   // Allocate frame containers
   frame.reset(
@@ -907,7 +911,8 @@ ffmpeg_video_input::priv::open_video_state
     audio_streams{},
     frame{},
     lookahead_at_eof{ false },
-    at_eof{ false }
+    at_eof{ false },
+    is_draining{ false }
 {
   // Parse any URL protocol at beginning of path
   std::string protocol;
@@ -951,8 +956,6 @@ ffmpeg_video_input::priv::open_video_state
 
     // Open the file
     {
-      AVFormatContext* ptr = nullptr;
-
       AVInputFormat const* input_format = nullptr;
       auto const& format_name = parent.parent.c_format_name;
       if( !format_name.empty() )
@@ -967,9 +970,24 @@ ffmpeg_video_input::priv::open_video_state
         }
       }
 
-      auto const err =
-        avformat_open_input(
-          &ptr, path.c_str(), input_format, &format_options );
+      AVFormatContext* ptr;
+      int err;
+      while( true )
+      {
+        ptr = avformat_alloc_context();
+        ptr->avio_flags |= AVIO_FLAG_NONBLOCK;
+
+        err =
+          avformat_open_input(
+            &ptr, path.c_str(), input_format, &format_options );
+
+        if( check_timeout_error( err ) )
+        {
+          continue;
+        }
+
+        break;
+      }
 
       if( format_options )
       {
@@ -1355,10 +1373,6 @@ ffmpeg_video_input::priv::open_video_state
 
   // Clear old frame and create new one
   frame_state new_frame{ *this };
-  if( frame.has_value() )
-  {
-    new_frame.is_draining = frame->is_draining;
-  }
   frame.reset();
 
   // Run through video until we can assemble a frame image
@@ -1432,6 +1446,11 @@ ffmpeg_video_input::priv::open_video_state
         // End of input
         lookahead_at_eof = true;
         break;
+      }
+      if( check_timeout_error( read_err ) )
+      {
+        // False alarm timeout
+        continue;
       }
       throw_error_code( read_err, "Could not read next packet from file" );
 
@@ -1520,15 +1539,17 @@ ffmpeg_video_input::priv::open_video_state
           first_video_it = it;
         }
       }
+
+      check_timeout();
     }
 
     // Couldn't find next video packet? Tell the decoder to flush any remaining
     // buffered frames
     if( first_video_it == lookahead.end() &&
-        lookahead_at_eof && !new_frame.is_draining )
+        lookahead_at_eof && !is_draining )
     {
       avcodec_send_packet( codec_context.get(), nullptr );
-      new_frame.is_draining = true;
+      is_draining = true;
     }
 
     // Process next video packet, if there is one
@@ -1678,6 +1699,7 @@ ffmpeg_video_input::priv::open_video_state
       case AVERROR_INVALIDDATA:
       case AVERROR( EAGAIN ):
         // Acceptable errors
+        check_timeout();
         break;
       default:
         // Unacceptable errors
@@ -1827,6 +1849,7 @@ ffmpeg_video_input::priv::open_video_state
   raw_image_buffer.clear();
   lookahead_at_eof = false;
   at_eof = false;
+  is_draining = false;
   frame.reset();
   for( auto& stream : klv_streams )
   {
@@ -1843,18 +1866,24 @@ ffmpeg_video_input::priv::open_video_state
   clear_state_for_seek();
   frame_count.emplace( -1 );
 
-  auto const err =
-    av_seek_frame(
+  int err;
+  do
+  {
+    err = av_seek_frame(
       format_context.get(), -1, INT64_MIN,
       AVSEEK_FLAG_BYTE | AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY );
+  } while( check_timeout_error( err ) );
+
   if( err < 0 )
   {
-    // Sometimes seeking by byte position is not allowed, so try by timestamp
-    throw_error_code(
-      av_seek_frame(
+    do
+    {
+      // Sometimes seeking by byte position is not allowed, so try by timestamp
+      err = av_seek_frame(
         format_context.get(), -1, INT64_MIN,
-        AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY ),
-      "Could not seek to beginning of video" );
+        AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY );
+    } while( check_timeout_error( err ) );
+    throw_error_code( err, "Could not seek to beginning of video" );
   }
 
   if( codec_context )
@@ -1866,17 +1895,51 @@ ffmpeg_video_input::priv::open_video_state
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_input::priv::open_video_state
-::seek( kv::frame_id_t frame_number, seek_mode mode )
+::seek( kv::frame_id_t frame_number, seek_mode mode, kv::time_usec_t timeout )
 {
   if( frame_number == this->frame_number() )
   {
     return;
   }
 
+  set_timeout( timeout );
+
   if( frame_number <= 0 )
   {
     seek_to_start();
     advance();
+    return;
+  }
+
+  // Check if we're close enough that we should just iterate through the video
+  // rather than trying to jump to the correct place
+  constexpr kv::frame_id_t reasonable_iteration_range = 300;
+  auto const iterate_from_here =
+    frame_count.has_value() &&
+    frame_number >= *frame_count &&
+    ( ( frame_number - *frame_count ) <= reasonable_iteration_range ||
+      frame_rate().num <= 0 );
+  auto const iterate_from_start =
+    !iterate_from_here && frame_number <= reasonable_iteration_range;
+  if( mode == SEEK_MODE_EXACT && ( iterate_from_here || iterate_from_start ) )
+  {
+    if( iterate_from_start )
+    {
+      seek_to_start();
+    }
+
+    while( *frame_count < frame_number )
+    {
+      advance();
+
+      if( at_eof )
+      {
+        throw_error(
+          "Could not seek to frame ", frame_number + 1,
+          ": End of file reached" );
+      }
+    }
+
     return;
   }
 
@@ -1901,11 +1964,17 @@ ffmpeg_video_input::priv::open_video_state
 
     // Do the seek
     clear_state_for_seek();
-    throw_error_code(
-      av_seek_frame(
-        format_context.get(), video_stream->index, converted_timestamp,
-        AVSEEK_FLAG_BACKWARD ),
-      "Could not seek to frame ", frame_number );
+
+    int err;
+    do
+    {
+      err =
+        av_seek_frame(
+          format_context.get(), video_stream->index, converted_timestamp,
+          AVSEEK_FLAG_BACKWARD );
+    } while( check_timeout_error( err ) );
+    throw_error_code( err, "Could not seek to frame ", frame_number );
+
     if( codec_context )
     {
       avcodec_flush_buffers( codec_context.get() );
@@ -1939,11 +2008,14 @@ ffmpeg_video_input::priv::open_video_state
             video_stream->time_base ) + start_ts;
 
         clear_state_for_seek();
-        throw_error_code(
-          av_seek_frame(
+        do
+        {
+          err = av_seek_frame(
             format_context.get(), video_stream->index, converted_timestamp,
-            AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY ),
-          "Could not seek to frame ", frame_number );
+            AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY );
+        } while( check_timeout_error( err ) );
+        throw_error_code( err, "Could not seek to frame ", frame_number );
+
         if( codec_context )
         {
           avcodec_flush_buffers( codec_context.get() );
@@ -2030,11 +2102,15 @@ ffmpeg_video_input::priv::open_video_state
       }
 
       clear_state_for_seek();
-      throw_error_code(
-        av_seek_frame(
+
+      int err;
+      do
+      {
+        err = av_seek_frame(
           format_context.get(), video_stream->index, last_keyframe_ts,
-          AVSEEK_FLAG_BACKWARD ),
-        "Could not seek to frame ", frame_number + 1 );
+          AVSEEK_FLAG_BACKWARD );
+      } while( check_timeout_error( err ) );
+      throw_error_code( err, "Could not seek to frame ", frame_number + 1 );
 
       if( codec_context )
       {
@@ -2340,6 +2416,51 @@ ffmpeg_video_input::priv::open_video_state
 
 // ----------------------------------------------------------------------------
 void
+ffmpeg_video_input::priv::open_video_state
+::set_timeout( kv::time_usec_t timeout )
+{
+  if( timeout )
+  {
+    active_timeout = clock_t::now() + std::chrono::microseconds( timeout );
+  }
+  else
+  {
+    active_timeout.reset();
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+ffmpeg_video_input::priv::open_video_state
+::check_timeout()
+{
+  if( active_timeout && clock_t::now() >= *active_timeout )
+  {
+    throw kv::video_input_timeout_exception{};
+  }
+}
+
+// ----------------------------------------------------------------------------
+bool
+ffmpeg_video_input::priv::open_video_state
+::check_timeout_error( int err )
+{
+  if( err != AVERROR( EAGAIN ) )
+  {
+    return false;
+  }
+
+  check_timeout();
+
+  // No input is available over the network, but we're not at our timeout limit
+  // yet. Wait a bit before checking for input again, to avoid hogging the CPU.
+  std::this_thread::sleep_for( std::chrono::microseconds( 100 ) );
+
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+void
 ffmpeg_video_input
 ::initialize()
 {
@@ -2353,7 +2474,7 @@ ffmpeg_video_input
   set_capability( kva::video_input::HAS_METADATA, false );
   set_capability( kva::video_input::HAS_FRAME_TIME, false );
   set_capability( kva::video_input::HAS_ABSOLUTE_FRAME_TIME, false );
-  set_capability( kva::video_input::HAS_TIMEOUT, false );
+  set_capability( kva::video_input::HAS_TIMEOUT, true );
   set_capability( kva::video_input::IS_SEEKABLE, true );
   set_capability( kva::video_input::HAS_RAW_IMAGE, true );
   set_capability( kva::video_input::HAS_RAW_METADATA, true );
@@ -2447,9 +2568,11 @@ bool
 ffmpeg_video_input
 ::next_frame(
   kv::timestamp& ts,
-  VITAL_UNUSED vital::time_usec_t timeout )
+  vital::time_usec_t timeout )
 {
   d->assert_open( "next_frame()" );
+
+  d->video->set_timeout( timeout );
 
   auto const prev_microseconds = frame_timestamp().get_time_usec();
 
@@ -2508,16 +2631,15 @@ ffmpeg_video_input
     return false;
   }
 
-  if( timeout != 0 )
-  {
-    LOG_WARN( logger(), "seek_frame(): Timeout argument is not supported." );
-  }
-
   try
   {
-    d->video->seek( frame_number - 1, mode );
+    d->video->seek( frame_number - 1, mode, timeout );
     ts = frame_timestamp();
     return true;
+  }
+  catch( kv::video_input_timeout_exception const& e )
+  {
+    throw e;
   }
   catch( std::exception const& e )
   {

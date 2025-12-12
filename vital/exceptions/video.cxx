@@ -26,7 +26,7 @@ video_exception
 video_input_timeout_exception
 ::video_input_timeout_exception() noexcept
 {
-  m_what = "End of video exception";
+  m_what = "Video timeout exception";
 }
 
 video_input_timeout_exception
