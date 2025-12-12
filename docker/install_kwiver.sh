@@ -24,10 +24,6 @@ cd "$kwiver_src"
 export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
 cmake --version
 
-# fletch didn't install python build requirements
-# TODO inside venv to allow env cleanup? Numpy (others?) still required for tool execution.
-pip3 install -r python/requirements_dev.txt
-
 cmake \
   -B "$kwiver_build" \
   -DCMAKE_BUILD_TYPE=Release \
@@ -45,7 +41,7 @@ cmake \
       -DKWIVER_ENABLE_MVG=ON \
       -DKWIVER_ENABLE_PROCESSES=OFF \
       -DKWIVER_ENABLE_PROJ=ON \
-      -DKWIVER_ENABLE_PYTHON=ON \
+      -DKWIVER_ENABLE_PYTHON=OFF \
       -DKWIVER_ENABLE_SERIALIZE_JSON=ON \
       -DKWIVER_ENABLE_SERIALIZE_PROTOBUF=ON \
       -DKWIVER_ENABLE_SPROKIT=OFF \
@@ -60,5 +56,5 @@ cmake \
 cmake --build "$kwiver_build" --parallel "$(nproc)"
 cmake --install "$kwiver_build"
 
-# # Clean up.
+# Clean up.
 rm -rf "$kwiver_root"
