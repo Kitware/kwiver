@@ -46,28 +46,24 @@ The Dockerfile used to build the image can be found `here <dockerfile>`_.
 
 Pull the image from Dockerhub::
 
- "docker pull kitware/kwiver:latest" (latest master)
-
- "docker pull kitware/kwiver:release" (latest release)
-
- "docker pull kitware/kwiver:1.5.1" (static release)
+ "docker pull kitware/kwiver:2.2.0" (static release)
 
 (`https://hub.docker.com/r/kitware/kwiver <https://hub.docker.com/r/kitware/kwiver>`_)
 
 or build the KWIVER image using the dockerfile::
 
- "docker build -t kwiver:tagname ."
+  docker build -t kwiver:tagname .
 
 The image provides access to the KWIVER applets. Available applets are listed by running
 the image with no arguments::
 
- "docker run -it kitware/kwiver:latest"
+  docker run -it kitware/kwiver:tagname
 
 To run the applets usefully, you
 must mount a volume to the container. For example, to run the "dump_klv" applet on
 the sample data, from a KWIVER source directory::
 
- "docker run -v $PWD:/data -it kitware/kwiver:latest dump-klv /data/examples/videos/drone-video.mp4"
+  docker run -v $PWD:/data -it kitware/kwiver:latest dump-klv /data/examples/videos/drone-video.mp4
 
 Building KWIVER
 ===============
