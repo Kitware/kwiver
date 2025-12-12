@@ -9,7 +9,7 @@
 
 .ubuntu2204:
     extends: .linux
-    image: "kitware/kwiver:ci-ubuntu22_04-20251209"
+    image: "kitware/kwiver:ci-ubuntu22_04-20251212.1"
 
 .ubuntu2204_arrows:
     extends:
@@ -20,7 +20,7 @@
 
 .manylinux2014_x86_64:
     extends: .linux
-    image: "kitware/kwiver:ci-python-20251211"
+    image: "kitware/kwiver:ci-python-20251212"
 
 .linux_builder_tags:
     tags:
