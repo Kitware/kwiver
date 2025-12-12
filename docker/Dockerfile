@@ -1,10 +1,9 @@
 # Same image currently use by .gitlab/ci/os-linux.yml
-ARG BASE_IMAGE=kitware/kwiver:ci-ubuntu20_04-20240327
+ARG BASE_IMAGE=kitware/kwiver:ci-ubuntu22_04-20251209
 
 FROM ${BASE_IMAGE}
 ARG ENABLE_CUDA=OFF
-# current "main", python examples, 15 May 2024
-ARG COMMIT_SHA=323eb2e410732f207cbf1b93e5ef95bf4f741c38
+ARG COMMIT_SHA=690c5faec190daa6649906255261caac52050b4b
 LABEL author Aron Helser <aron.helser@kitware.com>
 
 # Install system dependencies
