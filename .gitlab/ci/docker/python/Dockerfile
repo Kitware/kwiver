@@ -1,4 +1,4 @@
-FROM quay.io/pypa/manylinux_2_28_x86_64
+FROM quay.io/pypa/manylinux_2_28_x86_64:2024-04-23-ef7507e
 MAINTAINER Christos Tsolakis <christos.tsolakis@kitware.com>
 
 COPY install_deps.sh /root/install_deps.sh

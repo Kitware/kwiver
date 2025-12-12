@@ -3,8 +3,7 @@
 set -e
 
 readonly fletch_repo="https://github.com/Kitware/fletch"
-# update to include new default packages used by kwiver
-readonly fletch_commit="70f4e025067453cbf2f40565c05d80c6263d64c8"
+readonly fletch_commit="7375aa7763ea8bb83b2006dea443aeef3ecdc13c"
 
 readonly fletch_root="$HOME/fletch"
 readonly fletch_src="$fletch_root/src"
