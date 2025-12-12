@@ -3,7 +3,7 @@
 set -e
 
 readonly fletch_repo="https://github.com/Kitware/fletch"
-readonly fletch_commit="e820b47c3004389ca46b6981cde2e5f416b8a31e"
+readonly fletch_commit="7375aa7763ea8bb83b2006dea443aeef3ecdc13c"
 
 readonly fletch_root="$HOME/fletch"
 readonly fletch_src="$fletch_root/src"
