@@ -94,67 +94,67 @@ wheel-linux-python:test:
     needs:
         - wheel-linux-python:build
 
-# Windows - temporarily disabled
+# Windows
 
-# ## Basic builds
+## Basic builds
 
-# windows-vs2022-ninja-arrows:build:
-#     extends:
-#         - .windows_vs2022_ninja_arrows
-#         - .cmake_build_windows
-#         - .windows_builder_tags
-#         - .cmake_build_artifacts
-#         - .rules
+windows-vs2022-ninja-arrows:build:
+    extends:
+        - .windows_vs2022_ninja_arrows
+        - .cmake_build_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .rules
 
-# windows-vs2022-ninja-arrows:test:
-#     extends:
-#         - .windows_vs2022_ninja_arrows
-#         - .cmake_test_windows
-#         - .windows_builder_tags
-#         - .cmake_test_artifacts
-#         - .rules
-#     needs:
-#         - windows-vs2022-ninja-arrows:build
+windows-vs2022-ninja-arrows:test:
+    extends:
+        - .windows_vs2022_ninja_arrows
+        - .cmake_test_windows
+        - .windows_builder_tags
+        - .cmake_test_artifacts
+        - .rules
+    needs:
+        - windows-vs2022-ninja-arrows:build
 
-# # windows wheels
-# wheel-windows-python:build:
-#     stage: build
-#     extends:
-#         - .python-wheel-matrix
-#         - .wheel_windows_x86_64
-#         - .windows_builder_tags
-#         - .cmake_wheel_artifacts
-#         - .rules
-#         - .warning_policy
-#     interruptible: true
-#     variables:
-#         GIT_DEPTH: 0  # Full git history for setuptools-scm version generation
-#     script:
-#         - .gitlab/ci/build_wheel_windows.ps1
+# windows wheels
+wheel-windows-python:build:
+    stage: build
+    extends:
+        - .python-wheel-matrix
+        - .wheel_windows_x86_64
+        - .windows_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules
+        - .warning_policy
+    interruptible: true
+    variables:
+        GIT_DEPTH: 0  # Full git history for setuptools-scm version generation
+    script:
+        - .gitlab/ci/build_wheel_windows.ps1
 
-# wheel-windows-python:test:
-#     stage: test
-#     extends:
-#         - .python-wheel-matrix
-#         - .wheel_windows_x86_64
-#         - .windows_builder_tags
-#         - .cmake_wheel_artifacts
-#         - .rules
-#         - .warning_policy
-#     interruptible: true
-#     script:
-#         - .gitlab/ci/test_wheel_windows.ps1
-#     needs:
-#         - wheel-windows-python:build
+wheel-windows-python:test:
+    stage: test
+    extends:
+        - .python-wheel-matrix
+        - .wheel_windows_x86_64
+        - .windows_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules
+        - .warning_policy
+    interruptible: true
+    script:
+        - .gitlab/ci/test_wheel_windows.ps1
+    needs:
+        - wheel-windows-python:build
 
-# wheel:kwiver:upload:
-#     extends:
-#         - .pypi_kwiver_upload
-#         - .rules
-#     variables:
-#         KWIVER_CI_UPLOAD: "true"
-#     needs:
-#         - job: wheel-linux-python:build
-#           artifacts: true
-#         - job: wheel-windows-python:build
-#           artifacts: true
+wheel:kwiver:upload:
+    extends:
+        - .pypi_kwiver_upload
+        - .rules
+    variables:
+        KWIVER_CI_UPLOAD: "true"
+    needs:
+        - job: wheel-linux-python:build
+          artifacts: true
+        - job: wheel-windows-python:build
+          artifacts: true
