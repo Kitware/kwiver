@@ -15,10 +15,7 @@ kwiver_discover_gtests(ffmpeg video_input_ffmpeg_clip   LIBRARIES ${test_librari
 # XXX(ffmpeg-rewire)
 # kwiver_discover_gtests(ffmpeg video_input_ffmpeg_rewire LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(ffmpeg video_output_ffmpeg       LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
-# TODO: Debug test failure on windows and re-enable
-if (NOT WIN32)
-  kwiver_discover_gtests(ffmpeg video_streaming_ffmpeg    LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
-endif()
+kwiver_discover_gtests(ffmpeg video_streaming_ffmpeg    LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 
 if( KWIVER_ENABLE_SERIALIZE_JSON )
   kwiver_discover_gtests(ffmpeg video_input_ffmpeg_klv
