@@ -21,10 +21,196 @@
 #endif
 
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
+#include <regex>
 
 namespace { // anon
+
+// -----------------------------------------------------------------------------
+// OpenCV YAML matrix parsing utilities
+// OpenCV YAML format uses !!opencv-matrix tag with rows, cols, dt, and data fields
+// -----------------------------------------------------------------------------
+
+// Trim whitespace from both ends of a string
+std::string trim( const std::string& str )
+{
+  size_t first = str.find_first_not_of( " \t\n\r" );
+  if( first == std::string::npos )
+  {
+    return "";
+  }
+  size_t last = str.find_last_not_of( " \t\n\r" );
+  return str.substr( first, last - first + 1 );
+}
+
+// Parse a comma-separated list of doubles from a string like "[ 1.0, 2.0, 3.0 ]"
+std::vector<double> parse_double_array( const std::string& str )
+{
+  std::vector<double> values;
+  std::string content = str;
+
+  // Remove brackets
+  size_t start = content.find( '[' );
+  size_t end = content.rfind( ']' );
+  if( start != std::string::npos && end != std::string::npos && end > start )
+  {
+    content = content.substr( start + 1, end - start - 1 );
+  }
+
+  // Split by comma and parse
+  std::stringstream ss( content );
+  std::string token;
+  while( std::getline( ss, token, ',' ) )
+  {
+    std::string trimmed = trim( token );
+    if( !trimmed.empty() )
+    {
+      try
+      {
+        values.push_back( std::stod( trimmed ) );
+      }
+      catch( ... )
+      {
+        // Skip invalid values
+      }
+    }
+  }
+  return values;
+}
+
+// Structure to hold parsed OpenCV matrix data
+struct ocv_yaml_matrix
+{
+  int rows = 0;
+  int cols = 0;
+  std::string dtype;
+  std::vector<double> data;
+
+  bool is_valid() const
+  {
+    return rows > 0 && cols > 0 &&
+           static_cast<size_t>(rows * cols) == data.size();
+  }
+
+  double at( int r, int c ) const
+  {
+    return data[ r * cols + c ];
+  }
+};
+
+// Parse OpenCV YAML file and extract matrices by name
+// Returns a map of matrix name -> ocv_yaml_matrix
+std::map<std::string, ocv_yaml_matrix> parse_ocv_yaml_file( const std::string& filename )
+{
+  std::map<std::string, ocv_yaml_matrix> matrices;
+
+  std::ifstream file( filename );
+  if( !file.is_open() )
+  {
+    return matrices;
+  }
+
+  std::string line;
+  std::string current_matrix_name;
+  ocv_yaml_matrix current_matrix;
+  bool in_matrix = false;
+  std::string data_buffer;
+  bool collecting_data = false;
+
+  while( std::getline( file, line ) )
+  {
+    std::string trimmed = trim( line );
+
+    // Skip YAML header and comments
+    if( trimmed.empty() || trimmed[0] == '%' || trimmed[0] == '#' || trimmed == "---" )
+    {
+      continue;
+    }
+
+    // Check for new matrix definition (name followed by !!opencv-matrix)
+    if( trimmed.find( "!!opencv-matrix" ) != std::string::npos )
+    {
+      // Save previous matrix if valid
+      if( in_matrix && !current_matrix_name.empty() && current_matrix.is_valid() )
+      {
+        matrices[current_matrix_name] = current_matrix;
+      }
+
+      // Start new matrix
+      size_t colon_pos = trimmed.find( ':' );
+      if( colon_pos != std::string::npos )
+      {
+        current_matrix_name = trim( trimmed.substr( 0, colon_pos ) );
+      }
+      current_matrix = ocv_yaml_matrix();
+      in_matrix = true;
+      collecting_data = false;
+      data_buffer.clear();
+      continue;
+    }
+
+    if( !in_matrix )
+    {
+      continue;
+    }
+
+    // Parse matrix properties
+    size_t colon_pos = trimmed.find( ':' );
+    if( colon_pos != std::string::npos )
+    {
+      std::string key = trim( trimmed.substr( 0, colon_pos ) );
+      std::string value = trim( trimmed.substr( colon_pos + 1 ) );
+
+      if( key == "rows" )
+      {
+        current_matrix.rows = std::stoi( value );
+      }
+      else if( key == "cols" )
+      {
+        current_matrix.cols = std::stoi( value );
+      }
+      else if( key == "dt" )
+      {
+        current_matrix.dtype = value;
+      }
+      else if( key == "data" )
+      {
+        // Data might start on this line or continue on next lines
+        collecting_data = true;
+        if( !value.empty() )
+        {
+          data_buffer = value;
+          // Check if data is complete (ends with ])
+          if( value.find( ']' ) != std::string::npos )
+          {
+            current_matrix.data = parse_double_array( data_buffer );
+            collecting_data = false;
+          }
+        }
+      }
+    }
+    else if( collecting_data )
+    {
+      // Continue collecting data array
+      data_buffer += " " + trimmed;
+      if( trimmed.find( ']' ) != std::string::npos )
+      {
+        current_matrix.data = parse_double_array( data_buffer );
+        collecting_data = false;
+      }
+    }
+  }
+
+  // Save last matrix if valid
+  if( in_matrix && !current_matrix_name.empty() && current_matrix.is_valid() )
+  {
+    matrices[current_matrix_name] = current_matrix;
+  }
+
+  return matrices;
+}
 
 //
 // helper class for left / right camera intrinsics shared beween json and yaml loaders
@@ -510,8 +696,268 @@ read_stereo_rig_json( path_t const& FN )
 camera_rig_stereo_sptr
 read_stereo_rig_yaml( path_t const& FN )
 {
-  // TODO read
-  return camera_rig_stereo_sptr();
+  // Parse the YAML file to extract matrices
+  auto matrices = parse_ocv_yaml_file( FN );
+  if( matrices.empty() )
+  {
+    LOG_ERROR( logger, "Failed to parse YAML file or no matrices found: " + FN );
+    return camera_rig_stereo_sptr();
+  }
+
+  // Look for camera matrices (M1/M2 or cameraMatrixL/cameraMatrixR)
+  auto find_matrix = [&matrices]( const std::vector<std::string>& names ) -> const ocv_yaml_matrix* {
+    for( const auto& name : names )
+    {
+      auto it = matrices.find( name );
+      if( it != matrices.end() && it->second.is_valid() )
+      {
+        return &it->second;
+      }
+    }
+    return nullptr;
+  };
+
+  // Try to find camera matrices
+  const auto* M1 = find_matrix( { "M1", "cameraMatrixL", "cameraMatrix1" } );
+  const auto* M2 = find_matrix( { "M2", "cameraMatrixR", "cameraMatrix2" } );
+  const auto* D1 = find_matrix( { "D1", "distCoeffsL", "distCoeffs1" } );
+  const auto* D2 = find_matrix( { "D2", "distCoeffsR", "distCoeffs2" } );
+  const auto* R = find_matrix( { "R" } );
+  const auto* T = find_matrix( { "T" } );
+
+  // Check that we have the minimum required matrices
+  if( !M1 || !M2 )
+  {
+    LOG_ERROR( logger, "YAML file missing required camera matrices (M1/M2): " + FN );
+    return camera_rig_stereo_sptr();
+  }
+
+  // Extract left camera intrinsics from 3x3 matrix
+  // K = [fx  0  cx]
+  //     [0  fy  cy]
+  //     [0   0   1]
+  if( M1->rows != 3 || M1->cols != 3 || M2->rows != 3 || M2->cols != 3 )
+  {
+    LOG_ERROR( logger, "Camera matrices must be 3x3: " + FN );
+    return camera_rig_stereo_sptr();
+  }
+
+  double fx_left = M1->at( 0, 0 );
+  double fy_left = M1->at( 1, 1 );
+  double cx_left = M1->at( 0, 2 );
+  double cy_left = M1->at( 1, 2 );
+
+  double fx_right = M2->at( 0, 0 );
+  double fy_right = M2->at( 1, 1 );
+  double cx_right = M2->at( 0, 2 );
+  double cy_right = M2->at( 1, 2 );
+
+  // Extract distortion coefficients (k1, k2, p1, p2, k3)
+  Eigen::VectorXd dist_left( 5 );
+  Eigen::VectorXd dist_right( 5 );
+  dist_left.setZero();
+  dist_right.setZero();
+
+  if( D1 && D1->is_valid() )
+  {
+    size_t n = std::min( D1->data.size(), size_t( 5 ) );
+    for( size_t i = 0; i < n; ++i )
+    {
+      dist_left[i] = D1->data[i];
+    }
+  }
+
+  if( D2 && D2->is_valid() )
+  {
+    size_t n = std::min( D2->data.size(), size_t( 5 ) );
+    for( size_t i = 0; i < n; ++i )
+    {
+      dist_right[i] = D2->data[i];
+    }
+  }
+
+  // Build intrinsics
+  intrinsics_builder left_intrinsics( fx_left, fy_left, cx_left, cy_left, dist_left );
+  intrinsics_builder right_intrinsics( fx_right, fy_right, cx_right, cy_right, dist_right );
+
+  // Build left camera (at origin with identity rotation)
+  vector_3d center = { 0, 0, 0 };
+  rotation_d rotation;
+  auto left_cam = std::make_shared<simple_camera_perspective>(
+    center, rotation, left_intrinsics.make_intrinsics()
+  );
+
+  // Build right camera with rotation and translation relative to left
+  Eigen::Matrix<double, 3, 3> rm;
+  rm.setIdentity();
+
+  if( R && R->is_valid() && R->rows == 3 && R->cols == 3 )
+  {
+    for( int i = 0; i < 3; ++i )
+    {
+      for( int j = 0; j < 3; ++j )
+      {
+        rm( i, j ) = R->at( i, j );
+      }
+    }
+  }
+
+  vector_3d tv = { 0, 0, 0 };
+  if( T && T->is_valid() && T->data.size() >= 3 )
+  {
+    tv[0] = T->data[0];
+    tv[1] = T->data[1];
+    tv[2] = T->data[2];
+  }
+
+  rotation = rotation_d( rm );
+  auto right_cam = std::make_shared<simple_camera_perspective>(
+    center, rotation, right_intrinsics.make_intrinsics()
+  );
+  right_cam->set_translation( tv );
+
+  return std::make_shared<camera_rig_stereo>( left_cam, right_cam );
+}
+
+camera_rig_stereo_sptr
+read_stereo_rig_from_ocv_dir( path_t const& dir_path )
+{
+  // OpenCV stereo calibration typically outputs two files:
+  // - intrinsics.yml: M1, D1, M2, D2 (camera matrices and distortion coefficients)
+  // - extrinsics.yml: R, T, R1, R2, P1, P2, Q (stereo rectification params)
+
+  std::string intrinsics_path = dir_path + "/intrinsics.yml";
+  std::string extrinsics_path = dir_path + "/extrinsics.yml";
+
+  // Parse both files
+  auto intrinsics = parse_ocv_yaml_file( intrinsics_path );
+  auto extrinsics = parse_ocv_yaml_file( extrinsics_path );
+
+  if( intrinsics.empty() && extrinsics.empty() )
+  {
+    LOG_ERROR( logger, "Failed to read OpenCV calibration files from directory: " + dir_path );
+    return camera_rig_stereo_sptr();
+  }
+
+  // Merge matrices from both files (extrinsics takes precedence for duplicates)
+  std::map<std::string, ocv_yaml_matrix> matrices;
+  for( const auto& kv : intrinsics )
+  {
+    matrices[kv.first] = kv.second;
+  }
+  for( const auto& kv : extrinsics )
+  {
+    matrices[kv.first] = kv.second;
+  }
+
+  // Find required matrices
+  auto find_matrix = [&matrices]( const std::vector<std::string>& names ) -> const ocv_yaml_matrix* {
+    for( const auto& name : names )
+    {
+      auto it = matrices.find( name );
+      if( it != matrices.end() && it->second.is_valid() )
+      {
+        return &it->second;
+      }
+    }
+    return nullptr;
+  };
+
+  const auto* M1 = find_matrix( { "M1", "cameraMatrixL", "cameraMatrix1" } );
+  const auto* M2 = find_matrix( { "M2", "cameraMatrixR", "cameraMatrix2" } );
+  const auto* D1 = find_matrix( { "D1", "distCoeffsL", "distCoeffs1" } );
+  const auto* D2 = find_matrix( { "D2", "distCoeffsR", "distCoeffs2" } );
+  const auto* R = find_matrix( { "R" } );
+  const auto* T = find_matrix( { "T" } );
+
+  if( !M1 || !M2 )
+  {
+    LOG_ERROR( logger, "OpenCV calibration files missing required camera matrices (M1/M2)" );
+    return camera_rig_stereo_sptr();
+  }
+
+  if( M1->rows != 3 || M1->cols != 3 || M2->rows != 3 || M2->cols != 3 )
+  {
+    LOG_ERROR( logger, "Camera matrices must be 3x3" );
+    return camera_rig_stereo_sptr();
+  }
+
+  // Extract intrinsics
+  double fx_left = M1->at( 0, 0 );
+  double fy_left = M1->at( 1, 1 );
+  double cx_left = M1->at( 0, 2 );
+  double cy_left = M1->at( 1, 2 );
+
+  double fx_right = M2->at( 0, 0 );
+  double fy_right = M2->at( 1, 1 );
+  double cx_right = M2->at( 0, 2 );
+  double cy_right = M2->at( 1, 2 );
+
+  // Extract distortion
+  Eigen::VectorXd dist_left( 5 );
+  Eigen::VectorXd dist_right( 5 );
+  dist_left.setZero();
+  dist_right.setZero();
+
+  if( D1 && D1->is_valid() )
+  {
+    size_t n = std::min( D1->data.size(), size_t( 5 ) );
+    for( size_t i = 0; i < n; ++i )
+    {
+      dist_left[i] = D1->data[i];
+    }
+  }
+
+  if( D2 && D2->is_valid() )
+  {
+    size_t n = std::min( D2->data.size(), size_t( 5 ) );
+    for( size_t i = 0; i < n; ++i )
+    {
+      dist_right[i] = D2->data[i];
+    }
+  }
+
+  // Build intrinsics
+  intrinsics_builder left_intrinsics( fx_left, fy_left, cx_left, cy_left, dist_left );
+  intrinsics_builder right_intrinsics( fx_right, fy_right, cx_right, cy_right, dist_right );
+
+  // Build left camera
+  vector_3d center = { 0, 0, 0 };
+  rotation_d rotation;
+  auto left_cam = std::make_shared<simple_camera_perspective>(
+    center, rotation, left_intrinsics.make_intrinsics()
+  );
+
+  // Build right camera
+  Eigen::Matrix<double, 3, 3> rm;
+  rm.setIdentity();
+
+  if( R && R->is_valid() && R->rows == 3 && R->cols == 3 )
+  {
+    for( int i = 0; i < 3; ++i )
+    {
+      for( int j = 0; j < 3; ++j )
+      {
+        rm( i, j ) = R->at( i, j );
+      }
+    }
+  }
+
+  vector_3d tv = { 0, 0, 0 };
+  if( T && T->is_valid() && T->data.size() >= 3 )
+  {
+    tv[0] = T->data[0];
+    tv[1] = T->data[1];
+    tv[2] = T->data[2];
+  }
+
+  rotation = rotation_d( rm );
+  auto right_cam = std::make_shared<simple_camera_perspective>(
+    center, rotation, right_intrinsics.make_intrinsics()
+  );
+  right_cam->set_translation( tv );
+
+  return std::make_shared<camera_rig_stereo>( left_cam, right_cam );
 }
 
 #ifdef KWIVER_ENABLE_ZLIB
@@ -634,6 +1080,12 @@ read_stereo_rig_npz( path_t const& FN )
 camera_rig_stereo_sptr
 read_stereo_rig( path_t const& FN )
 {
+  // Check if the path is a directory (OpenCV calibration format)
+  if( kwiversys::SystemTools::FileIsDirectory( FN ) )
+  {
+    return read_stereo_rig_from_ocv_dir( FN );
+  }
+
   auto const & ext = get_file_ext(FN);
   if (ext == ".json")
   {

@@ -29,17 +29,33 @@ namespace vital {
 camera_rig_sptr
 VITAL_EXPORT read_camera_rig( path_list_t const& cam_files );
 
-/// Load a stereo rig from a file.
+/// Load a stereo rig from a file or directory.
+///
+/// Supports the following formats:
+/// - .json: JSON format with camera intrinsics and extrinsics
+/// - .yml/.yaml: OpenCV YAML format with camera matrices
+/// - .npz: NumPy compressed archive (requires ZLIB)
+/// - directory: OpenCV calibration directory with intrinsics.yml and extrinsics.yml
 ///
 /// \throws invalid_data
 ///   Unable to find any camera files in the given directory
 /// \throw path_not_exists
 ///   The specified directory does not exist
 ///
-/// \param FN input file name
+/// \param FN input file name or directory path
 /// \return a new stereo rig
 camera_rig_stereo_sptr
 VITAL_EXPORT read_stereo_rig( path_t const& FN );
+
+/// Load a stereo rig from an OpenCV calibration directory.
+///
+/// Expects a directory containing intrinsics.yml and extrinsics.yml files
+/// in OpenCV FileStorage format with matrices M1, D1, M2, D2, R, T.
+///
+/// \param dir_path path to the calibration directory
+/// \return a new stereo rig
+camera_rig_stereo_sptr
+VITAL_EXPORT read_stereo_rig_from_ocv_dir( path_t const& dir_path );
 
 /// Save a camera rig to KRtd file(s)
 ///
