@@ -167,7 +167,12 @@ endif()
 # Get canonical directory for python site packages (relative to install
 # location).  It varys from system to system.
 #
-_pycmd(python_site_packages "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))")
+_pycmd(python_site_packages "
+try:
+    from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))
+except ImportError:
+    import sysconfig, os; print(os.path.relpath(sysconfig.get_path('purelib'), sysconfig.get_path('data')))
+")
 message(STATUS "python_site_packages = ${python_site_packages}")
 
 # Current usage determines most of the path in alternate ways.
@@ -211,7 +216,7 @@ endif()
 #
 if (KWIVER_PYTHON_MAJOR_VERSION STREQUAL "3")
   # In python 3, we can determine what the ABI flags are
-  _pycmd(_python_abi_flags "from distutils import sysconfig; print(sysconfig.get_config_var('ABIFLAGS'))")
+  _pycmd(_python_abi_flags "import sysconfig; print(sysconfig.get_config_var('ABIFLAGS') or '')")
 else()
   # Not sure if ABI flags are easilly found (or are even used in python2)
   set(_python_abi_flags, "")
