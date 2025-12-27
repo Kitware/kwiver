@@ -27,7 +27,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 
 
-from pkg_resources import iter_entry_points, DistributionNotFound
+from importlib.metadata import entry_points
 from kwiver.vital import vital_logging
 from kwiver import PYTHON_PLUGIN_ENTRYPOINT, CPP_SEARCH_PATHS_ENTRYPOINT
 import kwiver
@@ -38,6 +38,17 @@ import os
 
 logger = vital_logging.getLogger(__name__)
 
+def _get_entry_points(group):
+    """
+    Get entry points for a given group, handling different Python versions.
+    """
+    eps = entry_points()
+    # Python 3.10+ returns a SelectableGroups object
+    if hasattr(eps, 'select'):
+        return eps.select(group=group)
+    # Python 3.9 returns a dict
+    return eps.get(group, [])
+
 def get_python_plugins_from_entrypoint():
     """
     Get a list of python plugins that were registered through
@@ -46,14 +57,11 @@ def get_python_plugins_from_entrypoint():
              functions
     """
     py_modules = []
-    try:
-        for entry_point in iter_entry_points(PYTHON_PLUGIN_ENTRYPOINT):
-            try:
-                py_modules.append(entry_point.load())
-            except ImportError:
-                logger.warn("Failed to load entry point: {0}".format(entry_point))
-    except DistributionNotFound:
-        pass
+    for entry_point in _get_entry_points(PYTHON_PLUGIN_ENTRYPOINT):
+        try:
+            py_modules.append(entry_point.load())
+        except ImportError:
+            logger.warn("Failed to load entry point: {0}".format(entry_point))
     return py_modules
 
 
@@ -63,21 +71,18 @@ def get_cpp_paths_from_entrypoint():
     :return: A list of paths for c++ plugins
     """
     additional_search_paths = []
-    try:
-        for entry_point in iter_entry_points(CPP_SEARCH_PATHS_ENTRYPOINT):
-            try:
-                search_path = entry_point.load()()
-            except ImportError:
-                logger.warn("Failed to load entry point: {0}".format(entry_point))
-                continue
+    for entry_point in _get_entry_points(CPP_SEARCH_PATHS_ENTRYPOINT):
+        try:
+            search_path = entry_point.load()()
+        except ImportError:
+            logger.warn("Failed to load entry point: {0}".format(entry_point))
+            continue
 
-            if os.path.exists(search_path):
-                additional_search_paths.append(search_path)
-            else:
-                logger.warn('Invalid search path {0} specified by {1}'.format(search_path,
-                            entry_point))
-    except DistributionNotFound:
-        pass
+        if os.path.exists(search_path):
+            additional_search_paths.append(search_path)
+        else:
+            logger.warn('Invalid search path {0} specified by {1}'.format(search_path,
+                        entry_point))
 
     return additional_search_paths
 
