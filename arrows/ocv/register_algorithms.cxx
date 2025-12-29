@@ -43,18 +43,12 @@
 #include <arrows/ocv/match_features_flannbased.h>
 #include <arrows/ocv/merge_images.h>
 #include <arrows/ocv/hough_circle_detector.h>
-#include <arrows/ocv/refine_detections_grabcut.h>
-#include <arrows/ocv/refine_detections_watershed.h>
 #include <arrows/ocv/refine_detections_write_to_disk.h>
 #include <arrows/ocv/split_image_channels.h>
-#include <arrows/ocv/split_image_horizontally.h>
 #include <arrows/ocv/track_features_klt.h>
 #include <arrows/ocv/detect_motion_3frame_differencing.h>
 #include <arrows/ocv/detect_motion_mog2.h>
 #include <arrows/ocv/detect_heat_map.h>
-#include <arrows/ocv/windowed_detector.h>
-#include <arrows/ocv/windowed_refiner.h>
-#include <arrows/ocv/windowed_trainer.h>
 
 namespace kwiver {
 namespace arrows {
@@ -101,10 +95,6 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< hough_circle_detector >();
   reg.register_algorithm< detect_motion_3frame_differencing >();
   reg.register_algorithm< detect_motion_mog2 >();
-
-  reg.register_algorithm< windowed_detector >();
-  reg.register_algorithm< windowed_refiner >();
-  reg.register_algorithm< windowed_trainer >();
 
   // Conditional algorithms
   // Source ``KWIVER_OCV_HAS_*`` symbol definitions can be found in the header
@@ -153,11 +143,8 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 
   reg.register_algorithm< detect_heat_map >();
 
-  reg.register_algorithm< refine_detections_grabcut >();
-  reg.register_algorithm< refine_detections_watershed >();
   reg.register_algorithm< refine_detections_write_to_disk >();
   reg.register_algorithm< split_image_channels >();
-  reg.register_algorithm< split_image_horizontally >();
   reg.register_algorithm< merge_images >();
   reg.register_algorithm< track_features_klt >();
   //reg.register_algorithm< estimate_pnp >();

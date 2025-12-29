@@ -28,11 +28,6 @@ if( KWIVER_ENABLE_OPENCV )
   add_subdirectory( ocv )
 endif()
 
-# Add SVM plugin if enabled
-if( KWIVER_ENABLE_SVM)
-  add_subdirectory( svm )
-endif()
-
 # Add PROJ plugin if enabled
 if( KWIVER_ENABLE_PROJ )
   add_subdirectory( proj )
@@ -72,16 +67,6 @@ endif()
 # if matlab is enabled
 if( KWIVER_ENABLE_MATLAB )
   add_subdirectory( matlab )
-endif()
-
-# if database is enabled
-if (KWIVER_ENABLE_DATABASE)
-  add_subdirectory( database )
-endif()
-
-  # if burnout is enabled
-if( KWIVER_ENABLE_BURNOUT )
-  add_subdirectory( burnout )
 endif()
 
 # if kpf is enabled

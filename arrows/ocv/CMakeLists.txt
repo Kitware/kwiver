@@ -45,17 +45,10 @@ set( ocv_headers_public
   match_features_flannbased.h
   match_set.h
   merge_images.h
-  refine_detections_grabcut.h
-  refine_detections_watershed.h
   refine_detections_write_to_disk.h
   resection_camera.h
   split_image_channels.h
-  split_image_horizontally.h
   track_features_klt.h
-  windowed_detector.h
-  windowed_refiner.h
-  windowed_utils.h
-  windowed_trainer.h
   )
 kwiver_install_headers(
   SUBDIR     arrows/ocv
@@ -108,19 +101,10 @@ set( ocv_sources
   match_features_flannbased.cxx
   match_set.cxx
   merge_images.cxx
-  refine_detections_grabcut.cxx
-  refine_detections_util.cxx
-  refine_detections_util.h
-  refine_detections_watershed.cxx
   refine_detections_write_to_disk.cxx
   resection_camera.cxx
   split_image_channels.cxx
-  split_image_horizontally.cxx
   track_features_klt.cxx
-  windowed_detector.cxx
-  windowed_refiner.cxx
-  windowed_utils.cxx
-  windowed_trainer.cxx
   )
 
 add_definitions( -DHAVE_OPENCV_NONFREE -DHAVE_OPENCV_XFEATURES2D )

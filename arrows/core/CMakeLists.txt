@@ -4,7 +4,6 @@ set(CMAKE_FOLDER "Arrows/Core")
 
 set( plugin_core_headers
   associate_detections_to_tracks_threshold.h
-  average_track_descriptors.h
   class_probablity_filter.h
   close_loops_appearance_indexed.h
   close_loops_bad_frames_only.h
@@ -33,7 +32,6 @@ set( plugin_core_headers
   filter_features_nonmax.h
   filter_features_scale.h
   filter_tracks.h
-  full_frame_detector.h
   handle_descriptor_request_core.h
   initialize_object_tracks_threshold.h
   keyframe_selector_basic.h
@@ -43,13 +41,10 @@ set( plugin_core_headers
   merge_metadata_streams.h
   mesh_intersect.h
   mesh_operations.h
-  merge_detections_suppress_in_regions.h
   metadata_map_io_csv.h
   metadata_stream_from_video.h
   read_object_track_set_kw18.h
   read_track_descriptor_set_csv.h
-  refine_detections_add_fixed.h
-  refine_detections_nms.h
   render_mesh_depth_map.h
   track_features_augment_keyframes.h
   track_features_core.h
@@ -86,7 +81,6 @@ kwiver_install_headers(
 
 set( plugin_core_sources
   associate_detections_to_tracks_threshold.cxx
-  average_track_descriptors.cxx
   class_probablity_filter.cxx
   close_loops_appearance_indexed.cxx
   close_loops_bad_frames_only.cxx
@@ -115,7 +109,6 @@ set( plugin_core_sources
   filter_features_nonmax.cxx
   filter_features_scale.cxx
   filter_tracks.cxx
-  full_frame_detector.cxx
   handle_descriptor_request_core.cxx
   initialize_object_tracks_threshold.cxx
   keyframe_selector_basic.cxx
@@ -125,13 +118,10 @@ set( plugin_core_sources
   merge_metadata_streams.cxx
   mesh_intersect.cxx
   mesh_operations.cxx
-  merge_detections_suppress_in_regions.cxx
   metadata_map_io_csv.cxx
   metadata_stream_from_video.cxx
   read_object_track_set_kw18.cxx
   read_track_descriptor_set_csv.cxx
-  refine_detections_add_fixed.cxx
-  refine_detections_nms.cxx
   render_mesh_depth_map.cxx
   track_features_augment_keyframes.cxx
   track_features_core.cxx

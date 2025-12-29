@@ -10,7 +10,6 @@
 #include <vital/algo/algorithm_factory.h>
 
 #include <arrows/core/associate_detections_to_tracks_threshold.h>
-#include <arrows/core/average_track_descriptors.h>
 #include <arrows/core/class_probablity_filter.h>
 #include <arrows/core/close_loops_bad_frames_only.h>
 #include <arrows/core/close_loops_appearance_indexed.h>
@@ -36,19 +35,15 @@
 #include <arrows/core/filter_features_nonmax.h>
 #include <arrows/core/filter_features_scale.h>
 #include <arrows/core/filter_tracks.h>
-#include <arrows/core/full_frame_detector.h>
 #include <arrows/core/handle_descriptor_request_core.h>
 #include <arrows/core/initialize_object_tracks_threshold.h>
 #include <arrows/core/interpolate_track_spline.h>
 #include <arrows/core/keyframe_selector_basic.h>
 #include <arrows/core/match_features_fundamental_matrix.h>
 #include <arrows/core/match_features_homography.h>
-#include <arrows/core/merge_detections_suppress_in_regions.h>
 #include <arrows/core/metadata_map_io_csv.h>
 #include <arrows/core/read_object_track_set_kw18.h>
 #include <arrows/core/read_track_descriptor_set_csv.h>
-#include <arrows/core/refine_detections_add_fixed.h>
-#include <arrows/core/refine_detections_nms.h>
 #include <arrows/core/track_features_augment_keyframes.h>
 #include <arrows/core/track_features_core.h>
 #include <arrows/core/transfer_bbox_with_depth_map.h>
@@ -82,7 +77,6 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   }
 
   reg.register_algorithm< associate_detections_to_tracks_threshold >();
-  reg.register_algorithm< average_track_descriptors >();
   reg.register_algorithm< class_probablity_filter >();
   reg.register_algorithm< close_loops_appearance_indexed >();
   reg.register_algorithm< close_loops_bad_frames_only >();
@@ -108,19 +102,15 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_algorithm< filter_features_nonmax >();
   reg.register_algorithm< filter_features_scale >();
   reg.register_algorithm< filter_tracks >();
-  reg.register_algorithm< full_frame_detector >();
   reg.register_algorithm< handle_descriptor_request_core >();
   reg.register_algorithm< initialize_object_tracks_threshold >();
   reg.register_algorithm< interpolate_track_spline >();
   reg.register_algorithm< keyframe_selector_basic >();
   reg.register_algorithm< match_features_fundamental_matrix >();
   reg.register_algorithm< match_features_homography >();
-  reg.register_algorithm< merge_detections_suppress_in_regions >();
   reg.register_algorithm< metadata_map_io_csv >();
   reg.register_algorithm< read_object_track_set_kw18 >();
   reg.register_algorithm< read_track_descriptor_set_csv >();
-  reg.register_algorithm< refine_detections_add_fixed >();
-  reg.register_algorithm< refine_detections_nms >();
   reg.register_algorithm< track_features_augment_keyframes >();
   reg.register_algorithm< track_features_core >();
   reg.register_algorithm< transfer_bbox_with_depth_map >();
