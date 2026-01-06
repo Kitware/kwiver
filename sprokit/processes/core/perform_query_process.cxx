@@ -359,9 +359,24 @@ perform_query_process
 ::_step()
 {
   // Check for termination since we are in manual mode
-  auto p_info = peek_at_port_using_trait( database_query );
+  // Need to check all connected input ports for completion signals
+  auto db_query_info = peek_at_port_using_trait( database_query );
 
-  if( p_info.datum->type() == sprokit::datum::complete )
+  bool is_complete = ( db_query_info.datum->type() == sprokit::datum::complete );
+
+  // Check optional ports for completion if they are connected
+  if( !is_complete && has_input_port_edge_using_trait( image_set ) )
+  {
+    auto img_set_info = peek_at_port_using_trait( image_set );
+    is_complete = ( img_set_info.datum->type() == sprokit::datum::complete );
+  }
+  if( !is_complete && has_input_port_edge_using_trait( track_descriptor_set ) )
+  {
+    auto tds_info = peek_at_port_using_trait( track_descriptor_set );
+    is_complete = ( tds_info.datum->type() == sprokit::datum::complete );
+  }
+
+  if( is_complete )
   {
     grab_edge_datum_using_trait( database_query );
 
@@ -377,7 +392,10 @@ perform_query_process
     {
       grab_edge_datum_using_trait( track_descriptor_set );
     }
-    grab_edge_datum_using_trait( image_set );
+    if( has_input_port_edge_using_trait( image_set ) )
+    {
+      grab_edge_datum_using_trait( image_set );
+    }
     mark_process_as_complete();
 
     const sprokit::datum_t dat = sprokit::datum::complete_datum();

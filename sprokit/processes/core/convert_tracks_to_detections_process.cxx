@@ -97,10 +97,12 @@ void
 convert_tracks_to_detections_process
 ::_step()
 {
-  // Check for complete messages
-  auto port_info = peek_at_port_using_trait( timestamp );
+  // Check for complete messages on either input port
+  auto ts_port_info = peek_at_port_using_trait( timestamp );
+  auto trk_port_info = peek_at_port_using_trait( object_track_set );
 
-  if( port_info.datum->type() == sprokit::datum::complete )
+  if( ts_port_info.datum->type() == sprokit::datum::complete ||
+      trk_port_info.datum->type() == sprokit::datum::complete )
   {
     grab_edge_datum_using_trait( timestamp );
     grab_edge_datum_using_trait( object_track_set );
