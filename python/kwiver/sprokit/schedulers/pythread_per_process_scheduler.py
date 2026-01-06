@@ -96,6 +96,8 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
             proc = p.process_by_name(name)
 
             thread = threading.Thread(target=self._run_process, name=name, args=(proc,))
+            # Make daemon so threads don't prevent process exit if stuck waiting on edges
+            thread.daemon = True
 
             self._threads.append(thread)
 
@@ -103,8 +105,26 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
             thread.start()
 
     def _wait(self):
-        for thread in self._threads:
-            thread.join()
+        # If an error occurred, use timeout-based joins to avoid hanging forever
+        # on threads that are blocked waiting on edges
+        if self._process_exception is not None:
+            # Give threads a short time to clean up gracefully
+            for thread in self._threads:
+                thread.join(timeout=2.0)
+        else:
+            # Normal case: wait indefinitely for all threads
+            for thread in self._threads:
+                thread.join()
+                # Check if an error occurred while waiting
+                if self._process_exception is not None:
+                    # Switch to timeout-based joins for remaining threads
+                    break
+
+            # If we broke out early due to error, join remaining threads with timeout
+            if self._process_exception is not None:
+                for thread in self._threads:
+                    if thread.is_alive():
+                        thread.join(timeout=2.0)
 
         # Re-raise any exception that occurred in a process thread
         if self._process_exception is not None:
@@ -118,7 +138,8 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
 
     def _stop(self):
         self._event.set()
-        self.shutdown()
+        # Note: Do NOT call self.shutdown() here - it's called by the base class
+        # after _stop() returns. Calling it here would cause deadlock/recursion.
 
     def _run_process(self, proc):
         utils.name_thread(proc.name())
