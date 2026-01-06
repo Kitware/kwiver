@@ -112,6 +112,13 @@ class ResnetFeatureExtractor(object):
         self._b_size = batch_size
         self.frame = None
 
+        # Warmup pass to initialize cuDNN in this thread context
+        with torch.no_grad():
+            dummy_input = torch.randn(1, 3, img_size, img_size).to(self._device)
+            _ = self._resnet_model(dummy_input)
+            del dummy_input
+            torch.cuda.synchronize()
+
     def __call__(self, bbox_list, MOT_flag):
         return self._obtain_feature(bbox_list, MOT_flag)
 
