@@ -9,6 +9,8 @@
 #include <vital/types/image_container_set_simple.h>
 #include <vital/types/detected_object_set.h>
 #include <vital/types/detected_object.h>
+#include <vital/types/detected_object_type.h>
+#include <vital/logger/logger.h>
 
 #include <kwiver_type_traits.h>
 
@@ -177,6 +179,13 @@ handle_descriptor_request_process
         static_cast< double >( box.max_y() ) );
 
       auto det = std::make_shared< vital::detected_object >( bbox );
+
+      // Set a type on the detection so it passes through class filters
+      // that require a detected_object_type to be present
+      auto dot = std::make_shared< vital::detected_object_type >();
+      dot->set_score( "query_region", 1.0 );
+      det->set_type( dot );
+
       dos->add( det );
     }
 

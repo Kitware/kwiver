@@ -9,6 +9,7 @@
 #include <sprokit/pipeline/process_exception.h>
 
 #include <vital/algo/query_track_descriptor_set.h>
+#include <vital/logger/logger.h>
 
 #include <sprokit/processes/adapters/embedded_pipeline.h>
 
@@ -410,7 +411,7 @@ perform_query_process
   vital::uchar_vector_sptr model;
   vital::track_descriptor_set_sptr query_descs;
   vital::image_container_set_sptr query_images;
-	
+
   query = grab_from_port_using_trait( database_query );
 
   if( has_input_port_edge_using_trait( iqr_feedback ) )
@@ -516,8 +517,9 @@ perform_query_process
     {
       for( auto track_desc : *query->descriptors() )
       {
+        auto raw_desc = track_desc->get_descriptor();
         exemplar_pos_uids->push_back( track_desc->get_uid().value() );
-        exemplar_raw_pos_descs.push_back( track_desc->get_descriptor() );
+        exemplar_raw_pos_descs.push_back( raw_desc );
       }
 
       if( !feedback && d->augmentation_pipeline )
