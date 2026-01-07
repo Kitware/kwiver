@@ -7,6 +7,8 @@
 #include <vital/vital_types.h>
 #include <vital/algo/handle_descriptor_request.h>
 #include <vital/types/image_container_set_simple.h>
+#include <vital/types/detected_object_set.h>
+#include <vital/types/detected_object.h>
 
 #include <kwiver_type_traits.h>
 
@@ -31,6 +33,9 @@ create_config_trait( image_pipeline_file, std::string, "",
 create_config_trait( assign_uids, bool, "true",
   "Whether or not this process should assign unique UIDs to each output "
   "descriptor produced by this process" );
+
+create_port_trait( boxes_provided, bool,
+  "Flag indicating if bounding boxes were provided in the descriptor request" );
 
 //------------------------------------------------------------------------------
 // Private implementation class
@@ -134,6 +139,7 @@ handle_descriptor_request_process
   {
     push_to_port_using_trait( track_descriptor_set, vital::track_descriptor_set_sptr() );
     push_to_port_using_trait( image_set, vital::image_container_set_sptr() );
+    push_to_port_using_trait( boxes_provided, false );
     return; // Normal return, no failure
   }
 
@@ -154,6 +160,27 @@ handle_descriptor_request_process
 
     ids->add_value( "filename", filename );
     ids->add_value( "stream_id", stream_id );
+
+    // Extract spatial regions (bounding boxes) from the request and convert
+    // to a detected_object_set for descriptor computation. Always send this
+    // value even if empty, so the pipeline can merge with detector output.
+    auto const& spatial_regions = request->spatial_regions();
+    auto dos = std::make_shared< vital::detected_object_set >();
+    bool boxes_provided = !spatial_regions.empty();
+
+    for( auto const& box : spatial_regions )
+    {
+      vital::bounding_box_d bbox(
+        static_cast< double >( box.min_x() ),
+        static_cast< double >( box.min_y() ),
+        static_cast< double >( box.max_x() ),
+        static_cast< double >( box.max_y() ) );
+
+      auto det = std::make_shared< vital::detected_object >( bbox );
+      dos->add( det );
+    }
+
+    ids->add_value( "detected_object_set", dos );
 
     // Send the request through the pipeline and wait for a result
     d->image_pipeline->send( ids );
@@ -197,9 +224,18 @@ handle_descriptor_request_process
   vital::image_container_set_sptr image_set(
     new vital::simple_image_container_set( images ) );
 
+  // Track if boxes were provided (set in the pipeline section above)
+  bool boxes_provided_flag = false;
+  if( d->image_pipeline )
+  {
+    auto const& spatial_regions = request->spatial_regions();
+    boxes_provided_flag = !spatial_regions.empty();
+  }
+
   // Return all outputs
   push_to_port_using_trait( track_descriptor_set, descriptors );
   push_to_port_using_trait( image_set, image_set );
+  push_to_port_using_trait( boxes_provided, boxes_provided_flag );
 }
 
 // -----------------------------------------------------------------------------
@@ -221,6 +257,7 @@ void handle_descriptor_request_process
   // -- output --
   declare_output_port_using_trait( track_descriptor_set, optional );
   declare_output_port_using_trait( image_set, optional );
+  declare_output_port_using_trait( boxes_provided, optional );
 }
 
 // -----------------------------------------------------------------------------
