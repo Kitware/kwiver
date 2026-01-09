@@ -53,12 +53,14 @@
 #   (RECOMMENDED)
 #   kwiver_discover_gtests(group name [SOURCES source ...]
 #                         [LIBRARIES library ...]
-#                         [ARGUMENTS arg ...])
+#                         [ARGUMENTS arg ...]
+#                         [PROPERTIES prop1 value1 ...])
 #     Build a test executable that uses Google Test. Tests are discovered and
 #     registered automatically. If no sources are listed, guesses that the
 #     source file is named ``test_<name>.cxx``. ``LIBRARIES`` may be used to
 #     specify a list of libraries that the executable needs to link. Test names
-#     will be prefixed with ``group``.
+#     will be prefixed with ``group``. ``PROPERTIES`` may be used to set
+#     properties on the discovered tests (e.g., LABELS).
 #
 
 include(GoogleTest)
@@ -196,7 +198,7 @@ endfunction ()
 
 # -----------------------------------------------------------------------------
 function (kwiver_discover_gtests MODULE NAME)
-  cmake_parse_arguments("" "" "" "SOURCES;LIBRARIES;ARGUMENTS" ${ARGN})
+  cmake_parse_arguments("" "" "" "SOURCES;LIBRARIES;ARGUMENTS;PROPERTIES" ${ARGN})
   if (NOT _SOURCES)
     set(_SOURCES test_${NAME}.cxx)
   endif()
@@ -205,6 +207,9 @@ function (kwiver_discover_gtests MODULE NAME)
   set(EXTRA_ARGS TEST_PREFIX ${MODULE}:)
   if (_ARGUMENTS)
     list(APPEND EXTRA_ARGS EXTRA_ARGS ${_ARGUMENTS} DISCOVERY_TIMEOUT 30)
+  endif()
+  if (_PROPERTIES)
+    list(APPEND EXTRA_ARGS PROPERTIES ${_PROPERTIES})
   endif()
 
   kwiver_build_test(${MODULE}-${NAME} _LIBRARIES ${_SOURCES})
