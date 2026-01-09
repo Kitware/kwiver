@@ -101,10 +101,7 @@ kwiver_logger_manager
                 << "Defaulting to built-in logger.\n"
                 << e.what() << std::endl;
     }
-    else
-    {
-      std::cerr << "INFO: Could not load default logger factory. Using built-in logger." << std::endl;
-    }
+    // Silently fall back to built-in logger if default plugin not available
   }
 
   // Create a default logger back end
