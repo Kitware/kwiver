@@ -84,12 +84,8 @@ class VITAL_EXPORT camera_rig_stereo: protected camera_rig
 {
 public:
   /// Construct a stereo rig using left and right cameras.
-  camera_rig_stereo(camera_sptr left, camera_sptr right)
-  {
-    add("left", left);
-    add("right", right);
-  }
-  virtual ~camera_rig_stereo() = default;
+  camera_rig_stereo(camera_sptr left, camera_sptr right);
+  virtual ~camera_rig_stereo();
   using camera_rig::cameras;
   using camera_rig::camera;
   camera_sptr left(){ return camera("left"); }
