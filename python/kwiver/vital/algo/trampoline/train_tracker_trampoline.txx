@@ -1,0 +1,106 @@
+// This file is part of KWIVER, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
+
+/**
+ * \file train_tracker_trampoline.txx
+ *
+ * \brief trampoline for overriding virtual functions of
+ *        algorithm_def<train_tracker> and train_tracker
+ */
+
+#ifndef TRAIN_TRACKER_TRAMPOLINE_TXX
+#define TRAIN_TRACKER_TRAMPOLINE_TXX
+
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+#include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
+#include <vital/algo/train_tracker.h>
+
+namespace kwiver {
+namespace vital  {
+namespace python {
+
+template < class algorithm_def_tt_base=
+            kwiver::vital::algorithm_def<
+              kwiver::vital::algo::train_tracker > >
+class algorithm_def_tt_trampoline :
+      public algorithm_trampoline<algorithm_def_tt_base>
+{
+  public:
+    using algorithm_trampoline<algorithm_def_tt_base>::algorithm_trampoline;
+
+    std::string type_name() const override
+    {
+      PYBIND11_OVERLOAD(
+        std::string,
+        kwiver::vital::algorithm_def<kwiver::vital::algo::train_tracker>,
+        type_name,
+      );
+    }
+};
+
+template< class train_tracker_base=
+                kwiver::vital::algo::train_tracker >
+class train_tracker_trampoline :
+      public algorithm_def_tt_trampoline< train_tracker_base >
+{
+  public:
+    using algorithm_def_tt_trampoline< train_tracker_base>::
+              algorithm_def_tt_trampoline;
+
+
+    void
+    add_data_from_disk( kwiver::vital::category_hierarchy_sptr object_labels,
+      std::vector< std::string > train_image_names,
+      std::vector< kwiver::vital::object_track_set_sptr > train_groundtruth,
+      std::vector< std::string > test_image_names,
+      std::vector< kwiver::vital::object_track_set_sptr > test_groundtruth ) override
+    {
+      PYBIND11_OVERLOAD(
+        void,
+        kwiver::vital::algo::train_tracker,
+        add_data_from_disk,
+        object_labels,
+        train_image_names,
+        train_groundtruth,
+        test_image_names,
+        test_groundtruth
+      );
+    }
+
+    void
+    add_data_from_memory( kwiver::vital::category_hierarchy_sptr object_labels,
+      std::vector< kwiver::vital::image_container_sptr > train_images,
+      std::vector< kwiver::vital::object_track_set_sptr > train_groundtruth,
+      std::vector< kwiver::vital::image_container_sptr > test_images,
+      std::vector< kwiver::vital::object_track_set_sptr > test_groundtruth ) override
+    {
+      PYBIND11_OVERLOAD(
+        void,
+        kwiver::vital::algo::train_tracker,
+        add_data_from_memory,
+        object_labels,
+        train_images,
+        train_groundtruth,
+        test_images,
+        test_groundtruth
+      );
+    }
+
+    void update_model() override
+    {
+      PYBIND11_OVERLOAD_PURE(
+        void,
+        kwiver::vital::algo::train_tracker,
+        update_model
+      );
+    }
+};
+
+}
+}
+}
+
+#endif

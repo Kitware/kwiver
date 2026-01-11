@@ -52,6 +52,7 @@ kwiver_add_python_library(algos
   split_image.h
   track_features.h
   train_detector.h
+  train_tracker.h
   transform_2d_io.h
   triangulate_landmarks.h
   uuid_factory.h
@@ -109,6 +110,7 @@ kwiver_add_python_library(algos
   split_image.cxx
   track_features.cxx
   train_detector.cxx
+  train_tracker.cxx
   transform_2d_io.cxx
   triangulate_landmarks.cxx
   uuid_factory.cxx
@@ -166,6 +168,7 @@ kwiver_add_python_library(algos
   trampoline/split_image_trampoline.txx
   trampoline/track_features_trampoline.txx
   trampoline/train_detector_trampoline.txx
+  trampoline/train_tracker_trampoline.txx
   trampoline/transform_2d_io_trampoline.txx
   trampoline/triangulate_landmarks_trampoline.txx
   trampoline/uuid_factory_trampoline.txx

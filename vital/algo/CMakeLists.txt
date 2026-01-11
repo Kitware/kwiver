@@ -66,6 +66,7 @@ set( public_headers
   split_image.h
   track_features.h
   train_detector.h
+  train_tracker.h
   transform_2d_io.h
   triangulate_landmarks.h
   uuid_factory.h
@@ -136,6 +137,7 @@ set( sources
   split_image.cxx
   track_features.cxx
   train_detector.cxx
+  train_tracker.cxx
   transform_2d_io.cxx
   triangulate_landmarks.cxx
   uuid_factory.cxx

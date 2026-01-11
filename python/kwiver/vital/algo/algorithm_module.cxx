@@ -57,6 +57,7 @@
 #include <python/kwiver/vital/algo/trampoline/split_image_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/track_features_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/train_detector_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/train_tracker_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/transform_2d_io_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/triangulate_landmarks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/uuid_factory_trampoline.txx>
@@ -111,6 +112,7 @@
 #include <python/kwiver/vital/algo/split_image.h>
 #include <python/kwiver/vital/algo/track_features.h>
 #include <python/kwiver/vital/algo/train_detector.h>
+#include <python/kwiver/vital/algo/train_tracker.h>
 #include <python/kwiver/vital/algo/transform_2d_io.h>
 #include <python/kwiver/vital/algo/triangulate_landmarks.h>
 #include <python/kwiver/vital/algo/uuid_factory.h>
@@ -221,6 +223,8 @@ PYBIND11_MODULE(algos, m)
             algorithm_def_tf_trampoline<>>(m, "track_features");
   register_algorithm<kwiver::vital::algo::train_detector,
             algorithm_def_td_trampoline<>>(m, "train_detector");
+  register_algorithm<kwiver::vital::algo::train_tracker,
+            algorithm_def_tt_trampoline<>>(m, "train_tracker");
   register_algorithm<kwiver::vital::algo::transform_2d_io,
             algorithm_def_t2dio_trampoline<>>(m, "transform_2d_io");
   register_algorithm<kwiver::vital::algo::triangulate_landmarks,
@@ -282,6 +286,7 @@ PYBIND11_MODULE(algos, m)
   split_image(m);
   track_features(m);
   train_detector(m);
+  train_tracker(m);
   transform_2d_io(m);
   triangulate_landmarks(m);
   uuid_factory(m);
