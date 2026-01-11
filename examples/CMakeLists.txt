@@ -5,7 +5,6 @@ file(MAKE_DIRECTORY "${EXAMPLE_DIR}/models")
 
 add_subdirectory(cpp)
 add_subdirectory(external)
-add_subdirectory(stereo)
 
 # Configure all the local example pipe files
 configure_file(pipelines/burnout_on_video.pipe.in ${EXAMPLE_DIR}/pipelines/burnout_on_video.pipe @ONLY )
