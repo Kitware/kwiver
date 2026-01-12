@@ -43,6 +43,10 @@ create_config_trait( maximum_length, std::string, "",
   "length is exceeded, multiple video files less than this amount will be "
   "output with a timestamp start extension." );
 
+create_config_trait( append_timestamp, bool, "false",
+  "If true, append a timestamp to the filename when splitting video based on "
+  "maximum_length." );
+
 create_algorithm_name_config_trait( video_writer );
 
 // -----------------------------------------------------------------------------
@@ -60,6 +64,7 @@ public:
   kwiver::vital::algo::video_output_sptr m_video_writer;
   kwiver::vital::algorithm_capabilities  m_video_traits;
   double                                 m_maximum_length;
+  bool                                   m_append_timestamp;
 
   double                                 m_frame_rate;
   bool                                   m_is_first_frame;
@@ -99,6 +104,7 @@ void video_output_process
   // Examine the configuration
   d->m_video_filename = config_value_using_trait( video_filename );
   d->m_exit_on_invalid = config_value_using_trait( exit_on_invalid );
+  d->m_append_timestamp = config_value_using_trait( append_timestamp );
 
   std::string maximum_length_str = config_value_using_trait( maximum_length );
 
@@ -198,7 +204,7 @@ void video_output_process
 #endif
     std::string filename = d->m_video_filename;
 
-    if( reset )
+    if( reset && d->m_append_timestamp )
     {
       std::size_t pos = filename.find_last_of( "." );
       std::string stem = filename.substr( 0, pos );
@@ -263,6 +269,7 @@ void video_output_process
   declare_config_using_trait( exit_on_invalid );
   declare_config_using_trait( video_writer );
   declare_config_using_trait( maximum_length );
+  declare_config_using_trait( append_timestamp );
 }
 
 
@@ -271,6 +278,8 @@ video_output_process::priv
 ::priv()
   : m_exit_on_invalid( true ),
     m_is_first_frame( true ),
+    m_maximum_length( 0.0 ),
+    m_append_timestamp( false ),
     m_clip_start_time( -1.0 )
 {
 }
