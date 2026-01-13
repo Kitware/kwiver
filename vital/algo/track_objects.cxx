@@ -26,7 +26,7 @@ track_objects
 ::track( kwiver::vital::timestamp ts,
          kwiver::vital::image_container_sptr image,
          kwiver::vital::detected_object_set_sptr detections,
-         kwiver::vital::homography_f2f_sptr src_to_ref ) const
+         kwiver::vital::f2f_homography_sptr src_to_ref ) const
 {
   // Default implementation ignores homography and calls base track method.
   // Implementations that support homography should override this.
@@ -54,7 +54,8 @@ track_objects
               kwiver::vital::detected_object_set_sptr seed_detections ) const
 {
   // Default implementation does nothing.
-  // Not all trackers initialize from seeds most do internal initialization.
+  // Not all trackers initialize from seeds, most do internal initialization.
+  return std::make_shared< kwiver::vital::object_track_set >();
 }
 
 // ----------------------------------------------------------------------------

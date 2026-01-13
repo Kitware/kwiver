@@ -80,7 +80,7 @@ public:
   track( kwiver::vital::timestamp ts,
          kwiver::vital::image_container_sptr image,
          kwiver::vital::detected_object_set_sptr detections,
-         kwiver::vital::homography_f2f_sptr src_to_ref ) const;
+         kwiver::vital::f2f_homography_sptr src_to_ref ) const;
 
   /// Track objects with existing tracks provided.
   ///
