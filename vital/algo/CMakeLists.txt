@@ -65,6 +65,7 @@ set( public_headers
   resection_camera.h
   split_image.h
   track_features.h
+  track_objects.h
   train_detector.h
   train_tracker.h
   transform_2d_io.h
@@ -136,6 +137,7 @@ set( sources
   resection_camera.cxx
   split_image.cxx
   track_features.cxx
+  track_objects.cxx
   train_detector.cxx
   train_tracker.cxx
   transform_2d_io.cxx
