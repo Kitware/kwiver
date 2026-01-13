@@ -277,9 +277,9 @@ void video_output_process
 video_output_process::priv
 ::priv()
   : m_exit_on_invalid( true ),
-    m_is_first_frame( true ),
     m_maximum_length( 0.0 ),
     m_append_timestamp( false ),
+    m_is_first_frame( true ),
     m_clip_start_time( -1.0 )
 {
 }
