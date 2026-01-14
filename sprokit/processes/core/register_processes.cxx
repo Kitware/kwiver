@@ -49,6 +49,7 @@
 #include "split_image_process.h"
 #include "stabilize_image_process.h"
 #include "track_features_process.h"
+#include "track_objects_process.h"
 #include "train_detector_process.h"
 #include "unwrap_detections_process.h"
 #include "video_input_process.h"
@@ -104,6 +105,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_process< read_track_descriptor_process >();
   reg.register_process< write_track_descriptor_process >();
   reg.register_process< track_features_process >();
+  reg.register_process< track_objects_process >();
   reg.register_process< keyframe_selection_process >();
   reg.register_process< detect_features_if_keyframe_process >();
   reg.register_process< close_loops_process >();
