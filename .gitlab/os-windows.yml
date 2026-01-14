@@ -30,7 +30,7 @@
     variables:
         VCVARSALL: "${VS170COMNTOOLS}\\..\\..\\VC\\Auxiliary\\Build\\vcvarsall.bat"
         VCVARSPLATFORM: "x64"
-        VCVARSVERSION: "14.35.32215"
+        VCVARSVERSION: "14.44.35207"
         # make error more readable
         KWIVER_DEFAULT_LOG_LEVEL: "DEBUG"
         # required for testing
