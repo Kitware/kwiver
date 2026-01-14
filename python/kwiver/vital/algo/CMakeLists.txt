@@ -48,6 +48,7 @@ kwiver_add_python_library(algos
   read_object_track_set.h
   read_track_descriptor_set.h
   refine_detections.h
+  refine_tracks.h
   resection_camera.h
   split_image.h
   track_features.h
@@ -107,6 +108,7 @@ kwiver_add_python_library(algos
   read_object_track_set.cxx
   read_track_descriptor_set.cxx
   refine_detections.cxx
+  refine_tracks.cxx
   resection_camera.cxx
   split_image.cxx
   track_features.cxx
@@ -166,6 +168,7 @@ kwiver_add_python_library(algos
   trampoline/read_object_track_set_trampoline.txx
   trampoline/read_track_descriptor_set_trampoline.txx
   trampoline/refine_detections_trampoline.txx
+  trampoline/refine_tracks_trampoline.txx
   trampoline/resection_camera_trampoline.txx
   trampoline/split_image_trampoline.txx
   trampoline/track_features_trampoline.txx

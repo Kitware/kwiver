@@ -43,6 +43,7 @@
 #include "read_object_track_process.h"
 #include "read_track_descriptor_process.h"
 #include "refine_detections_process.h"
+#include "refine_tracks_process.h"
 #include "serializer_process.h"
 #include "deserializer_process.h"
 #include "shift_detected_object_set_frames_process.h"
@@ -88,6 +89,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_process< draw_tracks_process >();
   reg.register_process< read_descriptor_process >();
   reg.register_process< refine_detections_process >();
+  reg.register_process< refine_tracks_process >();
   reg.register_process< image_object_detector_process >();
   reg.register_process< train_detector_process >();
   reg.register_process< image_filter_process >();
