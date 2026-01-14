@@ -51,6 +51,7 @@ kwiver_add_python_library(algos
   resection_camera.h
   split_image.h
   track_features.h
+  track_objects.h
   train_detector.h
   train_tracker.h
   transform_2d_io.h
@@ -109,6 +110,7 @@ kwiver_add_python_library(algos
   resection_camera.cxx
   split_image.cxx
   track_features.cxx
+  track_objects.cxx
   train_detector.cxx
   train_tracker.cxx
   transform_2d_io.cxx
@@ -167,6 +169,7 @@ kwiver_add_python_library(algos
   trampoline/resection_camera_trampoline.txx
   trampoline/split_image_trampoline.txx
   trampoline/track_features_trampoline.txx
+  trampoline/track_objects_trampoline.txx
   trampoline/train_detector_trampoline.txx
   trampoline/train_tracker_trampoline.txx
   trampoline/transform_2d_io_trampoline.txx
