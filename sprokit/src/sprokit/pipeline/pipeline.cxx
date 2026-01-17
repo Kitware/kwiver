@@ -1465,7 +1465,7 @@ pipeline::priv
 
           process::connections_t::iterator const i = std::remove_if(mapped_connections.begin(),
                                                                     mapped_connections.end(),
-                                                                    std::not1(is_port));
+                                                                    std::not_fn(is_port));
           mapped_connections.erase(i, mapped_connections.end());
 
           if (mapped_connections.empty())
@@ -1514,7 +1514,7 @@ pipeline::priv
 
           process::connections_t::iterator const i = std::remove_if(mapped_connections.begin(),
                                                                     mapped_connections.end(),
-                                                                    std::not1(is_port));
+                                                                    std::not_fn(is_port));
           mapped_connections.erase(i, mapped_connections.end());
 
           if (mapped_connections.empty())

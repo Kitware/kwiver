@@ -7,6 +7,7 @@
 
 #include <sprokit/pipeline/sprokit_pipeline_export.h>
 
+#include <cstdint>
 #include <string>
 
 /**
