@@ -82,13 +82,13 @@ public:
 
   // Implement pure virtual methods from plugin_factory base class
   // Sprokit schedulers use their own configuration mechanism, so these are stubs
-  kwiver::vital::pluggable_sptr from_config( kwiver::vital::config_block_sptr const cb ) const override
+  kwiver::vital::pluggable_sptr from_config( [[maybe_unused]] kwiver::vital::config_block_sptr const cb ) const override
   {
     // Sprokit schedulers are not pluggable in the same way as vital algorithms
     return nullptr;
   }
 
-  void get_default_config( kwiver::vital::config_block& cb ) const override
+  void get_default_config( [[maybe_unused]] kwiver::vital::config_block& cb ) const override
   {
     // Sprokit schedulers configure themselves differently
   }
