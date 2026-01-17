@@ -4,7 +4,6 @@ set(CMAKE_FOLDER "Sprokit/Tests")
 
 set(test_libraries
   vital_config vital_vpm
-  ${Boost_SYSTEM_LIBRARY}
   sprokit_pipeline
   )
 

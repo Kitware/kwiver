@@ -7,8 +7,6 @@ set(test_libraries      sprokit_pipeline kwiversys )
 sprokit_discover_tests(test test_libraries test_test.cxx)
 
 set(test_libraries
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
   ${CMAKE_DL_LIBS}
   )
 
