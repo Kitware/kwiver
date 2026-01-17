@@ -35,7 +35,8 @@ class thread_per_process_scheduler::priv
     priv();
     ~priv();
 
-    void run_process(process_t const& process);
+    void run_process(process_t const& process,
+                     kwiver::vital::logger_handle_t logger);
 
     std::vector<std::thread> process_threads;
     std::atomic<bool> m_stop_requested{false};
@@ -66,6 +67,12 @@ class thread_per_process_scheduler::priv
     {
       return m_stop_requested;
     }
+
+    // Error tracking
+    std::atomic<bool> m_error_occurred{false};
+    std::mutex m_error_mutex;
+    std::string m_error_message;
+    std::exception_ptr m_exception_ptr;
 };
 
 // ------------------------------------------------------------------
@@ -127,13 +134,16 @@ thread_per_process_scheduler
   process::names_t const names = p->process_names();
 
   d->m_stop_requested = false;
+  d->m_error_occurred = false;
+  d->m_exception_ptr = nullptr;
+  d->m_error_message.clear();
   d->process_threads.clear();
 
   for (process::name_t const& name : names)
   {
     process_t const process = pipeline()->process_by_name(name);
 
-    d->process_threads.emplace_back(std::bind(&priv::run_process, d.get(), process));
+    d->process_threads.emplace_back(std::bind(&priv::run_process, d.get(), process, m_logger));
   }
 }
 
@@ -143,6 +153,20 @@ thread_per_process_scheduler
 ::_wait()
 {
   d->join_all();
+
+  // Re-throw any exception that occurred in a process thread
+  if (d->m_error_occurred)
+  {
+    if (d->m_exception_ptr)
+    {
+      std::rethrow_exception(d->m_exception_ptr);
+    }
+    else
+    {
+      // Fallback if we only have an error message
+      VITAL_THROW( incompatible_pipeline_exception, d->m_error_message );
+    }
+  }
 }
 
 // ------------------------------------------------------------------
@@ -192,7 +216,7 @@ static kwiver::vital::config_block_sptr monitor_edge_config();
  */
 void
 thread_per_process_scheduler::priv
-::run_process(process_t const& process)
+::run_process(process_t const& process, kwiver::vital::logger_handle_t logger)
 {
   // Create the monitor edge. This is only needed for this type of scheduler.
   kwiver::vital::config_block_sptr const edge_conf = monitor_edge_config();
@@ -204,35 +228,72 @@ thread_per_process_scheduler::priv
 
   bool complete = false;
 
-  while (!complete)
+  try
   {
-    // This locking will cause this thread to pause if the scheduler
-    // pause() method is called.
-    shared_lock_t const lock(m_pause_mutex);
-
-    (void)lock;
-
-    // Check if stop was requested
-    if (stop_requested())
+    while (!complete && !stop_requested() && !m_error_occurred)
     {
-      break;
-    }
+      // This locking will cause this thread to pause if the scheduler
+      // pause() method is called.
+      shared_lock_t const lock(m_pause_mutex);
 
-    process->step();
+      (void)lock;
 
-    // Check the monitor edge to see if the process is still running
-    // or has completed.
-    while (monitor_edge->has_data())
-    {
-      edge_datum_t const edat = monitor_edge->get_datum();
-      datum_t const dat = edat.datum;
-
-      // If there is a "complete" packet in the monitor edge, then the
-      // process is done.
-      if (dat->type() == datum::complete)
+      // Check if stop was requested or another thread has errored
+      if (stop_requested() || m_error_occurred)
       {
-        complete = true;
+        break;
       }
+
+      process->step();
+
+      // Check the monitor edge to see if the process is still running
+      // or has completed.
+      while (monitor_edge->has_data())
+      {
+        edge_datum_t const edat = monitor_edge->get_datum();
+        datum_t const dat = edat.datum;
+
+        // If there is a "complete" packet in the monitor edge, then the
+        // process is done.
+        if (dat->type() == datum::complete)
+        {
+          complete = true;
+        }
+      }
+    }
+  }
+  catch (std::exception const& e)
+  {
+    // Store the exception details (thread-safe)
+    std::lock_guard<std::mutex> lock(m_error_mutex);
+
+    if (!m_error_occurred)
+    {
+      m_error_occurred = true;
+      m_exception_ptr = std::current_exception();
+
+      std::ostringstream msg;
+      msg << "Process '" << process->name() << "' threw an exception: " << e.what();
+      m_error_message = msg.str();
+
+      LOG_ERROR(logger, m_error_message);
+    }
+  }
+  catch (...)
+  {
+    // Store the exception details (thread-safe)
+    std::lock_guard<std::mutex> lock(m_error_mutex);
+
+    if (!m_error_occurred)
+    {
+      m_error_occurred = true;
+      m_exception_ptr = std::current_exception();
+
+      std::ostringstream msg;
+      msg << "Process '" << process->name() << "' threw an unknown exception";
+      m_error_message = msg.str();
+
+      LOG_ERROR(logger, m_error_message);
     }
   }
 }
