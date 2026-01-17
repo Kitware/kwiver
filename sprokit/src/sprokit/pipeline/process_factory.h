@@ -206,6 +206,12 @@ kwiver::vital::plugin_factory_vector_t const& get_process_list();
                                                  sprokit::process::interface_name(), \
                                                  sprokit::create_new_process< proc_type > ) )
 
+/// Convenience macro to create a process factory (for use in tests)
+#define MAKE_PROCESS_FACTORY( proc_type ) \
+  new sprokit::cpp_process_factory( typeid( proc_type ).name(), \
+                                    sprokit::process::interface_name(), \
+                                    sprokit::create_new_process< proc_type > )
+
 // ============================================================================
 /// Derived class to register processes
 /**
