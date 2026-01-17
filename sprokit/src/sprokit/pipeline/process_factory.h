@@ -203,7 +203,7 @@ kwiver::vital::plugin_factory_vector_t const& get_process_list();
 //
 #define ADD_PROCESS( proc_type )                                        \
   add_factory( new sprokit::cpp_process_factory( typeid( proc_type ).name(), \
-                                                 typeid( sprokit::process ).name(), \
+                                                 sprokit::process::interface_name(), \
                                                  sprokit::create_new_process< proc_type > ) )
 
 // ============================================================================
@@ -256,7 +256,7 @@ public:
 
     kwiver::vital::plugin_factory* fact =  new sprokit::cpp_process_factory(
       typeid( process_t ).name(),
-      typeid( sprokit::process ).name(),
+      sprokit::process::interface_name(),
       sprokit::create_new_process< process_t > );
 
     fact->add_attribute( kvpf::PLUGIN_NAME,      process_t::_plugin_name )
