@@ -6,7 +6,6 @@ set(CMAKE_FOLDER "Arrows/OCV")
 set( ocv_headers_public
   analyze_tracks.h
   camera_intrinsics.h
-  convert_color_space.h
   descriptor_set.h
   detect_features.h
   detect_features_AGAST.h
@@ -62,7 +61,6 @@ kwiver_install_headers(
 set( ocv_sources
   analyze_tracks.cxx
   camera_intrinsics.cxx
-  convert_color_space.cxx
   descriptor_set.cxx
   detect_features.cxx
   detect_features_AGAST.cxx
