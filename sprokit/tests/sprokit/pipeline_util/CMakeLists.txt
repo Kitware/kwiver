@@ -7,9 +7,7 @@ set(test_libraries
   sprokit_pipeline
   vital_config
   vital_vpm
-  kwiversys
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY})
+  kwiversys)
 
 set(sprokit_test_pipelines_directory
   "${sprokit_test_data_directory}/pipelines")

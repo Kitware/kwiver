@@ -67,17 +67,6 @@ set_source_files_properties(utils.cxx
   PROPERTIES
     COMPILE_DEFINITIONS "${utils_build_options}")
 
-###
-set(scheduler_build_options)
-
-# XXX(Boost): 1.50.0
-if (Boost_VERSION LESS 105000)
-  list(APPEND scheduler_build_options        BOOST_NO_HAVE_REVERSE_LOCK)
-endif ()
-
-set_source_files_properties(scheduler.cxx
-  PROPERTIES
-  COMPILE_DEFINITIONS "${scheduler_build_options}")
 
 ###
 set(SPROKIT_DEFAULT_EDGE_CAPACITY "40"
@@ -107,10 +96,7 @@ add_dependencies(sprokit_pipeline configure-version.h)
 target_link_libraries(sprokit_pipeline
   PUBLIC              vital_config
                       vital_logger
-                      ${Boost_CHRONO_LIBRARY}
-                      ${Boost_SYSTEM_LIBRARY}
-  PRIVATE             ${Boost_THREAD_LIBRARY}
-                      ${CMAKE_DL_LIBS}
+  PRIVATE             ${CMAKE_DL_LIBS}
                       ${CMAKE_THREAD_LIBS_INIT}
                       vital_vpm kwiversys
   )

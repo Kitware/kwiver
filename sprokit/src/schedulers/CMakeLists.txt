@@ -23,10 +23,6 @@ kwiver_add_plugin( schedulers
   PRIVATE         sprokit_pipeline
                   vital_config
                   vital_vpm
-                  ${Boost_CHRONO_LIBRARY}
-                  ${Boost_DATE_TIME_LIBRARY}
-                  ${Boost_THREAD_LIBRARY}
-                  ${Boost_SYSTEM_LIBRARY}
                   ${CMAKE_THREAD_LIBS_INIT}
   SUBDIR          ${kwiver_plugin_process_subdir}
   )
