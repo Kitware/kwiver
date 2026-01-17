@@ -126,10 +126,12 @@ class KWIVER_ADAPTER_EXPORT epx_factory
 {
 public:
   epx_factory( const std::string& type,
-               const std::string& itype )
+               const std::string& itype,
+               const std::string& concrete_type )
     : plugin_factory( itype )
   {
     this->add_attribute( PLUGIN_NAME, type );
+    this->add_attribute( CONCRETE_TYPE, concrete_type );
   }
 
   virtual ~epx_factory() = default;
@@ -155,8 +157,9 @@ class epx_factory_impl
 {
 public:
   epx_factory_impl( const std::string& type,
-                    const std::string& itype )
-    : epx_factory( type, itype )
+                    const std::string& itype,
+                    const std::string& concrete_type )
+    : epx_factory( type, itype, concrete_type )
   {
   }
 
@@ -212,7 +215,8 @@ public:
 
     kwiver::vital::plugin_factory* fact = new epx_factory_impl< epx_t >(
       epx_t::_plugin_name,
-      typeid( kwiver::embedded_pipeline_extension ).name() );
+      typeid( kwiver::embedded_pipeline_extension ).name(),
+      typeid( epx_t ).name() );
 
     fact->add_attribute( kvpf::PLUGIN_DESCRIPTION,  epx_t::_plugin_description )
       .add_attribute( kvpf::PLUGIN_MODULE_NAME,  this->module_name() )
