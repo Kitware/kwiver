@@ -37,7 +37,9 @@ set( vital_types_classes
   bounding_box
   camera_intrinsics
   camera_perspective
+  camera_rig
   camera_rpc
+  color_space
   context
   category_hierarchy
   database_query
