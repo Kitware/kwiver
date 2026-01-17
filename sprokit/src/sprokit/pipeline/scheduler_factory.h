@@ -172,6 +172,12 @@ bool is_scheduler_module_loaded( kwiver::vital::plugin_loader& vpl,
                                                    sprokit::scheduler::interface_name(), \
                                                    sprokit::create_new_scheduler< type > ) )
 
+/// Convenience macro to create a scheduler factory (for use in tests)
+#define MAKE_SCHEDULER_FACTORY( type ) \
+  new sprokit::cpp_scheduler_factory( typeid( type ).name(), \
+                                      sprokit::scheduler::interface_name(), \
+                                      sprokit::create_new_scheduler< type > )
+
 // ============================================================================
 /// Derived class to register schedulers
 /**

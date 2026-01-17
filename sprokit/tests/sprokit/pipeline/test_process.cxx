@@ -679,15 +679,11 @@ IMPLEMENT_TEST(remove_tagged_flow_dependent_port)
 IMPLEMENT_TEST(null_config)
 {
   const auto proc_type = sprokit::process::type_t("null_config");
-
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
-  using kvpf = kwiver::vital::plugin_factory;
-  auto fact = new sprokit::cpp_process_factory(
-    typeid( null_config_process ).name(),
-    sprokit::process::interface_name(),
-    sprokit::create_new_process< null_config_process > );
-  fact->add_attribute( kvpf::PLUGIN_NAME, proc_type )
-    .add_attribute( kvpf::PLUGIN_DESCRIPTION, "Test process for null config" );
+
+  auto fact = MAKE_PROCESS_FACTORY( null_config_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, proc_type )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Test process for null config" );
   vpm.add_factory( fact );
 
   const auto proc_name = sprokit::process::name_t(proc_type);
@@ -701,16 +697,11 @@ IMPLEMENT_TEST(null_config)
 IMPLEMENT_TEST(null_input_port_info)
 {
   const auto proc_type = sprokit::process::type_t("null_input_port");
-
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
 
-  using kvpf = kwiver::vital::plugin_factory;
-  auto fact = new sprokit::cpp_process_factory(
-    typeid( null_input_info_process ).name(),
-    sprokit::process::interface_name(),
-    sprokit::create_new_process< null_input_info_process > );
-  fact->add_attribute( kvpf::PLUGIN_NAME, proc_type )
-    .add_attribute( kvpf::PLUGIN_DESCRIPTION, "Test process for null input port info" );
+  auto fact = MAKE_PROCESS_FACTORY( null_input_info_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, proc_type )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Test process for null input port info" );
   vpm.add_factory( fact );
 
   const auto proc_name = sprokit::process::name_t(proc_type);
@@ -724,16 +715,11 @@ IMPLEMENT_TEST(null_input_port_info)
 IMPLEMENT_TEST(null_output_port_info)
 {
   const auto proc_type = sprokit::process::type_t("null_output_port");
-
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
 
-  using kvpf = kwiver::vital::plugin_factory;
-  auto fact = new sprokit::cpp_process_factory(
-    typeid( null_output_info_process ).name(),
-    sprokit::process::interface_name(),
-    sprokit::create_new_process< null_output_info_process > );
-  fact->add_attribute( kvpf::PLUGIN_NAME, proc_type )
-    .add_attribute( kvpf::PLUGIN_DESCRIPTION, "Test process for null output port info" );
+  auto fact = MAKE_PROCESS_FACTORY( null_output_info_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, proc_type )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Test process for null output port info" );
   vpm.add_factory( fact );
 
   const auto proc_name = sprokit::process::name_t(proc_type);
@@ -747,16 +733,11 @@ IMPLEMENT_TEST(null_output_port_info)
 IMPLEMENT_TEST(null_conf_info)
 {
   const auto proc_type = sprokit::process::type_t("null_conf");
-
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
 
-  using kvpf = kwiver::vital::plugin_factory;
-  auto fact = new sprokit::cpp_process_factory(
-    typeid( null_conf_info_process ).name(),
-    sprokit::process::interface_name(),
-    sprokit::create_new_process< null_conf_info_process > );
-  fact->add_attribute( kvpf::PLUGIN_NAME, proc_type )
-    .add_attribute( kvpf::PLUGIN_DESCRIPTION, "Test process for null conf info" );
+  auto fact = MAKE_PROCESS_FACTORY( null_conf_info_process );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, proc_type )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Test process for null conf info" );
   vpm.add_factory( fact );
 
   const auto proc_name = sprokit::process::name_t(proc_type);

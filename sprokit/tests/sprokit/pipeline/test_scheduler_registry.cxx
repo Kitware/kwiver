@@ -146,25 +146,16 @@ IMPLEMENT_TEST(duplicate_types)
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
 
   // First, register null_scheduler under a specific plugin name
-  using kvpf = kwiver::vital::plugin_factory;
-  auto fact1 = new sprokit::cpp_scheduler_factory(
-    typeid( null_scheduler ).name(),
-    sprokit::scheduler::interface_name(),
-    sprokit::create_new_scheduler< null_scheduler > );
-
-  fact1->add_attribute( kvpf::PLUGIN_NAME, "test_duplicate_scheduler" )
-    .add_attribute( kvpf::PLUGIN_DESCRIPTION, "Test scheduler for duplicate" );
+  auto fact1 = MAKE_SCHEDULER_FACTORY( null_scheduler );
+  fact1->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "test_duplicate_scheduler" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Test scheduler for duplicate" );
   vpm.add_factory( fact1 );
 
   // Now try to register a DIFFERENT scheduler type under the same plugin name
   // This should throw plugin_already_exists
-  auto fact2 = new sprokit::cpp_scheduler_factory(
-    typeid( null_scheduler2 ).name(),
-    sprokit::scheduler::interface_name(),
-    sprokit::create_new_scheduler< null_scheduler2 > );
-
-  fact2->add_attribute( kvpf::PLUGIN_NAME, "test_duplicate_scheduler" )
-    .add_attribute( kvpf::PLUGIN_DESCRIPTION, "Test scheduler for duplicate" );
+  auto fact2 = MAKE_SCHEDULER_FACTORY( null_scheduler2 );
+  fact2->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "test_duplicate_scheduler" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Test scheduler for duplicate" );
 
   EXPECT_EXCEPTION( kwiver::vital::plugin_already_exists,
                     vpm.add_factory( fact2 ),

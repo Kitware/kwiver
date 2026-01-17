@@ -68,15 +68,9 @@ IMPLEMENT_TEST(null_config)
   const auto sched_type = sprokit::scheduler::type_t("null_config");
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
 
-  using kvpf = kwiver::vital::plugin_factory;
-  auto fact = new sprokit::cpp_scheduler_factory(
-    typeid( null_config_scheduler ).name(),
-    sprokit::scheduler::interface_name(),
-    sprokit::create_new_scheduler< null_config_scheduler > );
-
-  fact->add_attribute( kvpf::PLUGIN_NAME, sched_type )
-    .add_attribute( kvpf::PLUGIN_DESCRIPTION, "Test scheduler for null config" );
-
+  auto fact = MAKE_SCHEDULER_FACTORY( null_config_scheduler );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, sched_type )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Test scheduler for null config" );
   vpm.add_factory( fact );
 
   EXPECT_EXCEPTION(sprokit::null_scheduler_config_exception,
@@ -88,18 +82,11 @@ IMPLEMENT_TEST(null_config)
 IMPLEMENT_TEST(null_pipeline)
 {
   const auto sched_type = sprokit::scheduler::type_t("null_pipeline");
-
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
 
-  using kvpf = kwiver::vital::plugin_factory;
-  auto fact = new sprokit::cpp_scheduler_factory(
-    typeid( null_pipeline_scheduler ).name(),
-    sprokit::scheduler::interface_name(),
-    sprokit::create_new_scheduler< null_pipeline_scheduler > );
-
-  fact->add_attribute( kvpf::PLUGIN_NAME, sched_type )
-    .add_attribute( kvpf::PLUGIN_DESCRIPTION, "Test scheduler for null pipeline" );
-
+  auto fact = MAKE_SCHEDULER_FACTORY( null_pipeline_scheduler );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, sched_type )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Test scheduler for null pipeline" );
   vpm.add_factory( fact );
 
   EXPECT_EXCEPTION(sprokit::null_scheduler_pipeline_exception,
