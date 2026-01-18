@@ -133,10 +133,14 @@ mark_as_advanced( KWIVER_PYTHON_VERSION )
 _pycmd( python_site_packages [==[
 import sysconfig, os
 base_path = sysconfig.get_config_var("base")
-print(os.path.relpath(
-  sysconfig.get_path("purelib", vars={"base": base_path}),
-  base_path,
-))
+purelib_path = sysconfig.get_path("purelib", vars={"base": base_path})
+# Force site-packages instead of dist-packages
+purelib_path = purelib_path.replace("dist-packages", "site-packages")
+rel_path = os.path.relpath(purelib_path, base_path)
+# Remove local/ prefix if present
+if rel_path.startswith("local/"):
+    rel_path = rel_path[6:]  # Remove "local/"
+print(rel_path)
 ]==] )
 
 # Current usage determines most of the path in alternate ways.
