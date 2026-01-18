@@ -12,6 +12,10 @@ kwiver_add_library(sprokit_python_util
   ${python_util_srcs}
   ${python_util_headers})
 
+target_include_directories(sprokit_python_util
+  PRIVATE ${Python_INCLUDE_DIRS}
+          ${pybind11_INCLUDE_DIRS})
+
 target_link_libraries(sprokit_python_util
   LINK_PUBLIC     ${Python_LIBRARIES}
   LINK_PRIVATE    ${Boost_IOSTREAMS_LIBRARY}

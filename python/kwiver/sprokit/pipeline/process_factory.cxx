@@ -241,28 +241,17 @@ std::string
 get_description( const std::string& type )
 {
   kwiver::vital::plugin_factory_handle_t a_fact;
-  try
-  {
-    typedef kwiver::vital::implementation_factory_by_name< ::sprokit::process >
-      proc_factory;
 
-    proc_factory ifact;
+  // Python processes are registered with sprokit::process interface type
+  // (see register_process above), so we only need to look up using that type.
+  typedef kwiver::vital::implementation_factory_by_name< ::sprokit::process >
+    proc_factory;
 
-    VITAL_PYTHON_TRANSLATE_EXCEPTION(
-      a_fact = ifact.find_factory( type );
-    )
-  }
-  catch( const std::exception& e )
-  {
-    typedef kwiver::vital::implementation_factory_by_name< object >
-      py_proc_factory;
+  proc_factory ifact;
 
-    py_proc_factory ifact;
-
-    VITAL_PYTHON_TRANSLATE_EXCEPTION(
-      a_fact = ifact.find_factory( type );
-    )
-  }
+  VITAL_PYTHON_TRANSLATE_EXCEPTION(
+    a_fact = ifact.find_factory( type );
+  )
 
   std::string buf = "-- Not Set --";
   a_fact->get_attribute(

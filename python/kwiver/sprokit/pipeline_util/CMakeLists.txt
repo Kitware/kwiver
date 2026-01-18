@@ -4,7 +4,7 @@ if( NOT WIN32 )
 
 kwiver_add_python_library(bake
   sprokit/pipeline_util
-  bake.cxx)
+  SOURCES bake.cxx)
 
 target_link_libraries(python-sprokit.pipeline_util-bake
   LINK_PRIVATE
@@ -19,7 +19,7 @@ target_link_libraries(python-sprokit.pipeline_util-bake
 
 kwiver_add_python_library(export_
   sprokit/pipeline_util
-  export.cxx)
+  SOURCES export.cxx)
 
 target_link_libraries(python-sprokit.pipeline_util-export_
   LINK_PRIVATE
@@ -31,7 +31,7 @@ target_link_libraries(python-sprokit.pipeline_util-export_
 
 kwiver_add_python_library(load
   sprokit/pipeline_util
-  load.cxx)
+  SOURCES load.cxx)
 target_link_libraries(python-sprokit.pipeline_util-load
   LINK_PRIVATE
     sprokit_pipeline

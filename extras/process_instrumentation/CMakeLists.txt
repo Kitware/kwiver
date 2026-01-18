@@ -31,16 +31,18 @@ kwiver_add_plugin( instrumentation_plugin
   )
 
 
-if (KWIVER_ENABLE_TOOLS)
-###
-#     plugins for plugin explorer
-kwiver_add_plugin( process_instrumentation_plugin
-  SUBDIR   ${kwiver_plugin_plugin_explorer_subdir}
-  SOURCES  process_instrumentation_plugin.cxx
-  PRIVATE  vital
-           vital_vpm
-           vital_config
-           vital_algo
-           explorer_plugin
-           sprokit_pipeline)
-endif()
+# Explorer plugin disabled - depends on explorer_plugin library which
+# is not yet ported to the new API (see vital/tools/CMakeLists.txt)
+#if (KWIVER_ENABLE_TOOLS)
+####
+##     plugins for plugin explorer
+#kwiver_add_plugin( process_instrumentation_plugin
+#  SUBDIR   ${kwiver_plugin_plugin_explorer_subdir}
+#  SOURCES  process_instrumentation_plugin.cxx
+#  PRIVATE  vital
+#           vital_vpm
+#           vital_config
+#           vital_algo
+#           explorer_plugin
+#           sprokit_pipeline)
+#endif()

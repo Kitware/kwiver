@@ -218,26 +218,15 @@ get_description( const std::string& type )
 {
   kwiver::vital::plugin_factory_handle_t a_fact;
 
-  try
-  {
-    typedef kwiver::vital::implementation_factory_by_name< ::sprokit::scheduler > proc_factory;
+  // Python schedulers are registered with sprokit::scheduler interface type,
+  // so we only need to look up using that type.
+  typedef kwiver::vital::implementation_factory_by_name< ::sprokit::scheduler > proc_factory;
 
-    proc_factory ifact;
+  proc_factory ifact;
 
-    VITAL_PYTHON_TRANSLATE_EXCEPTION(
-      a_fact = ifact.find_factory( type );
-    )
-  }
-  catch( const std::exception& e )
-  {
-    typedef kwiver::vital::implementation_factory_by_name< object > proc_factory;
-
-    proc_factory ifact;
-
-    VITAL_PYTHON_TRANSLATE_EXCEPTION(
-      a_fact = ifact.find_factory( type );
-    )
-  }
+  VITAL_PYTHON_TRANSLATE_EXCEPTION(
+    a_fact = ifact.find_factory( type );
+  )
 
   std::string buf = "-- Not Set --";
   a_fact->get_attribute(
