@@ -89,30 +89,21 @@ void track_objects_process
   // Get our process config
   kwiver::vital::config_block_sptr algo_config = get_config();
 
+  // Check config so it will give run-time diagnostic if any config problems
+  // are found
+  if ( ! check_nested_algo_configuration_using_trait( track_objects, algo_config, d->m_tracker ) )
+  {
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
+      "Configuration check failed." );
+  }
+
   // Instantiate the configured algorithm
-  algo::track_objects::set_nested_algo_configuration_using_trait(
-    track_objects,
-    algo_config,
-    d->m_tracker );
+  set_nested_algo_configuration_using_trait( track_objects, algo_config, d->m_tracker );
 
   if ( ! d->m_tracker )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
       "Unable to create track_objects" );
-  }
-
-  algo::track_objects::get_nested_algo_configuration_using_trait(
-    track_objects,
-    algo_config,
-    d->m_tracker);
-
-  // Check config so it will give run-time diagnostic if any config problems
-  // are found
-  if ( ! algo::track_objects::check_nested_algo_configuration_using_trait(
-         track_objects, algo_config ) )
-  {
-    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
-      "Configuration check failed." );
   }
 
 }

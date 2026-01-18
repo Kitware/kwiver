@@ -11,8 +11,7 @@
 
 namespace kwiver {
 
-create_config_trait( trainer, std::string, "",
-  "Algorithm configuration subblock." );
+create_algorithm_name_config_trait( trainer );
 
 // -----------------------------------------------------------------------------
 // Private implementation class
@@ -53,20 +52,16 @@ train_detector_process
   vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if( !vital::algo::train_detector::check_nested_algo_configuration(
-        "trainer", algo_config ) )
+  if( !check_nested_algo_configuration_using_trait( trainer, algo_config, d->m_trainer ) )
   {
-    throw sprokit::invalid_configuration_exception(
-      name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
-  vital::algo::train_detector::set_nested_algo_configuration(
-    "trainer", algo_config, d->m_trainer );
+  set_nested_algo_configuration_using_trait( trainer, algo_config, d->m_trainer );
 
   if( !d->m_trainer )
   {
-    throw sprokit::invalid_configuration_exception(
-      name(), "Unable to create trainer" );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create trainer" );
   }
 }
 

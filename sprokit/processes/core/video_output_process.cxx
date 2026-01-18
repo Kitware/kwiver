@@ -23,6 +23,7 @@
 #endif
 
 #include <algorithm>
+#include <cstdio>
 #include <string>
 
 namespace algo = kwiver::vital::algo;
@@ -110,23 +111,32 @@ void video_output_process
 
   if( !maximum_length_str.empty() )
   {
-    d->m_maximum_length = vital::time_str_to_seconds( maximum_length_str );
+    // Parse time string (supports seconds or HH:MM:SS format)
+    if( maximum_length_str.find( ':' ) != std::string::npos )
+    {
+      // Parse HH:MM:SS format
+      int h = 0, m = 0, s = 0;
+      if( sscanf( maximum_length_str.c_str(), "%d:%d:%d", &h, &m, &s ) >= 2 )
+      {
+        d->m_maximum_length = h * 3600.0 + m * 60.0 + s;
+      }
+    }
+    else
+    {
+      d->m_maximum_length = std::stod( maximum_length_str );
+    }
   }
 
   vital::config_block_sptr algo_config = get_config();
 
-  if( !algo::video_output::check_nested_algo_configuration_using_trait(
-         video_writer, algo_config ) )
+  if( !check_nested_algo_configuration_using_trait( video_writer, algo_config, d->m_video_writer ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
                  "Configuration check failed." );
   }
 
   // instantiate requested/configured algo type
-  algo::video_output::set_nested_algo_configuration_using_trait(
-    video_writer,
-    algo_config,
-    d->m_video_writer );
+  set_nested_algo_configuration_using_trait( video_writer, algo_config, d->m_video_writer );
 
   if( !d->m_video_writer )
   {
