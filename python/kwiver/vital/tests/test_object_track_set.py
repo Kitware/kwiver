@@ -107,3 +107,74 @@ class TestObjectTrackSet(unittest.TestCase):
         obj_track = self._create_track()
         obs = ObjectTrackSet([obj_track])
         self.assertEqual(obs.get_track(0), obj_track)
+
+    def test_track_attributes_in_object_track_set(self):
+        """
+        Test that track attributes work when track is in ObjectTrackSet
+        """
+        track = self._create_track()
+
+        # Set attributes on the track before adding to set
+        track.set_attribute("species", "fish")
+        track.set_attribute("length_cm", 42.5)
+        track.set_attribute("is_verified", True)
+        track.set_attribute("count", 10)
+
+        obs = ObjectTrackSet([track])
+
+        # Retrieve the track from the set and verify attributes
+        retrieved_track = obs.get_track(0)
+
+        self.assertTrue(retrieved_track.has_attribute("species"))
+        self.assertEqual(retrieved_track.get_attribute("species"), "fish")
+
+        self.assertTrue(retrieved_track.has_attribute("length_cm"))
+        self.assertAlmostEqual(retrieved_track.get_attribute("length_cm"), 42.5)
+
+        self.assertTrue(retrieved_track.has_attribute("is_verified"))
+        self.assertEqual(retrieved_track.get_attribute("is_verified"), True)
+
+        self.assertTrue(retrieved_track.has_attribute("count"))
+        self.assertEqual(retrieved_track.get_attribute("count"), 10)
+
+        # Test attribute_keys
+        keys = retrieved_track.attribute_keys()
+        self.assertEqual(len(keys), 4)
+        self.assertIn("species", keys)
+        self.assertIn("length_cm", keys)
+        self.assertIn("is_verified", keys)
+        self.assertIn("count", keys)
+
+    def test_track_attributes_set_after_adding_to_set(self):
+        """
+        Test that track attributes can be set after track is in ObjectTrackSet
+        """
+        track = self._create_track()
+        obs = ObjectTrackSet([track])
+
+        # Get track from set and set attributes
+        retrieved_track = obs.get_track(0)
+        retrieved_track.set_attribute("label", "object_1")
+        retrieved_track.set_attribute("confidence", 0.95)
+
+        # Verify attributes are accessible
+        self.assertTrue(retrieved_track.has_attribute("label"))
+        self.assertEqual(retrieved_track.get_attribute("label"), "object_1")
+        self.assertAlmostEqual(retrieved_track.get_attribute("confidence"), 0.95)
+
+    def test_track_attributes_via_tracks_list(self):
+        """
+        Test that track attributes work when accessing via tracks() list
+        """
+        track = self._create_track()
+        track.set_attribute("track_type", "vehicle")
+
+        obs = ObjectTrackSet([track])
+
+        # Access track via tracks() list
+        tracks_list = obs.tracks()
+        self.assertEqual(len(tracks_list), 1)
+
+        track_from_list = tracks_list[0]
+        self.assertTrue(track_from_list.has_attribute("track_type"))
+        self.assertEqual(track_from_list.get_attribute("track_type"), "vehicle")
