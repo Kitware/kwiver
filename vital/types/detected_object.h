@@ -11,8 +11,11 @@
 #include <vital/types/vital_types_export.h>
 #include <vital/vital_config.h>
 
+#include <vital/attribute_set.h>
+
 #include <map>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 #include <vital/types/bounding_box.h>
@@ -272,6 +275,112 @@ public:
   /// Removes any keypoints stored within this detection.
   void clear_keypoints();
 
+  /// @brief Get the polygon outline for this detection.
+  ///
+  /// This method returns the polygon outline associated with this detection.
+  /// The polygon is represented as a vector of 2D points.
+  ///
+  /// @return Vector of polygon vertices.
+  std::vector< vector_2d > polygon() const;
+
+  /// @brief Set the polygon outline for this detection.
+  ///
+  /// This method sets the polygon outline for this detection.
+  ///
+  /// @param poly Vector of polygon vertices.
+  void set_polygon( std::vector< vector_2d > const& poly );
+
+  /// @brief Set the polygon from a flattened vector.
+  ///
+  /// This method sets the polygon from a flattened vector of coordinates
+  /// where values are x1, y1, x2, y2, etc.
+  ///
+  /// @param coords Flattened vector of coordinates.
+  void set_flattened_polygon( std::vector< double > const& coords );
+
+  /// @brief Get the flattened polygon coordinates.
+  ///
+  /// This method returns the polygon as a flattened vector of coordinates
+  /// where values are x1, y1, x2, y2, etc.
+  ///
+  /// @return Flattened vector of coordinates.
+  std::vector< double > get_flattened_polygon() const;
+
+  /// @brief Get attribute set.
+  ///
+  /// This method returns a pointer to the attribute set that is attached to
+  /// this detected object. It is possible that the pointer is null, so
+  /// check before using it.
+  ///
+  /// @return Pointer to attribute set or \c nullptr
+  attribute_set_sptr attributes() const;
+
+  /// @brief Attach attribute set to this detected object.
+  ///
+  /// This method attaches the specified attribute set to this detected object.
+  ///
+  /// @param attrs Pointer to attribute set to attach.
+  void set_attributes( attribute_set_sptr attrs );
+
+  /// @brief Set a single attribute value.
+  ///
+  /// This method sets a single attribute value in the attribute set. If no
+  /// attribute set exists for this detection, one is created automatically.
+  /// This method is thread-safe.
+  ///
+  /// @param key The attribute name/key.
+  /// @param value The attribute value.
+  ///
+  /// @tparam T The type of the attribute value.
+  template < typename T >
+  void
+  set_attribute( std::string const& key, T const& value )
+  {
+    std::lock_guard< std::mutex > lock( m_attrs_mutex );
+    if( !m_attrs )
+    {
+      m_attrs = std::make_shared< attribute_set >();
+    }
+    m_attrs->add( key, value );
+  }
+
+  /// @brief Check if an attribute exists.
+  ///
+  /// This method checks if the named attribute exists in the attribute set.
+  /// Returns false if no attribute set exists or if the attribute is not found.
+  ///
+  /// @param key The attribute name/key.
+  ///
+  /// @return \b true if the attribute exists, \b false otherwise.
+  bool has_attribute( std::string const& key ) const;
+
+  /// @brief Get a single attribute value.
+  ///
+  /// This method retrieves a single attribute value from the attribute set.
+  ///
+  /// @param key The attribute name/key.
+  ///
+  /// @tparam T The expected type of the attribute value.
+  ///
+  /// @return The attribute value.
+  ///
+  /// @throws attribute_set_exception if no attribute set exists or if the
+  ///         named attribute is not in the set.
+  /// @throws kwiver::vital::bad_any_cast if actual type does not match
+  ///         requested type.
+  template < typename T >
+  T
+  get_attribute( std::string const& key ) const
+  {
+    std::lock_guard< std::mutex > lock( m_attrs_mutex );
+    if( !m_attrs )
+    {
+      throw attribute_set_exception(
+        "No attribute set exists for this detection" );
+    }
+    return m_attrs->get< T >( key );
+  }
+
 private:
   kwiver::vital::geo_point m_geo_point;
   bounding_box_d m_bounding_box;
@@ -287,6 +396,10 @@ private:
 
   std::vector< std::string > m_notes;
   std::map< std::string, vital::point_2d > m_keypoints;
+  std::vector< vector_2d > m_polygon;
+
+  attribute_set_sptr m_attrs;
+  mutable std::mutex m_attrs_mutex; ///< mutex for thread-safe attribute access
 };
 
 } // namespace vital

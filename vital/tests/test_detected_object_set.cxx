@@ -150,3 +150,135 @@ TEST ( detected_object_set, clone_2 )
 
   EXPECT_EQ( 1, do_set.clone()->size() );
 }
+
+// ----------------------------------------------------------------------------
+TEST ( detected_object_set, filter_predicate )
+{
+  auto do_set = std::make_shared< detected_object_set >();
+
+  bounding_box_d bb{ 10, 20, 30, 40 };
+
+  // Add detections with different confidence values
+  do_set->add( std::make_shared< detected_object >( bb, 0.9 ) );
+  do_set->add( std::make_shared< detected_object >( bb, 0.5 ) );
+  do_set->add( std::make_shared< detected_object >( bb, 0.3 ) );
+  do_set->add( std::make_shared< detected_object >( bb, 0.7 ) );
+  do_set->add( std::make_shared< detected_object >( bb, 0.1 ) );
+
+  EXPECT_EQ( 5, do_set->size() );
+
+  // Filter out detections with confidence below 0.5
+  do_set->filter(
+    []( detected_object_sptr const& det ){
+      return det->confidence() < 0.5;
+    } );
+
+  EXPECT_EQ( 3, do_set->size() );
+
+  // Verify remaining detections have confidence >= 0.5
+  for( auto const& det : *do_set )
+  {
+    EXPECT_GE( det->confidence(), 0.5 );
+  }
+
+  // Verify specific confidence values remain
+  auto list = do_set->select();
+  ASSERT_EQ( 3, list->size() );
+
+  auto it = list->cbegin();
+  EXPECT_EQ( 0.9, ( *it++ )->confidence() );
+  EXPECT_EQ( 0.7, ( *it++ )->confidence() );
+  EXPECT_EQ( 0.5, ( *it++ )->confidence() );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( detected_object_set, filter_predicate_by_type )
+{
+  auto do_set = std::make_shared< detected_object_set >();
+
+  bounding_box_d bb{ 10, 20, 30, 40 };
+
+  // Add detections with different types
+  auto dot_person = std::make_shared< detected_object_type >( "person", 0.8 );
+  auto dot_vehicle = std::make_shared< detected_object_type >( "vehicle", 0.9 );
+  auto dot_other = std::make_shared< detected_object_type >( "other", 0.7 );
+
+  do_set->add( std::make_shared< detected_object >( bb, 0.8, dot_person ) );
+  do_set->add( std::make_shared< detected_object >( bb, 0.9, dot_vehicle ) );
+  do_set->add( std::make_shared< detected_object >( bb, 0.7, dot_other ) );
+  do_set->add(
+    std::make_shared< detected_object >(
+      bb, 0.85,
+      dot_person->clone() ) );
+  do_set->add(
+    std::make_shared< detected_object >(
+      bb, 0.95,
+      dot_vehicle->clone() ) );
+
+  EXPECT_EQ( 5, do_set->size() );
+
+  // Filter out all vehicle detections
+  do_set->filter(
+    []( detected_object_sptr const& det ){
+      if( !det->type() )
+      {
+        return false;
+      }
+      std::string top_class;
+      det->type()->get_most_likely( top_class );
+      return top_class == "vehicle";
+    } );
+
+  EXPECT_EQ( 3, do_set->size() );
+
+  // Verify no vehicle detections remain
+  for( auto const& det : *do_set )
+  {
+    std::string top_class;
+    det->type()->get_most_likely( top_class );
+    EXPECT_NE( "vehicle", top_class );
+  }
+}
+
+// ----------------------------------------------------------------------------
+TEST ( detected_object_set, filter_predicate_empty_result )
+{
+  auto do_set = std::make_shared< detected_object_set >();
+
+  bounding_box_d bb{ 10, 20, 30, 40 };
+
+  do_set->add( std::make_shared< detected_object >( bb, 0.3 ) );
+  do_set->add( std::make_shared< detected_object >( bb, 0.2 ) );
+
+  EXPECT_EQ( 2, do_set->size() );
+
+  // Filter out all detections
+  do_set->filter(
+    []( detected_object_sptr const& ){
+      return true;
+    } );
+
+  EXPECT_EQ( 0, do_set->size() );
+  EXPECT_TRUE( do_set->empty() );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( detected_object_set, filter_predicate_no_change )
+{
+  auto do_set = std::make_shared< detected_object_set >();
+
+  bounding_box_d bb{ 10, 20, 30, 40 };
+
+  do_set->add( std::make_shared< detected_object >( bb, 0.9 ) );
+  do_set->add( std::make_shared< detected_object >( bb, 0.8 ) );
+
+  EXPECT_EQ( 2, do_set->size() );
+
+  // Filter that removes nothing
+  do_set->filter(
+    []( detected_object_sptr const& ){
+      return false;
+    } );
+
+  EXPECT_EQ( 2, do_set->size() );
+}
