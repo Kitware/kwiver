@@ -22,11 +22,11 @@ namespace algo {
 
 /// An abstract base class for training object trackers
 class VITAL_ALGO_EXPORT train_tracker
-  : public kwiver::vital::algorithm_def< train_tracker >
+  : public kwiver::vital::algorithm
 {
 public:
-  /// Return the name of this algorithm
-  static std::string static_type_name() { return "train_tracker"; }
+  train_tracker();
+  PLUGGABLE_INTERFACE( train_tracker );
 
   /// Train a tracking model given a list of images and tracks
   ///
@@ -78,9 +78,6 @@ public:
   ///
   /// \param object_labels object category labels for training
   virtual void update_model() = 0;
-
-protected:
-  train_tracker();
 };
 
 /// Shared pointer for train_tracker algorithm definition class

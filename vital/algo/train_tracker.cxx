@@ -7,7 +7,6 @@
 
 #include "train_tracker.h"
 
-#include <vital/algo/algorithm.txx>
 #include <vital/vital_config.h>
 
 namespace kwiver {
@@ -55,7 +54,3 @@ train_tracker
 } // namespace vital
 
 } // namespace kwiver
-
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::train_tracker );
-/// \endcond
