@@ -90,6 +90,25 @@ public:
       cb
     );
   }
+
+  // Public accessors for protected methods
+  const std::string&
+  public_applet_name() const
+  {
+    return applet_base::applet_name();
+  }
+
+  const std::vector< std::string >&
+  public_applet_args() const
+  {
+    return applet_base::applet_args();
+  }
+
+  std::string
+  public_wrap_text( const std::string& text )
+  {
+    return applet_base::wrap_text( text );
+  }
 };
 
 } // namespace python
