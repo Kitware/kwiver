@@ -31,6 +31,9 @@ class process; // incomplete type
 class SPROKIT_PIPELINE_EXPORT process_instrumentation
 {
 public:
+  /// Interface name for plugin factory
+  static std::string interface_name() { return "process_instrumentation"; }
+
   process_instrumentation();
   virtual ~process_instrumentation() = default;
 

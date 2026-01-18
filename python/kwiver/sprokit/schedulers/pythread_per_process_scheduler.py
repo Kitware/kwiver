@@ -36,7 +36,9 @@ from kwiver.sprokit.pipeline import process
 from kwiver.sprokit.pipeline import scheduler
 from kwiver.sprokit.pipeline import utils
 
+import sys
 import threading
+import traceback
 
 
 class UnsupportedProcess(Exception):
@@ -46,6 +48,20 @@ class UnsupportedProcess(Exception):
     def __str__(self):
         fmt = "The process '%s' does not support running in a Python thread"
         return fmt % self.name
+
+
+class ProcessException(Exception):
+    """Exception raised when a process encounters an error during execution."""
+
+    def __init__(self, process_name, original_exception, tb_str):
+        self.process_name = process_name
+        self.original_exception = original_exception
+        self.tb_str = tb_str
+
+    def __str__(self):
+        return "Process '{}' raised an exception:\n{}".format(
+            self.process_name, self.tb_str
+        )
 
 
 class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
@@ -69,6 +85,8 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
         self._threads = []
         self._pause_event = threading.Event()
         self._event = threading.Event()
+        self._error_lock = threading.Lock()
+        self._process_exception = None
         self._make_monitor_edge_config()
 
     def _start(self):
@@ -89,6 +107,10 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
         for thread in self._threads:
             thread.join()
 
+        # Re-raise any exception that occurred in a process thread
+        if self._process_exception is not None:
+            raise self._process_exception
+
     def _pause(self):
         self._pause_event.set()
 
@@ -108,18 +130,34 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
 
         complete = False
 
-        while not complete and not self._event.is_set():
-            while self._pause_event.is_set():
-                self._pause_event.wait()
+        try:
+            while not complete and not self._event.is_set():
+                while self._pause_event.is_set():
+                    self._pause_event.wait()
 
-            proc.step()
+                proc.step()
 
-            while monitor.has_data():
-                edat = monitor.get_datum()
-                dat = edat.datum
+                while monitor.has_data():
+                    edat = monitor.get_datum()
+                    dat = edat.datum
 
-                if dat.type() == datum.DatumType.complete:
-                    complete = True
+                    if dat.type() == datum.DatumType.complete:
+                        complete = True
+        except Exception as e:
+            # Capture the exception details
+            tb_str = traceback.format_exc()
+
+            # Store the exception (thread-safe)
+            with self._error_lock:
+                if self._process_exception is None:
+                    self._process_exception = ProcessException(proc.name(), e, tb_str)
+
+            # Print the error immediately so users see what went wrong
+            print("Error in process '{}':".format(proc.name()), file=sys.stderr)
+            print(tb_str, file=sys.stderr)
+
+            # Signal all threads to stop
+            self._event.set()
 
     def _make_monitor_edge_config(self):
         self._edge_conf = config.empty_config()

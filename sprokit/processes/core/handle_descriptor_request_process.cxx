@@ -17,7 +17,7 @@
 
 #include <sprokit/pipeline/process_exception.h>
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace kwiver {
 
@@ -63,7 +63,7 @@ void handle_descriptor_request_process
 {
   vital::config_block_sptr algo_config = get_config();
 
-  algo::handle_descriptor_request::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     handler,
     algo_config,
     d->m_handler );
@@ -74,14 +74,14 @@ void handle_descriptor_request_process
                  name(), "Unable to create handle_descriptor_request" );
   }
 
-  algo::handle_descriptor_request::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     handler,
     algo_config,
     d->m_handler );
 
   // Check config so it will give run-time diagnostic of config problems
-  if( !algo::handle_descriptor_request::check_nested_algo_configuration_using_trait(
-    handler, algo_config ) )
+  if( !check_nested_algo_configuration_using_trait(
+    handler, algo_config, d->m_handler ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception,
                  name(), "Configuration check failed." );
@@ -127,7 +127,7 @@ handle_descriptor_request_process
 
   if( request )
   {
-    boost::filesystem::path p( request->data_location() );
+    std::filesystem::path p( request->data_location() );
     filename = p.stem().string();
     stream_id = filename;
   }

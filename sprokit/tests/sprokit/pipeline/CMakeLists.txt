@@ -4,7 +4,6 @@ set(CMAKE_FOLDER "Sprokit/Tests")
 
 set(test_libraries
   vital_config vital_vpm
-  ${Boost_SYSTEM_LIBRARY}
   sprokit_pipeline
   )
 
@@ -21,13 +20,7 @@ sprokit_discover_tests(stamp test_libraries test_stamp.cxx)
 ##############################
 # Edge tests
 ##############################
-set(edge_libraries
-  ${test_libraries}
-  ${Boost_THREAD_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
-  ${Boost_CHRONO_LIBRARY})
-
-sprokit_discover_tests(edge edge_libraries test_edge.cxx)
+sprokit_discover_tests(edge test_libraries test_edge.cxx)
 
 ##############################
 # Modules tests

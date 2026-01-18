@@ -50,6 +50,34 @@ stamp
   return (m_index < st.m_index);
 }
 
+bool
+stamp
+::operator != (stamp const& st) const
+{
+  return !(*this == st);
+}
+
+bool
+stamp
+::operator >  (stamp const& st) const
+{
+  return (st < *this);
+}
+
+bool
+stamp
+::operator >= (stamp const& st) const
+{
+  return !(*this < st);
+}
+
+bool
+stamp
+::operator <= (stamp const& st) const
+{
+  return !(st < *this);
+}
+
 stamp
 ::stamp(increment_t increment, index_t index)
   : m_increment(increment)

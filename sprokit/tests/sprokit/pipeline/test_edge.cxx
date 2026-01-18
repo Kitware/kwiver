@@ -13,18 +13,11 @@
 #include <sprokit/pipeline/process_factory.h>
 #include <sprokit/pipeline/stamp.h>
 
-#include <boost/chrono/chrono_io.hpp>
-#include <boost/chrono/duration.hpp>
-#include <boost/chrono/process_cpu_clocks.hpp>
-// XXX(boost): 1.50.0
-#if BOOST_VERSION < 105000
-#include <boost/date_time/posix_time/posix_time.hpp>
-#endif
-
-#include <boost/thread/thread.hpp>
-
+#include <chrono>
+#include <functional>
 #include <optional>
 #include <memory>
+#include <thread>
 
 #define TEST_ARGS ()
 
@@ -438,15 +431,14 @@ IMPLEMENT_TEST(get_data_from_complete)
 namespace
 {
 
-// This clock is used because it is both steady (which rules out system_clock)
-// and uses the wall time (which rules out thread_clock).
-typedef boost::chrono::process_real_cpu_clock time_clock_t;
+// Use std::chrono::steady_clock for timing measurements
+typedef std::chrono::steady_clock time_clock_t;
 typedef time_clock_t::time_point time_point_t;
 typedef time_clock_t::duration duration_t;
 
 }
 #define SECONDS_TO_WAIT 1
-#define WAIT_DURATION boost::chrono::seconds(SECONDS_TO_WAIT)
+#define WAIT_DURATION std::chrono::seconds(SECONDS_TO_WAIT)
 
 static void push_datum(sprokit::edge_t edge, sprokit::edge_datum_t edat);
 
@@ -473,15 +465,10 @@ IMPLEMENT_TEST(capacity)
   // Fill the edge.
   edge->push_datum(edat1);
 
-  boost::thread thread = boost::thread(std::bind(&push_datum, edge, edat2));
+  std::thread thread(std::bind(&push_datum, edge, edat2));
 
   // Give the other thread some time.
-  // XXX(boost): 1.50.0
-#if BOOST_VERSION < 105000
-  boost::this_thread::sleep(boost::posix_time::seconds(SECONDS_TO_WAIT));
-#else
-  boost::this_thread::sleep_for(WAIT_DURATION);
-#endif
+  std::this_thread::sleep_for(WAIT_DURATION);
 
   // Make sure the edge still is at capacity.
   if (edge->datum_count() != 1)
@@ -592,15 +579,18 @@ void
 check_time(duration_t const& actual, duration_t const& expected, char const* const message)
 {
   static double const tolerance = 0.75;
-  boost::chrono::duration<double> const allowed = tolerance * WAIT_DURATION;
+  std::chrono::duration<double> const allowed = tolerance * WAIT_DURATION;
 
-  if (actual < allowed)
+  auto actual_sec = std::chrono::duration_cast<std::chrono::duration<double>>(actual);
+  auto expected_sec = std::chrono::duration_cast<std::chrono::duration<double>>(expected);
+
+  if (actual < std::chrono::duration_cast<duration_t>(allowed))
   {
     TEST_ERROR("It seems as though blocking did not "
                "occur when " << message << ": "
                "expected to wait between "
-               << allowed << " and "
-               << expected << ", but waited for "
-               << actual << " instead");
+               << allowed.count() << "s and "
+               << expected_sec.count() << "s, but waited for "
+               << actual_sec.count() << "s instead");
   }
 }

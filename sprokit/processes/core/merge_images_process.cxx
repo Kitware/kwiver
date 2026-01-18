@@ -51,7 +51,7 @@ void merge_images_process
 {
   kwiver::vital::config_block_sptr algo_config = get_config();
 
-  algo::merge_images::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     merge_images,
     algo_config,
     d->m_images_merger );
@@ -62,14 +62,14 @@ void merge_images_process
                  name(), "Unable to create \"merge_images\"" );
   }
 
-  algo::merge_images::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     merge_images,
     algo_config,
     d->m_images_merger );
 
   // Check config so it will give run-time diagnostic of config problems
-  if( !algo::merge_images::check_nested_algo_configuration_using_trait(
-        merge_images, algo_config ) )
+  if( !check_nested_algo_configuration_using_trait(
+        merge_images, algo_config, d->m_images_merger ) )
   {
     VITAL_THROW(  sprokit::invalid_configuration_exception,
                   name(), "Configuration check failed." );

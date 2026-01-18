@@ -13,6 +13,7 @@
 #include <vital/vital_config.h>
 #include <vital/config/config_block.h>
 #include <vital/plugin_management/plugin_manager.h>
+#include <vital/plugin_management/plugin_registrar.h>
 
 #include <sprokit/pipeline/scheduler.h>
 
@@ -78,6 +79,19 @@ public:
 
   virtual sprokit::scheduler_t create_object( pipeline_t const& pipe,
                                               kwiver::vital::config_block_sptr const& config ) = 0;
+
+  // Implement pure virtual methods from plugin_factory base class
+  // Sprokit schedulers use their own configuration mechanism, so these are stubs
+  kwiver::vital::pluggable_sptr from_config( [[maybe_unused]] kwiver::vital::config_block_sptr const cb ) const override
+  {
+    // Sprokit schedulers are not pluggable in the same way as vital algorithms
+    return nullptr;
+  }
+
+  void get_default_config( [[maybe_unused]] kwiver::vital::config_block& cb ) const override
+  {
+    // Sprokit schedulers configure themselves differently
+  }
 };
 
 // ----------------------------------------------------------------------------
@@ -151,11 +165,82 @@ bool is_scheduler_module_loaded( kwiver::vital::plugin_loader& vpl,
 
 //
 // Convenience macro for adding schedulers
+// NOTE: This macro is deprecated. Use scheduler_registrar instead.
 //
 #define ADD_SCHEDULER( type )                                           \
   add_factory( new sprokit::cpp_scheduler_factory( typeid( type ).name(), \
-                                                   typeid( sprokit::scheduler ).name(), \
+                                                   sprokit::scheduler::interface_name(), \
                                                    sprokit::create_new_scheduler< type > ) )
+
+/// Convenience macro to create a scheduler factory (for use in tests)
+#define MAKE_SCHEDULER_FACTORY( type ) \
+  new sprokit::cpp_scheduler_factory( typeid( type ).name(), \
+                                      sprokit::scheduler::interface_name(), \
+                                      sprokit::create_new_scheduler< type > )
+
+// ============================================================================
+/// Derived class to register schedulers
+/**
+ * This derived class contains the specific procedure for registering
+ * schedulers with the plugin loader.
+ */
+class scheduler_registrar
+  : public kwiver::plugin_registrar
+{
+public:
+  scheduler_registrar( kwiver::vital::plugin_loader& vpl,
+                       const std::string& mod_name_ )
+    : plugin_registrar( vpl, mod_name_ )
+  {
+  }
+
+  // Use forced naming convention for schedulers
+  bool is_module_loaded() override
+  {
+    return plugin_loader().is_module_loaded( "scheduler." + module_name() );
+  }
+
+  void mark_module_as_loaded() override
+  {
+    plugin_loader().mark_module_as_loaded( "scheduler." + module_name() );
+  }
+
+  // ----------------------------------------------------------------------------
+  /// Register a scheduler plugin.
+  /**
+   * A scheduler of the specified type is registered with the plugin
+   * manager.
+   *
+   * \tparam scheduler_t Type of the scheduler being registered.
+   * \param name Plugin name for the scheduler.
+   * \param description Description of the scheduler.
+   * \param version Version string (defaults to "1.0").
+   *
+   * \return The plugin loader reference is returned.
+   */
+  template <typename scheduler_t>
+  kwiver::vital::plugin_factory_handle_t
+  register_scheduler( const std::string& name,
+                      const std::string& description,
+                      const std::string& version = "1.0" )
+  {
+    using kvpf = kwiver::vital::plugin_factory;
+
+    kwiver::vital::plugin_factory* fact = new sprokit::cpp_scheduler_factory(
+      typeid( scheduler_t ).name(),
+      sprokit::scheduler::interface_name(),
+      sprokit::create_new_scheduler< scheduler_t > );
+
+    fact->add_attribute( kvpf::PLUGIN_NAME,        name )
+      .add_attribute( kvpf::PLUGIN_DESCRIPTION,    description )
+      .add_attribute( kvpf::PLUGIN_MODULE_NAME,    this->module_name() )
+      .add_attribute( kvpf::PLUGIN_ORGANIZATION,   this->organization() )
+      .add_attribute( kvpf::PLUGIN_VERSION,        version )
+      ;
+
+    return plugin_loader().add_factory( fact );
+  }
+};
 
 } // end namespace
 

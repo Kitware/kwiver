@@ -18,7 +18,7 @@
 
 #include <sprokit/pipeline/process_exception.h>
 
-#include <boost/iterator/counting_iterator.hpp>
+#include <numeric>
 
 namespace algo = kwiver::vital::algo;
 
@@ -78,7 +78,7 @@ void matcher_process
   kwiver::vital::config_block_sptr algo_config = get_config();
 
   // Instantiate the configured algorithm
-  algo::match_features::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     feature_matcher,
     algo_config,
     d->m_matcher );
@@ -87,20 +87,20 @@ void matcher_process
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create feature_matcher" );
   }
 
-  algo::match_features::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     feature_matcher,
     algo_config,
     d->m_matcher );
 
   // Check config so it will give run-time diagnostic if any config problems are found
-  if ( ! algo::match_features::check_nested_algo_configuration_using_trait(
-         feature_matcher, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         feature_matcher, algo_config, d->m_matcher ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
   // - Loop closure algorithm
-  algo::close_loops::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     loop_closer,
     algo_config,
     d->m_closer );
@@ -109,13 +109,13 @@ void matcher_process
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create loop_closer" );
   }
 
-  algo::close_loops::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     loop_closer,
     algo_config,
     d->m_closer );
 
-  if ( ! algo::close_loops::check_nested_algo_configuration_using_trait(
-         loop_closer, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         loop_closer, algo_config, d->m_closer ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
@@ -185,10 +185,11 @@ matcher_process
       }
 
       // find the set of unmatched active track indices
+      std::vector< unsigned > all_indices( vf.size() );
+      std::iota( all_indices.begin(), all_indices.end(), 0u );
       std::vector< unsigned > unmatched;
       std::back_insert_iterator< std::vector< unsigned > > unmatched_insert_itr( unmatched );
-      std::set_difference( boost::counting_iterator< unsigned > ( 0 ),
-                           boost::counting_iterator< unsigned > ( static_cast< unsigned int > ( vf.size() ) ),
+      std::set_difference( all_indices.begin(), all_indices.end(),
                            matched.begin(), matched.end(),
                            unmatched_insert_itr );
 

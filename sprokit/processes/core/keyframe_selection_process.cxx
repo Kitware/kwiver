@@ -117,7 +117,7 @@ void keyframe_selection_process
   kwiver::vital::config_block_sptr algo_config = get_config();
 
   // Instantiate the configured algorithm
-  algo::keyframe_selection::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     keyframe_selection_1,
     algo_config,
     d->m_keyframe_selection );
@@ -126,14 +126,14 @@ void keyframe_selection_process
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create keyframe_selection" );
   }
 
-  algo::keyframe_selection::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     keyframe_selection_1,
     algo_config,
     d->m_keyframe_selection);
 
   //// Check config so it will give run-time diagnostic if any config problems are found
-  if ( ! algo::keyframe_selection::check_nested_algo_configuration_using_trait(
-         keyframe_selection_1, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         keyframe_selection_1, algo_config, d->m_keyframe_selection ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }

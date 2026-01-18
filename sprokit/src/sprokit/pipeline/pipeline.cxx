@@ -14,8 +14,7 @@
 #include <vital/config/config_block_formatter.h>
 #include <vital/util/string.h>
 
-#include <boost/graph/directed_graph.hpp>
-#include <boost/graph/topological_sort.hpp>
+#include <vital/util/directed_graph.h>
 
 #include <functional>
 #include <map>
@@ -1466,7 +1465,7 @@ pipeline::priv
 
           process::connections_t::iterator const i = std::remove_if(mapped_connections.begin(),
                                                                     mapped_connections.end(),
-                                                                    std::not1(is_port));
+                                                                    std::not_fn(is_port));
           mapped_connections.erase(i, mapped_connections.end());
 
           if (mapped_connections.empty())
@@ -1515,7 +1514,7 @@ pipeline::priv
 
           process::connections_t::iterator const i = std::remove_if(mapped_connections.begin(),
                                                                     mapped_connections.end(),
-                                                                    std::not1(is_port));
+                                                                    std::not_fn(is_port));
           mapped_connections.erase(i, mapped_connections.end());
 
           if (mapped_connections.empty())
@@ -1977,8 +1976,8 @@ void
 pipeline::priv
 ::check_for_dag() const
 {
-  typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, process::name_t> pipeline_graph_t;
-  typedef boost::graph_traits<pipeline_graph_t>::vertex_descriptor vertex_t;
+  typedef kwiver::vital::directed_graph<process::name_t> pipeline_graph_t;
+  typedef pipeline_graph_t::vertex_descriptor vertex_t;
   typedef std::deque<vertex_t> vertices_t;
   typedef std::map<process::name_t, vertex_t> vertex_map_t;
 
@@ -1992,7 +1991,7 @@ pipeline::priv
 
     for (process::name_t const& name : names)
     {
-      vertex_t const s = boost::add_vertex(graph);
+      vertex_t const s = graph.add_vertex();
       graph[s] = name;
       vertex_map[name] = s;
     }
@@ -2025,7 +2024,7 @@ pipeline::priv
 
         vertex_t const s = vertex_map[sender_name];
 
-        boost::add_edge(s, t, graph);
+        graph.add_edge(s, t);
       }
     }
   }
@@ -2034,9 +2033,9 @@ pipeline::priv
 
   try
   {
-    boost::topological_sort(graph, std::front_inserter(vertices));
+    kwiver::vital::topological_sort(graph, std::front_inserter(vertices));
   }
-  catch (boost::not_a_dag const&)
+  catch (kwiver::vital::not_a_dag_exception const&)
   {
     VITAL_THROW( not_a_dag_exception );
   }

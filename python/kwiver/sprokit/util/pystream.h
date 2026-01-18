@@ -7,46 +7,77 @@
 
 #include <python/kwiver/sprokit/util/sprokit_python_util_export.h>
 
-#include <boost/iostreams/concepts.hpp>
-#include <boost/iostreams/stream.hpp>
 #include <pybind11/pybind11.h>
 
-#include <iosfwd>
+#include <istream>
+#include <ostream>
+#include <streambuf>
+#include <vector>
 
 namespace sprokit {
 
 namespace python {
 
-class SPROKIT_PYTHON_UTIL_EXPORT pyistream_device
-  : public boost::iostreams::source
+// ----------------------------------------------------------------------------
+/// Stream buffer for reading from a Python file-like object
+class SPROKIT_PYTHON_UTIL_EXPORT pyistreambuf
+  : public std::streambuf
 {
 public:
-  pyistream_device( pybind11::object const& obj );
-  ~pyistream_device();
+  pyistreambuf( pybind11::object const& obj, std::size_t buffer_size = 1024 );
+  ~pyistreambuf();
 
-  std::streamsize read( char_type* s, std::streamsize n );
+protected:
+  int_type underflow() override;
 
 private:
   pybind11::object m_obj;
+  std::vector< char > m_buffer;
 };
 
-typedef boost::iostreams::stream< pyistream_device > pyistream;
+/// Input stream wrapping a Python file-like object
+class SPROKIT_PYTHON_UTIL_EXPORT pyistream
+  : public std::istream
+{
+public:
+  pyistream( pybind11::object const& obj );
+  ~pyistream();
+
+private:
+  pyistreambuf m_buf;
+};
 
 // ----------------------------------------------------------------------------
-class SPROKIT_PYTHON_UTIL_EXPORT pyostream_device
-  : public boost::iostreams::sink
+/// Stream buffer for writing to a Python file-like object
+class SPROKIT_PYTHON_UTIL_EXPORT pyostreambuf
+  : public std::streambuf
 {
 public:
-  pyostream_device( pybind11::object const& obj );
-  ~pyostream_device();
+  pyostreambuf( pybind11::object const& obj, std::size_t buffer_size = 1024 );
+  ~pyostreambuf();
 
-  std::streamsize write( char_type const* s, std::streamsize n );
+protected:
+  int_type overflow( int_type ch ) override;
+  int sync() override;
 
 private:
+  bool flush_buffer();
+
   pybind11::object m_obj;
+  std::vector< char > m_buffer;
 };
 
-typedef boost::iostreams::stream< pyostream_device > pyostream;
+/// Output stream wrapping a Python file-like object
+class SPROKIT_PYTHON_UTIL_EXPORT pyostream
+  : public std::ostream
+{
+public:
+  pyostream( pybind11::object const& obj );
+  ~pyostream();
+
+private:
+  pyostreambuf m_buf;
+};
 
 } // namespace python
 

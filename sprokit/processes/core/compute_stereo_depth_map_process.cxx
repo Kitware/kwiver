@@ -75,7 +75,7 @@ _configure()
 
   vital::config_block_sptr algo_config = get_config();
 
-  vital::algo::compute_stereo_depth_map::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     computer,
     algo_config,
     d->m_computer );
@@ -85,14 +85,14 @@ _configure()
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create computer" );
   }
 
-  vital::algo::compute_stereo_depth_map::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     computer,
     algo_config,
     d->m_computer );
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::compute_stereo_depth_map::check_nested_algo_configuration_using_trait(
-         computer, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         computer, algo_config, d->m_computer ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }

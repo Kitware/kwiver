@@ -10,39 +10,41 @@
 # These headers are installed
 #
 set( public_headers
-  get_paths.h
-  timer.h
-  cpu_timer.h
-  compare.h
-  wall_timer.h
-  demangle.h
   any_converter.h
-  enumerate_matrix.h
   bounded_buffer.h
-  source_location.h
   catch_signal.h
+  compare.h
+  cpu_timer.h
   data_stream_reader.h
+  demangle.h
+  directed_graph.h
+  enumerate_matrix.h
+  file_md5.h
+  get_paths.h
   hex_dump.h
   interval.h
   interval_map.h
+  rational.h
+  simple_stats.h
   singleton.h
+  source_location.h
   streamable.h
   string.h
   string_editor.h
   string_encoding.h
-  simple_stats.h
+  text_codec.h
   text_codec_ascii.h
   text_codec_endian.h
   text_codec_error_policies.h
   text_codec_transcode.h
   text_codec_utf_8.h
   text_codec_utf_16.h
-  text_codec.h
   thread_pool.h
+  timer.h
   token_expander.h
   token_expand_editor.h
-  token_type_env.h
   token_type.h
+  token_type_env.h
   token_type_symtab.h
   token_type_sysenv.h
   tokenize.h
@@ -51,8 +53,8 @@ set( public_headers
   visit.h
   visit_image.h
   visit_image.txx
+  wall_timer.h
   wrap_text_block.h
-  file_md5.h
   )
 
 # ----------------------
