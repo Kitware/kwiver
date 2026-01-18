@@ -27,7 +27,7 @@ class VITAL_ALGO_EXPORT train_detector
 public:
   train_detector();
   PLUGGABLE_INTERFACE( train_detector );
-  /// Train a detection model given a list of images and detections
+  /// Add training data from disk
   ///
   /// This varient is geared towards offline training.
   ///
@@ -37,7 +37,7 @@ public:
   /// \param test_image_list list of test image filenames
   /// \param test_groundtruth annotations loaded for each image
   virtual void
-  train_from_disk(
+  add_data_from_disk(
     vital::category_hierarchy_sptr object_labels,
     std::vector< std::string > train_image_names,
     std::vector< kwiver::vital::detected_object_set_sptr > train_groundtruth,
@@ -45,7 +45,7 @@ public:
     std::vector< kwiver::vital::detected_object_set_sptr > test_groundtruth
     = std::vector< kwiver::vital::detected_object_set_sptr >( ) );
 
-  /// Train a detection model given images and detections
+  /// Add training data from memory
   ///
   /// This varient is geared towards online training, and is not required
   /// to be defined.
@@ -58,7 +58,7 @@ public:
   /// \param test_images optional vector of input test images
   /// \param test_groundtruth optional annotations loaded for each test image
   virtual void
-  train_from_memory(
+  add_data_from_memory(
     vital::category_hierarchy_sptr object_labels,
     std::vector< kwiver::vital::image_container_sptr > train_images,
     std::vector< kwiver::vital::detected_object_set_sptr > train_groundtruth,
@@ -66,6 +66,14 @@ public:
     = std::vector< kwiver::vital::image_container_sptr >( ),
     std::vector< kwiver::vital::detected_object_set_sptr > test_groundtruth
     = std::vector< kwiver::vital::detected_object_set_sptr >( ) );
+
+  /// Train a detection model given all loaded data
+  ///
+  /// This varient is geared towards either offline or online training
+  /// depending on the implementation.
+  ///
+  /// \throws runtime_exception if not defined or there's a data issue.
+  virtual void update_model() = 0;
 };
 
 /// Shared pointer for train_detector algorithm definition class

@@ -121,11 +121,11 @@ public:
     vector_2d& image_scale, vector_2d& image_offset,
     rpc_matrix& rpc_coeffs, unsigned int image_width = 0,
     unsigned int image_height = 0 )
-    : world_scale_( world_scale ),
+    : rpc_coeffs_( rpc_coeffs ),
+      world_scale_( world_scale ),
       world_offset_( world_offset ),
       image_scale_( image_scale ),
       image_offset_( image_offset ),
-      rpc_coeffs_( rpc_coeffs ),
       image_width_( image_width ),
       image_height_( image_height )
   {
@@ -134,11 +134,11 @@ public:
 
   /// Constructor - from base class
   simple_camera_rpc( const camera_rpc& base )
-    : world_scale_( base.world_scale() ),
+    : rpc_coeffs_( base.rpc_coeffs() ),
+      world_scale_( base.world_scale() ),
       world_offset_( base.world_offset() ),
       image_scale_( base.image_scale() ),
       image_offset_( base.image_offset() ),
-      rpc_coeffs_( base.rpc_coeffs() ),
       image_width_( base.image_width() ),
       image_height_( base.image_height() )
   {
