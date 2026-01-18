@@ -207,10 +207,13 @@ void video_input_process
       }
     }
 
+    kwiver::vital::path_t filename = d->m_video_reader->filename();
+
     push_to_port_using_trait( timestamp, ts );
     push_to_port_using_trait( image, frame );
     push_to_port_using_trait( metadata, metadata );
     push_to_port_using_trait( frame_rate, d->m_video_reader->frame_rate() );
+    push_to_port_using_trait( file_name, filename );
   }
   else
   {
@@ -224,6 +227,7 @@ void video_input_process
     push_datum_to_port_using_trait( image, dat );
     push_datum_to_port_using_trait( metadata, dat );
     push_datum_to_port_using_trait( frame_rate, dat );
+    push_datum_to_port_using_trait( file_name, dat );
   }
 }
 
@@ -243,6 +247,7 @@ void video_input_process
   declare_output_port_using_trait( image, shared );
   declare_output_port_using_trait( metadata, shared );
   declare_output_port_using_trait( frame_rate, optional );
+  declare_output_port_using_trait( file_name, optional );
 }
 
 // ----------------------------------------------------------------
