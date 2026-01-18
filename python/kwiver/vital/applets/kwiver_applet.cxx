@@ -58,13 +58,22 @@ kwiver_applet_binding( py::module& m )
       "get_configuration", &kwiver::tools::kwiver_applet::get_configuration,
       "Get the applet configuration" )
     .def(
-      "applet_name", &kwiver::tools::kwiver_applet::applet_name,
+      "applet_name",
+      []( const kwiver::tools::python::kwiver_applet_trampoline<>& self ) {
+        return self.public_applet_name();
+      },
       "Get the applet name" )
     .def(
-      "applet_args", &kwiver::tools::kwiver_applet::applet_args,
+      "applet_args",
+      []( const kwiver::tools::python::kwiver_applet_trampoline<>& self ) {
+        return self.public_applet_args();
+      },
       "Get the original applet arguments" )
     .def(
-      "wrap_text", &kwiver::tools::kwiver_applet::wrap_text,
+      "wrap_text",
+      []( kwiver::tools::python::kwiver_applet_trampoline<>& self, const std::string& text ) {
+        return self.public_wrap_text( text );
+      },
       py::arg( "text" ),
       "Wrap text into a fixed width block" )
     .def_static(
