@@ -11,6 +11,8 @@
 #include <vital/config/config_block.h>
 #include <vital/plugin_management/pluggable.h>
 #include <vital/plugin_management/pluggable_macro_magic.h>
+#include <vital/plugin_management/plugin_factory.h>
+#include <vital/plugin_management/plugin_info.h>
 
 #include <memory>
 #include <ostream>
@@ -181,14 +183,53 @@ typedef std::shared_ptr< kwiver_applet > kwiver_applet_sptr;
 
 } // namespace tools
 
+namespace vital {
+
+/// Simple factory for applets that use zero-argument construction
+///
+/// Applets don't use the config block system for construction,
+/// they use command-line arguments instead. This factory provides
+/// a simple way to create applet instances.
+template < class APPLET >
+class applet_plugin_factory
+  : public plugin_factory
+{
+public:
+  static_assert(
+    std::is_base_of< kwiver::tools::kwiver_applet, APPLET >::value,
+    "The given applet type must derive from kwiver_applet." );
+
+  explicit applet_plugin_factory()
+    : plugin_factory( typeid( kwiver::tools::kwiver_applet ).name() )
+  {
+    this->add_attribute( INTERFACE_TYPE, "kwiver_applet" )
+      .add_attribute( CONCRETE_TYPE, typeid( APPLET ).name() );
+  }
+
+  pluggable_sptr
+  from_config( [[maybe_unused]] config_block_sptr const cb ) const override
+  {
+    return std::make_shared< APPLET >();
+  }
+
+  void
+  get_default_config( [[maybe_unused]] config_block& cb ) const override
+  {
+    // Applets don't use config blocks for construction
+  }
+
+  ~applet_plugin_factory() override = default;
+};
+
+} // namespace vital
+
 }   // end namespace
 
 // ----------------------------------------------------------------------------
 // Support for adding factories
 
-#define ADD_APPLET( applet_T )                     \
-add_factory(                                       \
-  new kwiver::vital::plugin_factory_0< applet_T >( \
-  typeid( kwiver::tools::kwiver_applet ).name() ) )
+#define ADD_APPLET( applet_T ) \
+add_factory(                   \
+  new kwiver::vital::applet_plugin_factory< applet_T >() )
 
 #endif // KWIVER_TOOLS_KWIVER_APPLET_H
