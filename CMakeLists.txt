@@ -225,10 +225,12 @@ include( kwiver-depends )
 include( kwiver-setup-scripts )
 
 # define which boost we are using
-if (DEFINED BOOST_ROOT)
-  set(BOOST_ROOT_ARG ${BOOST_ROOT})
-else()
-  set(BOOST_ROOT_ARG ${Boost_LIBRARY_DIR}/..)
+if (Boost_FOUND)
+  if (DEFINED BOOST_ROOT)
+    set(BOOST_ROOT_ARG ${BOOST_ROOT})
+  else()
+    set(BOOST_ROOT_ARG ${Boost_LIBRARY_DIR}/..)
+  endif()
 endif()
 
 add_definitions(-DKWIVER_DEFAULT_PLUGIN_ORGANIZATION="Kitware Inc.")
@@ -237,7 +239,7 @@ add_definitions(-DKWIVER_DEFAULT_PLUGIN_ORGANIZATION="Kitware Inc.")
 # - VITAL_USE_STD_REGEX is the product of a compile check, see
 #   ``CMake/kwiver-configcheck.cmake`` ~L68.
 # - This was introduced for being able to CXXOPTS, found in ``vital/applets/``.
-if ( NOT VITAL_USE_STD_REGEX )
+if ( NOT VITAL_USE_STD_REGEX AND Boost_FOUND )
   set( VITAL_BOOST_REGEX ${Boost_REGEX_LIBRARY})
   add_definitions( -DKWIVER_USE_BOOST_REGEX )
 endif()
