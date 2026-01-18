@@ -15,6 +15,7 @@
 #include <vital/vital_types.h>
 
 #include <memory>
+#include <mutex>
 #include <set>
 #include <vector>
 
@@ -296,6 +297,65 @@ public:
   void set_attributes( attribute_set_sptr const& attrs );
   ///@}
 
+  /// @brief Set a single attribute value.
+  ///
+  /// This method sets a single attribute value in the attribute set. If no
+  /// attribute set exists for this track, one is created automatically.
+  /// This method is thread-safe.
+  ///
+  /// @param key The attribute name/key.
+  /// @param value The attribute value.
+  ///
+  /// @tparam T The type of the attribute value.
+  template < typename T >
+  void
+  set_attribute( std::string const& key, T const& value )
+  {
+    std::lock_guard< std::mutex > lock( attrs_mutex_ );
+    if( !attrs_ )
+    {
+      attrs_ = std::make_shared< attribute_set >();
+    }
+    attrs_->add( key, value );
+  }
+
+  /// @brief Check if an attribute exists.
+  ///
+  /// This method checks if the named attribute exists in the attribute set.
+  /// Returns false if no attribute set exists or if the attribute is not found.
+  ///
+  /// @param key The attribute name/key.
+  ///
+  /// @return \b true if the attribute exists, \b false otherwise.
+  bool has_attribute( std::string const& key ) const;
+
+  /// @brief Get a single attribute value.
+  ///
+  /// This method retrieves a single attribute value from the attribute set.
+  ///
+  /// @param key The attribute name/key.
+  ///
+  /// @tparam T The expected type of the attribute value.
+  ///
+  /// @return The attribute value.
+  ///
+  /// @throws attribute_set_exception if no attribute set exists or if the
+  ///         named attribute is not in the set.
+  /// @throws kwiver::vital::bad_any_cast if actual type does not match
+  ///         requested type.
+  template < typename T >
+  T
+  get_attribute( std::string const& key ) const
+  {
+    std::lock_guard< std::mutex > lock( attrs_mutex_ );
+    if( !attrs_ )
+    {
+      throw attribute_set_exception(
+        "No attribute set exists for this track" );
+    }
+    return attrs_->get< T >( key );
+  }
+
 protected:
   explicit track( track_data_sptr d = nullptr );
   track( const track& other );
@@ -310,6 +370,7 @@ protected:
   track_data_sptr data_;
   /// The optional data structure associated with this track
   attribute_set_sptr attrs_;
+  mutable std::mutex attrs_mutex_; ///< mutex for thread-safe attribute access
 };
 
 } // namespace vital
