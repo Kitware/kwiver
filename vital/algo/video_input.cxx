@@ -57,6 +57,14 @@ video_input
 }
 
 // ----------------------------------------------------------------------------
+kwiver::vital::path_t
+video_input
+::filename() const
+{
+  return "";
+}
+
+// ----------------------------------------------------------------------------
 video_raw_image_sptr
 video_input
 ::raw_frame_image()
