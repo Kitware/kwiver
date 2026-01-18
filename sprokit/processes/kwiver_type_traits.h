@@ -55,6 +55,8 @@ namespace vital {
   typedef std::shared_ptr< double_vector > double_vector_sptr;
   typedef std::vector< std::string > string_vector;
   typedef std::shared_ptr< string_vector > string_vector_sptr;
+  typedef std::vector< unsigned char > uchar_vector;
+  typedef std::shared_ptr< uchar_vector > uchar_vector_sptr;
   using string_sptr =  std::shared_ptr< std::string >;
 
 } }
@@ -81,6 +83,8 @@ create_type_trait( file_name, "kwiver:file_name", kwiver::vital::path_t );
 create_type_trait( frame_rate, "kwiver:frame_rate", double );
 create_type_trait( geo_point, "kwiver:geo_point", kwiver::vital::geo_point );
 create_type_trait( gsd, "kwiver:gsd", double );
+create_type_trait( homography, "kwiver:homography", kwiver::vital::homography_sptr );
+create_type_trait( success_flag, "kwiver:success_flag", bool );
 create_type_trait( homography_ref_to_src, "kwiver:r2s_homography", kwiver::vital::f2f_homography );
 create_type_trait( homography_src_to_ref, "kwiver:s2r_homography", kwiver::vital::f2f_homography );
 create_type_trait( image, "kwiver:image", kwiver::vital::image_container_sptr );
@@ -100,6 +104,7 @@ create_type_trait( serialized_message, "kwiver:serialized_message", kwiver::vita
 create_type_trait( string, "kwiver:string", kwiver::vital::string_t );
 create_type_trait( string_vector, "kwiver:string_vector", kwiver::vital::string_vector_sptr );
 create_type_trait( timestamp, "kwiver:timestamp", kwiver::vital::timestamp );
+create_type_trait( uchar_vector, "kwiver:uchar_vector", kwiver::vital::uchar_vector_sptr );
 create_type_trait( track_descriptor_set, "kwiver:track_descriptor_set", kwiver::vital::track_descriptor_set_sptr );
 create_type_trait( track_set, "kwiver:track_set", kwiver::vital::track_set_sptr );
 create_type_trait( video_raw_image, "kwiver:video_raw_image", kwiver::vital::video_raw_image_sptr );
@@ -120,6 +125,7 @@ create_port_trait( coordinate_system_updated, kwiver_logical, "Set to true if ne
 create_port_trait( corner_points, corner_points, "Four corner points for image in lat/lon units, ordering ul ur lr ll." );
 create_port_trait( database_query, database_query, "A database query." );
 create_port_trait( depth_map, image, "Depth map stored in image form." );
+create_port_trait( detection_time, frame_rate, "Detection processing time in seconds." );
 create_port_trait( descriptor_request, descriptor_request, "A request to compute descriptors." );
 create_port_trait( descriptor_set, descriptor_set, "Set of descriptors." );
 create_port_trait( detected_object_set, detected_object_set, "Set of detected objects." );
@@ -130,6 +136,7 @@ create_port_trait( frame_rate, frame_rate, "Video frame rate." );
 create_port_trait( geo_point, geo_point, "Geographic point." );
 create_port_trait( gsd, gsd, "GSD for image in meters per pixel." );
 create_port_trait( homography_src_to_ref, homography_src_to_ref, "Source image to ref image homography." );
+create_port_trait( success_flag, success_flag, "Boolean success flag." );
 create_port_trait( image, image, "Single frame image." );
 create_port_trait( image_file_name, file_name, "Name of an image file." );
 create_port_trait( image_set, image_set, "A collection of images, typically sub images." );
