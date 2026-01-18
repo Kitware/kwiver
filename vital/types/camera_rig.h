@@ -9,6 +9,7 @@
 #define VITAL_CAMERA_RIG_H_
 
 #include "camera.h"
+#include <vital/types/vital_types_export.h>
 
 #include <unordered_map>
 
@@ -90,7 +91,7 @@ protected:
 /// A representation of camera stereo rig
 ///
 /// A camera stereo rig class
-class VITAL_EXPORT camera_rig_stereo : protected camera_rig
+class VITAL_TYPES_EXPORT camera_rig_stereo : public camera_rig
 {
 public:
   /// Construct a stereo rig using left and right cameras.
