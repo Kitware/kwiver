@@ -191,3 +191,57 @@ class TestVitalTrack(unittest.TestCase):
         t.append(TrackState(9))
 
         self.assertEqual([ts.frame_id for ts in t], [0, 1, 5, 9])
+
+    def test_has_attribute_empty(self):
+        t = Track()
+        self.assertFalse(t.has_attribute("nonexistent"))
+
+    def test_set_get_attribute_string(self):
+        t = Track()
+        t.set_attribute("name", "test_track")
+        self.assertTrue(t.has_attribute("name"))
+        self.assertEqual(t.get_attribute("name"), "test_track")
+
+    def test_set_get_attribute_int(self):
+        t = Track()
+        t.set_attribute("count", 42)
+        self.assertTrue(t.has_attribute("count"))
+        self.assertEqual(t.get_attribute("count"), 42)
+
+    def test_set_get_attribute_float(self):
+        t = Track()
+        t.set_attribute("score", 0.95)
+        self.assertTrue(t.has_attribute("score"))
+        self.assertAlmostEqual(t.get_attribute("score"), 0.95)
+
+    def test_set_get_attribute_bool(self):
+        t = Track()
+        t.set_attribute("verified", True)
+        self.assertTrue(t.has_attribute("verified"))
+        self.assertEqual(t.get_attribute("verified"), True)
+
+    def test_attribute_keys(self):
+        t = Track()
+        self.assertEqual(t.attribute_keys(), [])
+
+        t.set_attribute("name", "test")
+        t.set_attribute("count", 10)
+        t.set_attribute("score", 0.5)
+
+        keys = t.attribute_keys()
+        self.assertEqual(len(keys), 3)
+        self.assertIn("name", keys)
+        self.assertIn("count", keys)
+        self.assertIn("score", keys)
+
+    def test_get_attribute_nonexistent(self):
+        t = Track()
+        with self.assertRaises(RuntimeError):
+            t.get_attribute("nonexistent")
+
+    def test_attribute_overwrite(self):
+        t = Track()
+        t.set_attribute("value", 10)
+        self.assertEqual(t.get_attribute("value"), 10)
+        t.set_attribute("value", 20)
+        self.assertEqual(t.get_attribute("value"), 20)

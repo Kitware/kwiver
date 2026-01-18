@@ -68,6 +68,16 @@ detected_object
   new_obj->m_geo_point = this->m_geo_point;
   new_obj->m_keypoints = this->m_keypoints;
   new_obj->m_notes = this->m_notes;
+  new_obj->m_polygon = this->m_polygon;
+
+  // Deep copy attribute set if present (thread-safe access)
+  {
+    std::lock_guard< std::mutex > lock( m_attrs_mutex );
+    if( this->m_attrs )
+    {
+      new_obj->m_attrs = this->m_attrs->clone();
+    }
+  }
 
   return new_obj;
 }
@@ -246,6 +256,79 @@ detected_object
 ::clear_keypoints()
 {
   m_keypoints.clear();
+}
+
+// ----------------------------------------------------------------------------
+std::vector< vector_2d >
+detected_object
+::polygon() const
+{
+  return m_polygon;
+}
+
+// ----------------------------------------------------------------------------
+void
+detected_object
+::set_polygon( std::vector< vector_2d > const& poly )
+{
+  m_polygon = poly;
+}
+
+// ----------------------------------------------------------------------------
+void
+detected_object
+::set_flattened_polygon( std::vector< double > const& coords )
+{
+  m_polygon.clear();
+  for( size_t i = 0; i + 1 < coords.size(); i += 2 )
+  {
+    m_polygon.push_back( vector_2d( coords[ i ], coords[ i + 1 ] ) );
+  }
+}
+
+// ----------------------------------------------------------------------------
+std::vector< double >
+detected_object
+::get_flattened_polygon() const
+{
+  std::vector< double > result;
+  for( const auto& pt : m_polygon )
+  {
+    result.push_back( pt[ 0 ] );
+    result.push_back( pt[ 1 ] );
+  }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+attribute_set_sptr
+detected_object
+::attributes() const
+{
+  std::lock_guard< std::mutex > lock( m_attrs_mutex );
+  return m_attrs;
+}
+
+// ----------------------------------------------------------------------------
+void
+detected_object
+::set_attributes( attribute_set_sptr attrs )
+{
+  std::lock_guard< std::mutex > lock( m_attrs_mutex );
+  m_attrs = attrs;
+}
+
+// ----------------------------------------------------------------------------
+bool
+detected_object
+::has_attribute( std::string const& key ) const
+{
+  std::lock_guard< std::mutex > lock( m_attrs_mutex );
+  if( !m_attrs )
+  {
+    return false;
+  }
+  return m_attrs->has( key );
 }
 
 } // namespace vital

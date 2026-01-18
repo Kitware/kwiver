@@ -5,6 +5,7 @@
 /// \file
 /// \brief test detected_object class
 
+#include <vital/attribute_set.h>
 #include <vital/types/detected_object.h>
 #include <vital/types/geodesy.h>
 
@@ -125,4 +126,169 @@ TEST ( detected_object, notes )
 
   dobj.clear_notes();
   EXPECT_EQ( dobj.notes().size(), 0 );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( detected_object, attributes )
+{
+  kwiver::vital::detected_object dobj;
+
+  // Initially no attributes
+  EXPECT_EQ( nullptr, dobj.attributes() );
+
+  // Create and attach attribute set
+  auto attrs = std::make_shared< kwiver::vital::attribute_set >();
+  dobj.set_attributes( attrs );
+  EXPECT_NE( nullptr, dobj.attributes() );
+  EXPECT_TRUE( dobj.attributes()->empty() );
+
+  // Add various typed attributes
+  attrs->add( "string_attr", std::string( "test_value" ) );
+  attrs->add( "int_attr", 42 );
+  attrs->add( "double_attr", 3.14159 );
+  attrs->add( "bool_attr", true );
+
+  EXPECT_EQ( 4, dobj.attributes()->size() );
+
+  // Verify attribute values and types
+  EXPECT_TRUE( dobj.attributes()->has( "string_attr" ) );
+  EXPECT_TRUE( dobj.attributes()->has( "int_attr" ) );
+  EXPECT_TRUE( dobj.attributes()->has( "double_attr" ) );
+  EXPECT_TRUE( dobj.attributes()->has( "bool_attr" ) );
+  EXPECT_FALSE( dobj.attributes()->has( "nonexistent" ) );
+
+  EXPECT_EQ(
+    "test_value",
+    dobj.attributes()->get< std::string >( "string_attr" ) );
+  EXPECT_EQ( 42, dobj.attributes()->get< int >( "int_attr" ) );
+  EXPECT_DOUBLE_EQ(
+    3.14159,
+    dobj.attributes()->get< double >( "double_attr" ) );
+  EXPECT_TRUE( dobj.attributes()->get< bool >( "bool_attr" ) );
+
+  // Test type checking
+  EXPECT_TRUE( dobj.attributes()->is_type< std::string >( "string_attr" ) );
+  EXPECT_TRUE( dobj.attributes()->is_type< int >( "int_attr" ) );
+  EXPECT_FALSE( dobj.attributes()->is_type< std::string >( "int_attr" ) );
+
+  // Test erase
+  EXPECT_TRUE( dobj.attributes()->erase( "int_attr" ) );
+  EXPECT_FALSE( dobj.attributes()->has( "int_attr" ) );
+  EXPECT_EQ( 3, dobj.attributes()->size() );
+  EXPECT_FALSE( dobj.attributes()->erase( "nonexistent" ) );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( detected_object, attributes_clone )
+{
+  kwiver::vital::bounding_box_d bb{ { 10, 20 }, 100, 100 };
+  kwiver::vital::detected_object dobj{ bb, 0.9 };
+
+  // Create and attach attribute set
+  auto attrs = std::make_shared< kwiver::vital::attribute_set >();
+  attrs->add( "label", std::string( "person" ) );
+  attrs->add( "score", 0.95 );
+  dobj.set_attributes( attrs );
+
+  // Clone the detection
+  auto cloned = dobj.clone();
+
+  // Verify attributes are deep copied
+  EXPECT_NE( nullptr, cloned->attributes() );
+  EXPECT_NE( dobj.attributes().get(), cloned->attributes().get() );
+  EXPECT_EQ( 2, cloned->attributes()->size() );
+  EXPECT_EQ( "person", cloned->attributes()->get< std::string >( "label" ) );
+  EXPECT_DOUBLE_EQ( 0.95, cloned->attributes()->get< double >( "score" ) );
+
+  // Modify original, verify clone is independent
+  dobj.attributes()->add( "new_attr", 123 );
+  EXPECT_TRUE( dobj.attributes()->has( "new_attr" ) );
+  EXPECT_FALSE( cloned->attributes()->has( "new_attr" ) );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( detected_object, attributes_null_clone )
+{
+  kwiver::vital::detected_object dobj;
+
+  // No attributes set
+  EXPECT_EQ( nullptr, dobj.attributes() );
+
+  // Clone should also have no attributes
+  auto cloned = dobj.clone();
+  EXPECT_EQ( nullptr, cloned->attributes() );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( detected_object, set_attribute_convenience )
+{
+  kwiver::vital::detected_object dobj;
+
+  // Initially no attributes
+  EXPECT_EQ( nullptr, dobj.attributes() );
+  EXPECT_FALSE( dobj.has_attribute( "test" ) );
+
+  // set_attribute should create attribute set automatically
+  dobj.set_attribute( "string_val", std::string( "hello" ) );
+  EXPECT_NE( nullptr, dobj.attributes() );
+  EXPECT_TRUE( dobj.has_attribute( "string_val" ) );
+  EXPECT_EQ( "hello", dobj.get_attribute< std::string >( "string_val" ) );
+
+  // Add more attributes of different types
+  dobj.set_attribute( "int_val", 42 );
+  dobj.set_attribute( "double_val", 3.14159 );
+  dobj.set_attribute( "bool_val", true );
+
+  EXPECT_EQ( 4, dobj.attributes()->size() );
+  EXPECT_TRUE( dobj.has_attribute( "int_val" ) );
+  EXPECT_TRUE( dobj.has_attribute( "double_val" ) );
+  EXPECT_TRUE( dobj.has_attribute( "bool_val" ) );
+
+  EXPECT_EQ( 42, dobj.get_attribute< int >( "int_val" ) );
+  EXPECT_DOUBLE_EQ( 3.14159, dobj.get_attribute< double >( "double_val" ) );
+  EXPECT_TRUE( dobj.get_attribute< bool >( "bool_val" ) );
+
+  // Overwrite existing attribute
+  dobj.set_attribute( "int_val", 100 );
+  EXPECT_EQ( 100, dobj.get_attribute< int >( "int_val" ) );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( detected_object, get_attribute_exception )
+{
+  kwiver::vital::detected_object dobj;
+
+  // get_attribute on detection with no attributes should throw
+  EXPECT_THROW(
+    dobj.get_attribute< int >( "nonexistent" ),
+    kwiver::vital::attribute_set_exception );
+
+  // Create attribute set but don't add the requested attribute
+  dobj.set_attribute( "other", 123 );
+  EXPECT_THROW(
+    dobj.get_attribute< int >( "nonexistent" ),
+    kwiver::vital::attribute_set_exception );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( detected_object, set_attribute_with_existing_attrs )
+{
+  kwiver::vital::detected_object dobj;
+
+  // First set attributes via set_attributes
+  auto attrs = std::make_shared< kwiver::vital::attribute_set >();
+  attrs->add( "existing", std::string( "value" ) );
+  dobj.set_attributes( attrs );
+
+  EXPECT_EQ( 1, dobj.attributes()->size() );
+
+  // Now use set_attribute to add more
+  dobj.set_attribute( "new_attr", 42 );
+
+  // Both should exist
+  EXPECT_EQ( 2, dobj.attributes()->size() );
+  EXPECT_TRUE( dobj.has_attribute( "existing" ) );
+  EXPECT_TRUE( dobj.has_attribute( "new_attr" ) );
+  EXPECT_EQ( "value", dobj.get_attribute< std::string >( "existing" ) );
+  EXPECT_EQ( 42, dobj.get_attribute< int >( "new_attr" ) );
 }

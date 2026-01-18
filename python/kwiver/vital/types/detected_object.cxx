@@ -2,6 +2,7 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
+#include <vital/attribute_set.h>
 #include <vital/types/detected_object.h>
 
 #include <pybind11/eigen.h>
@@ -140,6 +141,104 @@ det_obj_const_safe_set_mask( detected_object& self, image_container_sptr mask )
   }
 }
 
+// Helper function to set an attribute from a Python object
+void
+det_obj_set_attribute(
+  detected_object& self, std::string const& key,
+  py::object value )
+{
+  // Convert Python object to appropriate C++ type and store
+  if( py::isinstance< py::bool_ >( value ) )
+  {
+    self.set_attribute( key, value.cast< bool >() );
+  }
+  else if( py::isinstance< py::int_ >( value ) )
+  {
+    self.set_attribute( key, value.cast< int64_t >() );
+  }
+  else if( py::isinstance< py::float_ >( value ) )
+  {
+    self.set_attribute( key, value.cast< double >() );
+  }
+  else if( py::isinstance< py::str >( value ) )
+  {
+    self.set_attribute( key, value.cast< std::string >() );
+  }
+  else
+  {
+    throw std::runtime_error(
+      "Unsupported attribute type. Supported types: bool, int, float, str" );
+  }
+}
+
+// Helper function to get an attribute as a Python object
+py::object
+det_obj_get_attribute( detected_object const& self, std::string const& key )
+{
+  auto attrs = self.attributes();
+  if( !attrs )
+  {
+    throw attribute_set_exception(
+      "No attribute set exists for this detection" );
+  }
+  if( !attrs->has( key ) )
+  {
+    throw attribute_set_exception( "Attribute not found: " + key );
+  }
+
+  auto data = attrs->data( key );
+
+  // Try to convert to known types
+  if( data.type() == typeid( bool ) )
+  {
+    return py::cast( kwiver::vital::any_cast< bool >( data ) );
+  }
+  else if( data.type() == typeid( int ) )
+  {
+    return py::cast( kwiver::vital::any_cast< int >( data ) );
+  }
+  else if( data.type() == typeid( int64_t ) )
+  {
+    return py::cast( kwiver::vital::any_cast< int64_t >( data ) );
+  }
+  else if( data.type() == typeid( double ) )
+  {
+    return py::cast( kwiver::vital::any_cast< double >( data ) );
+  }
+  else if( data.type() == typeid( std::string ) )
+  {
+    return py::cast( kwiver::vital::any_cast< std::string >( data ) );
+  }
+  else
+  {
+    throw std::runtime_error(
+      "Attribute has unsupported type for Python conversion" );
+  }
+}
+
+// Helper to check if attribute exists
+bool
+det_obj_has_attribute( detected_object const& self, std::string const& key )
+{
+  return self.has_attribute( key );
+}
+
+// Helper to get all attribute keys
+std::vector< std::string >
+det_obj_attribute_keys( detected_object const& self )
+{
+  std::vector< std::string > keys;
+  auto attrs = self.attributes();
+  if( attrs )
+  {
+    for( auto it = attrs->begin(); it != attrs->end(); ++it )
+    {
+      keys.push_back( it->first );
+    }
+  }
+  return keys;
+}
+
 } // namespace python
 
 } // namespace vital
@@ -258,5 +357,74 @@ PYBIND11_MODULE( detected_object, m )
     .def_property( "type", &det_obj::type, &det_obj::set_type )
     .def_property_readonly( "notes", &det_obj::notes )
     .def_property_readonly( "keypoints", &det_obj::keypoints )
+    .def( "set_flattened_polygon", &det_obj::set_flattened_polygon )
+    .def( "get_flattened_polygon", &det_obj::get_flattened_polygon )
+    .def(
+      "set_attribute", &python::det_obj_set_attribute,
+      py::arg( "key" ), py::arg( "value" ),
+      R"(
+      Set an attribute value for this detection.
+
+      Creates the attribute set automatically if it doesn't exist.
+      This method is thread-safe.
+
+      Args:
+          key: The attribute name/key (string)
+          value: The attribute value (bool, int, float, or str)
+
+      Raises:
+          RuntimeError: If value type is not supported
+
+      Example:
+          >>> det.set_attribute("species", "fish")
+          >>> det.set_attribute("length_cm", 42.5)
+          >>> det.set_attribute("is_verified", True)
+      )" )
+    .def(
+      "get_attribute", &python::det_obj_get_attribute,
+      py::arg( "key" ),
+      R"(
+      Get an attribute value from this detection.
+
+      Args:
+          key: The attribute name/key (string)
+
+      Returns:
+          The attribute value (type depends on what was stored)
+
+      Raises:
+          RuntimeError: If no attributes exist or key not found
+
+      Example:
+          >>> species = det.get_attribute("species")
+      )" )
+    .def(
+      "has_attribute", &python::det_obj_has_attribute,
+      py::arg( "key" ),
+      R"(
+      Check if an attribute exists.
+
+      Args:
+          key: The attribute name/key (string)
+
+      Returns:
+          True if the attribute exists, False otherwise
+
+      Example:
+          >>> if det.has_attribute("species"):
+          >>>     print(det.get_attribute("species"))
+      )" )
+    .def(
+      "attribute_keys", &python::det_obj_attribute_keys,
+      R"(
+      Get list of all attribute keys.
+
+      Returns:
+          List of attribute key strings
+
+      Example:
+          >>> for key in det.attribute_keys():
+          >>>     print(f"{key}: {det.get_attribute(key)}")
+      )" )
   ;
 }
