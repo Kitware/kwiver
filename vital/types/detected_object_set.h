@@ -16,6 +16,8 @@
 
 #include <vital/types/detected_object.h>
 
+#include <algorithm>
+
 namespace kwiver {
 
 namespace vital {
@@ -172,6 +174,27 @@ public:
   /// \deprecated
   VITAL_TYPES_DEPRECATED
   void shift( double col_shift, double row_shift );
+
+  /// Filter detections in this set using a predicate function.
+  ///
+  /// This method removes all detections from this set for which the predicate
+  /// function returns true.
+  ///
+  /// \param pred Predicate function that returns true for detections to remove.
+  ///
+  /// \tparam Pred The predicate type, which should be callable with a
+  ///         detected_object_sptr and return bool.
+  template < typename Pred >
+  void
+  filter( Pred pred )
+  {
+    m_detected_objects.erase(
+      std::remove_if(
+        m_detected_objects.begin(),
+        m_detected_objects.end(),
+        pred ),
+      m_detected_objects.end() );
+  }
 
   /// Get attribute set.
   ///

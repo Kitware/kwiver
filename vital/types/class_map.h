@@ -174,6 +174,27 @@ public:
   std::vector< std::string > class_names(
     double threshold = INVALID_SCORE ) const;
 
+  /// @brief Get top N class_names for this object.
+  ///
+  /// This method returns a vector of the top N class_names that apply to this
+  /// object, ordered by decreasing score.
+  ///
+  /// @param n Maximum number of class names to return.
+  ///
+  /// @return Ordered list of top N class_names. Note that the list may be
+  /// smaller
+  ///         than N if fewer class names are present.
+  std::vector< std::string >
+  top_class_names( size_t n ) const
+  {
+    auto all = class_names();
+    if( all.size() <= n )
+    {
+      return all;
+    }
+    return std::vector< std::string >( all.begin(), all.begin() + n );
+  }
+
   /// @brief Get number of class names on this object.
   ///
   /// This method returns the number of class names that are in this
