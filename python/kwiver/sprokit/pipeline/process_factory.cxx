@@ -86,7 +86,9 @@ python_process_factory
 {
   this->add_attribute( CONCRETE_TYPE, type )
     .add_attribute( PLUGIN_FACTORY_TYPE, typeid( *this ).name() )
-    .add_attribute( PLUGIN_CATEGORY, "process" );
+    .add_attribute( PLUGIN_CATEGORY, "process" )
+    .add_attribute( PLUGIN_NAME, type )
+    .add_attribute( PLUGIN_MODULE_NAME, "python-runtime" );
 }
 
 python_process_factory::
@@ -205,17 +207,11 @@ register_process(
     kwiver::vital::plugin_manager::instance();
   auto fact = vpm.add_factory(
     new python_process_factory(
-      type,                                                      // derived type
-                                                                 // name string
-      typeid( ::sprokit::process ).name(),
+      type,
+      ::sprokit::process::interface_name(),
       wrap ) );
 
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, type )
-    .add_attribute(
-    kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME,
-    "python-runtime" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, desc )
-  ;
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, desc );
 }
 
 // ------------------------------------------------------------------

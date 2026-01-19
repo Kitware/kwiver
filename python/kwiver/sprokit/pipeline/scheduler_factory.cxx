@@ -72,7 +72,9 @@ python_scheduler_factory
 {
   this->add_attribute( CONCRETE_TYPE, type )
     .add_attribute( PLUGIN_FACTORY_TYPE, typeid( *this ).name() )
-    .add_attribute( PLUGIN_CATEGORY, "scheduler" );
+    .add_attribute( PLUGIN_CATEGORY, "scheduler" )
+    .add_attribute( PLUGIN_NAME, type )
+    .add_attribute( PLUGIN_MODULE_NAME, "python-runtime" );
 }
 
 // ----------------------------------------------------------------------------
@@ -184,14 +186,10 @@ register_scheduler(
   auto fact = vpm.add_factory(
     new python_scheduler_factory(
       type,
-      typeid( ::sprokit::scheduler ).name(),
+      ::sprokit::scheduler::interface_name(),
       wrap ) );
 
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, type )
-    .add_attribute(
-    kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME,
-    "python-runtime" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, desc );
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, desc );
 }
 
 // ------------------------------------------------------------------
