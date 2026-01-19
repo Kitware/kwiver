@@ -301,6 +301,14 @@ plugin_manager
   return m_priv->m_loader->is_module_loaded( name );
 }
 
+// ----------------------------------------------------------------------------
+void
+plugin_manager
+::mark_module_as_loaded( module_t const& name )
+{
+  m_priv->m_loader->mark_module_as_loaded( name );
+}
+
 std::vector< std::string >
 plugin_manager
 ::_impl_names( std::string const& interface_type_name ) const
