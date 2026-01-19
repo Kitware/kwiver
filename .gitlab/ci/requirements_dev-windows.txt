@@ -10,8 +10,7 @@ multimethod==1.4
 scikit-build==0.17.6
 
 # for pybind11 wrapping generation
-castxml==0.4.5
-pygccxml==2.4.0
+pygccxml==3.0.2
 
 # for python examples
 matplotlib==3.7.2

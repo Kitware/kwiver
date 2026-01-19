@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel", "scikit-build", "cmake", "ninja", "setuptools-scm>=6.2", "pygccxml==2.4.0", "castxml==0.4.5", "pybind11-stubgen"]
+requires = ["setuptools", "wheel", "scikit-build", "cmake", "ninja", "setuptools-scm>=6.2", "pygccxml==3.0.2", "castxml==0.4.5", "pybind11-stubgen"]
 [tool.pytest.ini_options]
 addopts = [
     "--import-mode=importlib",

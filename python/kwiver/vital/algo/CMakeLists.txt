@@ -108,7 +108,7 @@ kwiver_generate_dependencies("${classes}" vital_algo_dependencies)
 # we generate all wrappings at once instead of per file since the startup cost
 # of the C++ parser is high
 add_custom_command(OUTPUT ${algo_sources}
-  COMMAND  ${Python_EXECUTABLE}
+  COMMAND ${Python_EXECUTABLE}
           "${KWIVER_SOURCE_DIR}/scripts/cpp_to_pybind11.py"
           -c "${CMAKE_CURRENT_BINARY_DIR}/config.ini"
   DEPENDS ${vital_algo_dependencies}
