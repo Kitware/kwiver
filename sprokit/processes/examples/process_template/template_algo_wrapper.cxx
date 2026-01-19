@@ -21,6 +21,7 @@
 
 //++ include definition of abstract base algorithm.
 #include <vital/algo/image_object_detector.h>
+#include <vital/algo/algorithm.txx>
 
 //++ You can put all of your processes in the same namespace
 namespace group_ns {
@@ -113,13 +114,13 @@ template_algo_wrapper
 
   // Check config so it will give run-time diagnostic of config problems
   //++ The name supplied here must match the one defined in the coinfig_trait defined above.
-  //++ Note that these methods are static on the abstract base algorithm type.
-  if ( ! kwiver::vital::algo::image_object_detector::check_nested_algo_configuration( "algo_name", algo_config ) )
+  //++ Note that these are free functions in the kwiver::vital namespace.
+  if ( ! kwiver::vital::check_nested_algo_configuration<kwiver::vital::algo::image_object_detector>( "algo_name", algo_config ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
-  kwiver::vital::algo::image_object_detector::set_nested_algo_configuration( "algo_name", algo_config, d->m_algo );
+  kwiver::vital::set_nested_algo_configuration( "algo_name", algo_config, d->m_algo );
   if ( ! d->m_algo )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create algorithm." );

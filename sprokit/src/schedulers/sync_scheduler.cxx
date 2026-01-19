@@ -13,13 +13,13 @@
 #include <sprokit/pipeline/scheduler_exception.h>
 #include <sprokit/pipeline/utils.h>
 
-#include <boost/graph/directed_graph.hpp>
-#include <boost/graph/topological_sort.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/thread.hpp>
+#include <vital/util/directed_graph.h>
 
+#include <atomic>
 #include <deque>
+#include <mutex>
+#include <shared_mutex>
+#include <thread>
 #include <iterator>
 #include <map>
 #include <queue>
@@ -43,10 +43,11 @@ class sync_scheduler::priv
 
     void run(pipeline_t const& pipe);
 
-    boost::thread thread;
+    std::thread thread;
+    std::atomic<bool> stop_requested{false};
 
-    typedef boost::shared_mutex mutex_t;
-    typedef boost::shared_lock<mutex_t> shared_lock_t;
+    typedef std::shared_mutex mutex_t;
+    typedef std::shared_lock<mutex_t> shared_lock_t;
 
     mutable mutex_t mut;
 };
@@ -112,7 +113,8 @@ void
 sync_scheduler
 ::_start()
 {
-  d->thread = boost::thread(std::bind(&priv::run, d.get(), pipeline()));
+  d->stop_requested = false;
+  d->thread = std::thread(&priv::run, d.get(), pipeline());
 }
 
 // ----------------------------------------------------------------------------
@@ -144,13 +146,14 @@ void
 sync_scheduler
 ::_stop()
 {
-  d->thread.interrupt();
+  d->stop_requested = true;
 }
 
 // ============================================================================
 sync_scheduler::priv
 ::priv()
   : thread()
+  , stop_requested(false)
   , mut()
 {
 }
@@ -197,7 +200,11 @@ sync_scheduler::priv
 
     (void)lock;
 
-    boost::this_thread::interruption_point();
+    // Check if stop was requested
+    if (stop_requested)
+    {
+      break;
+    }
 
     process_t proc = processes.front();
     processes.pop();
@@ -238,8 +245,8 @@ sync_scheduler::priv
 // ----------------------------------------------------------------------------
 namespace {
 
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, process::name_t> pipeline_graph_t;
-typedef boost::graph_traits<pipeline_graph_t>::vertex_descriptor vertex_t;
+typedef kwiver::vital::directed_graph<process::name_t> pipeline_graph_t;
+typedef pipeline_graph_t::vertex_descriptor vertex_t;
 typedef std::deque<vertex_t> vertices_t;
 typedef std::map<process::name_t, vertex_t> vertex_map_t;
 
@@ -261,7 +268,7 @@ sorted_names(pipeline_t const& pipe)
 
     for (process::name_t const& name : names)
     {
-      vertex_t s = boost::add_vertex(graph);
+      vertex_t s = graph.add_vertex();
       graph[s] = name;
       vertex_map[name] = s;
     }
@@ -303,7 +310,7 @@ sorted_names(pipeline_t const& pipe)
 
         vertex_t const s = vertex_map[sender_name];
 
-        boost::add_edge(s, t, graph);
+        graph.add_edge(s, t);
       }
     }
   }
@@ -312,9 +319,9 @@ sorted_names(pipeline_t const& pipe)
 
   try
   {
-    boost::topological_sort(graph, std::front_inserter(vertices));
+    kwiver::vital::topological_sort(graph, std::front_inserter(vertices));
   }
-  catch (boost::not_a_dag const&)
+  catch (kwiver::vital::not_a_dag_exception const&)
   {
     /// \todo Throw an exception.
     LOG_ERROR( logger, "Pipeline is not a DAG" );

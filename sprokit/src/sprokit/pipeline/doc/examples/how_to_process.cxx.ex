@@ -87,7 +87,19 @@ compare_string_process
   }
 }
 
-#include <boost/algorithm/string/predicate.hpp>
+#include <algorithm>
+#include <cctype>
+
+namespace {
+// Case-insensitive string comparison
+bool iequals(std::string const& a, std::string const& b)
+{
+  if (a.size() != b.size()) return false;
+  return std::equal(a.begin(), a.end(), b.begin(),
+    [](char a, char b) { return std::tolower(static_cast<unsigned char>(a)) ==
+                                std::tolower(static_cast<unsigned char>(b)); });
+}
+}
 
 void
 compare_string_process
@@ -100,7 +112,7 @@ compare_string_process
 
   if (!cmp && d->ignore_case)
   {
-    cmp = boost::iequals(str1, str2);
+    cmp = iequals(str1, str2);
   }
 
   push_to_port_as<bool>(priv::port_output, cmp);

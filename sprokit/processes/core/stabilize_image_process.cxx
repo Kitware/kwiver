@@ -70,28 +70,28 @@ void stabilize_image_process
 
   kwiver::vital::config_block_sptr algo_config = get_config();
 
-  algo::track_features::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     track_features, algo_config, d->m_feature_tracker );
   if ( ! d->m_feature_tracker )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create \"track_features\"" );
   }
-  algo::track_features::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     track_features, algo_config, d->m_feature_tracker );
 
   // ----
-  algo::compute_ref_homography::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     homography_generator, algo_config, d->m_compute_homog );
   if ( ! d->m_compute_homog )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create \"compute_ref_homography\"" );
   }
-  algo::compute_ref_homography::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     homography_generator, algo_config, d->m_compute_homog );
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! algo::track_features::check_nested_algo_configuration_using_trait( track_features, algo_config ) ||
-       ! algo::compute_ref_homography::check_nested_algo_configuration_using_trait( homography_generator, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait( track_features, algo_config, d->m_feature_tracker ) ||
+       ! check_nested_algo_configuration_using_trait( homography_generator, algo_config, d->m_compute_homog ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }

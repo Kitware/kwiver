@@ -97,16 +97,37 @@ public:
   virtual ~null_process() {}
 };
 
+// A different process class for testing duplicate registration
+class null_process2
+  : public sprokit::process
+{
+public:
+  null_process2(kwiver::vital::config_block_sptr const& config)
+    : process( config )
+  { }
+
+  virtual ~null_process2() {}
+};
+
 // ------------------------------------------------------------------
 IMPLEMENT_TEST(duplicate_types)
 {
-  sprokit::process::type_t const non_existent_process = sprokit::process::type_t("no_such_process");
-
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
-  vpm.ADD_PROCESS( null_process );
+
+  // First, register null_process under a specific plugin name
+  auto fact1 = MAKE_PROCESS_FACTORY( null_process );
+  fact1->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "test_duplicate_process" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Test process for duplicate" );
+  vpm.add_factory( fact1 );
+
+  // Now try to register a DIFFERENT process type under the same plugin name
+  // This should throw plugin_already_exists
+  auto fact2 = MAKE_PROCESS_FACTORY( null_process2 );
+  fact2->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "test_duplicate_process" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, "Test process for duplicate" );
 
   EXPECT_EXCEPTION(kwiver::vital::plugin_already_exists,
-                   vpm.ADD_PROCESS( null_process ),
+                   vpm.add_factory( fact2 ),
                    "adding duplicate process type");
 }
 

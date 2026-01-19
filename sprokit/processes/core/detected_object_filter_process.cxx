@@ -85,13 +85,13 @@ detected_object_filter_process
   vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::detected_object_filter::check_nested_algo_configuration_using_trait(
-         filter, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         filter, algo_config, d->m_filter ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
-  vital::algo::detected_object_filter::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     filter,
     algo_config,
     d->m_filter );

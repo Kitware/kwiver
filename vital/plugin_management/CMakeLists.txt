@@ -8,8 +8,8 @@ set(vital_vpm_headers_public
   plugin_factory.h
   plugin_loader.h
   plugin_manager.h
+  plugin_registrar.h
 #  plugin_info.h
-#  plugin_registrar.h
   )
 
 set(vital_vpm_headers_private

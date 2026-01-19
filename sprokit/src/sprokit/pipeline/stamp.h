@@ -11,16 +11,6 @@
 
 #include "types.h"
 
-#ifdef WIN32
-#pragma warning (push)
-#pragma warning (disable : 4244)
-#pragma warning (disable : 4267)
-#endif
-#include <boost/operators.hpp>
-#ifdef WIN32
-#pragma warning (pop)
-#endif
-
 /**
  * \file stamp.h
  *
@@ -38,10 +28,7 @@ namespace sprokit
  * \ingroup base_classes
  */
 class SPROKIT_PIPELINE_EXPORT stamp
-  : private boost::equality_comparable<sprokit::stamp
-  , boost::less_than_comparable1<sprokit::stamp
-  , kwiver::vital::noncopyable
-    > >
+  : private kwiver::vital::noncopyable
 {
   public:
     /// The type for an increment size.
@@ -79,6 +66,42 @@ class SPROKIT_PIPELINE_EXPORT stamp
      * \returns True if \p st has a higher value than \c *this, false otherwise.
      */
     bool operator <  (stamp const& st) const;
+
+    /**
+     * \brief Compare two stamps for inequality.
+     *
+     * \param st The stamp to compare to.
+     *
+     * \returns True if \p st and \c *this have different values, false otherwise.
+     */
+    bool operator != (stamp const& st) const;
+
+    /**
+     * \brief Compare two stamps for an order.
+     *
+     * \param st The stamp to compare to.
+     *
+     * \returns True if \p st has a lower value than \c *this, false otherwise.
+     */
+    bool operator >  (stamp const& st) const;
+
+    /**
+     * \brief Compare two stamps for an order.
+     *
+     * \param st The stamp to compare to.
+     *
+     * \returns True if \p st has a lower or equal value than \c *this, false otherwise.
+     */
+    bool operator >= (stamp const& st) const;
+
+    /**
+     * \brief Compare two stamps for an order.
+     *
+     * \param st The stamp to compare to.
+     *
+     * \returns True if \p st has a higher or equal value than \c *this, false otherwise.
+     */
+    bool operator <= (stamp const& st) const;
 
   private:
     typedef uint64_t index_t;

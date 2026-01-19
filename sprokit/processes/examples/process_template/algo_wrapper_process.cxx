@@ -63,13 +63,13 @@ _configure()
   // Call check_nested_algo_configuration() first so that it will display a list of
   // concrete instances of the desired algorithms that are available if the config
   // does not select a valid one.
-  if ( ! vital::algo::refine_detections::check_nested_algo_configuration_using_trait(
-         algo, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         algo, algo_config, d->m_algo ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
-  vital::algo::refine_detections::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     algo, algo_config, d->m_algo );
 
   if ( ! d->m_algo )

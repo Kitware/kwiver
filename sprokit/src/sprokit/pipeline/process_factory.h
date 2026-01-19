@@ -84,6 +84,19 @@ public:
   virtual sprokit::process_t create_object(kwiver::vital::config_block_sptr const& config) = 0;
 
   void copy_attributes( sprokit::process_t proc );
+
+  // Implement pure virtual methods from plugin_factory base class
+  // Sprokit processes use their own configuration mechanism, so these are stubs
+  kwiver::vital::pluggable_sptr from_config( [[maybe_unused]] kwiver::vital::config_block_sptr const cb ) const override
+  {
+    // Sprokit processes are not pluggable in the same way as vital algorithms
+    return nullptr;
+  }
+
+  void get_default_config( [[maybe_unused]] kwiver::vital::config_block& cb ) const override
+  {
+    // Sprokit processes configure themselves differently
+  }
 };
 
 // ----------------------------------------------------------------------------
@@ -190,8 +203,14 @@ kwiver::vital::plugin_factory_vector_t const& get_process_list();
 //
 #define ADD_PROCESS( proc_type )                                        \
   add_factory( new sprokit::cpp_process_factory( typeid( proc_type ).name(), \
-                                                 typeid( sprokit::process ).name(), \
+                                                 sprokit::process::interface_name(), \
                                                  sprokit::create_new_process< proc_type > ) )
+
+/// Convenience macro to create a process factory (for use in tests)
+#define MAKE_PROCESS_FACTORY( proc_type ) \
+  new sprokit::cpp_process_factory( typeid( proc_type ).name(), \
+                                    sprokit::process::interface_name(), \
+                                    sprokit::create_new_process< proc_type > )
 
 // ============================================================================
 /// Derived class to register processes
@@ -243,7 +262,7 @@ public:
 
     kwiver::vital::plugin_factory* fact =  new sprokit::cpp_process_factory(
       typeid( process_t ).name(),
-      typeid( sprokit::process ).name(),
+      sprokit::process::interface_name(),
       sprokit::create_new_process< process_t > );
 
     fact->add_attribute( kvpf::PLUGIN_NAME,      process_t::_plugin_name )

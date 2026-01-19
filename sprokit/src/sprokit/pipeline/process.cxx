@@ -12,14 +12,11 @@
 #include <vital/util/string.h>
 #include <vital/vital_config.h>
 
-#include <boost/assign/ptr_map_inserter.hpp>
-#include <boost/ptr_container/ptr_map.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
-
 #include <map>
-#include <utility>
 #include <memory>
+#include <mutex>
+#include <shared_mutex>
+#include <utility>
 
 /**
  * \file process.cxx
@@ -133,11 +130,9 @@ class process::priv
     typedef std::map<port_t, port_info_t> port_map_t;
     typedef std::map<kwiver::vital::config_block_key_t, conf_info_t> conf_map_t;
 
-    typedef boost::shared_mutex mutex_t;
-    typedef boost::shared_lock<mutex_t> shared_lock_t;
-    typedef boost::upgrade_lock<mutex_t> upgrade_lock_t;
-    typedef boost::unique_lock<mutex_t> unique_lock_t;
-    typedef boost::upgrade_to_unique_lock<mutex_t> upgrade_to_unique_lock_t;
+    typedef std::shared_mutex mutex_t;
+    typedef std::shared_lock<mutex_t> shared_lock_t;
+    typedef std::unique_lock<mutex_t> unique_lock_t;
 
     class input_port_info_t
     {
@@ -158,10 +153,10 @@ class process::priv
         stamp_t stamp;
     };
 
-    typedef boost::ptr_map<port_t, input_port_info_t> input_edge_map_t;
-    typedef boost::ptr_map<port_t, output_port_info_t> output_edge_map_t;
+    typedef std::map<port_t, std::unique_ptr<input_port_info_t>> input_edge_map_t;
+    typedef std::map<port_t, std::unique_ptr<output_port_info_t>> output_edge_map_t;
 
-    typedef boost::ptr_map<port_t, mutex_t> output_mutex_map_t;
+    typedef std::map<port_t, std::unique_ptr<mutex_t>> output_mutex_map_t;
 
     typedef port_t tag_t;
 
@@ -219,7 +214,7 @@ class process::priv
     mutex_t reconfigure_mut;
 
     kwiver::vital::logger_handle_t m_logger;
-    std::unique_ptr< sprokit::process_instrumentation > m_proc_instrumentation; // instrumentation provider
+    std::shared_ptr< sprokit::process_instrumentation > m_proc_instrumentation; // instrumentation provider
 
     // List of properties that are associated with this object
     properties_t m_properties;
@@ -647,7 +642,7 @@ process
                     + kwiver::vital::config_block::block_sep() + instr_prov );
 
       instrumentation_factory ifact;
-      d->m_proc_instrumentation.reset( ifact.create( instr_prov ) );
+      d->m_proc_instrumentation = ifact.create( instr_prov, instr_block );
       d->m_proc_instrumentation->set_process( *this );
 
       kwiver::vital::config_block_sptr prov_block = instr_block->subblock_view( instr_prov );
@@ -1138,7 +1133,10 @@ process
   }
 
   d->output_ports[port] = info;
-  boost::assign::ptr_map_insert<priv::mutex_t>(d->output_mutexes)(port);
+  if (d->output_mutexes.find(port) == d->output_mutexes.end())
+  {
+    d->output_mutexes[port] = std::make_unique<priv::mutex_t>();
+  }
 
   port_flags_t const& flags = info->flags;
 
@@ -1340,7 +1338,7 @@ process
   d->is_complete = true;
 
   // Indicate to input edges that we are complete.
-  for (priv::input_edge_map_t::value_type const& port_edge : d->input_edges)
+  for (auto const& port_edge : d->input_edges)
   {
     priv::input_port_info_t const& info = *port_edge.second;
     edge_t const& edge = info.edge;
@@ -1378,14 +1376,14 @@ process
 
   (void)lock;
 
-  priv::output_edge_map_t::const_iterator const e = d->output_edges.find(port);
+  auto const e = d->output_edges.find(port);
 
   if (e == d->output_edges.end())
   {
     return size_t(0);
   }
 
-  priv::mutex_t& mut = d->output_mutexes[port];
+  priv::mutex_t& mut = *d->output_mutexes.at(port);
 
   priv::shared_lock_t const port_lock(mut);
 
@@ -1487,14 +1485,14 @@ process
 
   (void)lock;
 
-  priv::output_edge_map_t::const_iterator const e = d->output_edges.find(port);
+  auto const e = d->output_edges.find(port);
 
   if (e == d->output_edges.end())
   {
     return;
   }
 
-  priv::mutex_t& mut = d->output_mutexes[port];
+  priv::mutex_t& mut = *d->output_mutexes.at(port);
 
   priv::shared_lock_t const port_lock(mut);
 
@@ -1528,16 +1526,16 @@ process
 
     (void)lock;
 
-    priv::output_edge_map_t::iterator const e = d->output_edges.find(port);
+    auto const e = d->output_edges.find(port);
 
     if (e == d->output_edges.end())
     {
       return;
     }
 
-    priv::mutex_t& mut = d->output_mutexes[port];
+    priv::mutex_t& mut = *d->output_mutexes.at(port);
 
-    priv::upgrade_lock_t port_lock(mut);
+    priv::unique_lock_t port_lock(mut);
 
     priv::output_port_info_t& info = *e->second;
     stamp_t& port_stamp = info.stamp;
@@ -1549,14 +1547,8 @@ process
       throw std::runtime_error(reason + this->name());
     }
 
-    {
-      priv::upgrade_to_unique_lock_t const port_write_lock(port_lock);
-
-      (void)port_write_lock;
-
-      push_stamp = port_stamp;
-      port_stamp = stamp::incremented_stamp(port_stamp);
-    }
+    push_stamp = port_stamp;
+    port_stamp = stamp::incremented_stamp(port_stamp);
   }
 
   push_to_port(port, edge_datum_t(dat, push_stamp));
@@ -1946,7 +1938,7 @@ process::priv
                  name, port);
   }
 
-  boost::assign::ptr_map_insert<input_port_info_t>(input_edges)(port, edge);
+  input_edges[port] = std::make_unique<input_port_info_t>(edge);
 }
 
 // ------------------------------------------------------------------
@@ -1964,13 +1956,19 @@ process::priv
 
   (void)lock;
 
-  mutex_t& mut = output_mutexes[port];
+  mutex_t& mut = *output_mutexes.at(port);
 
   unique_lock_t const port_lock(mut);
 
   (void)port_lock;
 
-  output_port_info_t& info = output_edges[port];
+  // Create output_port_info_t if it doesn't exist
+  if (output_edges.find(port) == output_edges.end())
+  {
+    output_edges[port] = std::make_unique<output_port_info_t>();
+  }
+
+  output_port_info_t& info = *output_edges[port];
   edges_t& edges = info.edges;
 
   edges.push_back(edge);
@@ -2224,7 +2222,7 @@ process::priv
 
   for (port_t const& port : required_outputs)
   {
-    output_edge_map_t::const_iterator const i = output_edges.find(port);
+    auto const i = output_edges.find(port);
 
     // Output port not found.
     if (i == output_edges.end())
@@ -2232,7 +2230,13 @@ process::priv
       continue;
     }
 
-    mutex_t& mut = output_mutexes[port];
+    auto const mut_it = output_mutexes.find(port);
+    if (mut_it == output_mutexes.end())
+    {
+      continue;
+    }
+
+    mutex_t& mut = *mut_it->second;
 
     unique_lock_t const port_lock(mut);
 
@@ -2324,13 +2328,25 @@ process::priv
 
       (void)lock;
 
-      mutex_t& mut = output_mutexes[port_name];
+      auto const mut_it = output_mutexes.find(port_name);
+      if (mut_it == output_mutexes.end())
+      {
+        continue;
+      }
+
+      mutex_t& mut = *mut_it->second;
 
       unique_lock_t const port_lock(mut);
 
       (void)port_lock;
 
-      output_port_info_t& oinfo = output_edges[port_name];
+      // Create output_port_info_t if it doesn't exist
+      if (output_edges.find(port_name) == output_edges.end())
+      {
+        output_edges[port_name] = std::make_unique<output_port_info_t>();
+      }
+
+      output_port_info_t& oinfo = *output_edges[port_name];
       stamp_t& stamp = oinfo.stamp;
 
       stamp = stamp::new_stamp(port_increment);

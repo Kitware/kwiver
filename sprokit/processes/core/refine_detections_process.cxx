@@ -50,13 +50,13 @@ _configure()
   vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! vital::algo::refine_detections::check_nested_algo_configuration_using_trait(
-         refiner, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         refiner, algo_config, d->m_refiner ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
-  vital::algo::refine_detections::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     refiner,
     algo_config,
     d->m_refiner );

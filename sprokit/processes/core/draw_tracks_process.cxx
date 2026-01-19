@@ -64,7 +64,7 @@ draw_tracks_process
 
   kwiver::vital::config_block_sptr algo_config = get_config();
 
-  algo::draw_tracks::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     draw_tracks,
     algo_config,
     d->m_draw_tracks );
@@ -74,14 +74,14 @@ draw_tracks_process
                  "Unable to create draw_tracks" );
   }
 
-  algo::draw_tracks::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     draw_tracks,
     algo_config,
     d->m_draw_tracks );
 
   // Check config so it will give run-time diagnostic of config problems
-  if ( ! algo::draw_tracks::check_nested_algo_configuration_using_trait(
-         draw_tracks, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         draw_tracks, algo_config, d->m_draw_tracks ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
                  "Configuration check failed." );

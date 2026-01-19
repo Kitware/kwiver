@@ -63,7 +63,7 @@ void compute_association_matrix_process
 
   vital::config_block_sptr algo_config = get_config();
 
-  algo::compute_association_matrix::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     matrix_generator,
     algo_config,
     d->m_matrix_generator );
@@ -74,14 +74,14 @@ void compute_association_matrix_process
                  name(), "Unable to create compute_association_matrix" );
   }
 
-  algo::compute_association_matrix::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     matrix_generator,
     algo_config,
     d->m_matrix_generator );
 
   // Check config so it will give run-time diagnostic of config problems
-  if( !algo::compute_association_matrix::check_nested_algo_configuration_using_trait(
-    matrix_generator, algo_config ) )
+  if( !check_nested_algo_configuration_using_trait(
+    matrix_generator, algo_config, d->m_matrix_generator ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception,
                  name(), "Configuration check failed." );

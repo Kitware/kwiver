@@ -6,6 +6,7 @@
 #define _KWIVER_TRAIT_UTILS_H_
 
 #include <vital/config/config_block_types.h>
+#include <vital/algo/algorithm.txx>
 #include <sprokit/pipeline/process.h>
 
 //
@@ -129,14 +130,15 @@ declare_configuration_key( KEY ## _config_trait::key,                   \
 #define get_value_using_trait( KEY, ... ) get_value<KEY ## _config_trait::type>( KEY, __VA_ARG__ )
 
 /// Algorithm interface using traits
-#define check_nested_algo_configuration_using_trait(KEY, ALGO) \
-  check_nested_algo_configuration( KEY ## _config_trait::key, ALGO )
+/// These macros use the free functions in kwiver::vital namespace
+#define check_nested_algo_configuration_using_trait(KEY, CONFIG, ALGO) \
+  kwiver::vital::check_nested_algo_configuration< typename std::remove_reference< decltype( *ALGO ) >::type >( KEY ## _config_trait::key, CONFIG )
 
 #define set_nested_algo_configuration_using_trait(KEY, CONFIG, ALGO)     \
-  set_nested_algo_configuration( KEY ## _config_trait::key, CONFIG, ALGO )
+  kwiver::vital::set_nested_algo_configuration( KEY ## _config_trait::key, CONFIG, ALGO )
 
 #define get_nested_algo_configuration_using_trait(KEY, CONFIG, ALGO)     \
-  get_nested_algo_configuration( KEY ## _config_trait::key, CONFIG, ALGO )
+  kwiver::vital::get_nested_algo_configuration( KEY ## _config_trait::key, CONFIG, ALGO )
 
 /**
  * \brief Create type trait.

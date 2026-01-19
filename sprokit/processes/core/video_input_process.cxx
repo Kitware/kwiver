@@ -19,7 +19,7 @@
 
 // -- DEBUG
 #if defined DEBUG
-#include <arrows/algorithms/ocv/image_container.h>
+#include <arrows/ocv/image_container.h>
 #include <opencv2/highgui/highgui.hpp>
 using namespace cv;
 #endif
@@ -94,14 +94,14 @@ void video_input_process
     d->m_has_config_frame_time = true;
   }
 
-  if ( ! algo::video_input::check_nested_algo_configuration_using_trait(
-         video_reader, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         video_reader, algo_config, d->m_video_reader ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
   // instantiate requested/configured algo type
-  algo::video_input::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     video_reader, algo_config, d->m_video_reader );
   if ( ! d->m_video_reader )
   {
@@ -139,7 +139,7 @@ void video_input_process
 
       // --- debug
 #if defined DEBUG
-      cv::Mat image = algorithms::ocv::image_container::vital_to_ocv( frame->get_image() );
+      cv::Mat image = arrows::ocv::image_container::vital_to_ocv( frame->get_image() );
       namedWindow( "Display window", cv::WINDOW_NORMAL ); // Create a window for display.
       imshow( "Display window", image ); // Show our image inside it.
 

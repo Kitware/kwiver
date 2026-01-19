@@ -33,10 +33,30 @@
 
 namespace {
 
-using plugin_factory =  kwiver::vital::implementation_factory_by_name< kwiver::embedded_pipeline_extension >;
-
 static kwiver::vital::config_block_key_t const scheduler_block = kwiver::vital::config_block_key_t("_scheduler");
 static kwiver::vital::config_block_key_t const epx_block_key = kwiver::vital::config_block_key_t("_pipeline:embedded_pipeline_extension");
+
+// Helper function to create EPX by name
+kwiver::embedded_pipeline_extension_sptr create_epx_by_name( const std::string& name )
+{
+  auto& vpm = kwiver::vital::plugin_manager::instance();
+  auto fact_list = vpm.get_factories( typeid( kwiver::embedded_pipeline_extension ).name() );
+
+  for ( auto fact : fact_list )
+  {
+    std::string plugin_name;
+    if ( fact->get_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, plugin_name ) &&
+         plugin_name == name )
+    {
+      auto epx_fact = std::dynamic_pointer_cast< kwiver::epx_factory >( fact );
+      if ( epx_fact )
+      {
+        return epx_fact->create_object();
+      }
+    }
+  }
+  throw kwiver::vital::plugin_factory_not_found( "embedded_pipeline_extension named: " + name );
+}
 
 } // end
 
@@ -198,8 +218,7 @@ embedded_pipeline
 
     if (ext_name != "none" )
     {
-      plugin_factory ifact;
-      m_priv->m_hooks.reset( ifact.create( ext_name ) );
+      m_priv->m_hooks = create_epx_by_name( ext_name );
 
       // Merge pipe config into plugin default config so we pick up
       // the values that are expected but not specified. (i.e. default values)

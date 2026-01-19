@@ -91,14 +91,14 @@ void detect_features_process
   kwiver::vital::config_block_sptr algo_config = get_config();
 
   // Check config so it will give run-time diagnostic if any config problems are found
-  if ( ! algo::detect_features::check_nested_algo_configuration_using_trait(
-         feature_detector, algo_config ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         feature_detector, algo_config, d->m_detector ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
 
   // Instantiate the configured algorithm
-  algo::detect_features::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     feature_detector,
     algo_config,
     d->m_detector );

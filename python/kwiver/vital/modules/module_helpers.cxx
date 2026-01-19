@@ -31,6 +31,8 @@ namespace py = pybind11;
 void
 check_and_initialize_python_interpretor()
 {
+  static bool initialized = false;
+
   // Check if a python interpreter already exists so we don't clobber sys.argv
   // (e.g. if sprokit is initialized from python)
   if( !Py_IsInitialized() )
@@ -41,16 +43,21 @@ check_and_initialize_python_interpretor()
     // Set Python interpeter attribute: sys.argv = []
     // parameters are: (argc, argv, updatepath)
     PySys_SetArgvEx( 0, NULL, 0 );
-  }
 
-  if( !PyEval_ThreadsInitialized() )
-  {
+    // In Python 3.7+, threads are always initialized after Py_Initialize(),
+    // so PyEval_ThreadsInitialized() always returns true. We need to
+    // initialize pybind11 internals and release the GIL ourselves.
+    if( !initialized )
     {
-      // Let pybind11 initialize threads and set up its internal data structures
-      pybind11::detail::get_internals();
+      initialized = true;
+      {
+        // Let pybind11 initialize threads and set up its internal data
+        // structures
+        pybind11::detail::get_internals();
+      }
+      // Release the GIL so other threads can acquire it
+      PyEval_SaveThread();
     }
-    // Release the GIL
-    PyEval_SaveThread();
   }
 }
 

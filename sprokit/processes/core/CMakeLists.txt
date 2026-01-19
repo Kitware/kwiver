@@ -110,6 +110,4 @@ kwiver_add_plugin( kwiver_processes
                    kwiver_adapter
                    kwiversys
                    vital vital_vpm vital_logger vital_config
-                   ${Boost_SYSTEM_LIBRARY}
-                   ${Boost_FILESYSTEM_LIBRARY}
 )

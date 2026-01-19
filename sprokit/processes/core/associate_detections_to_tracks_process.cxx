@@ -67,7 +67,7 @@ void associate_detections_to_tracks_process
 
   vital::config_block_sptr algo_config = get_config();
 
-  algo::associate_detections_to_tracks::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     track_associator,
     algo_config,
     d->m_track_associator );
@@ -78,14 +78,14 @@ void associate_detections_to_tracks_process
                  name(), "Unable to create associate_detections_to_tracks" );
   }
 
-  algo::associate_detections_to_tracks::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     track_associator,
     algo_config,
     d->m_track_associator );
 
   // Check config so it will give run-time diagnostic of config problems
-  if( !algo::associate_detections_to_tracks::check_nested_algo_configuration_using_trait(
-    track_associator, algo_config ) )
+  if( !check_nested_algo_configuration_using_trait(
+    track_associator, algo_config, d->m_track_associator ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception,
       name(), "Configuration check failed." );

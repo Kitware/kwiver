@@ -65,7 +65,7 @@ void extract_descriptors_process
   kwiver::vital::config_block_sptr algo_config = get_config();
 
   // Instantiate the configured algorithm
-  algo::extract_descriptors::set_nested_algo_configuration_using_trait(
+  set_nested_algo_configuration_using_trait(
     descriptor_extractor,
     algo_config,
     d->m_extractor );
@@ -74,15 +74,15 @@ void extract_descriptors_process
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Unable to create descriptor_extractor" );
   }
 
-  algo::extract_descriptors::get_nested_algo_configuration_using_trait(
+  get_nested_algo_configuration_using_trait(
     descriptor_extractor,
     algo_config,
     d->m_extractor );
 
   // Check config so it will give run-time diagnostic if any config problems are found
-  if ( ! algo::extract_descriptors::check_nested_algo_configuration_using_trait(
+  if ( ! check_nested_algo_configuration_using_trait(
          descriptor_extractor,
-         algo_config ) )
+         algo_config, d->m_extractor ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
   }
