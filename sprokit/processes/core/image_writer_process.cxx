@@ -122,9 +122,9 @@ void image_writer_process
   }
 
   // instantiate image reader and converter based on config type
-  if( ! check_nested_algo_configuration_using_trait(
-        image_writer,
-        algo_config, d->m_image_writer ) )
+  if ( ! check_nested_algo_configuration_using_trait(
+         image_writer,
+         algo_config, d->m_image_writer ) )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
                  "Configuration check failed." );
