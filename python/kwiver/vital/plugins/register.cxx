@@ -78,6 +78,10 @@ register_factories( ::kv::plugin_loader& vpl )
   //   * Modify local version of KWSYS to also pass the `RTLD_GLOBAL` flag?
 
   // Generate factories to add to `vpl`.
+  // Acquire the GIL since we need to call Python functions.
+  // The GIL may have been released by a previous Python initialization.
+  py::gil_scoped_acquire gil;
+
   py::object const mod_discovery =
     py::module::import( "kwiver.vital.plugins.discovery" );
 
@@ -213,8 +217,6 @@ check_and_initialize_python_interpreter()
       return;
     }
     PyConfig_Clear( &config );
-
-    Py_Initialize();
     LOG_DEBUG( log, "Python interpreter initialized" );
   }
 
