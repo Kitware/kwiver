@@ -44,6 +44,7 @@ set( public_headers
   image_filter.h
   image_io.h
   image_object_detector.h
+  segment_via_points.h
   initialize_cameras_landmarks.h
   initialize_object_tracks.h
   integrate_depth_maps.h
@@ -61,6 +62,7 @@ set( public_headers
   query_track_descriptor_set.h
   read_object_track_set.h
   read_track_descriptor_set.h
+  perform_text_query.h
   refine_detections.h
   refine_tracks.h
   resection_camera.h
@@ -117,6 +119,7 @@ set( sources
   image_filter.cxx
   image_io.cxx
   image_object_detector.cxx
+  segment_via_points.cxx
   initialize_cameras_landmarks.cxx
   initialize_object_tracks.cxx
   integrate_depth_maps.cxx
@@ -134,6 +137,7 @@ set( sources
   query_track_descriptor_set.cxx
   read_object_track_set.cxx
   read_track_descriptor_set.cxx
+  perform_text_query.cxx
   refine_detections.cxx
   refine_tracks.cxx
   resection_camera.cxx

@@ -34,6 +34,7 @@ kwiver_add_python_library(algos
   image_filter.h
   image_io.h
   image_object_detector.h
+  segment_via_points.h
   initialize_cameras_landmarks.h
   initialize_object_tracks.h
   integrate_depth_maps.h
@@ -47,6 +48,7 @@ kwiver_add_python_library(algos
   optimize_cameras.h
   read_object_track_set.h
   read_track_descriptor_set.h
+  perform_text_query.h
   refine_detections.h
   refine_tracks.h
   resection_camera.h
@@ -94,6 +96,7 @@ kwiver_add_python_library(algos
   image_filter.cxx
   image_io.cxx
   image_object_detector.cxx
+  segment_via_points.cxx
   initialize_cameras_landmarks.cxx
   initialize_object_tracks.cxx
   integrate_depth_maps.cxx
@@ -107,6 +110,7 @@ kwiver_add_python_library(algos
   optimize_cameras.cxx
   read_object_track_set.cxx
   read_track_descriptor_set.cxx
+  perform_text_query.cxx
   refine_detections.cxx
   refine_tracks.cxx
   resection_camera.cxx
@@ -154,6 +158,7 @@ kwiver_add_python_library(algos
   trampoline/image_filter_trampoline.txx
   trampoline/image_io_trampoline.txx
   trampoline/image_object_detector_trampoline.txx
+  trampoline/segment_via_points_trampoline.txx
   trampoline/initialize_cameras_landmarks_trampoline.txx
   trampoline/initialize_object_tracks_trampoline.txx
   trampoline/integrate_depth_maps_trampoline.txx
@@ -167,6 +172,7 @@ kwiver_add_python_library(algos
   trampoline/optimize_cameras_trampoline.txx
   trampoline/read_object_track_set_trampoline.txx
   trampoline/read_track_descriptor_set_trampoline.txx
+  trampoline/perform_text_query_trampoline.txx
   trampoline/refine_detections_trampoline.txx
   trampoline/refine_tracks_trampoline.txx
   trampoline/resection_camera_trampoline.txx

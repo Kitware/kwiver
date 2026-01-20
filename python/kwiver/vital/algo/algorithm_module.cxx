@@ -42,6 +42,7 @@
 #include <python/kwiver/vital/algo/trampoline/image_io_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/image_object_detector_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/initialize_cameras_landmarks_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/segment_via_points_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/initialize_object_tracks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/integrate_depth_maps_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/interpolate_track_trampoline.txx>
@@ -53,6 +54,7 @@
 #include <python/kwiver/vital/algo/trampoline/optimize_cameras_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/read_object_track_set_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/read_track_descriptor_set_trampoline.txx>
+#include <python/kwiver/vital/algo/trampoline/perform_text_query_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/refine_detections_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/refine_tracks_trampoline.txx>
 #include <python/kwiver/vital/algo/trampoline/split_image_trampoline.txx>
@@ -99,6 +101,7 @@
 #include <python/kwiver/vital/algo/image_io.h>
 #include <python/kwiver/vital/algo/image_object_detector.h>
 #include <python/kwiver/vital/algo/initialize_cameras_landmarks.h>
+#include <python/kwiver/vital/algo/segment_via_points.h>
 #include <python/kwiver/vital/algo/initialize_object_tracks.h>
 #include <python/kwiver/vital/algo/integrate_depth_maps.h>
 #include <python/kwiver/vital/algo/interpolate_track.h>
@@ -110,6 +113,7 @@
 #include <python/kwiver/vital/algo/optimize_cameras.h>
 #include <python/kwiver/vital/algo/read_object_track_set.h>
 #include <python/kwiver/vital/algo/read_track_descriptor_set.h>
+#include <python/kwiver/vital/algo/perform_text_query.h>
 #include <python/kwiver/vital/algo/refine_detections.h>
 #include <python/kwiver/vital/algo/refine_tracks.h>
 #include <python/kwiver/vital/algo/split_image.h>
@@ -199,6 +203,8 @@ PYBIND11_MODULE(algos, m)
             algorithm_def_icl_trampoline<>>(m, "initialize_cameras_landmarks");
   register_algorithm<kwiver::vital::algo::initialize_object_tracks,
             algorithm_def_iot_trampoline<>>(m, "initialize_object_tracks");
+  register_algorithm<kwiver::vital::algo::segment_via_points,
+            algorithm_def_svp_trampoline<>>(m, "segment_via_points");
   register_algorithm<kwiver::vital::algo::integrate_depth_maps,
             algorithm_def_idm_trampoline<>>(m, "integrate_depth_maps");
   register_algorithm<kwiver::vital::algo::interpolate_track,
@@ -219,6 +225,8 @@ PYBIND11_MODULE(algos, m)
             algorithm_def_rots_trampoline<>>(m, "read_object_track_set");
   register_algorithm<kwiver::vital::algo::read_track_descriptor_set,
             algorithm_def_rtds_trampoline<>>(m, "read_track_descriptor_set");
+  register_algorithm<kwiver::vital::algo::perform_text_query,
+            algorithm_def_ptq_trampoline<>>(m, "perform_text_query");
   register_algorithm<kwiver::vital::algo::refine_detections,
             algorithm_def_rd_trampoline<>>(m, "refine_detections");
   register_algorithm<kwiver::vital::algo::refine_tracks,
@@ -280,6 +288,7 @@ PYBIND11_MODULE(algos, m)
   image_object_detector(m);
   initialize_cameras_landmarks(m);
   initialize_object_tracks(m);
+  segment_via_points(m);
   integrate_depth_maps(m);
   interpolate_track(m);
   keyframe_selection(m);
@@ -290,6 +299,7 @@ PYBIND11_MODULE(algos, m)
   optimize_cameras(m);
   read_object_track_set(m);
   read_track_descriptor_set(m);
+  perform_text_query(m);
   refine_detections(m);
   refine_tracks(m);
   split_image(m);
