@@ -14,6 +14,11 @@ Vital: Types
 
 * Deprecated local_cartesian in favor of local_tangent_space.
 
+* Deprecated local_geo_cs in favor of local_tangent_space.
+
+* simple_metadata_map.get_item() now returns an invalid metadata object
+  instead of throwing an exception, to be consistent with metadata.find().
+
 Vital: Python
 
 * Added local_tangent_space binding.

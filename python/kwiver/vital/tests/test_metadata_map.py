@@ -170,11 +170,7 @@ class TestSimpleMetadataMap(unittest.TestCase):
     def test_has_get_item(self):
         sm = SimpleMetadataMap()
         self.assertFalse(sm.has_item(self.small_tag[1], 1))
-        with self.assertRaisesRegex(
-            RuntimeError,
-            "Metadata map does not contain frame 1",
-        ):
-            sm.get_item(self.small_tag[1], 1)
+        self.assertFalse(sm.get_item(self.small_tag[1], 1))
 
     def test_get_vector(self):
         sm = SimpleMetadataMap()

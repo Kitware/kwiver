@@ -15,7 +15,7 @@
 
 #include <vital/algo/pointcloud_io.h>
 #include <vital/types/landmark_map.h>
-#include <vital/types/local_geo_cs.h>
+#include <vital/types/local_tangent_space.h>
 
 namespace kwiver {
 
@@ -37,12 +37,14 @@ public:
   const override { return true; }
   /// \endcond
 
-  // is this something that needs to get updated?
   void
-  set_local_geo_cs( vital::local_geo_cs const& lgcs ) { m_lgcs = lgcs; }
+  set_local_space( vital::local_tangent_space const& local_space )
+  {
+    m_local_space = local_space;
+  }
 
 private:
-  vital::local_geo_cs m_lgcs;
+  vital::local_tangent_space m_local_space;
 
   kwiver::vital::pointcloud_d load_( vital::path_t const& filename ) const;
 

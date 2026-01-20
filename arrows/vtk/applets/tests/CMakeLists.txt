@@ -14,6 +14,6 @@ if (KWIVER_ENABLE_PDAL)
               --config "${kwiver_test_data_directory}/config_files/fuse_depth_testing.conf"
               --input-cameras-dir "${kwiver_test_data_directory}/aphill_pipeline_data/krtd"
               --input-landmarks-file "${kwiver_test_data_directory}/aphill_pipeline_data/landmarks.ply"
-              --input-geo-origin-file "${kwiver_test_data_directory}/aphill_pipeline_data/geo_origin.txt"
+              --input-local-space-file "${kwiver_test_data_directory}/aphill_pipeline_data/local_space.txt"
               --input-depths-dir "${kwiver_test_data_directory}/aphill_pipeline_data/depths")
 endif()

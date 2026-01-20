@@ -15,6 +15,8 @@
 #include <fstream>
 #include <sstream>
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 namespace kv = kwiver::vital;
 
 kv::path_t g_data_dir;

@@ -40,7 +40,7 @@ from kwiver.vital.types.metadata import *
 from kwiver.vital.types.metadata_traits import *
 from kwiver.vital.types import (
     Metadata,
-    LocalGeoCS,
+    LocalTangentSpace,
     rotation,
     RotationD,
     RotationF,
@@ -59,7 +59,6 @@ class TestSFMConstraints(unittest.TestCase):
         vpm = plugin_management.plugin_manager_instance()
         vpm.load_all_plugins()
         self.meta_ = SimpleMetadataMap()
-        self.geo_ = LocalGeoCS()
         self.small_tag = [
             mt.tags.VITAL_META_UNKNOWN,
             mt.tags.VITAL_META_UNIX_TIMESTAMP,
@@ -70,7 +69,7 @@ class TestSFMConstraints(unittest.TestCase):
         self.loc1 = np.array([-73.759291, 42.849631])
         self.crs_ll = geodesy.SRID.lat_lon_WGS84
         self.geo_pt1_ = GeoPoint(self.loc1, self.crs_ll)
-        self.geo_.geo_origin = self.geo_pt1_
+        self.geo_ = LocalTangentSpace(self.geo_pt1_)
 
     def test_init(self):
         s = SFMConstraints()
@@ -87,15 +86,15 @@ class TestSFMConstraints(unittest.TestCase):
         self.assertEqual(s.metadata.size(), 0)
 
         # local_geo_property
-        ret_geo = s.local_geo_cs
+        ret_geo = s.local_tangent_space
         np.testing.assert_array_almost_equal(
-            ret_geo.geo_origin.location(self.crs_ll), self.geo_pt1_.location()
+            ret_geo.origin.location(self.crs_ll), self.geo_pt1_.location()
         )
         s = SFMConstraints()
-        s.local_geo_cs = self.geo_
-        ret_geo = s.local_geo_cs
+        s.local_tangent_space = self.geo_
+        ret_geo = s.local_tangent_space
         np.testing.assert_array_almost_equal(
-            ret_geo.geo_origin.location(self.crs_ll), self.geo_pt1_.location()
+            ret_geo.origin.location(self.crs_ll), self.geo_pt1_.location()
         )
 
     def test_get_camera_position_prior_local(self):

@@ -36,7 +36,7 @@ PYBIND11_MODULE( camera_from_metadata, m )
     "update_camera_from_metadata",
     &kv::update_camera_from_metadata,
     py::arg( "md" ),
-    py::arg( "lgcs" ),
+    py::arg( "local_space" ),
     py::arg( "cam" ),
     py::arg( "rot_offset" ) = kv::rotation_d(),
     R"doc(
@@ -44,7 +44,7 @@ PYBIND11_MODULE( camera_from_metadata, m )
 
     Args:
         md: Metadata containing position and orientation
-        lgcs: Local geographic coordinate system
+        local_space: Local geographic coordinate system
         cam: Camera to update (modified in-place)
         rot_offset: Optional rotation offset
 
@@ -57,7 +57,7 @@ PYBIND11_MODULE( camera_from_metadata, m )
     &kv::initialize_cameras_with_metadata,
     py::arg( "md_map" ),
     py::arg( "base_camera" ),
-    py::arg( "lgcs" ),
+    py::arg( "local_space" ),
     py::arg( "init_intrinsics" ) = true,
     py::arg( "rot_offset" ) = kv::rotation_d(),
     R"doc(
@@ -69,7 +69,7 @@ PYBIND11_MODULE( camera_from_metadata, m )
     Args:
         md_map: Map of frame_id to metadata
         base_camera: Base camera with default intrinsics
-        lgcs: Local geographic coordinate system (updated with origin)
+        local_space: Local geographic coordinate system (updated with origin)
         init_intrinsics: Whether to initialize intrinsics from metadata
         rot_offset: Optional rotation offset
 

@@ -114,14 +114,14 @@ config_valid = false
     {
       config_valid =
         validate_required_input_file(
-          "input_geo_origin_filename", *config,
+          "input_local_space_filename", *config,
           main_logger ) && config_valid;
     }
     else
     {
       config_valid =
         validate_optional_input_file(
-          "input_geo_origin_filename", *config,
+          "input_local_space_filename", *config,
           main_logger ) && config_valid;
     }
   }
@@ -129,7 +129,7 @@ config_valid = false
   {
     config_valid =
       validate_optional_input_file(
-        "input_geo_origin_filename", *config,
+        "input_local_space_filename", *config,
         main_logger ) && config_valid;
   }
 
@@ -176,7 +176,7 @@ public:
   kv::path_t input_cameras_directory = "results/krtd";
   kv::path_t input_depths_directory = "results/depths";
   kv::path_t input_landmarks_file = "results/landmarks.ply";
-  kv::path_t input_geo_origin_file = "results/geo_origin.txt";
+  kv::path_t input_local_space_file = "results/local_space.txt";
   kv::path_t output_volume_file = "results/volume.vti";
   kv::path_t output_mesh_file = "results/mesh.vtp";
 
@@ -229,10 +229,10 @@ public:
         cmd_args[ "input-landmarks-file" ].as< std::string >();
       config->set_value( "input_landmarks_file", input_landmarks_file );
     }
-    if( cmd_args.count( "input-geo-origin-file" ) > 0 )
+    if( cmd_args.count( "input-local-space-file" ) > 0 )
     {
-      input_geo_origin_file = cmd_args[ "input-geo-origin-file" ].as< std::string >();
-      config->set_value( "input_geo_origin_filename", input_geo_origin_file );
+      input_local_space_file = cmd_args[ "input-local-space-file" ].as< std::string >();
+      config->set_value( "input_local_space_filename", input_local_space_file );
     }
     if( cmd_args.count( "output-volume-file" ) > 0 )
     {
@@ -306,7 +306,7 @@ public:
       "Path to a file to read the landmarks from." );
 
     config->set_value(
-      "input_geo_origin_filename", input_geo_origin_file,
+      "input_local_space_filename", input_local_space_file,
       "Path to a file to read the geographic origin from. " );
 
     config->set_value(
@@ -450,12 +450,8 @@ public:
       }
       else if( extension == ".las" )
       {
-        auto lgcs = vital::local_geo_cs();
-        if( !read_local_geo_cs_from_file( lgcs, input_geo_origin_file ) )
-        {
-          LOG_ERROR(main_logger, "Failed to read local geo cs from file" );
-          return false;
-        }
+        auto local_space =
+          read_local_tangent_space_from_file( input_local_space_file );
 
         vtkSmartPointer< vtkPoints > inPts = isosurface_mesh->GetPoints();
         vtkIdType numPts = inPts->GetNumberOfPoints();
@@ -477,7 +473,7 @@ public:
             "Could not find pointcloud_io algorithm pdal" );
           return false;
         }
-        pc_io->set_local_geo_cs( lgcs );
+        pc_io->set_local_space( local_space );
         pc_io->save( output_mesh_file, points );
       }
       else
@@ -658,8 +654,8 @@ fuse_depth
     cxxopts::value< std::string > () )
   ( "l,input-landmarks-file", "3D sparse features (default: " +
     d->input_landmarks_file + ")", cxxopts::value< std::string > () )
-  ( "g,input-geo-origin-file", "Input geographic origin file (default: " +
-    d->input_geo_origin_file + ")", cxxopts::value< std::string > () )
+  ( "g,input-local-space-file", "Input geographic local_space file (default: " +
+    d->input_local_space_file + ")", cxxopts::value< std::string > () )
   ( "m,output-mesh-file", "Write out isocontour mesh to file (default: " +
     d->output_mesh_file + ")",
     cxxopts::value< std::string > () )

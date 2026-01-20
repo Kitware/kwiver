@@ -87,7 +87,7 @@ config_valid = false
 
   config_valid =
     validate_optional_output_file(
-      "geo_origin_filename", *config,
+      "local_space_filename", *config,
       main_logger ) &&
     config_valid;
 
@@ -128,7 +128,7 @@ public:
   kv::path_t tracks_file;
   kv::path_t camera_directory = "results/krtd";
   kv::path_t landmarks_file = "results/landmarks.ply";
-  kv::path_t geo_origin_file = "results/geo_origin.txt";
+  kv::path_t local_space_file = "results/local_space.txt";
   bool ignore_metadata = false;
 
   enum commandline_mode { SUCCESS, HELP, WRITE, FAIL, };
@@ -187,10 +187,10 @@ public:
       landmarks_file = cmd_args[ "landmarks" ].as< std::string >();
       config->set_value( "output_landmarks_filename", landmarks_file );
     }
-    if( cmd_args.count( "geo-origin" ) > 0 )
+    if( cmd_args.count( "local-space" ) > 0 )
     {
-      geo_origin_file = cmd_args[ "geo-origin" ].as< std::string >();
-      config->set_value( "geo_origin_filename", geo_origin_file );
+      local_space_file = cmd_args[ "local-space" ].as< std::string >();
+      config->set_value( "local_space_filename", local_space_file );
     }
 
     bool valid_config = check_config( config );
@@ -257,7 +257,7 @@ public:
       "file exists, it will be overwritten." );
 
     config->set_value(
-      "geo_origin_filename", geo_origin_file,
+      "local_space_filename", local_space_file,
       "Path to a file to write the geographic origin. "
       "This file is only written if the geospatial metadata is "
       "provided as input (e.g. in the input video).  If this "
@@ -362,7 +362,7 @@ public:
     using kv::frame_id_t;
     using kv::metadata_sptr;
     using kv::intrinsics_from_metadata;
-    using kv::local_geo_cs;
+    using kv::local_tangent_space;
 
 #define GET_K_CONFIG( type, name ) \
 config->get_value< type >( bc + #name, K_def.name() )
@@ -422,15 +422,17 @@ config->get_value< type >( bc + #name, K_def.name() )
           }
         }
 
-        local_geo_cs lgcs = sfm_constraint_ptr->get_local_geo_cs();
+        auto local_space = sfm_constraint_ptr->get_local_space();
         kv::camera_map::map_camera_t cam_map =
           initialize_cameras_with_metadata(
-            md_map, base_camera, lgcs,
+            md_map, base_camera, local_space,
             init_intrinsics_with_metadata );
         camera_map_ptr =
           std::make_shared< kv::simple_camera_map >( cam_map );
-
-        sfm_constraint_ptr->set_local_geo_cs( lgcs );
+        if( local_space.valid() )
+        {
+          sfm_constraint_ptr->set_local_space( local_space );
+        }
       }
     }
   }
@@ -470,12 +472,16 @@ config->get_value< type >( bc + #name, K_def.name() )
   }
 
   bool
-  write_geo_origin()
+  write_local_space()
   {
-    auto lgcs = sfm_constraint_ptr->get_local_geo_cs();
-    if( !lgcs.origin().is_empty() )
+    if( sfm_constraint_ptr )
     {
-      return kv::write_local_geo_cs_to_file( lgcs, geo_origin_file );
+      if( auto const& local_space = sfm_constraint_ptr->get_local_space();
+          local_space.valid() )
+      {
+        kv::write_local_tangent_space_to_file( local_space, local_space_file );
+        return true;
+      }
     }
     return false;
   }
@@ -553,16 +559,48 @@ config->get_value< type >( bc + #name, K_def.name() )
   {
     kv::vector_3d offset = landmarks_ground_center( *landmark_map_ptr );
 
-    auto lgcs = sfm_constraint_ptr->get_local_geo_cs();
-    if( !lgcs.origin().is_empty() )
+    auto local_space = sfm_constraint_ptr->get_local_space();
+    if( local_space.valid() )
     {
-      kwiver::vital::vector_3d new_origin = lgcs.origin().location() + offset;
-      lgcs.set_origin( kv::geo_point( new_origin, lgcs.origin().crs() ) );
-      sfm_constraint_ptr->set_local_geo_cs( lgcs );
+      auto const new_origin = local_space.to_global( offset );
+      kv::local_tangent_space new_local_space( new_origin );
+      for( auto const& [ landmark_id,
+                         landmark ] : landmark_map_ptr->landmarks() )
+      {
+        auto loc = landmark->loc();
+        loc = new_local_space.to_local( local_space.to_global( loc ) );
+        if( auto const ptr_d =
+              dynamic_cast< vital::landmark_d* >( landmark.get() ) )
+        {
+          ptr_d->set_loc( loc );
+        }
+        else if( auto const ptr_f =
+                   dynamic_cast< vital::landmark_f* >( landmark.get() ) )
+        {
+          ptr_f->set_loc( loc.cast< float >() );
+        }
+      }
+      for( auto const& [ frame_id, camera ] : camera_map_ptr->cameras() )
+      {
+        if( auto const cam =
+              dynamic_cast< kv::simple_camera_perspective* >( camera.get() ) )
+        {
+          auto const gloc = local_space.to_global( cam->get_center() );
+          auto const loc = new_local_space.to_local( gloc );
+          cam->set_center( loc );
+          cam->set_rotation(
+            new_local_space.to_local(
+              local_space.to_global(
+                cam->get_rotation(), gloc ), gloc ) );
+        }
+      }
+      sfm_constraint_ptr->set_local_space( new_local_space );
     }
-
-    translate_inplace( *landmark_map_ptr, -offset );
-    translate_inplace( *camera_map_ptr, -offset );
+    else
+    {
+      translate_inplace( *landmark_map_ptr, -offset );
+      translate_inplace( *camera_map_ptr, -offset );
+    }
   }
 };
 
@@ -625,9 +663,9 @@ init_cameras_landmarks
       return EXIT_FAILURE;
     }
 
-    if( d_->write_geo_origin() )
+    if( d_->write_local_space() )
     {
-      LOG_INFO(main_logger, "Saved geo-origin to " << d_->geo_origin_file);
+      LOG_INFO(main_logger, "Saved local space to " << d_->local_space_file);
     }
 
     return EXIT_SUCCESS;
@@ -666,7 +704,7 @@ init_cameras_landmarks
   ( "k,camera", "Output directory for cameras",
     cxxopts::value< std::string > () )
   ( "l,landmarks", "Output landmarks file", cxxopts::value< std::string > () )
-  ( "g,geo-origin", "Output geographic origin file",
+  ( "g,local-space", "Output geographic local space file",
     cxxopts::value< std::string > () )
   ;
 

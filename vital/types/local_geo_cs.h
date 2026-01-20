@@ -19,7 +19,7 @@ namespace kwiver {
 namespace vital {
 
 /// Represents a local geo coordinate system origin expressed in UTM
-class VITAL_TYPES_EXPORT local_geo_cs
+class VITAL_TYPES_DEPRECATED_EXPORT local_geo_cs
 {
 public:
   /// Constructor
@@ -48,7 +48,7 @@ private:
 /// \param [in,out] lgcs      The local geographic coordinate system that is
 ///                           updated with the origin in the file.
 /// \param [in]     file_path The path to the file to read.
-VITAL_TYPES_EXPORT
+VITAL_TYPES_DEPRECATED_EXPORT
 bool
 read_local_geo_cs_from_file(
   local_geo_cs& lgcs,
@@ -62,7 +62,7 @@ read_local_geo_cs_from_file(
 ///
 /// \param [in] lgcs      The local geographic coordinate system to write.
 /// \param [in] file_path The path to the file to write.
-VITAL_TYPES_EXPORT
+VITAL_TYPES_DEPRECATED_EXPORT
 bool
 write_local_geo_cs_to_file(
   local_geo_cs const& lgcs,

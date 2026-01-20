@@ -36,8 +36,8 @@ if the KWIVER_ENABLE_FFMPEG and KWIVER_ENABLE_MVG CMake flags are enabled.
   ``-l, --input-landmarks-file arg``
     3D sparse features (default: results/landmarks.ply)
 
-  ``-g, --input-geo-origin-file arg``
-    Input geographic origin file (default: results/geo_origin.txt)
+  ``-g, --input-local-space-file arg``
+    Input geographic local space file (default: results/local_space.txt)
 
   ``-m, --output-mesh-file arg``
     Write out isocontour mesh to file (default: results/mesh.vtp)

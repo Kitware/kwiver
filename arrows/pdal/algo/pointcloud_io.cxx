@@ -154,7 +154,7 @@ pointcloud_io
     table.layout()->registerDim( ::pdal::Dimension::Id::Blue );
   }
 
-  int crs = m_lgcs.origin().crs();
+  int crs = m_local_space.origin().crs();
   kv::vector_3d offset( 0.0, 0.0, 0.0 );
 
   ::pdal::PointViewPtr view;
@@ -168,7 +168,7 @@ pointcloud_io
   }
   else
   {
-    offset = m_lgcs.origin().location( vital::SRID::lat_lon_WGS84 );
+    offset = m_local_space.origin().location( vital::SRID::lat_lon_WGS84 );
 
     std::string srs_name = "EPSG:" + std::to_string( crs );
 

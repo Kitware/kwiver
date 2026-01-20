@@ -39,8 +39,8 @@ KWIVER_ENABLE_VTK CMake flags are enabled.
     Frame index to use for coloring. If -1 use an average color
     for all frames. (default: -1)
 
-  ``-g, --input-geo-origin-file arg``
-    Input geographic origin file.
+  ``-g, --input-local-space-file arg``
+    Input geographic local space file.
 
   ``-m, --mask-file arg``
     An input mask video or list of mask images to indicate which pixels to ignore.

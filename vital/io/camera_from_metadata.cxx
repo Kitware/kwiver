@@ -185,10 +185,9 @@ intrinsics_from_metadata(
 /// Use a sequence of metadata objects to initialize a sequence of cameras
 std::map< frame_id_t, camera_sptr >
 initialize_cameras_with_metadata(
-  std::map< frame_id_t,
-    metadata_sptr > const& md_map,
+  std::map< frame_id_t, metadata_sptr > const& md_map,
   simple_camera_perspective const& base_camera,
-  local_geo_cs& lgcs,
+  local_tangent_space& local_space,
   bool init_intrinsics,
   rotation_d const& rot_offset )
 {
@@ -197,7 +196,7 @@ initialize_cameras_with_metadata(
   simple_camera_perspective active_cam( base_camera );
 
   bool update_local_origin = false;
-  if( lgcs.origin().is_empty() && !md_map.empty() )
+  if( !local_space.valid() && !md_map.empty() )
   {
     // if a local coordinate system has not been established,
     // use the coordinates of the first camera
@@ -216,12 +215,18 @@ initialize_cameras_with_metadata(
         loc[ 2 ] = 0.0;
         gloc.set_location( loc, gloc.crs() );
 
-        lgcs.set_origin( gloc );
+        local_space = local_tangent_space( gloc );
         update_local_origin = true;
         break;
       }
     }
   }
+
+  if( !local_space.valid() )
+  {
+    return cam_map;
+  }
+
   for( auto const& p : md_map )
   {
     auto md = p.second;
@@ -238,7 +243,9 @@ initialize_cameras_with_metadata(
         active_cam.set_intrinsics( K );
       }
     }
-    if( update_camera_from_metadata( *md, lgcs, active_cam, rot_offset ) )
+    if( update_camera_from_metadata(
+      *md, local_space, active_cam,
+      rot_offset ) )
     {
       mean += active_cam.center();
       cam_map[ p.first ] =
@@ -252,9 +259,8 @@ initialize_cameras_with_metadata(
     // only use the mean easting and northing
     mean[ 2 ] = 0.0;
 
-    // shift the UTM origin to the mean of the cameras easting and northing
-    vital::vector_3d offset = lgcs.origin().location() + mean;
-    lgcs.set_origin( geo_point( offset, lgcs.origin().crs() ) );
+    // shift the origin to the mean of the cameras
+    local_tangent_space new_local_space( local_space.to_global( mean ) );
 
     // shift all cameras to the new coordinate system.
     typedef std::map< frame_id_t, camera_sptr >::value_type cam_map_val_t;
@@ -262,8 +268,15 @@ initialize_cameras_with_metadata(
     {
       simple_camera_perspective* cam =
         dynamic_cast< simple_camera_perspective* >( p.second.get() );
-      cam->set_center( cam->get_center() - mean );
+      auto const gloc = local_space.to_global( cam->get_center() );
+      auto const loc = new_local_space.to_local( gloc );
+      cam->set_center( loc );
+      cam->set_rotation(
+        new_local_space.to_local(
+          local_space.to_global(
+            cam->get_rotation(), gloc ), gloc ) );
     }
+    local_space = std::move( new_local_space );
   }
 
   return cam_map;
@@ -273,13 +286,10 @@ initialize_cameras_with_metadata(
 bool
 update_camera_from_metadata(
   metadata const& md,
-  local_geo_cs const& lgcs,
+  local_tangent_space const& local_space,
   simple_camera_perspective& cam,
   VITAL_UNUSED rotation_d const& rot_offset )
 {
-  bool rotation_set = false;
-  bool translation_set = false;
-
   bool has_platform_yaw = false;
   bool has_platform_pitch = false;
   bool has_platform_roll = false;
@@ -319,46 +329,43 @@ update_camera_from_metadata(
     sensor_roll = mdi.get< double >();
   }
 
-  if( has_platform_yaw && has_platform_pitch && has_platform_roll &&
-      has_sensor_yaw && has_sensor_pitch &&
-      // Sensor roll is ignored here on purpose.
-      // It is fixed on some platforms to zero.
-      !( std::isnan( platform_yaw ) || std::isnan( platform_pitch ) ||
-         std::isnan( platform_roll ) || std::isnan( sensor_yaw ) ||
-         std::isnan( sensor_pitch ) || std::isnan( sensor_roll ) ) )
-  {
-    // Only set the camera's rotation if all metadata angles are present
-
-    auto const rotation =
-      uas_ypr_to_rotation(
-        platform_yaw, platform_pitch, platform_roll,
-        sensor_yaw,   sensor_pitch,   sensor_roll );
-    cam.set_rotation( rotation );
-
-    rotation_set = true;
-  }
-
   if( auto& mdi = md.find( VITAL_META_SENSOR_LOCATION ) )
   {
     auto const gloc = mdi.get< geo_point >();
-
-    // get the location in the same UTM zone as the origin
-    vector_3d loc = gloc.location( lgcs.origin().crs() ) -
-                    lgcs.origin().location();
+    auto const loc = local_space.to_local( gloc );
     cam.set_center( loc );
-    translation_set = true;
+
+    if( has_platform_yaw && has_platform_pitch && has_platform_roll &&
+        has_sensor_yaw && has_sensor_pitch &&
+        // Sensor roll is ignored here on purpose.
+        // It is fixed on some platforms to zero.
+        !( std::isnan( platform_yaw ) || std::isnan( platform_pitch ) ||
+           std::isnan( platform_roll ) || std::isnan( sensor_yaw ) ||
+           std::isnan( sensor_pitch ) || std::isnan( sensor_roll ) ) )
+    {
+      // Only set the camera's rotation if all metadata angles are present
+      auto const rotation =
+        uas_ypr_to_rotation(
+          platform_yaw, platform_pitch, platform_roll,
+          sensor_yaw,   sensor_pitch,   sensor_roll );
+      cam.set_rotation( local_space.to_local( rotation, gloc ) );
+    }
+
+    return true;
   }
-  return rotation_set || translation_set;
+
+  return false;
 }
 
-/// Update a sequence of metadata from a sequence of cameras and local_geo_cs
+/// Update a sequence of metadata from a sequence of cameras and
+/// local_tangent_space
 void
 update_metadata_from_cameras(
   std::map< frame_id_t, camera_sptr > const& cam_map,
-  local_geo_cs const& lgcs,
+  local_tangent_space const& local_space,
   std::map< frame_id_t, metadata_sptr >& md_map )
 {
-  if( lgcs.origin().is_empty() )
+  if( local_space.origin().is_empty() )
   {
     // TODO throw an exception here?
     logger_handle_t
@@ -379,7 +386,7 @@ update_metadata_from_cameras(
     auto cam = dynamic_cast< simple_camera_perspective* >( p.second.get() );
     if( active_md && cam )
     {
-      update_metadata_from_camera( *cam, lgcs, *active_md );
+      update_metadata_from_camera( *cam, local_space, *active_md );
     }
   }
 }
@@ -388,7 +395,7 @@ update_metadata_from_cameras(
 void
 update_metadata_from_camera(
   simple_camera_perspective const& cam,
-  local_geo_cs const& lgcs,
+  local_tangent_space const& local_space,
   metadata& md )
 {
   if( md.has( VITAL_META_PLATFORM_HEADING_ANGLE ) &&
@@ -410,8 +417,8 @@ update_metadata_from_camera(
   if( md.has( VITAL_META_SENSOR_LOCATION ) )
   {
     // we have a complete position from metadata.
-    const vector_3d loc = cam.get_center() + lgcs.origin().location();
-    geo_point gc( loc, lgcs.origin().crs() );
+    const vector_3d loc = cam.get_center() + local_space.origin().location();
+    geo_point gc( loc, local_space.origin().crs() );
 
     md.add< VITAL_META_SENSOR_LOCATION >( gc );
   }

@@ -65,31 +65,31 @@ TEST ( sfm_constraints, constructors )
 
   sfm_constraints constraints;
   EXPECT_EQ( constraints.get_metadata(), nullptr );
-  EXPECT_EQ( constraints.get_local_geo_cs().origin().crs(), -1 );
+  EXPECT_FALSE( constraints.get_local_space().valid() );
 
   static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
   set_geo_conv( &geo_conv );
 
-  local_geo_cs lgcs;
-  lgcs.set_origin( geo_point( vector_3d( 0, 0, 0 ), SRID::lat_lon_WGS84 ) );
+  local_tangent_space local_space(
+    geo_point( vector_3d( 0, 0, 0 ), SRID::lat_lon_WGS84 ) );
 
   constraints.set_metadata( metadata_map );
-  constraints.set_local_geo_cs( lgcs );
+  constraints.set_local_space( local_space );
 
   auto constraints_1 = sfm_constraints( constraints );
   EXPECT_EQ( constraints_1.get_metadata()->size(), 10 );
   EXPECT_EQ( constraints.get_metadata(), constraints_1.get_metadata() );
 
   EXPECT_EQ(
-    constraints.get_local_geo_cs().origin().crs(),
-    constraints_1.get_local_geo_cs().origin().crs() );
+    constraints.get_local_space().origin().crs(),
+    constraints_1.get_local_space().origin().crs() );
 
-  sfm_constraints constraints_2( metadata_map, lgcs );
+  sfm_constraints constraints_2( metadata_map, local_space );
   EXPECT_EQ( constraints_2.get_metadata()->size(), 10 );
   EXPECT_EQ( constraints.get_metadata(), constraints_2.get_metadata() );
   EXPECT_EQ(
-    constraints.get_local_geo_cs().origin().crs(),
-    constraints_2.get_local_geo_cs().origin().crs() );
+    constraints.get_local_space().origin().crs(),
+    constraints_2.get_local_space().origin().crs() );
 }
 
 // ----------------------------------------------------------------------------
@@ -145,16 +145,16 @@ TEST ( sfm_constraints, get_camera_orientation_prior_local )
   sfm_constraints constraints;
   rotation_d R_loc;
 
-  // Expect failure if the lgcs is not set
+  // Expect failure if the local_space is not set
   EXPECT_FALSE( constraints.get_camera_orientation_prior_local( 0, R_loc ) );
   EXPECT_EQ( R_loc, rotation_d{} );
 
   static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
   set_geo_conv( &geo_conv );
 
-  local_geo_cs lgcs;
-  lgcs.set_origin( geo_point( vector_3d( 0, 0, 0 ), SRID::lat_lon_WGS84 ) );
-  constraints.set_local_geo_cs( lgcs );
+  local_tangent_space local_space(
+    geo_point( vector_3d( 0, 0, 0 ), SRID::lat_lon_WGS84 ) );
+  constraints.set_local_space( local_space );
 
   // Expect failure if the metadata map is not set
   EXPECT_FALSE( constraints.get_camera_orientation_prior_local( 0, R_loc ) );
@@ -203,7 +203,7 @@ TEST ( sfm_constraints, get_camera_position_prior_local )
   sfm_constraints constraints;
   vector_3d pos_loc( 1, 1, 1 );
 
-  // Expect failure if the lgcs is not set
+  // Expect failure if the local_space is not set
   EXPECT_FALSE( constraints.get_camera_position_prior_local( 0, pos_loc ) );
   EXPECT_EQ( pos_loc.x(), 1.0 );
   EXPECT_EQ( pos_loc.y(), 1.0 );
@@ -212,9 +212,9 @@ TEST ( sfm_constraints, get_camera_position_prior_local )
   static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
   set_geo_conv( &geo_conv );
 
-  local_geo_cs lgcs;
-  lgcs.set_origin( geo_point( vector_3d( 1, 1, 1 ), SRID::lat_lon_WGS84 ) );
-  constraints.set_local_geo_cs( lgcs );
+  local_tangent_space local_space(
+    geo_point( vector_3d( 1, 1, 1 ), SRID::lat_lon_WGS84 ) );
+  constraints.set_local_space( local_space );
 
   // Expect failure if the metadata map is not set
   EXPECT_FALSE( constraints.get_camera_position_prior_local( 0, pos_loc ) );
@@ -235,15 +235,15 @@ TEST ( sfm_constraints, get_camera_position_prior_local )
 
   // Expect failure if the metadata values are not set
   EXPECT_FALSE( constraints.get_camera_position_prior_local( 1, pos_loc ) );
-  EXPECT_EQ( pos_loc.x(), 1.0 );
-  EXPECT_EQ( pos_loc.y(), 1.0 );
-  EXPECT_EQ( pos_loc.z(), 1.0 );
+  EXPECT_NEAR( pos_loc.x(), 1.0, 1e-9 );
+  EXPECT_NEAR( pos_loc.y(), 1.0, 1e-9 );
+  EXPECT_NEAR( pos_loc.z(), 1.0, 1e-9 );
 
   // Success case
   EXPECT_TRUE( constraints.get_camera_position_prior_local( 0, pos_loc ) );
-  EXPECT_EQ( pos_loc.x(), 0.0 );
-  EXPECT_EQ( pos_loc.y(), 0.0 );
-  EXPECT_EQ( pos_loc.z(), 2.0 );
+  EXPECT_NEAR( pos_loc.x(), 0.0, 1e-9 );
+  EXPECT_NEAR( pos_loc.y(), 0.0, 1e-9 );
+  EXPECT_NEAR( pos_loc.z(), 2.0, 1e-9 );
 }
 
 // ----------------------------------------------------------------------------
@@ -257,9 +257,9 @@ TEST ( sfm_constraints, get_camera_position_priors )
   static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
   set_geo_conv( &geo_conv );
 
-  local_geo_cs lgcs;
-  lgcs.set_origin( geo_point( vector_3d( 1, 1, 1 ), SRID::lat_lon_WGS84 ) );
-  constraints.set_local_geo_cs( lgcs );
+  local_tangent_space local_space(
+    geo_point( vector_3d( 1, 1, 1 ), SRID::lat_lon_WGS84 ) );
+  constraints.set_local_space( local_space );
 
   // Create metadata map
   metadata_map::map_metadata_t mdm;
@@ -281,13 +281,13 @@ TEST ( sfm_constraints, get_camera_position_priors )
 
   auto pos_map = constraints.get_camera_position_priors();
   EXPECT_EQ( pos_map.size(), 2 );
-  EXPECT_EQ( pos_map[ 0 ].x(), 0.0 );
-  EXPECT_EQ( pos_map[ 0 ].y(), 0.0 );
-  EXPECT_EQ( pos_map[ 0 ].z(), 1.0 );
+  EXPECT_NEAR( pos_map[ 0 ].x(), 0.0, 1e-9 );
+  EXPECT_NEAR( pos_map[ 0 ].y(), 0.0, 1e-9 );
+  EXPECT_NEAR( pos_map[ 0 ].z(), 1.0, 1e-9 );
 
-  EXPECT_EQ( pos_map[ 1 ].x(), 0.0 );
-  EXPECT_EQ( pos_map[ 1 ].y(), 0.0 );
-  EXPECT_EQ( pos_map[ 1 ].z(), 2.0 );
+  EXPECT_NEAR( pos_map[ 1 ].x(), 0.0, 1e-9 );
+  EXPECT_NEAR( pos_map[ 1 ].y(), 0.0, 1e-9 );
+  EXPECT_NEAR( pos_map[ 1 ].z(), 2.0, 1e-9 );
 }
 
 // ----------------------------------------------------------------------------

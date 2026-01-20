@@ -10,7 +10,7 @@
 #include <vital/types/vital_types_export.h>
 #include <vital/vital_config.h>
 
-#include <vital/types/local_geo_cs.h>
+#include <vital/types/local_tangent_space.h>
 #include <vital/types/metadata_map.h>
 #include <vital/types/rotation.h>
 
@@ -31,10 +31,10 @@ public:
   /// constructor
   ///
   /// \param[in] md metadata map sptr to store
-  /// \param[in] lgcs the local geo coordinate system
+  /// \param[in] local_space the local geo coordinate system
   sfm_constraints(
     metadata_map_sptr md,
-    local_geo_cs const& lgcs );
+    local_tangent_space const& local_space );
 
   /// desctructor
   ~sfm_constraints();
@@ -48,12 +48,12 @@ public:
   void set_metadata( metadata_map_sptr md );
 
   /// returns the local geo coodinate system
-  local_geo_cs get_local_geo_cs();
+  local_tangent_space get_local_space();
 
   /// sets the local geo coordinate system
   ///
-  /// \param[in] lgcs the local geo coordinate system to set
-  void set_local_geo_cs( local_geo_cs const& lgcs );
+  /// \param[in] local_space the local geo coordinate system to set
+  void set_local_space( local_tangent_space const& local_space );
 
   /// get the metadata specified camera position in the local coordinate frame
   ///

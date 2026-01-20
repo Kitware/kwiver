@@ -131,12 +131,12 @@ public:
   virtual metadata_item const&
   get_item( vital_metadata_tag tag, frame_id_t fid ) const
   {
+    static metadata_item unknown_item{ VITAL_META_UNKNOWN, 0 };
+
     auto d_it = data_.find( fid );
     if( d_it == data_.end() )
     {
-      std::stringstream msg;
-      msg << "Metadata map does not contain frame " << fid;
-      VITAL_THROW( metadata_exception, msg.str() );
+      return unknown_item;
     }
 
     auto& mdv = d_it->second;
@@ -148,10 +148,7 @@ public:
       }
     }
 
-    std::stringstream msg;
-    msg << "Metadata item for tag " << tag_traits_by_tag( tag ).name()
-        << " is not present for frame " << fid;
-    VITAL_THROW( metadata_exception, msg.str() );
+    return unknown_item;
   }
 
   /// Get a vector of all metadata available at a given frame id

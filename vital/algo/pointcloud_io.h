@@ -10,7 +10,7 @@
 
 #include <vital/algo/algorithm.h>
 #include <vital/types/landmark_map.h>
-#include <vital/types/local_geo_cs.h>
+#include <vital/types/local_tangent_space.h>
 #include <vital/types/pointcloud.h>
 
 #include <fstream>
@@ -70,8 +70,8 @@ public:
 
   /// Set local geo coordinate system for the pointcloud
   ///
-  /// \param lgcs the target local geo coordinate system
-  virtual void set_local_geo_cs( vital::local_geo_cs const& lgcs );
+  /// \param local_space the target local geo coordinate system
+  virtual void set_local_space( vital::local_tangent_space const& local_space );
 
 private:
   virtual pointcloud_d load_( vital::path_t const& filename ) const = 0;
