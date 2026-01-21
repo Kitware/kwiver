@@ -72,6 +72,7 @@ set( classes
   read_track_descriptor_set
   refine_detections
   resection_camera
+  segment_via_points
   split_image
   track_features
   train_detector

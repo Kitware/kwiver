@@ -61,6 +61,7 @@ set( public_headers
   refine_detections.h
   refine_tracks.h
   resection_camera.h
+  segment_via_points.h
   split_image.h
   track_features.h
   track_objects.h
@@ -134,6 +135,7 @@ set( sources
   refine_detections.cxx
   refine_tracks.cxx
   resection_camera.cxx
+  segment_via_points.cxx
   split_image.cxx
   track_features.cxx
   track_objects.cxx
