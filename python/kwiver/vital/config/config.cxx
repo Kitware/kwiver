@@ -4,8 +4,10 @@
 
 #include <python/kwiver/vital/config/config.h>
 #include <vital/types/geo_polygon.h>
+#include <vital/config/config_block_io.h>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
 #include <sstream>
@@ -317,6 +319,56 @@ config( py::module& m )
       "unspecified_keys", &kv::config_difference::unspecified_keys,
       "Return list of config keys that are in reference config but not in the other config" )
   ;
+
+// ----------------------------------------------------------------------------
+// Config file I/O functions
+
+  m.def("read_config_file",
+    []( std::string const& file_path,
+        std::vector<std::string> const& search_paths,
+        bool use_system_paths ) -> kv::config_block_sptr
+    {
+      kv::config_path_list_t paths;
+      for( auto const& p : search_paths )
+      {
+        paths.push_back( kv::config_path_t( p ) );
+      }
+      return kv::read_config_file( kv::config_path_t( file_path ), paths, use_system_paths );
+    },
+    py::arg("file_path"),
+    py::arg("search_paths") = std::vector<std::string>(),
+    py::arg("use_system_paths") = true,
+    R"pbdoc(
+      Read a configuration file and return a Config object.
+
+      This function reads the specified config file and returns the resulting
+      config block. Included files that are not absolute paths are resolved
+      using search paths from KWIVER_CONFIG_PATH and the provided search_paths.
+
+      :param file_path: Path to the configuration file to read
+      :param search_paths: Optional list of directories to search for included files
+      :param use_system_paths: If True, use KWIVER_CONFIG_PATH environment variable
+      :return: A Config object containing the configuration
+      :raises: RuntimeError if the file cannot be found or parsed
+    )pbdoc");
+
+  m.def("write_config_file",
+    []( kv::config_block_sptr const& config, std::string const& file_path )
+    {
+      kv::write_config_file( config, kv::config_path_t( file_path ) );
+    },
+    py::arg("config"),
+    py::arg("file_path"),
+    R"pbdoc(
+      Write a configuration block to a file.
+
+      This function writes the specified config block to the specified file.
+      If a key has an associated description, it will be written as a comment.
+
+      :param config: The Config object to write
+      :param file_path: Path to the output file
+      :raises: RuntimeError if the file cannot be written
+    )pbdoc");
 }
 
 } // namespace python
