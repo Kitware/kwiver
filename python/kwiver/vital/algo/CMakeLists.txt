@@ -68,6 +68,7 @@ set( classes
   metadata_filter
   metadata_map_io
   optimize_cameras
+  perform_text_query
   read_object_track_set
   read_track_descriptor_set
   refine_detections
