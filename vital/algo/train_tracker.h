@@ -14,6 +14,9 @@
 #include <vital/types/image_container.h>
 #include <vital/vital_config.h>
 
+#include <map>
+#include <string>
+
 namespace kwiver {
 
 namespace vital {
@@ -74,8 +77,9 @@ public:
   ///
   /// \throws runtime_exception if not defined or there's a data issue.
   ///
-  /// \param object_labels object category labels for training
-  virtual void update_model() = 0;
+  /// \returns Map containing locations of final model files or other
+  ///          general configuration parameters for model inference.
+  virtual std::map<std::string, std::string> update_model() = 0;
 
 protected:
   train_tracker();

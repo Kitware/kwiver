@@ -15,12 +15,18 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <map>
+#include <string>
+
 #include <python/kwiver/vital/algo/trampoline/algorithm_trampoline.txx>
 #include <vital/algo/train_tracker.h>
 
 namespace kwiver {
 namespace vital  {
 namespace python {
+
+// Typedef to work around macro comma parsing issues
+using string_map = std::map< std::string, std::string >;
 
 template < class algorithm_def_tt_base=
             kwiver::vital::algorithm_def<
@@ -89,10 +95,10 @@ class train_tracker_trampoline :
       );
     }
 
-    void update_model() override
+    string_map update_model() override
     {
       PYBIND11_OVERLOAD_PURE(
-        void,
+        string_map,
         kwiver::vital::algo::train_tracker,
         update_model
       );
