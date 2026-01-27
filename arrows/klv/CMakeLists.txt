@@ -9,9 +9,9 @@ set( plugin_klv_headers
   klv_series.hpp
   klv_types.h
   klv_util.h
-  klv_1303.hpp  )
-set( plugin_klv_sources
+  klv_1303.hpp
   klv_read_write.txx )
+set( plugin_klv_sources )
 set( plugin_klv_classes
   algo/apply_child_klv
   algo/update_klv
