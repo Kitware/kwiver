@@ -256,14 +256,14 @@ DynamicLoader::SymbolPointer DynamicLoader::GetSymbolAddress(
 //----------------------------------------------------------------------------
 const char* DynamicLoader::LastError()
 {
-  LPVOID lpMsgBuf=NULL;
+  LPWSTR lpMsgBuf = NULL;
 
-  FormatMessage(
+  FormatMessageW(
     FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
     NULL,
     GetLastError(),
     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-    (LPTSTR) &lpMsgBuf,
+    (LPWSTR) &lpMsgBuf,
     0,
     NULL
     );
@@ -273,9 +273,13 @@ const char* DynamicLoader::LastError()
     return NULL;
     }
 
+  // Convert wide string to UTF-8
+  int bufferSize = WideCharToMultiByte(CP_UTF8, 0, lpMsgBuf, -1, NULL, 0, NULL, NULL);
   static char* str = 0;
   delete [] str;
-  str = strcpy(new char[strlen((char*)lpMsgBuf)+1], (char*)lpMsgBuf);
+  str = new char[bufferSize];
+  WideCharToMultiByte(CP_UTF8, 0, lpMsgBuf, -1, str, bufferSize, NULL, NULL);
+
   // Free the buffer.
   LocalFree( lpMsgBuf );
   return str;
