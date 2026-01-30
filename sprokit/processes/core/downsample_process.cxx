@@ -22,6 +22,18 @@ create_config_trait( renumber_frames, bool, "false", "Renumber output frames" );
 create_config_trait( only_frames_with_dets, bool, "false", "Frames with dets only" );
 create_config_trait( start_time, std::string, "", "Start time to pass frames" );
 create_config_trait( duration, std::string, "", "Maximum duration time" );
+create_config_trait( start_frame, int, "-1",
+  "First frame to include in output. -1 disables. Interpretation depends on frame_range_is_native." );
+create_config_trait( end_frame, int, "-1",
+  "Last frame to include in output. -1 disables. Interpretation depends on frame_range_is_native." );
+create_config_trait( frame_range_is_native, bool, "false",
+  "If false (default), start_frame and end_frame are in the downsampled output frame "
+  "space (0-indexed count of frames that pass the downsample filter). If true, they "
+  "refer to the native input frame numbers." );
+create_config_trait( adjust_timestamps, bool, "false",
+  "If true, output frame numbers restart from 0 and timestamps are offset so the "
+  "first output frame has time 0. If false, original values are preserved "
+  "(subject to renumber_frames)." );
 
 create_port_trait( original_timestamp, timestamp, "Timestamp output" );
 
@@ -44,6 +56,15 @@ public:
   bool only_frames_with_dets_;
   double start_time_;
   double duration_;
+
+  int start_frame_;
+  int end_frame_;
+  bool frame_range_is_native_;
+  bool adjust_timestamps_;
+
+  int64_t ds_send_counter_;
+  double first_output_time_;
+  bool first_output_seen_;
 
   // Buffer for old to new frame ids
   std::map< frame_t, frame_t > frame_id_map_;
@@ -126,6 +147,11 @@ void downsample_process
   {
     d->start_time_ = 0.0;
   }
+
+  d->start_frame_ = config_value_using_trait( start_frame );
+  d->end_frame_ = config_value_using_trait( end_frame );
+  d->frame_range_is_native_ = config_value_using_trait( frame_range_is_native );
+  d->adjust_timestamps_ = config_value_using_trait( adjust_timestamps );
 }
 
 void downsample_process
@@ -137,6 +163,9 @@ void downsample_process
   d->output_counter_ = 0;
   d->is_first_ = true;
   d->frame_id_map_.clear();
+  d->ds_send_counter_ = 0;
+  d->first_output_time_ = 0.0;
+  d->first_output_seen_ = false;
 }
 
 void downsample_process
@@ -230,7 +259,54 @@ void downsample_process
 
   if( send_frame )
   {
-    if( d->renumber_frames_ )
+    d->ds_send_counter_++;
+
+    bool in_range = true;
+
+    if( d->frame_range_is_native_ )
+    {
+      if( orig_ts.has_valid_frame() )
+      {
+        if( d->start_frame_ >= 0 &&
+            orig_ts.get_frame() < d->start_frame_ )
+          in_range = false;
+        if( d->end_frame_ >= 0 &&
+            orig_ts.get_frame() > d->end_frame_ )
+          in_range = false;
+      }
+    }
+    else
+    {
+      int64_t ds_idx = d->ds_send_counter_ - 1;
+      if( d->start_frame_ >= 0 && ds_idx < d->start_frame_ )
+        in_range = false;
+      if( d->end_frame_ >= 0 && ds_idx > d->end_frame_ )
+        in_range = false;
+    }
+
+    if( !in_range )
+      send_frame = false;
+  }
+
+  if( send_frame )
+  {
+    if( d->adjust_timestamps_ )
+    {
+      if( !d->first_output_seen_ )
+      {
+        d->first_output_time_ = ts.has_valid_time() ?
+          ts.get_time_seconds() : 0.0;
+        d->first_output_seen_ = true;
+      }
+      if( ts.has_valid_time() )
+      {
+        ts.set_time_seconds(
+          ts.get_time_seconds() - d->first_output_time_ );
+      }
+      ts.set_frame( d->output_counter_++ );
+      d->frame_id_map_[ orig_ts.get_frame() ] = ts.get_frame();
+    }
+    else if( d->renumber_frames_ )
     {
       ts.set_frame( d->output_counter_++ );
       d->frame_id_map_[ orig_ts.get_frame() ] = ts.get_frame();
@@ -257,7 +333,8 @@ void downsample_process
       }
       else if( send_frame )
       {
-        if( d->only_frames_with_dets_ && d->renumber_frames_ )
+        if( d->only_frames_with_dets_ &&
+            ( d->renumber_frames_ || d->adjust_timestamps_ ) )
         {
           datum = d->adjust_track_ids( datum );
         }
@@ -325,6 +402,10 @@ void downsample_process
   declare_config_using_trait( only_frames_with_dets );
   declare_config_using_trait( start_time );
   declare_config_using_trait( duration );
+  declare_config_using_trait( start_frame );
+  declare_config_using_trait( end_frame );
+  declare_config_using_trait( frame_range_is_native );
+  declare_config_using_trait( adjust_timestamps );
 }
 
 int downsample_process::priv
@@ -435,6 +516,13 @@ downsample_process::priv
   : parent( p )
   , start_time_( -1.0 )
   , duration_( -1.0 )
+  , start_frame_( -1 )
+  , end_frame_( -1 )
+  , frame_range_is_native_( false )
+  , adjust_timestamps_( false )
+  , ds_send_counter_( 0 )
+  , first_output_time_( 0.0 )
+  , first_output_seen_( false )
 {
 }
 
