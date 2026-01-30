@@ -19,6 +19,12 @@
 #include <vector>
 #include <sstream>
 
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#include <windows.h>
+#include <dbghelp.h>
+#pragma comment(lib, "dbghelp.lib")
+#endif
+
 namespace kwiver {
 namespace vital {
 
@@ -326,6 +332,61 @@ plugin_loader_impl
 } // plugin_loader_impl::look_in_directory
 
 // ----------------------------------------------------------------------------
+#if defined(_WIN32) && !defined(__CYGWIN__)
+/// \brief Report missing DLL dependencies on Windows.
+///
+/// When LoadLibrary fails with "module not found", the error doesn't say
+/// which dependency is missing. This function loads the DLL without
+/// resolving imports, walks its PE import table, and checks whether
+/// each imported DLL can be found.
+static std::string
+find_missing_dependencies( std::string const& path )
+{
+  // Load without resolving imports so we can inspect the import table
+  HMODULE hmod = LoadLibraryExA( path.c_str(), NULL,
+                                 DONT_RESOLVE_DLL_REFERENCES );
+  if ( !hmod )
+  {
+    return {};
+  }
+
+  std::string missing;
+  ULONG dir_size = 0;
+  auto* import_desc = static_cast< PIMAGE_IMPORT_DESCRIPTOR >(
+    ImageDirectoryEntryToData( hmod, TRUE,
+                               IMAGE_DIRECTORY_ENTRY_IMPORT,
+                               &dir_size ) );
+  if ( import_desc )
+  {
+    for ( ; import_desc->Name != 0; ++import_desc )
+    {
+      auto* name = reinterpret_cast< const char* >(
+        reinterpret_cast< const char* >( hmod ) + import_desc->Name );
+
+      // Try to find this DLL in the normal search path
+      HMODULE dep = LoadLibraryExA( name, NULL,
+                                    DONT_RESOLVE_DLL_REFERENCES );
+      if ( dep )
+      {
+        FreeLibrary( dep );
+      }
+      else
+      {
+        if ( !missing.empty() )
+        {
+          missing += ", ";
+        }
+        missing += name;
+      }
+    }
+  }
+
+  FreeLibrary( hmod );
+  return missing;
+}
+#endif
+
+// ----------------------------------------------------------------------------
 /// \brief Load single module from shared object / DLL
 ///
 /// @param path Name of module to load.
@@ -342,8 +403,16 @@ plugin_loader_impl
   lib_handle = DL::OpenLibrary( path );
   if ( ! lib_handle )
   {
-    LOG_WARN( m_parent->m_logger, "plugin_loader::Unable to load shared library \""  << path << "\" : "
-              << DL::LastError() );
+    std::string msg = "plugin_loader::Unable to load shared library \"" +
+                      path + "\" : " + ( DL::LastError() ? DL::LastError() : "Unknown error" );
+#if defined(_WIN32) && !defined(__CYGWIN__)
+    auto deps = find_missing_dependencies( path );
+    if ( !deps.empty() )
+    {
+      msg += " (missing dependencies: " + deps + ")";
+    }
+#endif
+    LOG_WARN( m_parent->m_logger, msg );
     return;
   }
 
