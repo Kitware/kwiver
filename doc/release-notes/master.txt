@@ -4,5 +4,9 @@ KWIVER 2.3.0 Release Notes
 Updates
 -------
 
+Vital: Types
+
+* Added utilities to local_tangent_space.
+
 Bug Fixes
 ---------

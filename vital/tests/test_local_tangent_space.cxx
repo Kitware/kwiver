@@ -6,6 +6,7 @@
 
 #include <arrows/geocalc/geo_conv.h>
 
+#include <vital/math_constants.h>
 #include <vital/plugin_management/plugin_manager.h>
 #include <vital/types/geodesy.h>
 #include <vital/types/local_tangent_space.h>
@@ -23,6 +24,29 @@ namespace {
 // Precision within a millimeter should be sufficient
 constexpr double epsilon_meters = 1.0e-3;
 constexpr double epsilon_degrees = 1.0e-8;
+constexpr double epsilon_quaternion = 1.0e-7;
+
+// ----------------------------------------------------------------------------
+std::vector< vital::rotation_d > const rotations = {
+  {},
+  { vital::pi / 2, 0.0, 0.0 },
+  { 0.0, vital::pi / 3, 0.0 },
+  { 0.0, 0.0, vital::pi / 4 },
+  { -vital::pi / 2, -vital::pi / 3, -vital::pi / 4 },
+  { vital::pi, vital::pi, vital::pi }, };
+
+// ----------------------------------------------------------------------------
+void
+expect_rotation_near(
+  vital::rotation_d const& a, vital::rotation_d const& b )
+{
+  auto const q_a = a.quaternion();
+  auto const q_b = b.quaternion();
+  auto const w =
+    std::clamp( std::abs( ( q_a * q_b.conjugate() ).w() ), 0.0, 1.0 );
+  auto const angle = 2.0 * std::acos( w );
+  EXPECT_LT( angle, epsilon_quaternion );
+}
 
 // ----------------------------------------------------------------------------
 // Test that the coordinate system is right-handed
@@ -112,14 +136,27 @@ test_global_round_trip( local_tangent_space const& space )
     { vector_3d{ 180.0, 0.0, -1'000.0 }, SRID::lat_lon_WGS84 },
     { vector_3d{ -90.0, 0.0, 100'000.0 }, SRID::lat_lon_WGS84 }, };
 
-  for( auto const& point : points )
+  for( size_t i = 0; i < points.size(); ++i )
   {
+    SCOPED_TRACE( i );
+
+    auto const& point = points[ i ];
     auto const result =
       space.to_global( space.to_local( point ) ).location( SRID::ECEF_WGS84 );
     auto const original = point.location( SRID::ECEF_WGS84 );
     EXPECT_NEAR( original[ 0 ], result[ 0 ], epsilon_meters );
     EXPECT_NEAR( original[ 1 ], result[ 1 ], epsilon_meters );
     EXPECT_NEAR( original[ 2 ], result[ 2 ], epsilon_meters );
+
+    for( size_t j = 0; j < rotations.size(); ++j )
+    {
+      SCOPED_TRACE( j );
+
+      auto const& rotation = rotations[ j ];
+      auto const rotation_result =
+        space.to_local( space.to_global( rotation, point ), point );
+      CALL_TEST( expect_rotation_near, rotation_result, rotation );
+    }
   }
 }
 
@@ -135,12 +172,28 @@ test_local_round_trip( local_tangent_space const& space )
     { 1.0e-6, 2.0e-6, 3.0e-6 },
     { 3.0e6, 2.0e6, 1.0e6 }, };
 
-  for( auto const& point : points )
+  for( size_t i = 0; i < points.size(); ++i )
   {
+    SCOPED_TRACE( i );
+
+    auto const& point = points[ i ];
     auto const result = space.to_local( space.to_global( point ) );
     EXPECT_NEAR( point[ 0 ], result[ 0 ], epsilon_meters );
     EXPECT_NEAR( point[ 1 ], result[ 1 ], epsilon_meters );
     EXPECT_NEAR( point[ 2 ], result[ 2 ], epsilon_meters );
+
+    for( size_t j = 0; j < rotations.size(); ++j )
+    {
+      SCOPED_TRACE( j );
+
+      auto const& rotation = rotations[ j ];
+      auto const global_point = space.to_global( point );
+      auto const rotation_result =
+        space.to_local(
+          space.to_global( rotation, global_point ),
+          global_point );
+      CALL_TEST( expect_rotation_near, rotation_result, rotation );
+    }
   }
 }
 
@@ -159,10 +212,42 @@ main( int argc, char** argv )
 }
 
 // ----------------------------------------------------------------------------
+TEST ( local_tangent_space, origin_invalid )
+{
+  vector_3d const local_point{ 0, 0, 0 };
+  geo_point const global_point{ vector_3d{ 0, 0, 0 }, SRID::ECEF_WGS84 };
+  vital::rotation_d rotation;
+  for( auto const& space : {
+    local_tangent_space{},
+    local_tangent_space{ geo_point{} } } )
+  {
+    EXPECT_FALSE( space.valid() );
+    EXPECT_TRUE( space.origin().is_empty() );
+    EXPECT_THROW(
+      space.to_local( global_point );
+      ,
+      std::runtime_error );
+    EXPECT_THROW(
+      space.to_local( rotation, global_point );
+      ,
+      std::runtime_error );
+    EXPECT_THROW(
+      space.to_global( local_point );
+      ,
+      std::runtime_error );
+    EXPECT_THROW(
+      space.to_global( rotation, global_point );
+      ,
+      std::runtime_error );
+  }
+}
+
+// ----------------------------------------------------------------------------
 TEST ( local_tangent_space, origin_at_center_of_earth )
 {
   local_tangent_space space{
     { vector_3d{ 0.0, 0.0, -6'378'137.0 }, SRID::lat_lon_WGS84 } };
+  EXPECT_TRUE( space.valid() );
   CALL_TEST( test_right_handed, space );
   CALL_TEST( test_cartesian_meters, space );
   CALL_TEST( test_global_round_trip, space );
@@ -174,6 +259,7 @@ TEST ( local_tangent_space, origin_at_north_pole )
 {
   local_tangent_space space{
     { vector_3d{ 0.0, 90.0, 0.0 }, SRID::lat_lon_WGS84 } };
+  EXPECT_TRUE( space.valid() );
   CALL_TEST( test_right_handed, space );
   CALL_TEST( test_cartesian_meters, space );
   CALL_TEST( test_global_round_trip, space );
@@ -186,6 +272,7 @@ TEST ( local_tangent_space, origin_near_north_pole )
 {
   local_tangent_space space{
     { vector_3d{ 90.0, 89.999'999'999, -500.0 }, SRID::lat_lon_WGS84 } };
+  EXPECT_TRUE( space.valid() );
   CALL_TEST( test_right_handed, space );
   CALL_TEST( test_cartesian_meters, space );
   CALL_TEST( test_global_round_trip, space );
@@ -198,6 +285,7 @@ TEST ( local_tangent_space, origin_at_south_pole )
 {
   local_tangent_space space{
     { vector_3d{ 180.0, -90.0, 0.0 }, SRID::lat_lon_WGS84 } };
+  EXPECT_TRUE( space.valid() );
   CALL_TEST( test_right_handed, space );
   CALL_TEST( test_cartesian_meters, space );
   CALL_TEST( test_global_round_trip, space );
@@ -210,6 +298,7 @@ TEST ( local_tangent_space, origin_near_south_pole )
 {
   local_tangent_space space{
     { vector_3d{ -90.0, -89.999'999'999, 500.0 }, SRID::lat_lon_WGS84 } };
+  EXPECT_TRUE( space.valid() );
   CALL_TEST( test_right_handed, space );
   CALL_TEST( test_cartesian_meters, space );
   CALL_TEST( test_global_round_trip, space );
@@ -222,6 +311,7 @@ TEST ( local_tangent_space, origin_at_equator )
 {
   local_tangent_space space{
     { vector_3d{ 179.0, 0.0, 0.0 }, SRID::lat_lon_WGS84 } };
+  EXPECT_TRUE( space.valid() );
   CALL_TEST( test_right_handed, space );
   CALL_TEST( test_cartesian_meters, space );
   CALL_TEST( test_global_round_trip, space );
@@ -235,6 +325,7 @@ TEST ( local_tangent_space, origin_near_equator )
 {
   local_tangent_space space{
     { vector_3d{ -179.0, 0.000'001, 10.0 }, SRID::lat_lon_WGS84 } };
+  EXPECT_TRUE( space.valid() );
   CALL_TEST( test_right_handed, space );
   CALL_TEST( test_cartesian_meters, space );
   CALL_TEST( test_global_round_trip, space );
@@ -248,6 +339,7 @@ TEST ( local_tangent_space, arbitrary_origin_northern_hemisphere )
 {
   local_tangent_space space{
     { vector_3d{ -73.7737921, 42.8644703, 50'000.0 }, SRID::lat_lon_WGS84 } };
+  EXPECT_TRUE( space.valid() );
   CALL_TEST( test_right_handed, space );
   CALL_TEST( test_cartesian_meters, space );
   CALL_TEST( test_global_round_trip, space );
@@ -261,10 +353,72 @@ TEST ( local_tangent_space, arbitrary_origin_southern_hemisphere )
 {
   local_tangent_space space{
     { vector_3d{ 73.7737921, -42.8644703, -500.0 }, SRID::lat_lon_WGS84 } };
+  EXPECT_TRUE( space.valid() );
   CALL_TEST( test_right_handed, space );
   CALL_TEST( test_cartesian_meters, space );
   CALL_TEST( test_global_round_trip, space );
   CALL_TEST( test_local_round_trip, space );
   CALL_TEST( test_east_north, space );
   CALL_TEST( test_up, space );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( local_tangent_space, rotations_enu_geodetic )
+{
+  local_tangent_space space{
+    { vector_3d{ 30.0, 0.0, 100.0 }, SRID::lat_lon_WGS84 } };
+
+  std::vector<
+    std::tuple< rotation_d, vector_3d, rotation_d > > geodetic_cases = {
+    { { 0.0, 0.0, 0.0 },
+      { 30.0, 0.0, 0.0 },
+      { 0.0, 0.0, 0.0 } },
+    { { vital::pi / 2.0, vital::pi / 3.0, vital::pi / 4.0 },
+      { 30.0, 0.0, 10.0 },
+      { vital::pi / 2.0, vital::pi / 3.0, vital::pi / 4.0 } },
+    { { 0.0, 0.0, 0.0 },
+      { 120.0, 0.0, 0.0 },
+      { 0.0, vital::pi / 2.0, 0.0 } },
+    { { vital::pi / 3.0, 0.0, 0.0 },
+      {  120.0, 0.0, 0.0 },
+      { vital::pi / 3.0, vital::pi / 2.0, 0.0 } },
+    { { 0.0, 0.0, 0.0 },
+      { 30.0, 45.0, 0.0 },
+      { 0.0, 0.0, -vital::pi / 4.0 } } };
+
+  for( size_t i = 0; i < geodetic_cases.size(); ++i )
+  {
+    SCOPED_TRACE( i );
+    auto const& [ rotation, point, expected ] = geodetic_cases[ i ];
+
+    auto const result =
+      space.to_global( rotation, geo_point{ point, SRID::lat_lon_WGS84 } );
+    CALL_TEST( expect_rotation_near, expected, result );
+  }
+}
+
+// ----------------------------------------------------------------------------
+TEST ( local_tangent_space, rotations_enu_geocentric )
+{
+  local_tangent_space space{
+    { vector_3d{ 90.0, 45.0, 100.0 }, SRID::lat_lon_WGS84 } };
+
+  std::vector<
+    std::tuple< rotation_d, vector_3d, rotation_d > > geocentric_cases = {
+    { { 0.0, 0.0, 0.0 },
+      { 90.0, 0.0, 0.0 },
+      { vital::pi, 0.0, vital::pi / 4.0 } },
+    { { 0.0, 0.0, vital::pi / 2.0 },
+      { 0.0, 80.0, 2.0 },
+      { vital::pi, 0.0, -vital::pi / 4.0 } }, };
+
+  for( size_t i = 0; i < geocentric_cases.size(); ++i )
+  {
+    SCOPED_TRACE( i );
+    auto const& [ rotation, point, expected ] = geocentric_cases[ i ];
+
+    auto const result =
+      space.to_global( rotation, geo_point{ point, SRID::ECEF_WGS84 } );
+    CALL_TEST( expect_rotation_near, expected, result );
+  }
 }
