@@ -318,6 +318,14 @@ kwiver_add_python_library(
 )
 
 kwiver_add_python_library(
+  local_tangent_space
+  "${THIS_MODULE}"
+  SOURCES local_tangent_space.cxx
+  PRIVATE pybind11::pybind11
+          vital
+)
+
+kwiver_add_python_library(
   match_set
   "${THIS_MODULE}"
   SOURCES match_set.cxx
