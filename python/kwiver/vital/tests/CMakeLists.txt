@@ -52,6 +52,7 @@ set(__testable_modnames
   test_landmark_map
   test_local_cartesian
   test_local_geo_cs
+  test_local_tangent_space
   test_match_set
   test_mesh
   test_metadata

@@ -42,6 +42,7 @@ from kwiver.vital.types.landmark_map import *
 from kwiver.vital.types.local_cartesian import *
 from kwiver.vital.types.rotation import *
 from kwiver.vital.types.local_geo_cs import *
+from kwiver.vital.types.local_tangent_space import *
 from kwiver.vital.types.match_set import *
 from kwiver.vital.types.mesh import *
 from kwiver.vital.types.metadata import *
