@@ -36,7 +36,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
 
 list(APPEND CTEST_CUSTOM_ERROR_EXCEPTION
   # FutureWarning from python bist_wheel. See #84
-  "FutureWarning: The \'wheel\' package is no"
+  "FutureWarning: The 'wheel' package is no"
   )
 
 set(cdash_show_third_party_warnings "@KWIVER_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")
