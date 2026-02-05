@@ -1,7 +1,6 @@
 set( THIS_MODULE vital/algo )
 
 kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py "${THIS_MODULE}" __init__ )
-kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/algorithm_factory.py "${THIS_MODULE}" algorithm_factory )
 
 ################################################################################
 
@@ -111,7 +110,10 @@ kwiver_generate_dependencies("${classes}" vital_algo_dependencies)
 # we generate all wrappings at once instead of per file since the startup cost
 # of the C++ parser is high
 add_custom_command(OUTPUT ${algo_sources}
-  COMMAND  ${Python_EXECUTABLE}
+  COMMAND  ${CMAKE_COMMAND} -E env
+          "PYTHONPATH=${kwiver_python_install_path}"
+          "PATH=${CMAKE_INSTALL_PREFIX}/bin:$ENV{PATH}"
+          ${Python_EXECUTABLE}
           "${KWIVER_SOURCE_DIR}/scripts/cpp_to_pybind11.py"
           -c "${CMAKE_CURRENT_BINARY_DIR}/config.ini"
   DEPENDS ${vital_algo_dependencies}

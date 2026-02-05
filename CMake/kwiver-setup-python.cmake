@@ -92,8 +92,17 @@ endfunction()
 # Private helper function to check if a python package is installed
 #
 function( _ensure_pypackage_exists package )
+  # kwiver_python_install_path may point to site-packages under
+  # CMAKE_INSTALL_PREFIX (e.g. when built as a VIAME sub-project with
+  # packages installed via pip --user / PYTHONUSERBASE).  Add it to
+  # sys.path so the import check can find those packages.
+  if( kwiver_python_install_path )
+    set( _import_cmd "import sys; sys.path.insert(0, '${kwiver_python_install_path}'); import ${package}" )
+  else()
+    set( _import_cmd "import ${package}" )
+  endif()
   execute_process(
-    COMMAND "${Python_EXECUTABLE}" -c "import ${package}"
+    COMMAND "${Python_EXECUTABLE}" -c "${_import_cmd}"
     RESULT_VARIABLE _exitcode
     OUTPUT_VARIABLE _output
     )
