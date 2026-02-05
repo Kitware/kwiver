@@ -39,8 +39,11 @@
             - build/CTestCustom.cmake
             - build/CTestTestfile.cmake
             - build/**/CTestTestfile.cmake
+            - build/**/*.cxx
             - build/**/*.h
             - build/**/*.hxx
+            - build/**/*.txx
+            - build/**/*.xml
             - build/Testing/
             - build/Testing/Temporary/
             - build/**/*_include.cmake
