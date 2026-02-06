@@ -162,8 +162,8 @@ public:
   friend void
 
   swap(
-    base_iterator< T, Tb > const& lhs,
-    base_iterator< T, Tb > const& rhs )
+    base_iterator< T, Tb >& lhs,
+    base_iterator< T, Tb >& rhs )
   {
     next_value_func_t lhs_nvf = lhs.m_next_value_func;
     pointer lhs_ref = lhs.m_cur_val_ptr;

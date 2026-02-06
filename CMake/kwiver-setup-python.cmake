@@ -217,7 +217,6 @@ message( STATUS "${PYTHON_CONFIG_STATUS}" )
 # python components.
 #
 _ensure_pypackage_exists("pygccxml")
-_ensure_pypackage_exists("castxml")
 if (KWIVER_ENABLE_TESTS)
   _ensure_pypackage_exists("pytest")
 endif()

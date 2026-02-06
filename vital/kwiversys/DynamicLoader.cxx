@@ -258,12 +258,12 @@ const char* DynamicLoader::LastError()
 {
   LPVOID lpMsgBuf=NULL;
 
-  FormatMessage(
+  FormatMessageA(
     FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
     NULL,
     GetLastError(),
     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-    (LPTSTR) &lpMsgBuf,
+    (LPSTR) &lpMsgBuf,
     0,
     NULL
     );

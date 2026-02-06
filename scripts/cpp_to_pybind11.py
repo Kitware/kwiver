@@ -54,7 +54,9 @@ def tranform_default_value(arg):
     """
     if arg.default_value is None:
         return None
-    elif declarations.type_traits.is_fundamental(arg.decl_type):
+    elif declarations.type_traits.is_fundamental(
+        declarations.type_traits.remove_elaborated(arg.decl_type)
+    ):
         # fundamental values are handled automatically by pybind
         return arg.default_value
     elif arg.default_value == "std::cout":
@@ -512,6 +514,7 @@ def parse_headers(
         xml_generator_path=generator_path,
         xml_generator=generator_name,
         cflags=cflags,
+        compiler_path=compiler_path,
         castxml_epic_version=1,  # required to be able to parse comments
     )
 
