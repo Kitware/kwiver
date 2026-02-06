@@ -317,8 +317,6 @@ TEST_F ( ffmpeg_video_output, round_trip_audio_direct )
   CALL_TEST( expect_eq_videos, src_path, tmp_path, image_epsilon );
 }
 
-// Temporary disable for windows
-#ifndef _WIN32
 // ----------------------------------------------------------------------------
 // Ensure we can open a video output without knowing the implementation type.
 TEST_F ( ffmpeg_video_output, generic_open )
@@ -354,10 +352,7 @@ TEST_F ( ffmpeg_video_output, generic_open )
 
   os.close();
 }
-#endif
 
-// Temporary disable for windows
-#ifndef _WIN32
 // ----------------------------------------------------------------------------
 // Test that we can write, then read a video with a manually-specified format
 TEST_F ( ffmpeg_video_output, round_trip_format_name )
@@ -407,4 +402,3 @@ TEST_F ( ffmpeg_video_output, round_trip_format_name )
 
   CALL_TEST( expect_eq_videos, src_is, tmp_is, image_epsilon );
 }
-#endif
