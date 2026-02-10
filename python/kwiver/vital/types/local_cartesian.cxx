@@ -10,6 +10,8 @@
 namespace py = pybind11;
 namespace kv = kwiver::vital;
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 // Wrap convert_to_cartesian
 // Getting pybind to allow pass by reference with eigen data types is difficult
 // Instead, call convert_to_cartesian on the C++ side and return the result,
