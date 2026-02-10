@@ -375,6 +375,7 @@ public:
   /// @return Map of vectors of metadata pointers.
   ///
   /// \throws video_stream_exception when there is an error in the video stream.
+  [[deprecated]]
   virtual kwiver::vital::metadata_map_sptr metadata_map() = 0;
 
   /// \brief Get frame rate from the video.

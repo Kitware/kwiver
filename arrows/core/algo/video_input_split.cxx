@@ -325,8 +325,12 @@ video_input_split
 {
   vital::metadata_map::map_metadata_t output_map;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   auto md_map1 = d->image_source()->metadata_map()->metadata();
   auto md_map2 = d->metadata_source()->metadata_map()->metadata();
+
+#pragma GCC diagnostic pop
   std::set< kwiver::vital::frame_id_t > merged_keys;
   for( auto& md : md_map1 )
   {

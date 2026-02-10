@@ -333,11 +333,19 @@ public:
       if( video_reader->get_implementation_capabilities()
           .has_capability( video_input::HAS_METADATA ) )
       {
-        sfm_constraint_ptr->set_metadata( video_reader->metadata_map() );
-
-        kv::timestamp ts;
-        video_reader->next_frame( ts );
-        first_frame = video_reader->frame_image();
+        vital::timestamp ts;
+        vital::metadata_map::map_metadata_t md_map;
+        while( video_reader->next_frame( ts ) )
+        {
+          if( !first_frame )
+          {
+            first_frame = video_reader->frame_image();
+          }
+          md_map.try_emplace( ts.get_frame(), video_reader->frame_metadata() );
+        }
+        sfm_constraint_ptr->set_metadata(
+          std::make_shared< vital::simple_metadata_map >(
+            std::move( md_map ) ) );
       }
       else
       {

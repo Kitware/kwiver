@@ -426,7 +426,10 @@ video_input_splice
     auto frame_offset = 0;
     for( auto const& vs : d->d_video_sources() )
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
       auto curr_metadata = vs->metadata_map()->metadata();
+#pragma GCC diagnostic pop
       for( auto const& md : curr_metadata )
       {
         d->d_metadata_map.emplace( md.first + frame_offset, md.second );
