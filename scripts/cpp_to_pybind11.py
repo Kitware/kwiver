@@ -170,6 +170,8 @@ class {class_.name}_trampoline
 """
     )
 
+    stream('#pragma GCC diagnostic ignored "-Wdeprecated-declarations"')
+
     ## generate only the methods required for a trampoline class ie pure virtual
     for member in [
         *class_.private_members,

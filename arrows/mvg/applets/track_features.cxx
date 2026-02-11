@@ -429,14 +429,16 @@ public:
       mask_reader->open( mask_file );
     }
 
-    kv::metadata_map_sptr md_map;
     std::vector< kv::frame_id_t > valid_frames;
     std::vector< kv::frame_id_t > camera_frames;
-    if( use_video_metadata && ( md_map = video_reader->metadata_map() ) &&
-        md_map->size() > 0 )
+    if( use_video_metadata )
     {
-      auto fs = md_map->frames();
-      valid_frames = std::vector< kv::frame_id_t >( fs.begin(), fs.end() );
+      vital::timestamp ts;
+      while( video_reader->next_frame( ts ) )
+      {
+        valid_frames.emplace_back( ts.get_frame() );
+      }
+      video_reader->seek_frame( ts, 1 );
       camera_frames = valid_frames;
     }
     else

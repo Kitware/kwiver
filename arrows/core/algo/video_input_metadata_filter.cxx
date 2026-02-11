@@ -273,7 +273,10 @@ video_input_metadata_filter
 
   if( !m_d->metadata_filter() )
   {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     return m_d->video_input()->metadata_map();
+#pragma GCC diagnostic pop
   }
 
   auto out = vital::metadata_map::map_metadata_t{};
@@ -314,7 +317,10 @@ video_input_metadata_filter
   }
   else
   {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     auto const& map_ptr = m_d->video_input()->metadata_map();
+#pragma GCC diagnostic pop
     if( !map_ptr )
     {
       return nullptr;

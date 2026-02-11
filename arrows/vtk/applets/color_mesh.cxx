@@ -369,13 +369,13 @@ public:
 
     video_reader->open( video_source );
 
-    kv::metadata_map_sptr metadata_map = video_reader->metadata_map();
     vital::camera_map::map_camera_t cameras;
 
-    for( auto const& frame_metadata : metadata_map->metadata() )
+    vital::timestamp ts;
+    while( video_reader->next_frame( ts ) )
     {
-      const kv::metadata_vector mdv = frame_metadata.second;
-      const size_t frame_ID = frame_metadata.first;
+      const kv::metadata_vector mdv = video_reader->frame_metadata();
+      const size_t frame_ID = ts.get_frame();
       const std::string name = basename_from_metadata( mdv, frame_ID );
       try
       {

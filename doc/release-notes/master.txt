@@ -4,6 +4,10 @@ KWIVER 2.3.0 Release Notes
 Updates
 -------
 
+Vital: algo
+
+* Deprecated video_input.metadata_map().
+
 Vital: Types
 
 * Added utilities to local_tangent_space.

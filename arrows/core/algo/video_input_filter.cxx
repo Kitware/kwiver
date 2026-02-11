@@ -365,7 +365,11 @@ video_input_filter
 {
   vital::metadata_map::map_metadata_t output_map;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   auto internal_map = d->d_video_input()->metadata_map()->metadata();
+
+#pragma GCC diagnostic pop
   auto start = internal_map.find( d->c_start_at_frame() );
   auto stop = internal_map.find( d->c_stop_after_frame() );
   if( stop != internal_map.end() )
