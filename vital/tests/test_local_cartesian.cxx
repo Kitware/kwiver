@@ -13,6 +13,8 @@
 
 #include <vital/plugin_management/plugin_manager.h>
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 static auto constexpr wgs = kwiver::vital::SRID::lat_lon_WGS84;
 static auto constexpr crs_utm_18n = kwiver::vital::SRID::UTM_WGS84_north + 18;
 

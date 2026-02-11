@@ -18,7 +18,7 @@ namespace vital {
 
 // ----------------------------------------------------------------------------
 /// \brief Local Cartesian Conversion Utility. */
-class VITAL_TYPES_EXPORT local_cartesian
+class VITAL_TYPES_DEPRECATED_EXPORT local_cartesian
 {
 public:
   local_cartesian( geo_point const& origin, double orientation = 0 );

@@ -8,6 +8,8 @@ Vital: Types
 
 * Added utilities to local_tangent_space.
 
+* Deprecated local_cartesian in favor of local_tangent_space.
+
 Vital: Python
 
 * Added local_tangent_space binding.
