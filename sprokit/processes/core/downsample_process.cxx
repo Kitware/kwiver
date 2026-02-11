@@ -226,6 +226,8 @@ void downsample_process
     }
   }
 
+  d->is_first_ = false;
+
   if( d->start_time_ >= 0.0 &&
       ( ts.get_time_seconds() < d->start_time_ ||
         ( d->duration_ > 0.0 &&
