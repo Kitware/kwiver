@@ -333,8 +333,7 @@ void downsample_process
       }
       else if( send_frame )
       {
-        if( d->only_frames_with_dets_ &&
-            ( d->renumber_frames_ || d->adjust_timestamps_ ) )
+        if( d->renumber_frames_ || d->adjust_timestamps_ )
         {
           datum = d->adjust_track_ids( datum );
         }
