@@ -18,5 +18,9 @@ Vital: Python
 
 * Added local_tangent_space binding.
 
+Track Oracle
+
+* Deprecated track_oracle.
+
 Bug Fixes
 ---------
