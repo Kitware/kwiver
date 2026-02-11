@@ -10,11 +10,6 @@
 #   copyright_header
 #     The copyright header to place at the top of generated __init__.py files.
 #
-#   python_both_arch
-#     If set, __init__.py file is created for both the archful and pure-Python
-#     module paths (if in doubt, you probably don't need this; it's necessary
-#     to support CPython and pure Python kwiver plugins).
-#
 # Their syntax is:
 #
 #   kwiver_add_python_library(name modpath [source ...])
@@ -233,19 +228,6 @@ function (kwiver_add_python_module path     modpath    module)
 
   add_dependencies(python
     "configure-python${python_arch}-${safe_modpath}-${module}")
-
-  if (python_both_arch)
-    set(python_both_arch)
-    set(python_noarch TRUE)
-
-    if (NOT WIN32)
-      # this looks recursive
-      kwiver_add_python_module(
-        "${path}"
-        "${modpath}"
-        "${module}")
-    endif ()
-  endif ()
 endfunction ()
 
 
