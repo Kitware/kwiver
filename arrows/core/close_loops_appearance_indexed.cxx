@@ -655,7 +655,7 @@ close_loops_appearance_indexed
     d_->m_tracks_in_common_to_skip_loop_closing,
     "if this or more tracks are in common between two frames then don't try to complete a loop with them");
 
-  config->set_value("m_skip_loop_detection_track_i_over_u_threshold",
+  config->set_value("skip_loop_detection_track_i_over_u_threshold",
     d_->m_skip_loop_detection_track_i_over_u_threshold,
     "skip loop detection if intersection over union of track ids in two frames is greater than this");
 
@@ -717,7 +717,7 @@ close_loops_appearance_indexed
       d_->m_skip_loop_detection_track_i_over_u_threshold);
 
   d_->m_min_loop_inlier_fraction =
-    config->get_value<float>("m_min_loop_inlier_fraction",
+    config->get_value<float>("min_loop_inlier_fraction",
       d_->m_min_loop_inlier_fraction);
 }
 

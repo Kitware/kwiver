@@ -290,8 +290,11 @@ close_loops_keyframe
                         << num_linked << " joined tracks");
   }
   // divide by number of matched frames to get the average
-  d_->frame_matches[frame_number] /=
-    static_cast<unsigned int>(last_frame_itr - frames.rbegin() - 2);
+  auto num_neighborhood = static_cast<unsigned int>(last_frame_itr - frames.rbegin() - 2);
+  if (num_neighborhood > 0)
+  {
+    d_->frame_matches[frame_number] /= num_neighborhood;
+  }
 
   // stitch with all previous keyframes
   for(auto k_itr = keyframes.rbegin(); k_itr != keyframes.rend(); ++k_itr)

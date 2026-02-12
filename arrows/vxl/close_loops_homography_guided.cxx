@@ -220,7 +220,7 @@ close_loops_homography_guided
           image_container_sptr image,
           VITAL_UNUSED image_container_sptr mask ) const
 {
-  if( !d_->enabled_ )
+  if( !d_->enabled_ || !image )
   {
     return input;
   }
