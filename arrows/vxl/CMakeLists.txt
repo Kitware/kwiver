@@ -49,16 +49,6 @@ set( vxl_classes
   vil_image_memory
   )
 
-if( fletch_ENABLE_FFmpeg AND _FFmpeg_version VERSION_LESS 4 )
-  list(APPEND vxl_headers_public
-    # vidl_ffmpeg_video_input.h
-  )
-  list(APPEND vxl_sources
-    # vidl_ffmpeg_video_input.cxx
-  )
-  add_definitions( -DVXL_ENABLE_FFMPEG )
-endif()
-
 kwiver_expand_class_list( "${vxl_classes}" vxl_headers_public vxl_sources )
 
 kwiver_install_headers(
@@ -83,7 +73,6 @@ target_link_libraries( kwiver_algo_vxl
                        kwiver_algo_mvg
                        rrel rsdl
                        vnl
-                       vidl
                        vil_algo
                        vgl_algo
                        vpgl_algo
