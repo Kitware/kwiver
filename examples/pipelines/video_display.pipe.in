@@ -5,7 +5,7 @@ process input
   frame_time    = .3333
 
 # Algorithm to use for 'video_input'.
-  video_reader:type = vidl_ffmpeg
+  video_reader:type = ffmpeg
 
 # ================================================================
 process disp
