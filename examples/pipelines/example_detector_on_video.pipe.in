@@ -4,7 +4,7 @@ process input
   video_filename   	= @EXAMPLE_DIR@/videos/drone-video.mp4
   frame_time        	= .3333
 
-  video_reader:type	= vidl_ffmpeg
+  video_reader:type	= ffmpeg
 
 # ================================================================
 process detector

@@ -40,10 +40,6 @@
 #include <arrows/vxl/threshold.h>
 #include <arrows/vxl/triangulate_landmarks.h>
 
-#ifdef VXL_ENABLE_FFMPEG
-#include <arrows/vxl/vidl_ffmpeg_video_input.h>
-#endif
-
 namespace kwiver {
 
 namespace arrows {
@@ -144,10 +140,6 @@ register_factories( kwiver::vital::plugin_loader& vpl )
   fact = vpl.add_factory< vital::algo::triangulate_landmarks,
     triangulate_landmarks >( "vxl" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows.vxl" );
-
-#ifdef VXL_ENABLE_FFMPEG
-  // reg.register_algorithm< vidl_ffmpeg_video_input >();
-#endif
 }
 
 } // end namespace vxl

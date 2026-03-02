@@ -18,6 +18,10 @@ Vital: Python
 
 * Added local_tangent_space binding.
 
+Arrows - VXL:
+
+* Removed vidl_ffmpeg_video_input implementation of video_input algorithm.
+
 Track Oracle
 
 * Deprecated track_oracle.

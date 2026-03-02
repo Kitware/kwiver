@@ -11,7 +11,7 @@ process input
   video_filename      = /Users/kfieldho/Projects/Kitware/Vision/Data/Kaggle/smeschke/pedestrian-dataset/crosswalk.avi
 #/Data/Kaggle/smeschke/pedestrian-dataset/crosswalk.avi
   frame_time         = .3333
-  video_reader:type  = vidl_ffmpeg
+  video_reader:type  = ffmpeg
 
 # ================================================================
 #
@@ -74,4 +74,3 @@ process output
   image_writer:type  = ocv
 
 connect from annotate.image to output.image
-
