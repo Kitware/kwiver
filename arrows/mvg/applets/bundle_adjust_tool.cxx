@@ -106,7 +106,7 @@ config_valid = false
     config_valid;
 
   config_valid =
-    validate_optional_output_file( "geo_origin_filename", *config, logger ) &&
+    validate_optional_output_file( "local_space_filename", *config, logger ) &&
     config_valid;
 
   if( !kv::check_nested_algo_configuration< video_input >(
@@ -493,7 +493,7 @@ struct bundle_adjust_tool::priv
   size_t num_frames = 0;
   kv::path_t cam_out_dir = "results/krtd";
   kv::path_t landmarks_file = "results/landmarks.ply";
-  kv::path_t geo_origin_file = "results/geo_origin.txt";
+  kv::path_t local_space_file = "results/local_space.txt";
   kv::path_t GCPFN = "gcps.json";
   bool ignore_metadata = false;
 
@@ -562,10 +562,10 @@ struct bundle_adjust_tool::priv
       landmarks_file = cmd_args[ "landmarks" ].as< std::string >();
       config->set_value( "output_landmarks_filename", landmarks_file );
     }
-    if( cmd_args.count( "geo-origin" ) > 0 )
+    if( cmd_args.count( "local-space" ) > 0 )
     {
-      geo_origin_file = cmd_args[ "geo-origin" ].as< std::string >();
-      config->set_value( "geo_origin_filename", geo_origin_file );
+      local_space_file = cmd_args[ "local-space" ].as< std::string >();
+      config->set_value( "local_space_filename", local_space_file );
     }
     if( cmd_args.count( "GCP" ) > 0 )
     {
@@ -639,7 +639,7 @@ struct bundle_adjust_tool::priv
       "If this file exists, it will be overwritten." );
 
     config->set_value(
-      "geo_origin_filename", geo_origin_file,
+      "local_space_filename", local_space_file,
       "(optional) Path to a file to write the geographic origin. "
       "This file is only written if the geospatial metadata is "
       "provided as input (e.g. in the input video). "
@@ -706,14 +706,14 @@ struct bundle_adjust_tool::priv
   }
 
   bool
-  write_geo_origin()
+  write_local_space()
   {
     if( sfm_constraint_ptr )
     {
-      auto lgcs = sfm_constraint_ptr->get_local_geo_cs();
-      if( !lgcs.origin().is_empty() )
+      if( auto const& local_space = sfm_constraint_ptr->get_local_space();
+          local_space.valid() )
       {
-        kv::write_local_geo_cs_to_file( lgcs, geo_origin_file );
+        kv::write_local_tangent_space_to_file( local_space, local_space_file );
         return true;
       }
     }
@@ -1130,7 +1130,7 @@ bundle_adjust_tool::priv
   using kv::frame_id_t;
   using kv::metadata_sptr;
   using kv::intrinsics_from_metadata;
-  using kv::local_geo_cs;
+  using kv::local_tangent_space;
 
 #define GET_K_CONFIG( type, name ) \
 config->get_value< type >( bc + #name, K_def.name() )
@@ -1190,14 +1190,17 @@ config->get_value< type >( bc + #name, K_def.name() )
         }
       }
 
-      local_geo_cs lgcs = sfm_constraint_ptr->get_local_geo_cs();
+      auto local_space = sfm_constraint_ptr->get_local_space();
       kv::camera_map::map_camera_t cam_map =
         initialize_cameras_with_metadata(
-          md_map, base_camera, lgcs,
+          md_map, base_camera, local_space,
           init_intrinsics_with_metadata );
       camera_map_ptr =
         std::make_shared< kv::simple_camera_map >( cam_map );
-      sfm_constraint_ptr->set_local_geo_cs( lgcs );
+      if( local_space.valid() )
+      {
+        sfm_constraint_ptr->set_local_space( local_space );
+      }
     }
   }
 }
@@ -1264,9 +1267,9 @@ bundle_adjust_tool
       return EXIT_FAILURE;
     }
 
-    if( d_->write_geo_origin() )
+    if( d_->write_local_space() )
     {
-      LOG_INFO( logger, "Saved geo-origin to " << d_->geo_origin_file );
+      LOG_INFO( logger, "Saved local space to " << d_->local_space_file );
     }
 
     return EXIT_SUCCESS;
@@ -1310,7 +1313,7 @@ bundle_adjust_tool
     cxxopts::value< std::string > () )
   ( "l,landmarks", "output landmarks.ply file",
     cxxopts::value< std::string > () )
-  ( "g,geo-origin", "output geographic origin file",
+  ( "g,local-space", "output geographic local space file",
     cxxopts::value< std::string > () )
   ;
   // to remove tracks reading from the config, add this

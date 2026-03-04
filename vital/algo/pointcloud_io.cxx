@@ -9,7 +9,7 @@
 
 #include <kwiversys/SystemTools.hxx>
 #include <vital/exceptions/io.h>
-#include <vital/types/local_geo_cs.h>
+#include <vital/types/local_tangent_space.h>
 
 namespace kwiver {
 
@@ -42,7 +42,7 @@ pointcloud_io
 
 void
 pointcloud_io
-::set_local_geo_cs( vital::local_geo_cs const& /*lgcs*/ )
+::set_local_space( vital::local_tangent_space const& /*local_space*/ )
 {
   LOG_WARN( logger(), "Setting local geo cs is not implemented." );
 }

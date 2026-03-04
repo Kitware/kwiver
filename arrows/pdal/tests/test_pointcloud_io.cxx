@@ -20,7 +20,7 @@ namespace kv = kwiver::vital;
 
 kv::path_t g_data_dir;
 
-static std::string geo_origin_file = "pointcloud_data/geo_origin.txt";
+static std::string local_space_file = "pointcloud_data/local_space.txt";
 static std::string landmarks_file = "pointcloud_data/landmarks.ply";
 static std::string octahedron_base = "pointcloud_data/octahedron";
 static std::string tmp_file = "pointcloud_data/pointcloud.las";
@@ -100,7 +100,7 @@ TEST_F ( pointcloud_io, load )
 
 TEST_F ( pointcloud_io, save )
 {
-  auto const geo_origin_path = data_dir + "/" + geo_origin_file;
+  auto const local_space_path = data_dir + "/" + local_space_file;
   auto const landmarks_path = data_dir + "/" + landmarks_file;
   auto const tmp_path = data_dir + "/" + tmp_file;
   std::ofstream ofs( tmp_path );
@@ -133,17 +133,16 @@ TEST_F ( pointcloud_io, save )
   static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
   kv::set_geo_conv( &geo_conv );
 
-  auto lgcs = kv::local_geo_cs();
-  read_local_geo_cs_from_file( lgcs, geo_origin_path );
+  auto local_space = kv::read_local_tangent_space_from_file( local_space_path );
 
   auto pc_io = kwiver::arrows::pdal::pointcloud_io();
-  pc_io.set_local_geo_cs( lgcs );
+  pc_io.set_local_space( local_space );
   pc_io.save( tmp_path, points, colors );
 }
 
 TEST_F ( pointcloud_io, save_landmarks )
 {
-  auto const geo_origin_path = data_dir + "/" + geo_origin_file;
+  auto const local_space_path = data_dir + "/" + local_space_file;
   auto const landmarks_path = data_dir + "/" + landmarks_file;
   auto const tmp_path = data_dir + "/" + tmp_file;
   std::ofstream ofs( tmp_path );
@@ -166,10 +165,9 @@ TEST_F ( pointcloud_io, save_landmarks )
   static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
   kv::set_geo_conv( &geo_conv );
 
-  auto lgcs = kv::local_geo_cs();
-  read_local_geo_cs_from_file( lgcs, geo_origin_path );
+  auto local_space = kv::read_local_tangent_space_from_file( local_space_path );
 
   auto pc_io = kwiver::arrows::pdal::pointcloud_io();
-  pc_io.set_local_geo_cs( lgcs );
+  pc_io.set_local_space( local_space );
   pc_io.save( tmp_path, landmark_map );
 }

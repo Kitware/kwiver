@@ -41,7 +41,7 @@ from kwiver.vital.types import (
     Metadata,
     SimpleCameraIntrinsics,
     SimpleCameraPerspective,
-    LocalGeoCS,
+    LocalTangentSpace,
     GeoPoint,
     geodesy as gd,
     metadata_tags as mt,
@@ -84,10 +84,10 @@ class TestUpdateCameraFromMetadata(unittest.TestCase):
 
     def test_returns_false_without_position_metadata(self):
         md = Metadata()
-        lgcs = LocalGeoCS()
+        local_space = LocalTangentSpace()
         cam = SimpleCameraPerspective()
 
-        result = update_camera_from_metadata(md, lgcs, cam)
+        result = update_camera_from_metadata(md, local_space, cam)
         self.assertFalse(result)
 
     def test_updates_camera_with_valid_metadata(self):
@@ -100,11 +100,11 @@ class TestUpdateCameraFromMetadata(unittest.TestCase):
         md.add(0.0, mt.tags.VITAL_META_PLATFORM_PITCH_ANGLE)
         md.add(0.0, mt.tags.VITAL_META_PLATFORM_ROLL_ANGLE)
 
-        lgcs = LocalGeoCS()
-        lgcs.geo_origin = GeoPoint(np.array([42.0, -73.0, 0.0]), gd.SRID.lat_lon_WGS84)
+        geo_origin = GeoPoint(np.array([42.0, -73.0, 0.0]), gd.SRID.lat_lon_WGS84)
+        local_space = LocalTangentSpace(geo_origin)
 
         cam = SimpleCameraPerspective()
-        result = update_camera_from_metadata(md, lgcs, cam)
+        result = update_camera_from_metadata(md, local_space, cam)
 
         self.assertTrue(result)
         center = cam.center()
@@ -120,9 +120,9 @@ class TestInitializeCamerasWithMetadata(unittest.TestCase):
     def test_returns_empty_map_with_no_metadata(self):
         md_map = {}
         base_cam = SimpleCameraPerspective()
-        lgcs = LocalGeoCS()
+        local_space = LocalTangentSpace()
 
-        result = initialize_cameras_with_metadata(md_map, base_cam, lgcs)
+        result = initialize_cameras_with_metadata(md_map, base_cam, local_space)
         self.assertEqual(len(result), 0)
 
     def test_creates_cameras_from_metadata_map(self):
@@ -153,13 +153,13 @@ class TestInitializeCamerasWithMetadata(unittest.TestCase):
         base_cam = SimpleCameraPerspective()
         base_cam.set_intrinsics(base_intrinsics)
 
-        lgcs = LocalGeoCS()
+        local_space = LocalTangentSpace()
 
-        result = initialize_cameras_with_metadata(md_map, base_cam, lgcs)
+        result = initialize_cameras_with_metadata(md_map, base_cam, local_space)
 
         self.assertGreater(len(result), 0)
         if 1 in result:
             cam1 = result[1]
             self.assertIsNotNone(cam1)
 
-        self.assertFalse(lgcs.geo_origin.is_empty())
+        self.assertTrue(local_space.valid())

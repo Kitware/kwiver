@@ -81,14 +81,14 @@ config_valid = false
   {
     config_valid =
       validate_required_input_file(
-        "input_geo_origin_filename", *config,
+        "input_local_space_filename", *config,
         main_logger ) && config_valid;
   }
   else
   {
     config_valid =
       validate_optional_input_file(
-        "input_geo_origin_filename", *config,
+        "input_local_space_filename", *config,
         main_logger ) && config_valid;
   }
 
@@ -122,7 +122,7 @@ public:
   kva::video_input_sptr mask_reader_ = nullptr;
   kv::config_block_sptr config_ = nullptr;
   std::string input_mesh_;
-  std::string input_geo_origin_file_;
+  std::string input_local_space_file_;
   std::string video_source_;
   std::string cameras_dir_;
   std::string mask_file_;
@@ -167,10 +167,12 @@ public:
       input_mesh_ = cmd_args[ "input-mesh" ].as< std::string >();
       config_->set_value( "input_mesh", input_mesh_ );
     }
-    if( cmd_args.count( "input-geo-origin-file" ) )
+    if( cmd_args.count( "input-local-space-file" ) )
     {
-      input_geo_origin_file_ = cmd_args[ "input-geo-origin-file" ].as< std::string >();
-      config_->set_value( "input_geo_origin_filename", input_geo_origin_file_ );
+      input_local_space_file_ = cmd_args[ "input-local-space-file" ].as< std::string >();
+      config_->set_value(
+        "input_local_space_filename",
+        input_local_space_file_ );
     }
     if( cmd_args.count( "video-file" ) )
     {
@@ -282,7 +284,7 @@ public:
       "input_mesh", input_mesh_,
       "Path to an input mesh file in PLY, OBJ or VTP formats." );
     config->set_value(
-      "input_geo_origin_filename", "results/geo_origin.txt",
+      "input_local_space_filename", "results/local_space.txt",
       "Path to a file to read the geographic origin from." );
     config->set_value(
       "video_source", video_source_,
@@ -486,14 +488,8 @@ public:
     vtkSmartPointer< vtkPolyData > mesh,
     char const* output_path )
   {
-    auto lgcs = vital::local_geo_cs();
-    if( !read_local_geo_cs_from_file( lgcs, input_geo_origin_file_ ) )
-    {
-      LOG_ERROR(
-        main_logger, "Failed to read local geo cs from file: "
-          << input_geo_origin_file_);
-      return;
-    }
+    auto local_space =
+      vital::read_local_tangent_space_from_file( input_local_space_file_ );
 
     vtkSmartPointer< vtkPoints > inPts = mesh->GetPoints();
     vtkIdType numPts = inPts->GetNumberOfPoints();
@@ -531,7 +527,7 @@ public:
       LOG_ERROR(main_logger, "Could not find pointcloud_io algorithm pdal" );
       return;
     }
-    pc_io->set_local_geo_cs( lgcs );
+    pc_io->set_local_space( local_space );
     pc_io->save( output_path, points, colors );
   }
 
@@ -672,7 +668,7 @@ color_mesh
     "Frame index to use for coloring. "
     "If -1 use an average color for all frames.",
     cxxopts::value< int > ()->default_value( "-1") )
-  ( "g,input-geo-origin-file", "Input geographic origin file.",
+  ( "g,input-local-space-file", "Input geographic local space file.",
     cxxopts::value< std::string > () )
   ( "h,help",     "Display applet usage" )
   ( "m,mask-file",

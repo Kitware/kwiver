@@ -14,6 +14,8 @@
 #include <vital/logger/logger.h>
 #include <vital/types/geodesy.h>
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 using namespace kwiver::vital;
 
 namespace kwiver {

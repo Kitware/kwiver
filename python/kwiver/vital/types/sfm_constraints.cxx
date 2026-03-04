@@ -19,15 +19,15 @@ PYBIND11_MODULE( sfm_constraints, m )
     std::shared_ptr< kv::sfm_constraints > >( m, "SFMConstraints" )
     .def( py::init<>() )
     .def( py::init< kv::sfm_constraints const& >() )
-    .def( py::init< kv::metadata_map_sptr, kv::local_geo_cs const& >() )
+    .def( py::init< kv::metadata_map_sptr, kv::local_tangent_space const& >() )
     .def_property(
       "metadata",
       &kv::sfm_constraints::get_metadata,
       &kv::sfm_constraints::set_metadata )
     .def_property(
-      "local_geo_cs",
-      &kv::sfm_constraints::get_local_geo_cs,
-      &kv::sfm_constraints::set_local_geo_cs )
+      "local_tangent_space",
+      &kv::sfm_constraints::get_local_space,
+      &kv::sfm_constraints::set_local_space )
     .def(
       "get_camera_position_prior_local",
       ( bool ( kv::sfm_constraints::* )(

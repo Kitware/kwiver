@@ -41,8 +41,8 @@ enabled.
   ``-l, --landmarks arg``
     Output landmarks.ply file.
 
-  ``-g, --geo-origin arg``
-    Output geographic origin file.
+  ``-g, --local-space arg``
+    Output geographic local space file.
 
   ``-o, --output-config arg``
     Output a configuration, which may be seeded with a configuration file

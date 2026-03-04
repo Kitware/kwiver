@@ -47,7 +47,7 @@ public:
   };
 
   metadata_map_sptr m_md;
-  local_geo_cs m_lgcs;
+  local_tangent_space m_local_space;
   std::map< frame_id_t, im_data > m_image_data;
 };
 
@@ -63,7 +63,7 @@ sfm_constraints
 ::sfm_constraints( const sfm_constraints& other )
   : m_priv( new priv )
 {
-  m_priv->m_lgcs = other.m_priv->m_lgcs;
+  m_priv->m_local_space = other.m_priv->m_local_space;
   m_priv->m_md = other.m_priv->m_md;
   m_priv->m_image_data = other.m_priv->m_image_data;
 }
@@ -76,11 +76,11 @@ sfm_constraints
 sfm_constraints
 ::sfm_constraints(
   metadata_map_sptr md,
-  local_geo_cs const& lgcs )
+  local_tangent_space const& local_space )
   : m_priv( new priv )
 {
   m_priv->m_md = md;
-  m_priv->m_lgcs = lgcs;
+  m_priv->m_local_space = local_space;
 }
 
 sfm_constraints
@@ -101,18 +101,18 @@ sfm_constraints
   m_priv->m_md = md;
 }
 
-local_geo_cs
+local_tangent_space
 sfm_constraints
-::get_local_geo_cs()
+::get_local_space()
 {
-  return m_priv->m_lgcs;
+  return m_priv->m_local_space;
 }
 
 void
 sfm_constraints
-::set_local_geo_cs( local_geo_cs const& lgcs )
+::set_local_space( local_tangent_space const& local_space )
 {
-  m_priv->m_lgcs = lgcs;
+  m_priv->m_local_space = local_space;
 }
 
 bool
@@ -187,7 +187,7 @@ sfm_constraints
   frame_id_t fid,
   rotation_d& R_loc ) const
 {
-  if( m_priv->m_lgcs.origin().is_empty() )
+  if( !m_priv->m_local_space.valid() )
   {
     return false;
   }
@@ -243,7 +243,7 @@ sfm_constraints
   frame_id_t fid,
   vector_3d& pos_loc ) const
 {
-  if( m_priv->m_lgcs.origin().is_empty() )
+  if( !m_priv->m_local_space.valid() )
   {
     return false;
   }
@@ -254,24 +254,16 @@ sfm_constraints
   }
 
   kwiver::vital::geo_point gloc;
-  if( m_priv->m_md->has< VITAL_META_SENSOR_LOCATION >( fid ) )
+  if( auto const& item =
+        m_priv->m_md->get_item( VITAL_META_SENSOR_LOCATION, fid ) )
   {
-    gloc = m_priv->m_md->get< VITAL_META_SENSOR_LOCATION >( fid );
+    pos_loc = m_priv->m_local_space.to_local( item.get< vital::geo_point >() );
+    return true;
   }
   else
   {
     return false;
   }
-
-  auto geo_origin = m_priv->m_lgcs.origin();
-  vector_3d loc = gloc.location( geo_origin.crs() );
-  loc -= geo_origin.location();
-
-  pos_loc[ 0 ] = loc.x();
-  pos_loc[ 1 ] = loc.y();
-  pos_loc[ 2 ] = loc.z();
-
-  return true;
 }
 
 sfm_constraints::position_map

@@ -37,8 +37,8 @@ KWIVER_ENABLE_OPENCV CMake flags are enabled.
   ``-l, --landmarks arg``
     Output landmarks file
 
-  ``-g, --geo-origin arg``
-    Output geographic origin file
+  ``-g, --local-space arg``
+    Output geographic local space file
 
 **Default configuration**
 
