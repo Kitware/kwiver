@@ -12,6 +12,7 @@
 #include "klv_muxer.h"
 #include "klv_read_write.h"
 
+#include <vital/math_constants.h>
 #include <vital/range/iota.h>
 #include <vital/types/geodesy.h>
 
@@ -100,6 +101,28 @@ assemble_geo_point(
 }
 
 // ----------------------------------------------------------------------------
+// Create a rotation from yaw, pitch, and roll
+kv::rotation_d
+assemble_rotation(
+  klv_value const& yaw,
+  klv_value const& pitch,
+  klv_value const& roll,
+  bool invert_pitch )
+{
+  auto const converter = klv_to_vital_value;
+  auto pitch_value = std::get< double >( converter( pitch ) ) * kv::deg_to_rad;
+  if( invert_pitch )
+  {
+    // Needed for EG0104 "Obliquity Angle" field
+    pitch_value = kv::pi - pitch_value;
+  }
+  return kv::rotation_d{
+    std::get< double >( converter( yaw ) ) * kv::deg_to_rad,
+    pitch_value,
+    std::get< double >( converter( roll ) ) * kv::deg_to_rad, };
+}
+
+// ----------------------------------------------------------------------------
 // Create a geo_point from the given lists of tags, which are queried in order
 // to enforce precedence of e.g. newer or more precise tags over deprecated or
 // less precise ones
@@ -153,6 +176,44 @@ parse_geo_point(
   }
 
   return assemble_geo_point( latitude, longitude, elevation );
+}
+
+// ----------------------------------------------------------------------------
+// Create a rotation_d from the given lists of tags, which are queried in order
+// to enforce precedence of e.g. newer or more precise tags over deprecated or
+// less precise ones
+std::optional< kv::rotation_d >
+parse_orientation(
+  klv_timeline const& klv_data,
+  klv_top_level_tag standard,
+  uint64_t timestamp,
+  std::vector< klv_lds_key > const& yaw_tags,
+  std::vector< klv_lds_key > const& pitch_tags,
+  std::vector< klv_lds_key > const& roll_tags,
+  bool invert_pitch )
+{
+  klv_value yaw;
+  klv_value pitch;
+  klv_value roll;
+  for( auto& [ value, tags ] : { std::tie( yaw, yaw_tags ),
+                                 std::tie( pitch, pitch_tags ),
+                                 std::tie( roll, roll_tags ) } )
+  {
+    for( auto const tag : tags )
+    {
+      value = klv_data.at( standard, tag, timestamp );
+      if( value.valid() )
+      {
+        break;
+      }
+    }
+    if( !value.valid() )
+    {
+      return std::nullopt;
+    }
+  }
+
+  return assemble_rotation( yaw, pitch, roll, invert_pitch );
 }
 
 // ----------------------------------------------------------------------------
@@ -230,12 +291,6 @@ klv_0104_to_vital_metadata(
   constexpr auto standard = KLV_PACKET_MISB_0104_UNIVERSAL_SET;
 
   static std::map< klv_lds_key, kv::vital_metadata_tag > const direct_map = {
-    { KLV_0104_PLATFORM_HEADING_ANGLE,
-      kv::VITAL_META_PLATFORM_HEADING_ANGLE },
-    { KLV_0104_PLATFORM_PITCH_ANGLE,
-      kv::VITAL_META_PLATFORM_PITCH_ANGLE },
-    { KLV_0104_PLATFORM_ROLL_ANGLE,
-      kv::VITAL_META_PLATFORM_ROLL_ANGLE },
     { KLV_0104_DEVICE_DESIGNATION,
       kv::VITAL_META_PLATFORM_DESIGNATION },
     { KLV_0104_IMAGE_SOURCE_DEVICE,
@@ -250,12 +305,6 @@ klv_0104_to_vital_metadata(
       kv::VITAL_META_SLANT_RANGE },
     { KLV_0104_TARGET_WIDTH,
       kv::VITAL_META_TARGET_WIDTH },
-    { KLV_0104_SENSOR_ROLL_ANGLE,
-      kv::VITAL_META_SENSOR_ROLL_ANGLE },
-    { KLV_0104_ANGLE_TO_NORTH,
-      kv::VITAL_META_ANGLE_TO_NORTH },
-    { KLV_0104_OBLIQUITY_ANGLE,
-      kv::VITAL_META_OBLIQUITY_ANGLE },
     { KLV_0104_EPISODE_NUMBER,
       kv::VITAL_META_MISSION_NUMBER } };
 
@@ -279,6 +328,39 @@ klv_0104_to_vital_metadata(
   klv_0104_parse_datetime_to_unix(
     klv_data, timestamp, vital_data,
     KLV_0104_EVENT_START_DATETIME, kv::VITAL_META_EVENT_START_TIMESTAMP );
+
+
+  // Platform orientation
+  auto const platform_orientation =
+    parse_orientation(
+      klv_data, standard, timestamp,
+      { KLV_0104_PLATFORM_HEADING_ANGLE },
+      { KLV_0104_PLATFORM_PITCH_ANGLE },
+      { KLV_0104_PLATFORM_ROLL_ANGLE },
+      false
+    );
+  if( platform_orientation )
+  {
+    vital_data.add< kv::VITAL_META_PLATFORM_ORIENTATION >(
+      *platform_orientation );
+
+
+    // Sensor orientation
+    auto const sensor_orientation =
+      parse_orientation(
+        klv_data, standard, timestamp,
+        { KLV_0104_ANGLE_TO_NORTH },
+        { KLV_0104_OBLIQUITY_ANGLE },
+        { KLV_0104_SENSOR_ROLL_ANGLE },
+        true
+      );
+
+    if( sensor_orientation )
+    {
+      vital_data.add< kv::VITAL_META_SENSOR_ORIENTATION >(
+        *platform_orientation * *sensor_orientation );
+    }
+  }
 
 
   // Sensor location
@@ -363,12 +445,6 @@ klv_0601_to_vital_metadata(
       kv::VITAL_META_MISSION_ID },
     { KLV_0601_PLATFORM_TAIL_NUMBER,
       kv::VITAL_META_PLATFORM_TAIL_NUMBER },
-    { KLV_0601_PLATFORM_HEADING_ANGLE,
-      kv::VITAL_META_PLATFORM_HEADING_ANGLE },
-    { KLV_0601_PLATFORM_PITCH_ANGLE,
-      kv::VITAL_META_PLATFORM_PITCH_ANGLE },
-    { KLV_0601_PLATFORM_ROLL_ANGLE,
-      kv::VITAL_META_PLATFORM_ROLL_ANGLE },
     { KLV_0601_PLATFORM_TRUE_AIRSPEED,
       kv::VITAL_META_PLATFORM_TRUE_AIRSPEED },
     { KLV_0601_PLATFORM_INDICATED_AIRSPEED,
@@ -383,12 +459,6 @@ klv_0601_to_vital_metadata(
       kv::VITAL_META_SENSOR_HORIZONTAL_FOV },
     { KLV_0601_SENSOR_VERTICAL_FOV,
       kv::VITAL_META_SENSOR_VERTICAL_FOV },
-    { KLV_0601_SENSOR_RELATIVE_AZIMUTH_ANGLE,
-      kv::VITAL_META_SENSOR_REL_AZ_ANGLE },
-    { KLV_0601_SENSOR_RELATIVE_ELEVATION_ANGLE,
-      kv::VITAL_META_SENSOR_REL_EL_ANGLE },
-    { KLV_0601_SENSOR_RELATIVE_ROLL_ANGLE,
-      kv::VITAL_META_SENSOR_REL_ROLL_ANGLE },
     { KLV_0601_SLANT_RANGE,
       kv::VITAL_META_SLANT_RANGE },
     { KLV_0601_TARGET_WIDTH,
@@ -473,6 +543,38 @@ klv_0601_to_vital_metadata(
 
   // If more than these two enum -> int conversions become necessary, consider
   // creating a template function to avoid copy-paste
+
+  // Platform orientation
+  auto const platform_orientation =
+    parse_orientation(
+      klv_data, standard, timestamp,
+      { KLV_0601_PLATFORM_HEADING_ANGLE },
+      { KLV_0601_PLATFORM_PITCH_ANGLE },
+      { KLV_0601_PLATFORM_ROLL_ANGLE },
+      false
+    );
+  if( platform_orientation )
+  {
+    vital_data.add< kv::VITAL_META_PLATFORM_ORIENTATION >(
+      *platform_orientation );
+
+
+    // Sensor orientation
+    auto const sensor_orientation =
+      parse_orientation(
+        klv_data, standard, timestamp,
+        { KLV_0601_SENSOR_RELATIVE_AZIMUTH_ANGLE },
+        { KLV_0601_SENSOR_RELATIVE_ELEVATION_ANGLE },
+        { KLV_0601_SENSOR_RELATIVE_ROLL_ANGLE },
+        false
+      );
+    if( sensor_orientation )
+    {
+      vital_data.add< kv::VITAL_META_SENSOR_ORIENTATION >(
+        *platform_orientation * *sensor_orientation );
+    }
+  }
+
 
   // Sensor location
   auto const sensor_location =

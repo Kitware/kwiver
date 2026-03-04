@@ -43,6 +43,7 @@ from kwiver.vital.types import (
     SimpleCameraPerspective,
     LocalTangentSpace,
     GeoPoint,
+    RotationD,
     geodesy as gd,
     metadata_tags as mt,
 )
@@ -96,9 +97,7 @@ class TestUpdateCameraFromMetadata(unittest.TestCase):
             GeoPoint(np.array([42.0, -73.0, 100.0]), gd.SRID.lat_lon_WGS84),
             mt.tags.VITAL_META_SENSOR_LOCATION,
         )
-        md.add(0.0, mt.tags.VITAL_META_PLATFORM_HEADING_ANGLE)
-        md.add(0.0, mt.tags.VITAL_META_PLATFORM_PITCH_ANGLE)
-        md.add(0.0, mt.tags.VITAL_META_PLATFORM_ROLL_ANGLE)
+        md.add(RotationD(), mt.tags.VITAL_META_PLATFORM_ORIENTATION)
 
         geo_origin = GeoPoint(np.array([42.0, -73.0, 0.0]), gd.SRID.lat_lon_WGS84)
         local_space = LocalTangentSpace(geo_origin)
@@ -131,18 +130,14 @@ class TestInitializeCamerasWithMetadata(unittest.TestCase):
             GeoPoint(np.array([42.0, -73.0, 100.0]), gd.SRID.lat_lon_WGS84),
             mt.tags.VITAL_META_SENSOR_LOCATION,
         )
-        md1.add(0.0, mt.tags.VITAL_META_PLATFORM_HEADING_ANGLE)
-        md1.add(0.0, mt.tags.VITAL_META_PLATFORM_PITCH_ANGLE)
-        md1.add(0.0, mt.tags.VITAL_META_PLATFORM_ROLL_ANGLE)
+        md1.add(RotationD(), mt.tags.VITAL_META_PLATFORM_ORIENTATION)
 
         md2 = Metadata()
         md2.add(
             GeoPoint(np.array([42.001, -73.001, 110.0]), gd.SRID.lat_lon_WGS84),
             mt.tags.VITAL_META_SENSOR_LOCATION,
         )
-        md2.add(5.0, mt.tags.VITAL_META_PLATFORM_HEADING_ANGLE)
-        md2.add(2.0, mt.tags.VITAL_META_PLATFORM_PITCH_ANGLE)
-        md2.add(1.0, mt.tags.VITAL_META_PLATFORM_ROLL_ANGLE)
+        md2.add(RotationD(5.0, 2.0, 1.0), mt.tags.VITAL_META_PLATFORM_ORIENTATION)
 
         md_map = {1: md1, 2: md2}
 

@@ -578,6 +578,39 @@ load( ::cereal::JSONInputArchive& archive, ::kwiver::vital::geo_point& point )
 void
 save(
   ::cereal::JSONOutputArchive& archive,
+  ::kwiver::vital::rotation_d const& rotation )
+{
+  auto const q = rotation.quaternion();
+  archive(
+    ::cereal::make_nvp( "w", q.w() ),
+    ::cereal::make_nvp( "x", q.x() ),
+    ::cereal::make_nvp( "y", q.y() ),
+    ::cereal::make_nvp( "z", q.z() )
+  );
+}
+
+// ----------------------------------------------------------------------------
+void
+load(
+  ::cereal::JSONInputArchive& archive,
+  ::kwiver::vital::rotation_d& rotation )
+{
+  double w, x, y, z;
+  archive(
+    CEREAL_NVP( w ),
+    CEREAL_NVP( x ),
+    CEREAL_NVP( y ),
+    CEREAL_NVP( z )
+  );
+
+  Eigen::Quaterniond q{ w, x, y, z };
+  rotation = ::kwiver::vital::rotation_d{ q };
+}
+
+// ----------------------------------------------------------------------------
+void
+save(
+  ::cereal::JSONOutputArchive& archive,
   const ::kwiver::vital::polygon& poly )
 {
   auto vert = poly.get_vertices();

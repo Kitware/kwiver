@@ -7,6 +7,7 @@
 
 #include <arrows/core/algo/metadata_map_io_csv.h>
 
+#include <vital/math_constants.h>
 #include <vital/types/geodesy.h>
 
 #include <tests/test_gtest.h>
@@ -62,17 +63,23 @@ protected:
     map[ 7 ][ 1 ]->add< kv::VITAL_META_VIDEO_FRAME_NUMBER >( 7 );
     map[ 7 ][ 1 ]->add< kv::VITAL_META_UNIX_TIMESTAMP >( 5 );
     map[ 7 ][ 1 ]->add< kv::VITAL_META_VIDEO_DATA_STREAM_INDEX >( 2 );
+    map[ 7 ][ 1 ]->add< kv::VITAL_META_SENSOR_ORIENTATION >(
+      kv::rotation_d{
+      1.0 * kv::deg_to_rad,
+      2.0 * kv::deg_to_rad,
+      3.0 * kv::deg_to_rad } );
 
     example_csv =
       "Frame ID,UNIX_TIMESTAMP,PLATFORM_DESIGNATION,VIDEO_DATA_STREAM_INDEX,"
       "VIDEO_MICROSECONDS,"
       "SENSOR_LOCATION.0,SENSOR_LOCATION.1,SENSOR_LOCATION.2,"
       "SENSOR_HORIZONTAL_FOV,"
+      "SENSOR_ORIENTATION.0,SENSOR_ORIENTATION.1,SENSOR_ORIENTATION.2,"
       "CORNER_POINTS.0,CORNER_POINTS.1,CORNER_POINTS.2,CORNER_POINTS.3,"
       "CORNER_POINTS.4,CORNER_POINTS.5,CORNER_POINTS.6,CORNER_POINTS.7\n"
-      "4,1,\"\"\"Platform,\"\"\",1,,2,3,0,60.7,0,3,2,3,2,6,0,6\n"
-      "7,3,,1,34:17:36.789012,,,,,,,,,,,,\n"
-      "7,5,,2,,,,,,,,,,,,,\n";
+      "4,1,\"\"\"Platform,\"\"\",1,,2,3,0,60.7,,,,0,3,2,3,2,6,0,6\n"
+      "7,3,,1,34:17:36.789012,,,,,,,,,,,,,,,\n"
+      "7,5,,2,,,,,,1,2,3,,,,,,,,\n";
   }
 
   metadata_map_io_csv io;

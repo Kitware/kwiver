@@ -9,6 +9,7 @@
 #include <vital/types/sfm_constraints.h>
 
 #include <vital/math_constants.h>
+#include <vital/types/geodesy.h>
 #include <vital/types/rotation.h>
 
 namespace kwiver {
@@ -199,42 +200,31 @@ sfm_constraints
 
   auto& md = *m_priv->m_md;
 
-  if( md.has< VITAL_META_PLATFORM_HEADING_ANGLE >( fid ) &&
-      md.has< VITAL_META_PLATFORM_ROLL_ANGLE >( fid ) &&
-      md.has< VITAL_META_PLATFORM_PITCH_ANGLE >( fid ) &&
-      md.has< VITAL_META_SENSOR_REL_AZ_ANGLE >( fid ) &&
-      md.has< VITAL_META_SENSOR_REL_EL_ANGLE >( fid ) )
+  auto const& location_item =
+    md.get_item( VITAL_META_SENSOR_LOCATION, fid );
+
+  if( !location_item )
   {
-    double platform_heading =
-      md.get< VITAL_META_PLATFORM_HEADING_ANGLE >( fid );
-    double platform_roll = md.get< VITAL_META_PLATFORM_ROLL_ANGLE >( fid );
-    double platform_pitch = md.get< VITAL_META_PLATFORM_PITCH_ANGLE >( fid );
-    double sensor_rel_az = md.get< VITAL_META_SENSOR_REL_AZ_ANGLE >( fid );
-    double sensor_rel_el = md.get< VITAL_META_SENSOR_REL_EL_ANGLE >( fid );
-
-    double sensor_rel_roll = 0;
-    if( md.has< VITAL_META_SENSOR_REL_ROLL_ANGLE >( fid ) )
-    {
-      sensor_rel_roll = md.get< VITAL_META_SENSOR_REL_ROLL_ANGLE >( fid );
-    }
-
-    if( std::isnan( platform_heading ) || std::isnan( platform_pitch ) ||
-        std::isnan( platform_roll ) ||
-        std::isnan( sensor_rel_az ) || std::isnan( sensor_rel_el ) ||
-        std::isnan( sensor_rel_roll ) )
-    {
-      return false;
-    }
-
-    R_loc =
-      uas_ypr_to_rotation(
-        platform_heading, platform_pitch, platform_roll,
-        sensor_rel_az,    sensor_rel_el,  sensor_rel_roll );
-
-    return true;
+    return false;
   }
 
-  return false;
+  auto const location = location_item.get< geo_point >();
+
+  auto const orientation_item =
+    md.get_item( VITAL_META_SENSOR_ORIENTATION, fid );
+  if( !orientation_item )
+  {
+    return false;
+  }
+
+  auto const crs = SRID::lat_lon_WGS84;
+  R_loc =
+    sensor_to_camera(
+      m_priv->m_local_space.to_local(
+        ned_to_enu( orientation_item.get< rotation_d >() ),
+        geo_point{ location.location( crs ), crs } ) );
+
+  return true;
 }
 
 bool

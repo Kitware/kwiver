@@ -37,69 +37,16 @@ namespace {
 
 // ----------------------------------------------------------------------------
 kwiver::vital::rotation_d
-get_platform_rotation( kwiver::vital::metadata_sptr const& metadata )
-{
-  kv::metadata_item const& yaw_item =
-    metadata->find( kv::VITAL_META_PLATFORM_HEADING_ANGLE );
-  kv::metadata_item const& pitch_item =
-    metadata->find( kv::VITAL_META_PLATFORM_PITCH_ANGLE );
-  kv::metadata_item const& roll_item =
-    metadata->find( kv::VITAL_META_PLATFORM_ROLL_ANGLE );
-
-  if( !yaw_item || !pitch_item || !roll_item ||
-      !std::isfinite( yaw_item.as_double() ) ||
-      !std::isfinite( pitch_item.as_double() ) ||
-      !std::isfinite( roll_item.as_double() ) )
-  {
-    VITAL_THROW(
-      kv::invalid_value,
-      "metadata does not contain platform orientation" );
-  }
-
-  auto const yaw = yaw_item.as_double() * kv::deg_to_rad;
-  auto const pitch = pitch_item.as_double() * kv::deg_to_rad;
-  auto const roll = roll_item.as_double() * kv::deg_to_rad;
-
-  return { yaw, pitch, roll };
-}
-
-// ----------------------------------------------------------------------------
-kwiver::vital::rotation_d
-get_sensor_rotation( kwiver::vital::metadata_sptr const& metadata )
-{
-  // All relative to platform
-  kv::metadata_item const& yaw_item =
-    metadata->find( kv::VITAL_META_SENSOR_REL_AZ_ANGLE );
-  kv::metadata_item const& pitch_item =
-    metadata->find( kv::VITAL_META_SENSOR_REL_EL_ANGLE );
-  kv::metadata_item const& roll_item =
-    metadata->find( kv::VITAL_META_SENSOR_REL_ROLL_ANGLE );
-
-  if( !yaw_item || !pitch_item || !roll_item ||
-      !std::isfinite( yaw_item.as_double() ) ||
-      !std::isfinite( pitch_item.as_double() ) ||
-      !std::isfinite( roll_item.as_double() ) )
-  {
-    VITAL_THROW(
-      kv::invalid_value,
-      "metadata does not contain sensor orientation" );
-  }
-
-  auto const yaw = yaw_item.as_double() * kv::deg_to_rad;
-  auto const pitch = pitch_item.as_double() * kv::deg_to_rad;
-  auto const roll = roll_item.as_double() * kv::deg_to_rad;
-
-  return { yaw, pitch, roll };
-}
-
-// ----------------------------------------------------------------------------
-kwiver::vital::rotation_d
 get_total_rotation( kwiver::vital::metadata_sptr const& metadata )
 {
-  // Absolute (not relative to platform)
-  kv::rotation_d const platform_rotation = get_platform_rotation( metadata );
-  kv::rotation_d const sensor_rotation = get_sensor_rotation( metadata );
-  return platform_rotation * sensor_rotation;
+  if( auto const& item = metadata->find( kv::VITAL_META_SENSOR_ORIENTATION ) )
+  {
+    return item.get< vital::rotation_d >();
+  }
+
+  VITAL_THROW(
+    kv::invalid_value,
+    "metadata does not contain sensor orientation" );
 }
 
 // ----------------------------------------------------------------------------

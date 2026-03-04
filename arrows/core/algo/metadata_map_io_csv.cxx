@@ -12,6 +12,7 @@
 #include <vital/any.h>
 #include <vital/exceptions/algorithm.h>
 #include <vital/exceptions/io.h>
+#include <vital/math_constants.h>
 #include <vital/types/geo_point.h>
 #include <vital/types/geo_polygon.h>
 #include <vital/types/geodesy.h>
@@ -80,7 +81,8 @@ struct read_visitor
   {
     if constexpr(
       std::is_same_v< T, kv::geo_point > ||
-      std::is_same_v< T, kv::geo_polygon > )
+      std::is_same_v< T, kv::geo_polygon > ||
+      std::is_same_v< T, kv::rotation_d > )
     {
       throw std::logic_error( "Complex type given to csv field reader" );
     }
@@ -106,7 +108,8 @@ struct write_visitor
   {
     if constexpr(
       std::is_same_v< T, kv::geo_point > ||
-      std::is_same_v< T, kv::geo_polygon > )
+      std::is_same_v< T, kv::geo_polygon > ||
+      std::is_same_v< T, kv::rotation_d > )
     {
       throw std::logic_error( "Complex type given to csv field writer" );
     }
@@ -128,6 +131,7 @@ get_column_count( std::type_info const& type )
   static std::map< std::type_index, size_t > const map = {
     { typeid( kv::geo_point ), 3 },   // (lon, lat, alt)
     { typeid( kv::geo_polygon ), 8 }, // 4x(lon, lat)
+    { typeid( kv::rotation_d ), 3 }, // (yaw, pitch, roll)
   };
 
   auto const it = map.find( type );
@@ -201,7 +205,21 @@ special_column_names()
     { { kv::VITAL_META_CORNER_POINTS, 6 },
       "Lower Left Corner Longitude (EPSG:4326)" },
     { { kv::VITAL_META_CORNER_POINTS, 7 },
-      "Lower Left Corner Latitude (EPSG:4326)" }, };
+      "Lower Left Corner Latitude (EPSG:4326)" },
+
+    { { kv::VITAL_META_PLATFORM_ORIENTATION, 0 },
+      "Platform Azimuth (degrees)" },
+    { { kv::VITAL_META_PLATFORM_ORIENTATION, 1 },
+      "Platform Pitch (degrees)" },
+    { { kv::VITAL_META_PLATFORM_ORIENTATION, 2 },
+      "Platform Roll (degrees)" },
+
+    { { kv::VITAL_META_SENSOR_ORIENTATION, 0 },
+      "Sensor Azimuth (degrees)" },
+    { { kv::VITAL_META_SENSOR_ORIENTATION, 1 },
+      "Sensor Elevation (degrees)" },
+    { { kv::VITAL_META_SENSOR_ORIENTATION, 2 },
+      "Sensor Roll (degrees)" }, };
 
   return names;
 }
@@ -337,6 +355,16 @@ subvalue_visitor
 }
 
 // ----------------------------------------------------------------------------
+template <> kv::metadata_value
+subvalue_visitor
+::operator()< kv::rotation_d >( kv::rotation_d const& value ) const
+{
+  std::array< double, 3 > ypr;
+  value.get_yaw_pitch_roll( ypr[ 0 ], ypr[ 1 ], ypr[ 2 ] );
+  return ypr.at( index ) * kv::rad_to_deg;
+}
+
+// ----------------------------------------------------------------------------
 // Retreive the indexed subvalue from the given value.
 kv::metadata_value
 get_subvalue( kv::metadata_value const& value, size_t index )
@@ -378,6 +406,20 @@ struct set_subvalue_visitor
           std::get< double > ( value );
       original_value.set_polygon( internal_value, crs );
       metadata.add( column.tag, original_value );
+    }
+    else if constexpr( std::is_same_v< T, kv::rotation_d > )
+    {
+      static T const default_value;
+      auto original_value =
+        metadata.has( column.tag )
+        ? metadata.find( column.tag ).get< T >()
+        : default_value;
+      std::array< double, 3 > ypr;
+      original_value.get_yaw_pitch_roll( ypr[ 0 ], ypr[ 1 ], ypr[ 2 ] );
+      ypr.at( column.index ) = std::get< double >( value ) * kv::deg_to_rad;
+      metadata.add(
+        column.tag,
+        kv::rotation_d{ ypr[ 0 ], ypr[ 1 ], ypr[ 2 ] } );
     }
     else
     {
@@ -429,7 +471,9 @@ metadata_map_io_csv::priv
   else
   {
     auto const* type = &kv::tag_traits_by_tag( tag ).type();
-    if( *type == typeid( kv::geo_point ) || *type == typeid( kv::geo_polygon ) )
+    if( *type == typeid( kv::geo_point ) ||
+        *type == typeid( kv::geo_polygon ) ||
+        *type == typeid( kv::rotation_d ) )
     {
       type = &typeid( double );
     }

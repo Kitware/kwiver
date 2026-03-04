@@ -27,7 +27,7 @@ TEST ( metadata, typed_metadata )
   // create item
   auto tmds = metadata_item{ VITAL_META_METADATA_ORIGIN,
                              std::string{ "origin" } };
-  auto tmdd = metadata_item{ VITAL_META_PLATFORM_HEADING_ANGLE, 3.14159 };
+  auto tmdd = metadata_item{ VITAL_META_SENSOR_HORIZONTAL_FOV, 3.14159 };
   auto tmdi = metadata_item{ VITAL_META_UNIX_TIMESTAMP, uint64_t{ 314159 } };
 
   // test API
@@ -68,12 +68,12 @@ TEST ( metadata, item_equality )
     EXPECT_TRUE( item2 != item3 ); }
 
   {
-    metadata_item const item1{ VITAL_META_PLATFORM_HEADING_ANGLE, 3.14159 };
+    metadata_item const item1{ VITAL_META_SENSOR_HORIZONTAL_FOV, 3.14159 };
     metadata_item const item2{
-      VITAL_META_PLATFORM_HEADING_ANGLE,
+      VITAL_META_SENSOR_HORIZONTAL_FOV,
       std::numeric_limits< double >::quiet_NaN() };
     metadata_item const item3{
-      VITAL_META_PLATFORM_HEADING_ANGLE,
+      VITAL_META_SENSOR_HORIZONTAL_FOV,
       -std::numeric_limits< double >::quiet_NaN() };
 
     EXPECT_TRUE( item1 == item1 );
@@ -102,7 +102,7 @@ TEST ( metadata, add_metadata )
       uint64_t{ 314159 } );
   auto umdd =
     std::unique_ptr< metadata_item >{
-    new metadata_item{ VITAL_META_PLATFORM_HEADING_ANGLE, 3.14159 } };
+    new metadata_item{ VITAL_META_SENSOR_HORIZONTAL_FOV, 3.14159 } };
 
   metadata meta_collection;
 
@@ -119,9 +119,9 @@ TEST ( metadata, add_metadata )
   }
 
   {
-    EXPECT_TRUE( meta_collection.has( VITAL_META_PLATFORM_HEADING_ANGLE ) );
+    EXPECT_TRUE( meta_collection.has( VITAL_META_SENSOR_HORIZONTAL_FOV ) );
 
-    auto const& md = meta_collection.find( VITAL_META_PLATFORM_HEADING_ANGLE );
+    auto const& md = meta_collection.find( VITAL_META_SENSOR_HORIZONTAL_FOV );
     EXPECT_TRUE( md.has_double() );
     EXPECT_FALSE( md.has_string() );
     EXPECT_FLOAT_EQ( 3.14159, md.as_double() );

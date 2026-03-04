@@ -9,6 +9,7 @@
 
 #include <arrows/geocalc/algo/derive_corner_points.h>
 
+#include <vital/math_constants.h>
 #include <vital/plugin_management/plugin_manager.h>
 #include <vital/types/geodesy.h>
 
@@ -22,12 +23,15 @@ vital::metadata_sptr
 create_base_metadata()
 {
   auto metadata = std::make_shared< vital::metadata >();
-  metadata->add< vital::VITAL_META_PLATFORM_HEADING_ANGLE >(
-    45.57747768368048 );
-  metadata->add< vital::VITAL_META_PLATFORM_PITCH_ANGLE >(
-    3.69518112735374 );
-  metadata->add< vital::VITAL_META_PLATFORM_ROLL_ANGLE >(
-    11.125522629474777 );
+  metadata->add< vital::VITAL_META_SENSOR_ORIENTATION >(
+    vital::rotation_d{
+    45.57747768368048 * vital::deg_to_rad,
+    3.69518112735374 * vital::deg_to_rad,
+    11.125522629474777 * vital::deg_to_rad, } *
+    vital::rotation_d{
+    94.4019541177903 * vital::deg_to_rad,
+    -35.31228668769462 * vital::deg_to_rad,
+    0.08038890549922104 * vital::deg_to_rad, } );
   metadata->add< vital::VITAL_META_SENSOR_LOCATION >(
     vital::geo_point{
     vital::vector_3d{
@@ -37,12 +41,6 @@ create_base_metadata()
     0.4559395742732891 );
   metadata->add< vital::VITAL_META_SENSOR_VERTICAL_FOV >(
     0.2581826504921035 );
-  metadata->add< vital::VITAL_META_SENSOR_REL_AZ_ANGLE >(
-    94.40195411779033 );
-  metadata->add< vital::VITAL_META_SENSOR_REL_EL_ANGLE >(
-    -35.31228668769462 );
-  metadata->add< vital::VITAL_META_SENSOR_REL_ROLL_ANGLE >(
-    0.08038890549922104 );
   metadata->add< vital::VITAL_META_FRAME_CENTER >(
     vital::geo_point{
     vital::vector_3d{
