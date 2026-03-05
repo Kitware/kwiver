@@ -21,7 +21,7 @@ python -m venv $pwdpath\build\ci-venv
 . .\build\ci-venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -qq -r $pwdpath\.gitlab\ci\requirements_dev-windows.txt
-pip install scikit-build delvewheel "setuptools-scm>=6.2,<8"
+pip install scikit-build delvewheel
 
 Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
 

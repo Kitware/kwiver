@@ -4,11 +4,11 @@ Support for setup.cfg is forthcoming (as of skbuild v0.12
 """
 
 import os
+import subprocess
 from pathlib import Path
 from setuptools import find_packages
 
 from skbuild import setup
-
 
 SCRIPT_DIR = Path(__file__).parent
 PACKAGE_SRC = "python"
@@ -18,21 +18,28 @@ with open(SCRIPT_DIR / "VERSION.txt", "r") as f:
     VERSION_FROM_FILE = f.read().strip()
 
 
-# This will generate versions like:
-#   - On tags: "2.1.0"
-#   - On main: "2.1.1.dev123" (no git hash for Windows/Linux reproducibility)
-try:
-    from setuptools_scm import get_version
+def _get_version():
+    # CI_COMMIT_TAG is set by GitLab CI on tag pipelines.
+    if os.environ.get("CI_COMMIT_TAG"):
+        return VERSION_FROM_FILE
 
-    VERSION = get_version(
-        root=SCRIPT_DIR,
-        fallback_version=VERSION_FROM_FILE,
-        local_scheme="no-local-version",
-    )
-except (ImportError, LookupError):
-    # Not in a git repo or setuptools-scm not installed
-    # Use VERSION.txt as-is
-    VERSION = VERSION_FROM_FILE
+    # Dev builds: append .dev{commit_count} so wheels are clearly non-release.
+    try:
+        result = subprocess.run(
+            ["git", "rev-list", "--count", "HEAD"],
+            cwd=SCRIPT_DIR,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        commit_count = result.stdout.strip()
+        return f"{VERSION_FROM_FILE}.dev{commit_count}"
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        print(f"Warning: could not determine commit count ({e}), using dev0")
+        return f"{VERSION_FROM_FILE}.dev0"
+
+
+VERSION = _get_version()
 
 
 with open(SCRIPT_DIR / "README.rst", "r") as f:

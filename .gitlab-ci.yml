@@ -71,7 +71,7 @@ wheel-linux-python:build:
         - .warning_policy
     interruptible: true
     variables:
-        GIT_DEPTH: 0  # Full git history for setuptools-scm version generation
+        GIT_DEPTH: 0  # Full git history for dev version commit count
         PYTHON_PREFIX: "/opt/python/cp${PYTHON_VERSION}-cp${PYTHON_VERSION}"
     script:
         - .gitlab/ci/build_wheel_linux.sh
@@ -128,7 +128,7 @@ wheel-windows-python:build:
         - .warning_policy
     interruptible: true
     variables:
-        GIT_DEPTH: 0  # Full git history for setuptools-scm version generation
+        GIT_DEPTH: 0  # Full git history for dev version commit count
     script:
         - .gitlab/ci/build_wheel_windows.ps1
 
