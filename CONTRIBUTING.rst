@@ -142,13 +142,13 @@ To release a new version:
 
 1. Tag the release commit and push::
 
-     git tag v2.2.1
-     git push origin v2.2.1
+     git tag v2.3.1
+     git push origin v2.3.1
 
 2. CI automatically builds and uploads wheels to PyPI
 
 3. Bump ``VERSION.txt`` to next patch version for development::
 
-     echo "2.2.2" > VERSION.txt
-     git commit -am "Bump version to 2.2.2 for development"
+     echo "2.3.2" > VERSION.txt
+     git commit -am "Bump version to 2.3.2 for development"
      git push
