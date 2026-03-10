@@ -33,6 +33,13 @@ Vital: Algo
 
 * resection_camera.resection() now uses size_t for the height and width parameters.
 
+* Removed video_input.seekable().
+
+* Added video_input.seek_time().
+
+* Replaced video_input.IS_SEEKABLE with video_input.IS_SEEKABLE_BY_FRAME
+  and video_input.IS_SEEKABLE_BY_TIME.
+
 Vital: IO
 
 * intrinsics_from_metadata() now uses size_t for the height and width parameters.

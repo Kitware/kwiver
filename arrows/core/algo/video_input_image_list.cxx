@@ -126,7 +126,8 @@ video_input_image_list
   set_capability( video_input::HAS_FRAME_TIME, false );
   set_capability( video_input::HAS_ABSOLUTE_FRAME_TIME, false );
   set_capability( video_input::HAS_TIMEOUT, false );
-  set_capability( video_input::IS_SEEKABLE, true );
+  set_capability( video_input::IS_SEEKABLE_BY_FRAME, true );
+  set_capability( video_input::IS_SEEKABLE_BY_TIME, false );
 }
 
 // ----------------------------------------------------------------------------
@@ -219,14 +220,6 @@ video_input_image_list
 }
 
 // ----------------------------------------------------------------------------
-bool
-video_input_image_list
-::seekable() const
-{
-  return true;
-}
-
-// ----------------------------------------------------------------------------
 size_t
 video_input_image_list
 ::num_frames() const
@@ -290,6 +283,17 @@ video_input_image_list
   d->m_image = nullptr;
 
   return !this->end_of_video();
+}
+
+// ----------------------------------------------------------------------------
+bool
+video_input_image_list
+::seek_time(
+  VITAL_UNUSED vital::timestamp::time_t time_usec,
+  VITAL_UNUSED vital::time_usec_t timeout )
+{
+  // TODO: Unimplemented
+  return false;
 }
 
 // ----------------------------------------------------------------------------

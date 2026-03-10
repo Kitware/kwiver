@@ -34,7 +34,6 @@ public:
   priv( video_input_splice& parent )
     : parent( parent ),
       d_has_timeout( false ),
-      d_is_seekable( false ),
       d_frame_offset( 0 )
   {}
 
@@ -45,7 +44,6 @@ public:
 
   std::vector< std::string > d_search_path;
   bool d_has_timeout;
-  bool d_is_seekable;
 
   // Frame offset to get frame numbers correct
   kwiver::vital::timestamp::frame_t d_frame_offset;
@@ -96,7 +94,7 @@ video_input_splice
   bool has_metadata = true;
   bool has_abs_fr_time = true;
   bool has_timeout = true;
-  bool is_seekable = true;
+  bool is_seekable_by_frame = true;
 
   typedef vital::algo::video_input vi;
 
@@ -120,7 +118,8 @@ video_input_splice
     has_abs_fr_time = has_abs_fr_time &&
                       caps.capability( vi::HAS_ABSOLUTE_FRAME_TIME );
     has_timeout = has_timeout && caps.capability( vi::HAS_TIMEOUT );
-    is_seekable = is_seekable && caps.capability( vi::IS_SEEKABLE );
+    is_seekable_by_frame =
+      is_seekable_by_frame && caps.capability( vi::IS_SEEKABLE_BY_FRAME );
 
     ++n;
     source_config = config->subblock( source_name( n ) );
@@ -133,9 +132,9 @@ video_input_splice
   set_capability( vi::HAS_METADATA, has_metadata );
   set_capability( vi::HAS_ABSOLUTE_FRAME_TIME, has_abs_fr_time );
   set_capability( vi::HAS_TIMEOUT, has_timeout );
-  set_capability( vi::IS_SEEKABLE, is_seekable );
+  set_capability( vi::IS_SEEKABLE_BY_FRAME, is_seekable_by_frame );
+  set_capability( vi::IS_SEEKABLE_BY_TIME, false );
 
-  d->d_is_seekable = is_seekable;
   d->d_has_timeout = has_timeout;
 }
 
@@ -260,14 +259,6 @@ video_input_splice
 }
 
 // ----------------------------------------------------------------------------
-bool
-video_input_splice
-::seekable() const
-{
-  return d->d_is_seekable;
-}
-
-// ----------------------------------------------------------------------------
 size_t
 video_input_splice
 ::num_frames() const
@@ -310,7 +301,8 @@ video_input_splice
         ++d->d_active_source;
         if( d->d_active_source != d->d_video_sources().end() )
         {
-          if( ( *d->d_active_source )->seekable() )
+          if( ( *d->d_active_source )->get_implementation_capabilities()
+              .has_capability( IS_SEEKABLE_BY_FRAME ) )
           {
             ( *d->d_active_source )->seek_frame( 1, timeout );
           }
@@ -373,6 +365,17 @@ video_input_splice
 
   return status;
 } // video_input_splice::seek_frame
+
+// ----------------------------------------------------------------------------
+bool
+video_input_splice
+::seek_time(
+  VITAL_UNUSED vital::timestamp::time_t time_usec,
+  VITAL_UNUSED vital::time_usec_t timeout )
+{
+  // TODO: Unimplemented
+  return false;
+}
 
 // ----------------------------------------------------------------------------
 kwiver::vital::timestamp

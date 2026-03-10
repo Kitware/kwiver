@@ -159,7 +159,9 @@ TEST_F ( video_input_pos, seek_frame )
   vip.open( list_file );
 
   // Video should be seekable
-  ASSERT_TRUE( vip.seekable() );
+  ASSERT_TRUE(
+    vip.get_implementation_capabilities()
+      .has_capability( vip.IS_SEEKABLE_BY_FRAME ) );
 
   // Test various valid seeks
   std::vector< kwiver::vital::timestamp::frame_t > valid_seeks = { 3, 23, 46,

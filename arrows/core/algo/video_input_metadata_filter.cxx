@@ -151,10 +151,11 @@ video_input_metadata_filter
   copy_capability( vi::HAS_METADATA );
   copy_capability( vi::HAS_ABSOLUTE_FRAME_TIME );
   copy_capability( vi::HAS_TIMEOUT );
-  copy_capability( vi::IS_SEEKABLE );
+  copy_capability( vi::IS_SEEKABLE_BY_FRAME );
   copy_capability( vi::HAS_RAW_IMAGE );
   copy_capability( vi::HAS_RAW_METADATA );
   copy_capability( vi::HAS_UNINTERPRETED_DATA );
+  set_capability( vi::IS_SEEKABLE_BY_TIME, false );
 }
 
 // ----------------------------------------------------------------------------
@@ -194,6 +195,17 @@ video_input_metadata_filter
   }
 
   return m_d->video_input()->seek_frame( frame_number, timeout );
+}
+
+// ----------------------------------------------------------------------------
+bool
+video_input_metadata_filter
+::seek_time(
+  VITAL_UNUSED kv::timestamp::time_t time_usec,
+  VITAL_UNUSED kv::time_usec_t timeout )
+{
+  // TODO: Unimplemented
+  return false;
 }
 
 // ----------------------------------------------------------------------------
@@ -280,7 +292,6 @@ auto video_input_metadata_filter::name() const                \
 
 FORWARD_OR( end_of_video, true )
 FORWARD_OR( good, false )
-FORWARD_OR( seekable, false )
 FORWARD_OR( num_frames, 0 )
 FORWARD_OR( frame_timestamp, {} )
 

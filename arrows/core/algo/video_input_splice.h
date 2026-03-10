@@ -53,7 +53,6 @@ public:
 
   virtual bool end_of_video() const;
   virtual bool good() const;
-  virtual bool seekable() const;
   virtual size_t num_frames() const;
 
   virtual bool next_frame( vital::time_usec_t timeout = 0 );
@@ -61,6 +60,9 @@ public:
   virtual bool seek_frame(
     vital::timestamp::frame_t frame_number,
     vital::time_usec_t timeout = 0 );
+  bool seek_time(
+    vital::timestamp::time_t time_usec,
+    vital::time_usec_t timeout = 0 ) override;
 
   virtual kwiver::vital::timestamp frame_timestamp() const;
   virtual kwiver::vital::image_container_sptr frame_image();

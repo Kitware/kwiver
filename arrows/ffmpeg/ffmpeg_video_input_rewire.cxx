@@ -282,14 +282,6 @@ ffmpeg_video_input_rewire
 }
 
 // ----------------------------------------------------------------------------
-bool
-ffmpeg_video_input_rewire
-::seekable() const
-{
-  return false;
-}
-
-// ----------------------------------------------------------------------------
 size_t
 ffmpeg_video_input_rewire
 ::num_frames() const

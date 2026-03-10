@@ -42,7 +42,6 @@ public:
   bool end_of_video() const override;
   bool good() const override;
 
-  bool seekable() const override;
   size_t num_frames() const override;
 
   bool next_frame(

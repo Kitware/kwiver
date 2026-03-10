@@ -127,7 +127,9 @@ void
 test_seek_frame( kwiver::vital::algo::video_input& vi )
 {
   // Video should be seekable
-  ASSERT_TRUE( vi.seekable() );
+  ASSERT_TRUE(
+    vi.get_implementation_capabilities()
+      .has_capability( vi.IS_SEEKABLE_BY_FRAME ) );
 
   // Test various valid seeks
   std::vector< kwiver::vital::timestamp::frame_t > valid_seeks = { 3, 15, 23,
@@ -185,7 +187,9 @@ void
 test_seek_frame_sublist( kwiver::vital::algo::video_input& vi )
 {
   // Video should be seekable
-  ASSERT_TRUE( vi.seekable() );
+  ASSERT_TRUE(
+    vi.get_implementation_capabilities()
+      .has_capability( vi.IS_SEEKABLE_BY_FRAME ) );
 
   // Test various valid seeks
   std::vector< kwiver::vital::timestamp::frame_t > valid_seeks = { 11, 17, 28,
@@ -219,7 +223,9 @@ void
 test_seek_then_next( kwiver::vital::algo::video_input& vi )
 {
   // Video should be seekable
-  ASSERT_TRUE( vi.seekable() );
+  ASSERT_TRUE(
+    vi.get_implementation_capabilities()
+      .has_capability( vi.IS_SEEKABLE_BY_FRAME ) );
 
   // Seek to frame 17, then run over the rest of the video
   const kwiver::vital::timestamp::frame_t requested_frame = 17;
@@ -281,7 +287,9 @@ void
 test_seek_nth_frame( kwiver::vital::algo::video_input& vi )
 {
   // Video should be seekable
-  ASSERT_TRUE( vi.seekable() );
+  ASSERT_TRUE(
+    vi.get_implementation_capabilities()
+      .has_capability( vi.IS_SEEKABLE_BY_FRAME ) );
 
   // Test various valid seeks
   std::vector< kwiver::vital::timestamp::frame_t > valid_seeks = { 4, 10, 13,
@@ -317,7 +325,9 @@ void
 test_next_then_seek( kwiver::vital::algo::video_input& vi )
 {
   // Video should be seekable
-  ASSERT_TRUE( vi.seekable() );
+  ASSERT_TRUE(
+    vi.get_implementation_capabilities()
+      .has_capability( vi.IS_SEEKABLE_BY_FRAME ) );
 
   // Frame by frame until frame 45, then seek back to frame 12
 
@@ -350,7 +360,9 @@ void
 test_next_then_seek_then_next( kwiver::vital::algo::video_input& vi )
 {
   // Video should be seekable
-  ASSERT_TRUE( vi.seekable() );
+  ASSERT_TRUE(
+    vi.get_implementation_capabilities()
+      .has_capability( vi.IS_SEEKABLE_BY_FRAME ) );
 
   // Frame by frame until frame 25, then seek back to frame 12, then
   // frame by frame until frame 20
@@ -403,7 +415,9 @@ void
 test_seek_sublist_nth_frame( kwiver::vital::algo::video_input& vi )
 {
   // Video should be seekable
-  ASSERT_TRUE( vi.seekable() );
+  ASSERT_TRUE(
+    vi.get_implementation_capabilities()
+      .has_capability( vi.IS_SEEKABLE_BY_FRAME ) );
 
   // Test various valid seeks
   std::vector< kwiver::vital::timestamp::frame_t > valid_seeks = { 13, 16, 19,
