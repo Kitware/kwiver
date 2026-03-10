@@ -2386,7 +2386,7 @@ ffmpeg_video_input::priv::open_video_state
 ::implementation_settings() const
 {
   ffmpeg_video_settings_uptr result{ new ffmpeg_video_settings{} };
-  result->frame_rate = frame_rate();
+  result->frame_rate_q = frame_rate();
   for( auto const& stream : klv_streams )
   {
     result->klv_streams.emplace_back( stream.settings() );

@@ -11,7 +11,41 @@ namespace kwiver {
 
 namespace vital {
 
-video_settings::~video_settings() {}
+// ----------------------------------------------------------------------------
+video_settings::~video_settings()
+{}
+
+// ----------------------------------------------------------------------------
+simple_video_settings
+::simple_video_settings( size_t width, size_t height, double frame_rate )
+  : m_width{ width },
+    m_height{ height },
+    m_frame_rate{ frame_rate }
+{}
+
+// ----------------------------------------------------------------------------
+size_t
+simple_video_settings
+::height() const
+{
+  return m_height;
+}
+
+// ----------------------------------------------------------------------------
+size_t
+simple_video_settings
+::width() const
+{
+  return m_width;
+}
+
+// ----------------------------------------------------------------------------
+double
+simple_video_settings
+::frame_rate() const
+{
+  return m_frame_rate;
+}
 
 } // namespace vital
 

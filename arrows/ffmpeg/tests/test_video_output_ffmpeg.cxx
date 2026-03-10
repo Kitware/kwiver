@@ -354,6 +354,44 @@ TEST_F ( ffmpeg_video_output, generic_open )
 }
 
 // ----------------------------------------------------------------------------
+// Ensure we can open a video output using generic video settings.
+TEST_F ( ffmpeg_video_output, generic_open_with_settings )
+{
+  // Constants
+  auto const tmp_path =
+    kwiver::testing::temp_file_name( "test-ffmpeg-output-", ".mp4" );
+  constexpr double frame_rate = 30.0;
+
+  // Create
+  ffmpeg::ffmpeg_video_output ff_os;
+  kv::algo::video_output& os = ff_os;
+
+  // Configure
+  kv::simple_video_settings settings(
+    random_image_width, random_image_height, frame_rate );
+
+  // Open / close
+  os.open( tmp_path, &settings );
+
+  _tmp_file_deleter tmp_file_deleter{ tmp_path };
+  kv::timestamp ts;
+
+  // Add images of varying formats
+  os.add_image( random_image_container_gray, ts );
+  os.add_image( random_image_container_rgb_packed, ts );
+  os.add_image( random_image_container_bgr_packed, ts );
+  os.add_image( random_image_container_rgb_planar, ts );
+  os.add_image( random_image_container_bgr_planar, ts );
+
+  auto const out_settings = os.implementation_settings();
+  EXPECT_EQ( random_image_width, out_settings->width() );
+  EXPECT_EQ( random_image_height, out_settings->height() );
+  EXPECT_EQ( frame_rate, out_settings->frame_rate() );
+
+  os.close();
+}
+
+// ----------------------------------------------------------------------------
 // Test that we can write, then read a video with a manually-specified format
 TEST_F ( ffmpeg_video_output, round_trip_format_name )
 {
