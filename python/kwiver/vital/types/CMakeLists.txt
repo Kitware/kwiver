@@ -302,14 +302,6 @@ kwiver_add_python_library(
 )
 
 kwiver_add_python_library(
-  local_cartesian
-  "${THIS_MODULE}"
-  SOURCES local_cartesian.cxx
-  PRIVATE pybind11::pybind11
-          vital
-)
-
-kwiver_add_python_library(
   local_tangent_space
   "${THIS_MODULE}"
   SOURCES local_tangent_space.cxx
@@ -532,7 +524,6 @@ kwiver_add_python_library(
 #    iqr_feedback
 #    landmark
 #    landmark_map
-#    local_cartesian
 #    rotation
 #    match_set
 #    mesh

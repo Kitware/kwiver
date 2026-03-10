@@ -50,7 +50,6 @@ set(__testable_modnames
   test_image_io
   test_landmark
   test_landmark_map
-  test_local_cartesian
   test_local_tangent_space
   test_match_set
   test_mesh
