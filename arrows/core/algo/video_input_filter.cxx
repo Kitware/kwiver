@@ -359,49 +359,6 @@ video_input_filter
   return kwiver::vital::metadata_vector();
 }
 
-kwiver::vital::metadata_map_sptr
-video_input_filter
-::metadata_map()
-{
-  vital::metadata_map::map_metadata_t output_map;
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  auto internal_map = d->d_video_input()->metadata_map()->metadata();
-
-#pragma GCC diagnostic pop
-  auto start = internal_map.find( d->c_start_at_frame() );
-  auto stop = internal_map.find( d->c_stop_after_frame() );
-  if( stop != internal_map.end() )
-  {
-    stop++; // stop frame should be included
-  }
-
-  if( d->c_frame_skip() == 1 )
-  {
-    if( d->c_stop_after_frame() > 0 )
-    {
-      output_map.insert( start, stop );
-    }
-    else
-    {
-      output_map.insert( start, internal_map.end() );
-    }
-  }
-  else
-  {
-    for( auto it = start; it != stop; ++it )
-    {
-      if( ( it->first - 1 ) % d->c_frame_skip() == 0 )
-      {
-        output_map.insert( *it );
-      }
-    }
-  }
-
-  return std::make_shared< kwiver::vital::simple_metadata_map >( output_map );
-}
-
 // ----------------------------------------------------------------------------
 kwiver::vital::video_settings_uptr
 video_input_filter

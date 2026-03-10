@@ -369,32 +369,6 @@ ffmpeg_video_input_clip
 }
 
 // ----------------------------------------------------------------------------
-vital::metadata_map_sptr
-ffmpeg_video_input_clip
-::metadata_map()
-{
-  if( d->all_metadata )
-  {
-    return d->all_metadata;
-  }
-
-  ffmpeg_video_input_clip tmp_video;
-  tmp_video.set_configuration( get_configuration() );
-  tmp_video.open( d->video_name );
-
-  vital::metadata_map::map_metadata_t result;
-  vital::timestamp ts;
-  while( tmp_video.next_frame( ts ) )
-  {
-    result.emplace( ts.get_frame(), tmp_video.frame_metadata() );
-  }
-
-  d->all_metadata.reset(
-    new vital::simple_metadata_map{ std::move( result ) } );
-  return d->all_metadata;
-}
-
-// ----------------------------------------------------------------------------
 vital::video_settings_uptr
 ffmpeg_video_input_clip
 ::implementation_settings() const

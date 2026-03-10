@@ -423,36 +423,6 @@ TEST_F ( ffmpeg_video_input, seek_frame_sublist_nth_frame )
 }
 
 // ----------------------------------------------------------------------------
-TEST_F ( ffmpeg_video_input, metadata_map )
-{
-  ffmpeg::ffmpeg_video_input input;
-
-  input.open( ffmpeg_video_path );
-
-  // Metadata capability is false since no external metadata is present
-  auto const& caps = input.get_implementation_capabilities();
-  EXPECT_FALSE( caps.capability( kv::algo::video_input::HAS_METADATA ) );
-
-  // Get metadata map
-  auto md_map = input.metadata_map()->metadata();
-
-  // Each frame of video should have some metadata;
-  // at a minimum just the video name and timestamp
-  EXPECT_EQ( md_map.size(), input.num_frames() );
-
-  if( md_map.size() != input.num_frames() )
-  {
-    std::cout << "Found metadata on these frames: ";
-    for( auto md : md_map )
-    {
-      std::cout << md.first << ", ";
-    }
-
-    std::cout << std::endl;
-  }
-}
-
-// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, sync_metadata )
 {
   static std::map< size_t,

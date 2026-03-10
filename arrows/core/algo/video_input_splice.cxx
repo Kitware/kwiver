@@ -417,31 +417,6 @@ video_input_splice
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::metadata_map_sptr
-video_input_splice
-::metadata_map()
-{
-  if( d->d_metadata_map.empty() && d->d_video_sources().size() > 0 )
-  {
-    auto frame_offset = 0;
-    for( auto const& vs : d->d_video_sources() )
-    {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-      auto curr_metadata = vs->metadata_map()->metadata();
-#pragma GCC diagnostic pop
-      for( auto const& md : curr_metadata )
-      {
-        d->d_metadata_map.emplace( md.first + frame_offset, md.second );
-      }
-      frame_offset += vs->num_frames();
-    }
-  }
-  return std::make_shared< kwiver::vital::simple_metadata_map >(
-    d->d_metadata_map );
-}
-
-// ----------------------------------------------------------------------------
 kwiver::vital::video_settings_uptr
 video_input_splice
 ::implementation_settings() const
