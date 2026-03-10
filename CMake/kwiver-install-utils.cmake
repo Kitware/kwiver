@@ -24,7 +24,6 @@ if(NOT SKBUILD)
           "${utils_dir}/FindLog4cxx.cmake"
           "${utils_dir}/FindPROJ.cmake"
           "${utils_dir}/FindSphinx.cmake"
-          "${utils_dir}/FindTinyXML.cmake"
     DESTINATION "${kwiver_cmake_install_dir}"
     )
 

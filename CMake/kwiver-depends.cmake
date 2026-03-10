@@ -11,16 +11,10 @@ include( kwiver-depends-Eigen )
 include( kwiver-depends-log4cxx )
 include( kwiver-depends-log4cplus )
 
-# Required for Sprokit and Track Oracle
-if(KWIVER_ENABLE_SPROKIT OR KWIVER_ENABLE_TRACK_ORACLE
+# Required for Sprokit
+if(KWIVER_ENABLE_SPROKIT
     OR (KWIVER_ENABLE_TOOLS AND NOT VITAL_USE_STD_REGEX))
   include( kwiver-depends-Boost )
-endif()
-
-# Required for Track Oracle
-if(KWIVER_ENABLE_TRACK_ORACLE)
-  include( kwiver-depends-TinyXML )
-  include( kwiver-depends-VXL )
 endif()
 
 # Optional for Arrows
