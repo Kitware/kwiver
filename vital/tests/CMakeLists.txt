@@ -48,7 +48,6 @@ kwiver_discover_gtests(vital iterable                       LIBRARIES ${test_lib
 kwiver_discover_gtests(vital iterator                       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital landmark                       LIBRARIES ${test_libraries})
 if (KWIVER_ENABLE_PROJ)
-kwiver_discover_gtests(vital local_geo_cs                   LIBRARIES ${test_libraries} kwiver_algo_proj ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(vital local_cartesian                LIBRARIES ${test_libraries} kwiver_algo_proj)
 endif()
 if (KWIVER_ENABLE_GEOCALC)

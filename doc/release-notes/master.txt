@@ -4,5 +4,9 @@ KWIVER 2.3.1 Release Notes
 Updates
 -------
 
+Vital: Types
+
+* Removed local_geo_cs.
+
 Bug Fixes
 ---------
