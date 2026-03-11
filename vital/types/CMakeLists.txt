@@ -68,7 +68,6 @@ set( vital_types_classes
   iqr_feedback
   landmark
   local_cartesian
-  local_geo_cs
   local_tangent_space
   mesh
   metadata

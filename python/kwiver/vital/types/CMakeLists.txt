@@ -310,14 +310,6 @@ kwiver_add_python_library(
 )
 
 kwiver_add_python_library(
-  local_geo_cs
-  "${THIS_MODULE}"
-  SOURCES local_geo_cs.cxx
-  PRIVATE pybind11::pybind11
-          vital
-)
-
-kwiver_add_python_library(
   local_tangent_space
   "${THIS_MODULE}"
   SOURCES local_tangent_space.cxx
@@ -542,7 +534,6 @@ kwiver_add_python_library(
 #    landmark_map
 #    local_cartesian
 #    rotation
-#    local_geo_cs
 #    match_set
 #    mesh
 #    metadata
