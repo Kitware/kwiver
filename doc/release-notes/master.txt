@@ -10,5 +10,7 @@ Vital: Types
 
 * Removed local_cartesian.
 
+* Removed test_equal_content().
+
 Bug Fixes
 ---------

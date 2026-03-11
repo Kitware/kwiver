@@ -463,10 +463,6 @@ using metadata_vector = std::vector< metadata_sptr >;
 VITAL_TYPES_EXPORT std::ostream& print_metadata(
   std::ostream& str,
   metadata const& metadata );
-VITAL_TYPES_DEPRECATED_EXPORT
-bool test_equal_content(
-  vital::metadata const& lhs,
-  vital::metadata const& rhs );
 
 } // namespace vital
 
