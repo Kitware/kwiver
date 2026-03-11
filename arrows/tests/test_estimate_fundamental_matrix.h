@@ -23,7 +23,7 @@ print_epipolar_distances(
   std::vector< kwiver::vital::vector_2d > const& left_pts )
 {
   matrix_3x3d Ft = F.transpose();
-  for( unsigned i = 0; i < right_pts.size(); ++i )
+  for( size_t i = 0; i < right_pts.size(); ++i )
   {
     const vector_2d& pr = right_pts[ i ];
     const vector_2d& pl = left_pts[ i ];
@@ -206,7 +206,7 @@ TEST ( estimate_fundamental_matrix, outlier_points )
     *cam2 );
 
   // extract corresponding image points
-  unsigned int i = 0;
+  size_t i = 0;
   std::vector< vector_2d > pts1, pts2;
   kwiver::testing::rng_t rng( 1 );
   for( auto const& track : tracks->tracks() )

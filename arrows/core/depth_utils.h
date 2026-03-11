@@ -193,7 +193,7 @@ compute_pixel_to_world_scale(
 /// This function is called with two values.  The first is the current loop
 /// iteration.  The second is the number of total iterations.  The function
 /// must return true or the loop will terminate early.
-using gather_callback_t = std::function< bool ( unsigned int, unsigned int ) >;
+using gather_callback_t = std::function< bool ( size_t, size_t ) >;
 
 /// Gather images and masks corresponding to cameras from video sources
 ///
@@ -253,7 +253,7 @@ find_similar_cameras_angles(
   camera_perspective const& ref_camera,
   camera_perspective_map const& cameras,
   double max_angle,
-  unsigned max_count = 0 );
+  size_t max_count = 0 );
 
 } // end namespace core
 

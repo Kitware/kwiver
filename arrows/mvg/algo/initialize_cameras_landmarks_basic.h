@@ -62,7 +62,7 @@ public:
       "zero to disable.", 2.0 ),
 
     PARAM_DEFAULT(
-      next_frame_max_distance, unsigned int,
+      next_frame_max_distance, size_t,
       "Limit the selection of the next frame to initialize to "
       "within this many frames of an already initialized frame. "
       "If no valid frames are found, double the search range "

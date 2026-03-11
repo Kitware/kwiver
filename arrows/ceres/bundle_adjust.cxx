@@ -58,7 +58,7 @@ public:
   std::vector< std::vector< double > > camera_intr_params;
   // a map from frame number to index of unique camera intrinsics in
   // camera_intr_params
-  std::unordered_map< frame_id_t, unsigned int > frame_to_intr_map;
+  std::unordered_map< frame_id_t, size_t > frame_to_intr_map;
 
   // --------------------------------------------------------------------------
   // A class to register callbacks with Ceres
@@ -289,7 +289,7 @@ bundle_adjust
   bool loss_func_used = false;
 
   // Add the residuals for each relevant observation
-  std::set< unsigned int > used_intrinsics;
+  std::set< size_t > used_intrinsics;
 
   for( const auto& lm : d_->lms )
   {
@@ -358,7 +358,7 @@ bundle_adjust
         continue; // feature is not an inlier so don't use it in ba.
       }
 
-      unsigned intr_idx = d_->frame_to_intr_map[ fts->frame() ];
+      auto const intr_idx = d_->frame_to_intr_map[ fts->frame() ];
       double* intr_params_ptr = &d_->camera_intr_params[ intr_idx ][ 0 ];
       used_intrinsics.insert( intr_idx );
 
@@ -402,7 +402,7 @@ bundle_adjust
   }
 
   // fix all the cameras in the to_fix_cameras list
-  std::unordered_set< unsigned int > to_fix_intrinsics;
+  std::unordered_set< size_t > to_fix_intrinsics;
   for( auto tfc : to_fix_cameras )
   {
     auto cam_itr = d_->camera_params.find( tfc );
@@ -516,9 +516,9 @@ bundle_adjust
     }
   }
 
-  const unsigned int ndp =
+  auto const ndp =
     num_distortion_params( c_camera_options->lens_distortion_type );
-  for( const unsigned int idx : used_intrinsics )
+  for( auto const idx : used_intrinsics )
   {
     std::vector< double >& cip = d_->camera_intr_params[ idx ];
     // apply the constraints

@@ -117,7 +117,7 @@ uniform_subsample(
   }
 
   // select max_num distributed throughout the vector
-  for( unsigned i = 0; i < max_num; ++i )
+  for( size_t i = 0; i < max_num; ++i )
   {
     size_t idx = ( i * data_size ) / max_num;
     out_data.push_back( in_data[ idx ] );
@@ -419,7 +419,7 @@ public:
     auto const expect_multichannel_masks =
       config->get_value< bool >( "expect_multichannel_masks" );
     auto const max_frames =
-      config->get_value< unsigned int >( "feature_tracker:max_frames" );
+      config->get_value< size_t >( "feature_tracker:max_frames" );
 
     bool hasMask = !mask_file.empty();
     LOG_INFO(main_logger, "Reading Video" );

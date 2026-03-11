@@ -54,7 +54,7 @@ public:
       "fraction of keyframes used in relative pose initialization", -1.0 ),
 
     PARAM_DEFAULT(
-      min_frame_to_frame_matches, unsigned int,
+      min_frame_to_frame_matches, size_t,
       "Minimum number of frame-to-frame feature matches "
       "required to attempt reconstruction", 100 ),
 

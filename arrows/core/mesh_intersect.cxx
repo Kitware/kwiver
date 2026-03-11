@@ -272,7 +272,7 @@ mesh_closest_point(
   double u1, v1;
   double shortest_dist = std::numeric_limits< double >::infinity();
 
-  for( unsigned int i = 0; i < faces.size(); ++i )
+  for( size_t i = 0; i < faces.size(); ++i )
   {
     const mesh_regular_face< 3 >& f = faces[ i ];
     vital::point_3d a( verts[ f[ 0 ] ] );
@@ -345,7 +345,7 @@ mesh_intersect(
 
   int isect = -1;
   dist = std::numeric_limits< double >::infinity();
-  for( unsigned int i = 0; i < faces.size(); ++i )
+  for( size_t i = 0; i < faces.size(); ++i )
   {
     const mesh_regular_face< 3 >& f = faces[ i ];
     vital::point_3d a( verts[ f[ 0 ] ] );

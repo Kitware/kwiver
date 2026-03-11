@@ -55,7 +55,7 @@ public:
   /// Accessor for the RGB color
   virtual rgb_color color() const = 0;
   /// Accessor for the number of observations
-  virtual unsigned observations() const = 0;
+  virtual size_t observations() const = 0;
   /// Accessor for the maximum intersection angle of rays triangulating this
   /// landmark
   virtual double cos_obs_angle() const = 0;
@@ -150,11 +150,11 @@ public:
   color() const { return color_; }
 
   /// Accessor for a const reference to the number of observations
-  virtual unsigned const&
+  virtual size_t const&
   get_observations() const { return observations_; }
 
   /// Accessor for the number of observations
-  virtual unsigned
+  virtual size_t
   observations() const { return observations_; }
 
   /// Set the landmark position in world coordinates
@@ -178,7 +178,7 @@ public:
 
   /// Set the number of observations of the landmark
   void
-  set_observations( unsigned observations )
+  set_observations( size_t observations )
   {
     observations_ = observations;
   }
@@ -198,7 +198,7 @@ protected:
   /// The RGB color associated with the landmark
   rgb_color color_;
   /// The number of observations that contributed to this landmark
-  unsigned observations_;
+  size_t observations_;
   /// The cosine of the maximum intersection angle of observations that
   /// contributed to this landmark
   T cos_obs_angle_;

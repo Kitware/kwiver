@@ -30,9 +30,9 @@ is_almost(
   Eigen::Matrix< T, M, N > const& b,
   double const& epsilon )
 {
-  for( unsigned i = 0; i < M; ++i )
+  for( int i = 0; i < M; ++i )
   {
-    for( unsigned j = 0; j < N; ++j )
+    for( int j = 0; j < N; ++j )
     {
       if( fabs( a( i, j ) - b( i, j ) ) > epsilon )
       {

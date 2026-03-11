@@ -359,16 +359,16 @@ image
     return;
   }
 
-  for( unsigned int d = 0; d < depth_; ++d, o_data += o_d_step, data += d_step )
+  for( size_t d = 0; d < depth_; ++d, o_data += o_d_step, data += d_step )
   {
     const byte* o_row = o_data;
     byte* row = data;
-    for( unsigned int h = 0; h < height_;
+    for( size_t h = 0; h < height_;
          ++h, o_row += o_h_step, row += h_step )
     {
       const byte* o_pixel = o_row;
       byte* pixel = row;
-      for( unsigned int w = 0; w < width_;
+      for( size_t w = 0; w < width_;
            ++w, o_pixel += o_w_step, pixel += w_step )
       {
         std::memcpy( pixel, o_pixel, pixel_traits_.num_bytes );
@@ -449,19 +449,19 @@ equal_content( const image& img1, const image& img2 )
   // test equality of data using bytes regardless of underlying data format
   const byte* plane1 = reinterpret_cast< const byte* >( img1.first_pixel() );
   const byte* plane2 = reinterpret_cast< const byte* >( img2.first_pixel() );
-  for( unsigned k = 0; k < img1.depth(); ++k, plane1 += ds1, plane2 += ds2 )
+  for( size_t k = 0; k < img1.depth(); ++k, plane1 += ds1, plane2 += ds2 )
   {
     const byte* row1 = plane1;
     const byte* row2 = plane2;
-    for( unsigned j = 0; j < img1.height(); ++j, row1 += hs1, row2 += hs2 )
+    for( size_t j = 0; j < img1.height(); ++j, row1 += hs1, row2 += hs2 )
     {
       const byte* col1 = row1;
       const byte* col2 = row2;
-      for( unsigned i = 0; i < img1.width(); ++i, col1 += ws1, col2 += ws2 )
+      for( size_t i = 0; i < img1.width(); ++i, col1 += ws1, col2 += ws2 )
       {
         const byte* byte1 = col1;
         const byte* byte2 = col2;
-        for( unsigned b = 0; b < pt.num_bytes; ++b, ++byte1, ++byte2 )
+        for( size_t b = 0; b < pt.num_bytes; ++b, ++byte1, ++byte2 )
         {
           if( *byte1 != *byte2 )
           {

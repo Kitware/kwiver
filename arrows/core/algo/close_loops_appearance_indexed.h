@@ -36,7 +36,7 @@ public:
     close_loops_appearance_indexed,
     "Uses bag of words index to close loops.",
     PARAM_DEFAULT(
-      min_loop_inlier_matches, unsigned,
+      min_loop_inlier_matches, size_t,
       "The minimum number of inlier feature matches to accept a loop "
       "connection and join tracks",
       128 ),

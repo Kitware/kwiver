@@ -28,8 +28,8 @@ public:
   double aspect_ratio() const override;
   double skew() const override;
 
-  unsigned int image_width() const override;
-  unsigned int image_height() const override;
+  size_t image_width() const override;
+  size_t image_height() const override;
   std::vector< double > dist_coeffs() const override;
   kv::matrix_3x3d as_matrix() const override;
   kv::vector_2d map( const kv::vector_2d& norm_pt ) const override;
@@ -105,7 +105,7 @@ PYBIND11_MODULE( camera_intrinsics, m )
     .def( py::init<>() )
     .def(
       py::init< const double, const kv::vector_2d&, const double, const double,
-        const vector_t, const unsigned int, const unsigned int >(),
+        const vector_t, const size_t, const size_t >(),
       py::arg( "focal_length" ), py::arg( "principal_point" ),
       py::arg( "aspect_ratio" ) = 1.0, py::arg( "skew" ) = 0.0,
       py::arg( "dist_coeffs" ) = vector_t(),  py::arg( "image_width" ) = 0,
@@ -216,23 +216,23 @@ camera_intrinsics_trampoline
   );
 }
 
-unsigned int
+size_t
 camera_intrinsics_trampoline
 ::image_width() const
 {
   PYBIND11_OVERLOAD_PURE(
-    unsigned int,
+    size_t,
     kv::camera_intrinsics,
     image_width,
   );
 }
 
-unsigned int
+size_t
 camera_intrinsics_trampoline
 ::image_height() const
 {
   PYBIND11_OVERLOAD_PURE(
-    unsigned int,
+    size_t,
     kv::camera_intrinsics,
     image_height,
   );

@@ -17,14 +17,14 @@
 namespace cereal {
 
 // ----------------------------------------------------------------------------
-template < class P, unsigned N >
+template < class P, size_t N >
 void
 save_point( ::cereal::JSONOutputArchive& archive, const P& pt )
 {
   // Get values as an vector
   auto data = pt.value();
   std::vector< typename P::data_type > values;
-  for( unsigned i = 0; i < N; ++i )
+  for( size_t i = 0; i < N; ++i )
   {
     values.push_back( data( i ) );
   }
@@ -36,7 +36,7 @@ save_point( ::cereal::JSONOutputArchive& archive, const P& pt )
 }
 
 // ----------------------------------------------------------------------------
-template < class P, unsigned N >
+template < class P, size_t N >
 void
 load_point( ::cereal::JSONInputArchive& archive, P& pt )
 {
@@ -55,7 +55,7 @@ load_point( ::cereal::JSONInputArchive& archive, P& pt )
   }
 
   typename P::vector_type lpt;
-  for( unsigned i = 0; i < N; ++i )
+  for( size_t i = 0; i < N; ++i )
   {
     lpt( i ) = values[ i ];
   }

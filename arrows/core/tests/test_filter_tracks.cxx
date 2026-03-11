@@ -36,8 +36,8 @@ filter_tracks filter_fn;
 std::vector< frame_id_t > frames;
 
 // These parameters can be varied for further testing
-const unsigned int num_frames = 100;
-const unsigned int max_tracks = 1000;
+size_t const num_frames = 100;
+size_t const max_tracks = 1000;
 
 track_set_sptr test_tracks =
   kwiver::testing::generate_tracks( num_frames, max_tracks );
@@ -47,7 +47,7 @@ track_set_sptr filtered_large_trk_set =
   filter_fn.filter( test_tracks );
 
 // Calculate filtered match matrix
-Eigen::SparseMatrix< unsigned int > filtered_large_mm =
+Eigen::SparseMatrix< size_t > filtered_large_mm =
   kwiver::arrows::match_matrix( filtered_large_trk_set, frames );
 
 // Compute filtered importance scores
@@ -59,8 +59,8 @@ std::map< track_id_t, double > filtered_large_importance_scores =
 // ----------------------------------------------------------------------------
 // Establish constants and values for small, deterministic track set
 // DO NOT EDIT these two constants, might cause unit tests to fail
-const unsigned int set_num_frames = 5;
-const unsigned int set_max_tracks = 8;
+auto const set_num_frames = 5;
+auto const set_max_tracks = 8;
 
 track_set_sptr set_tracks =
   kwiver::testing::gen_set_tracks( set_num_frames, set_max_tracks );
@@ -134,7 +134,7 @@ TEST ( filter_tracks, config_params )
   const double threshold = config->get_value< double >( "min_mm_importance" );
 
   // Get the value of min_track_length parameter from the configuration
-  const unsigned int min_track_length = config->get_value< unsigned int >(
+  auto const min_track_length = config->get_value< size_t >(
     "min_track_length" );
 
   // Check that the importance score is greater than the threshold

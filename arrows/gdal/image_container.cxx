@@ -464,8 +464,8 @@ image_container
 vital::image
 image_container
 ::get_image(
-  unsigned x_offset, unsigned y_offset,
-  unsigned width, unsigned height ) const
+  size_t x_offset, size_t y_offset,
+  size_t width, size_t height ) const
 {
   vital::image img( width, height, depth(), false, pixel_traits_ );
 

@@ -32,7 +32,7 @@ public:
     video_input_splice,
     "Splices multiple video sources together.",
     PARAM_DEFAULT(
-      output_nth_frame,  unsigned int,
+      output_nth_frame, size_t,
       "Only outputs every nth frame of the video starting at the first frame. "
       "The output of num_frames still reports the total frames in the video "
       "but skip_frame is valid every nth frame only and there are metadata_map "

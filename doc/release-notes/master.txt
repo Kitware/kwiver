@@ -4,6 +4,18 @@ KWIVER 2.3.1 Release Notes
 Updates
 -------
 
+Arrows: Ceres
+
+* num_distortion_params() now returns size_t.
+
+Arrows: Core
+
+* All algorithms taking unsigned int configuration parameters now take size_t.
+
+Arrows: MVG
+
+* All algorithms taking unsigned int configuration parameters now take size_t.
+
 Track Oracle
 
 * Removed track_oracle.
@@ -15,6 +27,16 @@ Vital: Algo
 * No longer require timestamp references in video_input's next_frame()
   and seek_frame().
 
+* compute_depth.compute() now uses size_t for the reference_frame parameter.
+
+* filter_features.filter() now uses size_t for the indices parameter.
+
+* resection_camera.resection() now uses size_t for the height and width parameters.
+
+Vital: IO
+
+* intrinsics_from_metadata() now uses size_t for the height and width parameters.
+
 Vital: Types
 
 * Removed local_geo_cs.
@@ -24,6 +46,16 @@ Vital: Types
 * Removed test_equal_content().
 
 * Added width, height, and frame rate accessors to video_settings.
+
+* camera now uses size_t for image_height() and image_width().
+
+* camera_intrinsics now uses size_t for image_height() and image_width().
+
+* covariance_ now uses size_t for indexing.
+
+* image_container now uses size_t for get_image().
+
+* landmark_ now uses size_t for observations().
 
 Bug Fixes
 ---------

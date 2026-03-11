@@ -55,7 +55,7 @@ protected:
     random_image_data.resize( width * height * 3 );
 
     std::mt19937 generator( random_seed );
-    std::uniform_int_distribution< unsigned int > dist( 96, 144 );
+    std::uniform_int_distribution< uint16_t > dist( 96, 144 );
     for( auto& element : random_image_data )
     {
       element = dist( generator );

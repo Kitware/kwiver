@@ -251,7 +251,7 @@ simple_camera_intrinsics
   vector_2d norm_pt = dist_pt;
 
   // iteratively solve for the undistorted point
-  for( unsigned int i = 0; i < 5; ++i )
+  for( size_t i = 0; i < 5; ++i )
   {
     distortion_scale_offset( norm_pt, dist_coeffs_, scale, offset );
 
@@ -408,7 +408,7 @@ operator<<( std::ostream& s, const camera_intrinsics& k )
     d.push_back( 0.0 );
   }
   s << setprecision( 12 ) << k.as_matrix() << "\n\n";
-  for( unsigned i = 0; i < d.size(); ++i )
+  for( size_t i = 0; i < d.size(); ++i )
   {
     s << setprecision( 12 ) << d[ i ] << " ";
   }

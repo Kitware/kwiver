@@ -74,7 +74,7 @@ transform_image( image_of< T >& img, OP op )
   step_size[ d_idx ] = img.d_step();
 
   // position index with a dimension
-  unsigned i0, i1, i2;
+  size_t i0, i1, i2;
   // Pointers to the first pixel of the current dimension iteration
   T* d0_s, * d1_s, * d2_s;
 
@@ -107,9 +107,9 @@ template < typename T1, typename T2, typename OP >
 void
 transform_image( image_of< T1 > const& img_in, image_of< T2 >& img_out, OP op )
 {
-  const unsigned width = static_cast< unsigned int >( img_in.width() );
-  const unsigned height = static_cast< unsigned int >( img_in.height() );
-  const unsigned depth = static_cast< unsigned int >( img_in.depth() );
+  auto const width = img_in.width();
+  auto const height = img_in.height();
+  auto const depth = img_in.depth();
 
   // make sure the output image has the same size as the input image
   img_out.set_size( width, height, depth );
@@ -120,17 +120,17 @@ transform_image( image_of< T1 > const& img_in, image_of< T2 >& img_out, OP op )
 
   d2_i = img_in.first_pixel();
   d2_o = img_out.first_pixel();
-  for( unsigned i2 = 0; i2 < depth;
+  for( size_t i2 = 0; i2 < depth;
        ++i2, d2_i += img_in.d_step(), d2_o += img_out.d_step() )
   {
     d1_i = d2_i;
     d1_o = d2_o;
-    for( unsigned i1 = 0; i1 < height;
+    for( size_t i1 = 0; i1 < height;
          ++i1, d1_i += img_in.h_step(), d1_o += img_out.h_step() )
     {
       d0_i = d1_i;
       d0_o = d1_o;
-      for( unsigned i0 = 0; i0 < width;
+      for( size_t i0 = 0; i0 < width;
            ++i0, d0_i += img_in.w_step(), d0_o += img_out.w_step() )
       {
         *d0_o = op( *d0_i );
@@ -243,7 +243,7 @@ foreach_pixel( image_of< T > const& img, OP op )
   step_size[ d_idx ] = img.d_step();
 
   // position index with a dimension
-  unsigned i0, i1, i2;
+  size_t i0, i1, i2;
   // Pointers to the first pixel of the current dimension iteration
   T const* d0_s, * d1_s, * d2_s;
 

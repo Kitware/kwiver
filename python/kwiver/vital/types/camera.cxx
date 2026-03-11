@@ -26,8 +26,8 @@ class camera_trampoline
   kv::camera_sptr clone() const override;
   kv::vector_2d project( const kv::vector_3d& pt ) const override;
 
-  unsigned int image_width() const override;
-  unsigned int image_height() const override;
+  size_t image_width() const override;
+  size_t image_height() const override;
 };
 
 } // namespace python
@@ -87,23 +87,23 @@ camera_trampoline
   );
 }
 
-unsigned int
+size_t
 camera_trampoline
 ::image_width() const
 {
   PYBIND11_OVERLOAD_PURE(
-    unsigned int,
+    size_t,
     kv::camera,
     image_width,
   );
 }
 
-unsigned int
+size_t
 camera_trampoline
 ::image_height() const
 {
   PYBIND11_OVERLOAD_PURE(
-    unsigned int,
+    size_t,
     kv::camera,
     image_height,
   );

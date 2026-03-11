@@ -28,7 +28,7 @@ mark_fm_inliers(
   matrix_3x3d Ft = F.transpose();
 
   std::vector< bool > inliers( std::min( pts1.size(), pts2.size() ) );
-  for( unsigned i = 0; i < inliers.size(); ++i )
+  for( size_t i = 0; i < inliers.size(); ++i )
   {
     const vector_2d& p1 = pts1[ i ];
     const vector_2d& p2 = pts2[ i ];

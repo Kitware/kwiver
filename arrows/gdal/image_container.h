@@ -62,8 +62,8 @@ public:
   /// Get cropped view of image. Unlike other image containers must allocate
   /// memory
   virtual vital::image get_image(
-    unsigned x_offset, unsigned y_offset,
-    unsigned width, unsigned height ) const;
+    size_t x_offset, size_t y_offset,
+    size_t width, size_t height ) const;
 
   char** get_raw_metadata_for_domain( const char* domain );
 

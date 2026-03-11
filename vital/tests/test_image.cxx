@@ -28,13 +28,13 @@ namespace // anonymous
 {
 
 // ----------------------------------------------------------------------------
-template < unsigned int W, unsigned int H >
+template < size_t W, size_t H >
 byte
-value_at( unsigned int i, unsigned int j, unsigned int k )
+value_at( size_t i, size_t j, size_t k )
 {
-  constexpr static unsigned int is = 1;
-  constexpr static unsigned int js = W;
-  constexpr static unsigned int ks = W * H;
+  constexpr static size_t is = 1;
+  constexpr static size_t js = W;
+  constexpr static size_t ks = W * H;
 
   return static_cast< byte >( ( ( ks * k ) + ( js * j ) + ( is * i ) ) % 255 );
 }
@@ -47,7 +47,7 @@ check_equal( image_memory mem_1, image_memory mem_2 )
   char* mem_2_data = ( char* ) mem_2.data();
 
   EXPECT_EQ( mem_1.size(), mem_2.size() );
-  for( unsigned int i = 0; i < mem_1.size(); i++ )
+  for( size_t i = 0; i < mem_1.size(); i++ )
   {
     EXPECT_EQ( mem_1_data[ i ], mem_2_data[ i ] );
   }
@@ -137,11 +137,11 @@ TEST ( image_pixel_traits, print )
 // ----------------------------------------------------------------------------
 TEST ( image_memory, copy_constructor )
 {
-  unsigned int size = 5;
+  size_t size = 5;
   image_memory mem{ size* sizeof( char ) };
 
   char* data = ( char* ) mem.data();
-  for( unsigned int i = 0; i < size; i++ )
+  for( size_t i = 0; i < size; i++ )
   {
     data[ i ] = static_cast< char >( i );
   }
@@ -153,11 +153,11 @@ TEST ( image_memory, copy_constructor )
 // ----------------------------------------------------------------------------
 TEST ( image_memory, assignment_operator )
 {
-  unsigned int size = 5;
+  size_t size = 5;
   image_memory mem{ size* sizeof( char ) };
 
   char* data = ( char* ) mem.data();
-  for( unsigned int i = 0; i < size; i++ )
+  for( size_t i = 0; i < size; i++ )
   {
     data[ i ] = static_cast< char >( i );
   }
@@ -293,7 +293,7 @@ TEST ( image, set_size )
 // ----------------------------------------------------------------------------
 TEST ( image, is_contiguous )
 {
-  constexpr static unsigned w = 100, h = 200, d = 3;
+  constexpr static size_t w = 100, h = 200, d = 3;
 
   EXPECT_FALSE( image{}.is_contiguous() )
     << "Empty image should not be contiguous";
@@ -326,13 +326,13 @@ TEST ( image, is_contiguous )
 // ----------------------------------------------------------------------------
 TEST ( image, copy_from )
 {
-  constexpr static unsigned w = 100, h = 200, d = 3;
+  constexpr static size_t w = 100, h = 200, d = 3;
   image img1{ w, h, d };
-  for( unsigned k = 0; k < d; ++k )
+  for( size_t k = 0; k < d; ++k )
   {
-    for( unsigned j = 0; j < h; ++j )
+    for( size_t j = 0; j < h; ++j )
     {
-      for( unsigned i = 0; i < w; ++i )
+      for( size_t i = 0; i < w; ++i )
       {
         img1.at< byte >( i, j, k ) = value_at< w, h >( i, j, k );
       }
@@ -362,17 +362,17 @@ TEST ( image, copy_from )
 // ----------------------------------------------------------------------------
 TEST ( image, equal_content )
 {
-  constexpr static unsigned w = 100, h = 200, d = 3;
+  constexpr static size_t w = 100, h = 200, d = 3;
   image_of< byte > img1{ w, h, d };
   image_of< byte > img2{ w, h, d, true };
   EXPECT_NE( img1.memory(), img2.memory() );
   EXPECT_NE( img1.w_step(), img2.w_step() );
 
-  for( unsigned k = 0; k < d; ++k )
+  for( size_t k = 0; k < d; ++k )
   {
-    for( unsigned j = 0; j < h; ++j )
+    for( size_t j = 0; j < h; ++j )
     {
-      for( unsigned i = 0; i < w; ++i )
+      for( size_t i = 0; i < w; ++i )
       {
         auto const v = value_at< w, h >( i, j, k );
         img1( i, j, k ) = v;
@@ -394,7 +394,7 @@ TEST ( image, equal_content )
 class image_transform : public ::testing::Test
 {
 protected:
-  constexpr static unsigned w = 3, h = 3, d = 3;
+  constexpr static size_t w = 3, h = 3, d = 3;
   using data_t = byte[ w ][ h ][ d ];
 
   void check_image( image_of< byte > const& img, data_t const& expected_data );

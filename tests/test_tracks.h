@@ -36,9 +36,9 @@ namespace testing {
 //  tracks to achieve max_tracks_per_frame.
 kwiver::vital::track_set_sptr
 generate_tracks(
-  unsigned frames = 100,
-  unsigned max_tracks_per_frame = 1000,
-  unsigned min_tracks_per_frame = 500,
+  size_t frames = 100,
+  size_t max_tracks_per_frame = 1000,
+  size_t min_tracks_per_frame = 500,
   double termination_fraction = 0.1,
   double skip_fraction = 0.01,
   double frame_drop_fraction = 0.01 )
@@ -50,7 +50,7 @@ generate_tracks(
 
   track_id_t track_id = 0;
   std::vector< track_sptr > all_tracks, active_tracks;
-  for( unsigned f = 0; f < frames; ++f )
+  for( size_t f = 0; f < frames; ++f )
   {
     // randomly decide to skip some frames
     if( uniform_dist( rand_gen ) < frame_drop_fraction )
@@ -106,15 +106,15 @@ generate_tracks(
 
 kwiver::vital::track_set_sptr
 gen_set_tracks(
-  unsigned frames = 100,
-  unsigned max_tracks_per_frame = 1000 )
+  size_t frames = 100,
+  size_t max_tracks_per_frame = 1000 )
 {
   using namespace kwiver::vital;
 
   // Manually terminate tracks on frames 1, 2 and 4
   track_id_t track_id = 0;
   std::vector< track_sptr > all_tracks, active_tracks;
-  for( unsigned f = 0; f < frames; ++f )
+  for( size_t f = 0; f < frames; ++f )
   {
     // Create tracks as needed to get enough on this frame
     while( active_tracks.size() < max_tracks_per_frame )

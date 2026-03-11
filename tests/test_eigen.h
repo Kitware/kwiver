@@ -87,9 +87,9 @@ struct matrix_comparator
     Eigen::Matrix< T, M, N > const& b,
     double epsilon )
   {
-    for( unsigned i = 0; i < M; ++i )
+    for( size_t i = 0; i < M; ++i )
     {
-      for( unsigned j = 0; j < N; ++j )
+      for( size_t j = 0; j < N; ++j )
       {
         if( std::abs( a( i, j ) - b( i, j ) ) > epsilon )
         {
@@ -113,7 +113,7 @@ struct matrix_comparator
       return false;
     }
 
-    for( unsigned i = 0; i < a.size(); ++i )
+    for( long i = 0; i < a.size(); ++i )
     {
       if( std::abs( a[ i ] - b[ i ] ) > epsilon )
       {

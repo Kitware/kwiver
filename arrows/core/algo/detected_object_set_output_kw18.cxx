@@ -200,8 +200,8 @@ detected_object_set_output_kw18
     double ilx = ( bbox.min_x() + bbox.max_x() ) / 2.0;
     double ily = ( bbox.min_y() + bbox.max_y() ) / 2.0;
 
-    static std::atomic< unsigned > id_counter( 0 );
-    const unsigned l_id = id_counter++;
+    static std::atomic< size_t > id_counter( 0 );
+    auto const l_id = id_counter++;
 
     stream() << l_id                  // 1: track id
              << " 1 "               // 2: track length

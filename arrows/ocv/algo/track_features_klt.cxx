@@ -561,7 +561,7 @@ track_features_klt
     // first mark all features falling outside of the acceptable range in the
     // image as having bad status.
     // This way we don't have to do all these tracks again.
-    for( unsigned int kf_feat_i = 0; kf_feat_i < prev_klt_tracks.size();
+    for( size_t kf_feat_i = 0; kf_feat_i < prev_klt_tracks.size();
          ++kf_feat_i )
     {
       vector_2f tp( tracked_points[ kf_feat_i ].x,
@@ -581,12 +581,12 @@ track_features_klt
     std::set< frame_id_t > det_pyr_to_remove;
     for( auto& det_pyr_it : d_->det_pyramids )
     {
-      std::vector< unsigned int > kf_feat_i_in_det_tracking;
+      std::vector< size_t > kf_feat_i_in_det_tracking;
       std::vector< cv::Point2f > det_points, det_tracked_points;
 
       frame_id_t det_frame = det_pyr_it.first;
       auto& det_pyr = det_pyr_it.second;
-      for( unsigned int kf_feat_i = 0; kf_feat_i < prev_klt_tracks.size();
+      for( size_t kf_feat_i = 0; kf_feat_i < prev_klt_tracks.size();
            ++kf_feat_i )
       {
         if( !status[ kf_feat_i ] )
@@ -638,7 +638,7 @@ track_features_klt
         det_tracked_points, det_status, det_err, win_size,
         d_->max_pyramid_level(), criteria, flags );
 
-      for( unsigned int det_kf_feat_i = 0; det_kf_feat_i != det_points.size();
+      for( size_t det_kf_feat_i = 0; det_kf_feat_i != det_points.size();
            ++det_kf_feat_i )
       {
         auto kf_feat_i = kf_feat_i_in_det_tracking[ det_kf_feat_i ];
@@ -668,7 +668,7 @@ track_features_klt
     }
 
     // copy last frame's features
-    for( unsigned int kf_feat_i = 0; kf_feat_i < prev_klt_tracks.size();
+    for( size_t kf_feat_i = 0; kf_feat_i < prev_klt_tracks.size();
          ++kf_feat_i )
     {
       if( !status[ kf_feat_i ] )

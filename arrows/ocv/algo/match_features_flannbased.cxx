@@ -88,7 +88,7 @@ public:
   /// Parameters
   bool
   cross_check() const { return parent.get_cross_check(); }
-  unsigned
+  size_t
   cross_check_k() const { return parent.get_cross_check_k(); }
   bool
   binary_descriptors() const { return parent.get_binary_descriptors(); }
@@ -126,7 +126,7 @@ match_features_flannbased
 
   bool valid = true;
 
-  unsigned k = config->get_value< unsigned >( "cross_check_k" );
+  size_t k = config->get_value< size_t >( "cross_check_k" );
   if( k == 0 )
   {
     logger()->log_error( "Cross-check K value must be greater than 0." );

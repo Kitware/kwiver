@@ -34,7 +34,7 @@ namespace arrows {
 ///                         frame ids in the track set.
 ///  \return an NxN symmetric match matrix
 KWIVER_ALGO_CORE_EXPORT
-Eigen::SparseMatrix< unsigned int >
+Eigen::SparseMatrix< size_t >
 match_matrix(
   vital::track_set_sptr tracks,
   std::vector< vital::frame_id_t >& frames );
@@ -53,7 +53,7 @@ std::map< vital::track_id_t, double >
 match_matrix_track_importance(
   vital::track_set_sptr tracks,
   std::vector< vital::frame_id_t > const& frames,
-  Eigen::SparseMatrix< unsigned int > const& mm );
+  Eigen::SparseMatrix< size_t > const& mm );
 
 } // end namespace arrows
 

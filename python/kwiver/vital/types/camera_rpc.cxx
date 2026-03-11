@@ -25,8 +25,8 @@ public:
   kv::vector_2d image_scale() const override;
   kv::vector_2d image_offset() const override;
 
-  unsigned int image_width() const override;
-  unsigned int image_height() const override;
+  size_t image_width() const override;
+  size_t image_height() const override;
   kv::vector_2d project( const kv::vector_3d& pt ) const override;
   kv::vector_3d back_project(
     const kv::vector_2d& image_pt,
@@ -82,8 +82,7 @@ PYBIND11_MODULE( camera_rpc, m )
     .def(
       py::init< kv::vector_3d&, kv::vector_3d&,
         kv::vector_2d&, kv::vector_2d&,
-        kv::rpc_matrix&, unsigned int,
-        unsigned int >(),
+        kv::rpc_matrix&, size_t, size_t >(),
       py::arg( "world_scale" ), py::arg( "world_offset" ),
       py::arg( "image_scale" ), py::arg( "image_offset" ),
       py::arg( "rpc_coeffs" ),  py::arg( "image_width" ) = 0,
@@ -169,23 +168,23 @@ camera_rpc_trampoline
   );
 }
 
-unsigned int
+size_t
 camera_rpc_trampoline
 ::image_width() const
 {
   PYBIND11_OVERLOAD_PURE(
-    unsigned int,
+    size_t,
     kv::camera_rpc,
     image_width,
   );
 }
 
-unsigned int
+size_t
 camera_rpc_trampoline
 ::image_height() const
 {
   PYBIND11_OVERLOAD_PURE(
-    unsigned int,
+    size_t,
     kv::camera_rpc,
     image_height,
   );

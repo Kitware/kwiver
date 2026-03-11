@@ -15,7 +15,7 @@ kwiver::vital
   // Bit set count operation from
   // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
 
-  const int d1_bytes = d1->num_bytes();
+  auto const d1_bytes = d1->num_bytes();
 
   if( d1_bytes % 4 )
   {
@@ -24,7 +24,7 @@ kwiver::vital
       "Descriptor must be a multiple of four bytes long." );
   }
 
-  const int d2_bytes = d2->num_bytes();
+  auto const d2_bytes = d2->num_bytes();
   if( d1_bytes != d2_bytes )
   {
     VITAL_THROW(
@@ -32,16 +32,16 @@ kwiver::vital
       "Descriptors must be the same number of bytes long" );
   }
 
-  const int num_ints_long( d1_bytes / 4 );
+  auto const num_ints_long( d1_bytes / 4 );
 
-  const int* pa = reinterpret_cast< const int* >( d1->as_bytes() );
-  const int* pb = reinterpret_cast< const int* >( d2->as_bytes() );
+  auto pa = reinterpret_cast< uint32_t const* >( d1->as_bytes() );
+  auto pb = reinterpret_cast< uint32_t const* >( d2->as_bytes() );
 
-  int dist = 0;
+  size_t dist = 0;
 
-  for( int i = 0; i < num_ints_long; i++, pa++, pb++ )
+  for( size_t i = 0; i < num_ints_long; i++, pa++, pb++ )
   {
-    unsigned int v = *pa ^ *pb;
+    auto v = *pa ^ *pb;
     v = v - ( ( v >> 1 ) & 0x55555555 );
     v = ( v & 0x33333333 ) + ( ( v >> 2 ) & 0x33333333 );
     dist += ( ( ( v + ( v >> 4 ) ) & 0xF0F0F0F ) * 0x1010101 ) >> 24;

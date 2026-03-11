@@ -64,8 +64,8 @@ public:
   virtual vector_2d image_scale() const = 0;
   virtual vector_2d image_offset() const = 0;
 
-  virtual unsigned int image_width() const = 0;
-  virtual unsigned int image_height() const = 0;
+  virtual size_t image_width() const = 0;
+  virtual size_t image_height() const = 0;
 
   /// Project a 3D point into a 2D image point
   virtual vector_2d project( const vector_3d& pt ) const;
@@ -119,8 +119,8 @@ public:
   simple_camera_rpc(
     vector_3d& world_scale, vector_3d& world_offset,
     vector_2d& image_scale, vector_2d& image_offset,
-    rpc_matrix& rpc_coeffs, unsigned int image_width = 0,
-    unsigned int image_height = 0 )
+    rpc_matrix& rpc_coeffs, size_t image_width = 0,
+    size_t image_height = 0 )
     : world_scale_( world_scale ),
       world_offset_( world_offset ),
       image_scale_( image_scale ),
@@ -162,9 +162,9 @@ public:
   image_scale() const { return image_scale_; }
   virtual vector_2d
   image_offset() const { return image_offset_; }
-  virtual unsigned int
+  virtual size_t
   image_width() const { return image_width_; }
-  virtual unsigned int
+  virtual size_t
   image_height() const { return image_height_; }
 
   // Setters
@@ -179,8 +179,8 @@ public:
   void set_world_offset( vector_3d const& offset ) { world_offset_ = offset; }
   void set_image_scale( vector_2d const& scale ) { image_scale_ = scale; }
   void set_image_offset( vector_2d const& offset ) { image_offset_ = offset; }
-  void set_image_width( unsigned int width ) { image_width_ = width; }
-  void set_image_height( unsigned int height ) { image_height_ = height; }
+  void set_image_width( size_t width ) { image_width_ = width; }
+  void set_image_height( size_t height ) { image_height_ = height; }
 
 protected:
   virtual void jacobian(
@@ -202,8 +202,8 @@ protected:
   vector_2d image_scale_;
   vector_2d image_offset_;
   // The image width and height
-  unsigned int image_width_;
-  unsigned int image_height_;
+  size_t image_width_;
+  size_t image_height_;
 };
 
 } // namespace vital

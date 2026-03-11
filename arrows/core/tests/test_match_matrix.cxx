@@ -24,10 +24,10 @@ namespace {
 
 // ----------------------------------------------------------------------------
 // Function to generate match matrix with known values
-Eigen::SparseMatrix< unsigned int >
+Eigen::SparseMatrix< size_t >
 gen_test_matrix()
 {
-  Eigen::Matrix< unsigned int, 5, 5 > dense_matrix;
+  Eigen::Matrix< size_t, 5, 5 > dense_matrix;
 
   // Manually calculated matrix from gen_set_tracks()
   dense_matrix <<
@@ -38,7 +38,7 @@ gen_test_matrix()
     3, 4, 6, 6, 8;
 
   // Convert the dense matrix to a sparse matrix for unit test comparison
-  Eigen::SparseMatrix< unsigned int > test_matrix = dense_matrix.sparseView();
+  Eigen::SparseMatrix< size_t > test_matrix = dense_matrix.sparseView();
 
   return test_matrix;
 }
@@ -46,7 +46,7 @@ gen_test_matrix()
 // ----------------------------------------------------------------------------
 // Function to calculate the max possible importance score
 double
-gen_max_score( Eigen::SparseMatrix< unsigned int > matrix )
+gen_max_score( Eigen::SparseMatrix< size_t > matrix )
 {
   double sum = 0.0;
 
@@ -54,7 +54,7 @@ gen_max_score( Eigen::SparseMatrix< unsigned int > matrix )
   {
     for( int col = 0; col <= row; ++col )
     {
-      unsigned int value = matrix.coeff( row, col );
+      size_t const value = matrix.coeff( row, col );
       if( value != 0 )
       {
         sum += 1.0 / static_cast< double >( value );
@@ -83,14 +83,14 @@ gen_set_scores()
 // Function to check range of elements in match matrix
 bool
 matrix_values(
-  const Eigen::SparseMatrix< unsigned int >& matrix,
-  unsigned int max_tracks )
+  const Eigen::SparseMatrix< size_t >& matrix,
+  size_t max_tracks )
 {
   for( int i = 0; i < matrix.rows(); ++i )
   {
     for( int k = 0; k < matrix.cols(); ++k )
     {
-      unsigned int value = matrix.coeff( i, k );
+      auto const value = matrix.coeff( i, k );
       if( value < 0 || value > max_tracks )
       {
         return false;
@@ -104,8 +104,8 @@ matrix_values(
 // Establish constants and create variables for test_tracks
 
 // These two parameters can be varied for further testing
-const unsigned int num_frames = 100;
-const unsigned int max_tracks = 1000;
+size_t const num_frames = 100;
+size_t const max_tracks = 1000;
 
 track_set_sptr test_tracks =
   kwiver::testing::generate_tracks( num_frames, max_tracks );
@@ -117,7 +117,7 @@ std::vector< frame_id_t > frames =
 // Frames might be dropped in track set generation
 int actual_num_frames = test_tracks->all_frame_ids().size();
 
-Eigen::SparseMatrix< unsigned int > matched_matrix =
+Eigen::SparseMatrix< size_t > matched_matrix =
   kwiver::arrows::match_matrix( test_tracks, frames );
 
 // ----------------------------------------------------------------------------
@@ -125,8 +125,8 @@ Eigen::SparseMatrix< unsigned int > matched_matrix =
 // set_tracks are a determnistic track set
 
 // DO NOT EDIT these two constants, might cause unit tests to fail
-const unsigned int set_num_frames = 5;
-const unsigned int set_max_tracks = 8;
+size_t const set_num_frames = 5;
+size_t const set_max_tracks = 8;
 
 track_set_sptr set_tracks =
   kwiver::testing::gen_set_tracks( set_num_frames, set_max_tracks );
@@ -135,7 +135,7 @@ std::set< frame_id_t > set_frame_ids = set_tracks->all_frame_ids();
 std::vector< frame_id_t > set_frames =
   std::vector< frame_id_t >( set_frame_ids.begin(), set_frame_ids.end() );
 
-Eigen::SparseMatrix< unsigned int > set_matrix =
+Eigen::SparseMatrix< size_t > set_matrix =
   kwiver::arrows::match_matrix( set_tracks, set_frames );
 
 std::map< track_id_t, double > set_importance_scores =
@@ -167,7 +167,7 @@ TEST ( match_matrix, matrix_values )
 // Test matrix diagonal values match the number of tracks in each frame
 TEST ( match_matrix, diagonal_values )
 {
-  std::vector< unsigned int > tracks_in_frame( actual_num_frames, 0 );
+  std::vector< size_t > tracks_in_frame( actual_num_frames, 0 );
 
   for( const auto& t : test_tracks->tracks() )
   {
@@ -178,7 +178,7 @@ TEST ( match_matrix, diagonal_values )
     }
   }
 
-  std::vector< unsigned int > diag_elements( actual_num_frames, 0 );
+  std::vector< size_t > diag_elements( actual_num_frames, 0 );
 
   for( Eigen::Index i = 0; i < matched_matrix.rows(); ++i )
   {
@@ -192,7 +192,7 @@ TEST ( match_matrix, diagonal_values )
 // Test that match_matrix() function is equivalent to calculated matrix
 TEST ( match_matrix, test_matrix )
 {
-  Eigen::SparseMatrix< unsigned int > test_matrix = gen_test_matrix();
+  Eigen::SparseMatrix< size_t > test_matrix = gen_test_matrix();
 
   ASSERT_TRUE( set_matrix.isApprox( test_matrix ) );
 }

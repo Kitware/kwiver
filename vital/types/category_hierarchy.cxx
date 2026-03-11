@@ -50,7 +50,7 @@ category_hierarchy
     throw std::invalid_argument( "Parameter vector are empty." );
   }
 
-  for( unsigned i = 0; i < class_names.size(); ++i )
+  for( size_t i = 0; i < class_names.size(); ++i )
   {
     const label_t& name = class_names[ i ];
 
@@ -64,7 +64,7 @@ category_hierarchy
 
   if( !parent_names.empty() )
   {
-    for( unsigned i = 0; i < class_names.size(); ++i )
+    for( size_t i = 0; i < class_names.size(); ++i )
     {
       if( !parent_names[ i ].empty() )
       {
@@ -264,7 +264,7 @@ category_hierarchy
     this->add_class( tokens[ 0 ], "", entry_num );
     entry_num++;
 
-    for( unsigned i = 1; i < tokens.size(); ++i )
+    for( size_t i = 1; i < tokens.size(); ++i )
     {
       if( tokens[ i ].compare( 0, 8, ":parent=" ) == 0 )
       {

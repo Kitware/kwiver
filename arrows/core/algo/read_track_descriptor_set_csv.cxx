@@ -170,9 +170,9 @@ read_track_descriptor_set_csv::priv
       vital::tokenize( tokens[ 5 ], raw_tokens, m_sub_delim, true );
     }
 
-    unsigned tid_size = std::stoi( tokens[ 2 ] );
-    unsigned desc_size = std::stoi( tokens[ 4 ] );
-    unsigned hist_size = std::stoi( tokens[ 6 ] );
+    size_t tid_size = std::stoi( tokens[ 2 ] );
+    size_t desc_size = std::stoi( tokens[ 4 ] );
+    size_t hist_size = std::stoi( tokens[ 6 ] );
 
     bool contains_world_info = ( hist_size == hist_tokens.size() / 10 );
 
@@ -194,15 +194,15 @@ read_track_descriptor_set_csv::priv
     {
       desc->resize_descriptor( desc_size );
 
-      for( unsigned i = 0; i < desc_size; ++i )
+      for( size_t i = 0; i < desc_size; ++i )
       {
         desc->at( i ) = std::stod( raw_tokens[ i ] );
       }
     }
 
-    for( unsigned i = 0; i < hist_size; ++i )
+    for( size_t i = 0; i < hist_size; ++i )
     {
-      unsigned start_ind = i * ( contains_world_info ? 10 : 6 );
+      size_t start_ind = i * ( contains_world_info ? 10 : 6 );
 
       vital::timestamp ts(
         std::stoi( hist_tokens[ start_ind + 1 ] ),

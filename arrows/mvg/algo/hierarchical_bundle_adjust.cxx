@@ -49,7 +49,7 @@ namespace // anonymous
  * (cameras.size() - 1).
  */
 camera_map::map_camera_t
-subsample_cameras( camera_map::map_camera_t const& cameras, unsigned n )
+subsample_cameras( camera_map::map_camera_t const& cameras, size_t n )
 {
   kwiver::vital::scoped_cpu_timer t( "Camera sub-sampling" );
 
@@ -60,7 +60,7 @@ subsample_cameras( camera_map::map_camera_t const& cameras, unsigned n )
   }
 
   camera_map::map_camera_t subsample;
-  unsigned int i = 0;
+  size_t i = 0;
   for( camera_map::map_camera_t::value_type const& p : cameras )
   {
     if( i % n == 0 )
@@ -94,8 +94,8 @@ public:
 
   hierarchical_bundle_adjust& parent;
   // Configuration values
-  unsigned int c_initial_sub_sample() { return parent.c_initial_sub_sample; }
-  unsigned int c_interpolation_rate() { return parent.c_interpolation_rate; }
+  size_t c_initial_sub_sample() { return parent.c_initial_sub_sample; }
+  size_t c_interpolation_rate() { return parent.c_interpolation_rate; }
   bool c_rmse_reporting_enabled() { return parent.c_rmse_reporting_enabled; }
 
   // processing classes
@@ -234,7 +234,7 @@ hierarchical_bundle_adjust
   // Always adding the last camera (if not already in there) to the sub-
   // sampling in order to remove the complexity of interpolating into empty
   // space (constant operation).
-  unsigned int ssr = d_->c_initial_sub_sample();
+  auto ssr = d_->c_initial_sub_sample();
   camera_map::map_camera_t input_cams = cameras->cameras(),
     acm;
   acm = subsample_cameras( input_cams, ssr );

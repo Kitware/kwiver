@@ -149,7 +149,7 @@ this->vname = config->get_value< vtype >(#vname, this->vname );
 #undef GET_VALUE
 }
 
-unsigned int
+size_t
 num_distortion_params( LensDistortionType type )
 {
   switch( type )
@@ -391,10 +391,10 @@ camera_options
 {
   // We need another map from intrinsics instances to parameter index to
   // detect when the same intrinsics are shared between cameras
-  std::map< camera_intrinsics_sptr, unsigned int > camera_intr_map;
+  std::map< camera_intrinsics_sptr, size_t > camera_intr_map;
 
   // number of lens distortion parameters in the selected model
-  const unsigned int ndp = num_distortion_params( this->lens_distortion_type );
+  auto const ndp = num_distortion_params( this->lens_distortion_type );
   std::vector< double > intrinsic_params( 5 + ndp, 0.0 );
   for( const camera_map::map_camera_t::value_type& c : cameras )
   {
@@ -417,8 +417,8 @@ camera_options
     {
       this->extract_camera_intrinsics( K, &intrinsic_params[ 0 ] );
       // update the maps with the index of this new parameter vector
-      camera_intr_map[ K ] = static_cast< unsigned int >( int_params.size() );
-      int_map[ c.first ] = static_cast< unsigned int >( int_params.size() );
+      camera_intr_map[ K ] = int_params.size();
+      int_map[ c.first ] = int_params.size();
       // add the parameter vector
       int_params.push_back( intrinsic_params );
     }
@@ -474,8 +474,7 @@ camera_options
     {
       // look-up updated intrinsics
       auto map_itr = int_map.find( cp.first );
-      unsigned int intr_idx = map_itr->second;
-      K = updated_intr[ intr_idx ];
+      K = updated_intr[ map_itr->second ];
     }
     this->update_camera_extrinsics( simp_cam, &cp.second[ 0 ] );
     simp_cam->set_intrinsics( K );
@@ -523,7 +522,7 @@ camera_options
   std::vector< int > constant_intrinsics;
 
   // number of lens distortion parameters in the selected model
-  const unsigned int ndp = num_distortion_params( this->lens_distortion_type );
+  auto const ndp = num_distortion_params( this->lens_distortion_type );
 
   if( !this->optimize_focal_length )
   {
@@ -597,10 +596,9 @@ camera_options
   const std::vector< double > d = K->dist_coeffs();
   // copy the intersection of parameters provided in K
   // and those that are supported by the requested model type
-  const unsigned int num_dp =
+  auto const num_dp =
     std::min(
-      num_distortion_params( this->lens_distortion_type ),
-      static_cast< unsigned int >( d.size() ) );
+      num_distortion_params( this->lens_distortion_type ), d.size() );
   if( num_dp > 0 )
   {
     std::copy( d.begin(), d.begin() + num_dp, &params[ 5 ] );
@@ -621,7 +619,7 @@ camera_options
   K->set_skew( params[ 4 ] );
 
   // distortion parameters
-  const unsigned int ndp = num_distortion_params( this->lens_distortion_type );
+  auto const ndp = num_distortion_params( this->lens_distortion_type );
   if( ndp > 0 )
   {
     Eigen::VectorXd dc( ndp );

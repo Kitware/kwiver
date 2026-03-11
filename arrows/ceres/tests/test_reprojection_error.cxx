@@ -48,7 +48,7 @@ test_reprojection_error(
   vector_3d center = cam.center();
   std::copy( center.data(), center.data() + 3, pose + 3 );
 
-  unsigned int ndp = num_distortion_params( dist_type );
+  auto const ndp = num_distortion_params( dist_type );
   std::vector< double > intrinsics( 5 + ndp, 0.0 );
   camera_intrinsics_sptr K = cam.intrinsics();
   intrinsics[ 0 ] = K->focal_length();
@@ -60,9 +60,7 @@ test_reprojection_error(
   const std::vector< double > d = K->dist_coeffs();
   // copy the intersection of parameters provided in K
   // and those that are supported by the requested model type
-  unsigned int num_dp = std::min(
-    ndp,
-    static_cast< unsigned int >( d.size() ) );
+  auto const num_dp = std::min( ndp, d.size() );
   if( num_dp > 0 )
   {
     std::copy( d.begin(), d.begin() + num_dp, &intrinsics[ 5 ] );

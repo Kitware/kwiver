@@ -66,7 +66,7 @@ TEST ( estimate_homography, four_points )
   matrix_3x3d true_H = sample_homography();
 
   // transform pts1 to pts2 using true_H
-  for( unsigned i = 0; i < pts1.size(); ++i )
+  for( size_t i = 0; i < pts1.size(); ++i )
   {
     vector_3d v = true_H * vector_3d( pts1[ i ].x(), pts1[ i ].y(), 1.0 );
     pts2.push_back( vector_2d( v.x() / v.z(), v.y() / v.z() ) );
@@ -92,7 +92,7 @@ TEST ( estimate_homography, ideal_points )
   // create random points that perfectly correspond via true_H
   std::vector< vector_2d > pts1, pts2;
   kwiver::testing::rng_t rng( 1 );
-  for( unsigned i = 0; i < 100; ++i )
+  for( size_t i = 0; i < 100; ++i )
   {
     vector_2d v2 = random_point2d( 1000.0, rng ) + vector_2d( 500.0, 500.0 );
     pts1.push_back( v2 );
@@ -124,7 +124,7 @@ TEST ( estimate_homography, noisy_points )
   // create random points + noise that approximately correspond via true_H
   std::vector< vector_2d > pts1, pts2;
   kwiver::testing::rng_t rng( 1 );
-  for( unsigned i = 0; i < 100; ++i )
+  for( size_t i = 0; i < 100; ++i )
   {
     vector_2d v2 = random_point2d( 1000.0, rng ) + vector_2d( 500.0, 500.0 );
     pts1.push_back( v2 + random_point2d( 0.1, rng ) );
@@ -160,7 +160,7 @@ TEST ( estimate_homography, outlier_points )
   std::vector< vector_2d > pts1, pts2;
   std::vector< bool > true_inliers;
   kwiver::testing::rng_t rng( 1 );
-  for( unsigned i = 0; i < 100; ++i )
+  for( size_t i = 0; i < 100; ++i )
   {
     vector_2d v2 = random_point2d( 1000.0, rng ) + vector_2d( 500.0, 500.0 );
     pts1.push_back( v2 );
@@ -186,8 +186,8 @@ TEST ( estimate_homography, outlier_points )
 
   std::cout << "num inliers " << inliers.size() << std::endl;
 
-  unsigned correct_inliers = 0;
-  for( unsigned i = 0; i < inliers.size(); ++i )
+  size_t correct_inliers = 0;
+  for( size_t i = 0; i < inliers.size(); ++i )
   {
     if( true_inliers[ i ] == inliers[ i ] )
     {

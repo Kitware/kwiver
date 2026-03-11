@@ -71,7 +71,7 @@ feature_set_sptr
 make_n_features( size_t num_feat )
 {
   std::vector< feature_sptr > feat;
-  for( unsigned i = 0; i < num_feat; ++i )
+  for( size_t i = 0; i < num_feat; ++i )
   {
     T v = static_cast< T >( i ) / num_feat;
     auto f = std::make_shared< feature_< T > >();
@@ -107,11 +107,11 @@ make_n_descriptors( size_t num_desc, size_t dim )
                       : 1.0;
   const double scale = ( tmax - tmin ) / rmax;
 
-  for( unsigned i = 0; i < num_desc; ++i )
+  for( size_t i = 0; i < num_desc; ++i )
   {
     auto d = std::make_shared< descriptor_dynamic< T > >( dim );
     T* data = d->raw_data();
-    for( unsigned j = 0; j < dim; ++j, ++data )
+    for( size_t j = 0; j < dim; ++j, ++data )
     {
       *data = static_cast< T >( rand() * scale + tmin );
     }
@@ -140,7 +140,7 @@ equal_feature_set( feature_set_sptr fs1, feature_set_sptr fs2 )
 
   std::vector< feature_sptr > feat1 = fs1->features();
   std::vector< feature_sptr > feat2 = fs2->features();
-  for( unsigned i = 0; i < feat1.size(); ++i )
+  for( size_t i = 0; i < feat1.size(); ++i )
   {
     feature_sptr f1 = feat1[ i ];
     feature_sptr f2 = feat2[ i ];
@@ -178,7 +178,7 @@ equal_descriptor_set( descriptor_set_sptr ds1, descriptor_set_sptr ds2 )
   {
     return ::testing::AssertionFailure() << "size mismatch";
   }
-  for( unsigned i = 0; i < ds1->size(); ++i )
+  for( size_t i = 0; i < ds1->size(); ++i )
   {
     descriptor_sptr d1 = ds1->at( i );
     descriptor_sptr d2 = ds2->at( i );

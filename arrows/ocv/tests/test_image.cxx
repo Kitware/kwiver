@@ -57,17 +57,15 @@ populate_ocv_image( cv::Mat& img, T minv, T maxv )
   const double range = static_cast< double >( maxv ) -
                        static_cast< double >( minv );
   const double offset = -minv;
-  const unsigned num_c = img.channels();
-  for( unsigned int p = 0; p < num_c; ++p )
+  auto const num_c = img.channels();
+  for( int p = 0; p < num_c; ++p )
   {
-    for( unsigned int j = 0; j < static_cast< unsigned int >( img.rows ); ++j )
+    for( int j = 0; j < img.rows; ++j )
     {
-      for( unsigned int i = 0; i < static_cast< unsigned int >( img.cols );
-           ++i )
+      for( int i = 0; i < img.cols; ++i )
       {
-        auto const val = static_cast< T >( value_at(
-          i, j,
-          p ) * range + offset );
+        auto const val =
+          static_cast< T >( value_at( i, j, p ) * range + offset );
         img.template ptr< T >( j )[ num_c * i + p ] = val;
       }
     }
@@ -207,7 +205,7 @@ run_ocv_conversion_tests( cv::Mat const& img )
   cv::split( img, channels1 );
   cv::split( img2, channels2 );
 
-  for( unsigned c = 0; c < channels1.size(); ++c )
+  for( size_t c = 0; c < channels1.size(); ++c )
   {
     SCOPED_TRACE( "In channel " + std::to_string( c ) );
     EXPECT_EQ( 0, cv::countNonZero( channels1[ c ] != channels2[ c ] ) );

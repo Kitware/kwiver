@@ -20,7 +20,7 @@ dist_coeffs_to_ocv( std::vector< double > const& vital_dist_coeffs )
   size_t num_coeffs = vital_dist_coeffs.size() <
                       4 ? 4 : vital_dist_coeffs.size();
   ocv_dist.assign( num_coeffs, 0 );
-  for( unsigned int i = 0; i < vital_dist_coeffs.size(); ++i )
+  for( size_t i = 0; i < vital_dist_coeffs.size(); ++i )
   {
     ocv_dist[ i ] = vital_dist_coeffs[ i ];
   }

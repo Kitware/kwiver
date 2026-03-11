@@ -89,7 +89,7 @@ operator>>( std::istream& s, landmark_< T >& m )
   Eigen::Matrix< T, 3, 1 > normal;
   T scale;
   rgb_color color;
-  unsigned int observations;
+  size_t observations;
   T cos_observation_angle;
 
   s >> loc

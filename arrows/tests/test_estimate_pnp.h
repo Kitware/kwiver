@@ -77,7 +77,7 @@ TEST ( estimate_pnp, ideal_points )
     cam->center(), est_cam->center(),
     ideal_center_tolerance );
 
-  unsigned int num_inliers = std::count( inliers.begin(), inliers.end(), true );
+  auto const num_inliers = std::count( inliers.begin(), inliers.end(), true );
   std::cout << "num inliers " << num_inliers << std::endl;
   EXPECT_EQ( pts_projs.size(), num_inliers )
     << "All points should be inliers";
@@ -146,7 +146,7 @@ TEST ( estimate_pnp, noisy_points )
     cam->center(), est_cam->center(),
     noisy_center_tolerance );
 
-  unsigned int num_inliers = std::count( inliers.begin(), inliers.end(), true );
+  auto const num_inliers = std::count( inliers.begin(), inliers.end(), true );
   std::cout << "num inliers " << num_inliers << std::endl;
   EXPECT_GT( num_inliers, pts_projs.size() / 2 )
     << "Not enough inliers";
@@ -179,7 +179,7 @@ TEST ( estimate_pnp, outlier_points )
   camera_intrinsics_sptr cal = cam->intrinsics();
 
   // extract corresponding image points
-  unsigned int i = 0;
+  size_t i = 0;
   std::vector< vector_2d > pts_projs;
   std::vector< vector_3d > pts_3d;
   kwiver::testing::rng_t rng( 1 );
@@ -224,7 +224,7 @@ TEST ( estimate_pnp, outlier_points )
     cam->center(), est_cam->center(),
     outlier_center_tolerance );
 
-  unsigned int num_inliers = std::count( inliers.begin(), inliers.end(), true );
+  auto const num_inliers = std::count( inliers.begin(), inliers.end(), true );
   std::cout << "num inliers " << num_inliers << std::endl;
   EXPECT_GT( num_inliers, pts_projs.size() / 3 )
     << "Not enough inliers";

@@ -21,8 +21,8 @@ struct feature_at_index_is_greater
 {
   bool
   operator()(
-    std::pair< unsigned int, double > const& l,
-    std::pair< unsigned int, double > const& r )
+    std::pair< size_t, double > const& l,
+    std::pair< size_t, double > const& r )
   {
     return l.second > r.second;
   }
@@ -41,21 +41,21 @@ public:
   // Configuration Parameters for access outside this class
   double
   c_top_fraction() const { return parent.c_top_fraction; }
-  unsigned int
+  size_t
   c_min_features() const { return parent.c_min_features; }
-  unsigned int
+  size_t
   c_max_features() const { return parent.c_max_features; }
 
 // ----------------------------------------------------------------------------
   feature_set_sptr
-  filter( feature_set_sptr feat, std::vector< unsigned int >& ind ) const
+  filter( feature_set_sptr feat, std::vector< size_t >& ind ) const
   {
     const std::vector< feature_sptr >& feat_vec = feat->features();
     ind.clear();
     if( feat_vec.size() <= parent.c_min_features )
     {
       ind.resize( feat_vec.size() );
-      for( unsigned int i = 0; i < ind.size(); ++i )
+      for( size_t i = 0; i < ind.size(); ++i )
       {
         ind[ i ] = i;
       }
@@ -63,17 +63,17 @@ public:
     }
 
     //  Create a new vector with the index and scale for faster sorting
-    std::vector< std::pair< unsigned int, double > > indices;
+    std::vector< std::pair< size_t, double > > indices;
     indices.reserve( feat_vec.size() );
-    for( unsigned int i = 0; i < feat_vec.size(); i++ )
+    for( size_t i = 0; i < feat_vec.size(); i++ )
     {
       indices.push_back( std::make_pair( i, feat_vec[ i ]->scale() ) );
     }
 
     // compute threshold
-    unsigned int cutoff = std::max(
+    auto cutoff = std::max(
       parent.c_min_features,
-      static_cast< unsigned int >( parent.c_top_fraction * indices.size() ) );
+      static_cast< size_t >( parent.c_top_fraction * indices.size() ) );
     if( parent.c_max_features > 0 )
     {
       cutoff = std::min( cutoff, parent.c_max_features );
@@ -86,9 +86,9 @@ public:
 
     std::vector< feature_sptr > filtered( cutoff );
     ind.resize( cutoff );
-    for( unsigned int i = 0; i < cutoff; i++ )
+    for( size_t i = 0; i < cutoff; i++ )
     {
-      unsigned int index = indices[ i ].first;
+      auto const index = indices[ i ].first;
       ind[ i ] = index;
       filtered[ i ] = feat_vec[ index ];
     }
@@ -134,10 +134,10 @@ filter_features_scale
     return false;
   }
 
-  unsigned int min_features =
-    config->get_value< unsigned int >( "min_features", d_->c_min_features() );
-  unsigned int max_features =
-    config->get_value< unsigned int >( "max_features", d_->c_max_features() );
+  auto const min_features =
+    config->get_value< size_t >( "min_features", d_->c_min_features() );
+  auto const max_features =
+    config->get_value< size_t >( "max_features", d_->c_max_features() );
   if( max_features > 0 && max_features < min_features )
   {
     LOG_ERROR(
@@ -156,7 +156,7 @@ vital::feature_set_sptr
 filter_features_scale
 ::filter(
   vital::feature_set_sptr feat,
-  std::vector< unsigned int >& indices ) const
+  std::vector< size_t >& indices ) const
 {
   return d_->filter( feat, indices );
 }

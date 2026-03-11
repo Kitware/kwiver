@@ -50,7 +50,7 @@ print_epipolar_distances(
   using namespace kwiver::arrows;
 
   matrix_3x3d Ft = F.transpose();
-  for( unsigned i = 0; i < right_pts.size(); ++i )
+  for( size_t i = 0; i < right_pts.size(); ++i )
   {
     auto const& pr = right_pts[ i ];
     auto const& pl = left_pts[ i ];

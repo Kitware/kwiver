@@ -36,7 +36,7 @@ public:
   /// Filter a feature set and return a subset of the features
   ///
   /// The default implementation call the pure virtual function
-  /// filter(feature_set_sptr feat, std::vector<unsigned int> &indices) const
+  /// filter(feature_set_sptr feat, std::vector<size_t> &indices) const
   /// \param [in] input The feature set to filter
   /// \returns a filtered version of the feature set (simple_feature_set)
   virtual kwiver::vital::feature_set_sptr
@@ -45,7 +45,7 @@ public:
   /// Filter a feature_set and its coresponding descriptor_set
   ///
   /// The default implementation calls
-  /// filter(feature_set_sptr feat, std::vector<unsigned int> &indices) const
+  /// filter(feature_set_sptr feat, std::vector<size_t> &indices) const
   /// using with \p feat and then uses the resulting \p indices to construct
   /// a simple_descriptor_set with the corresponding descriptors.
   /// \param [in] feat The feature set to filter
@@ -69,7 +69,7 @@ protected:
   virtual kwiver::vital::feature_set_sptr
   filter(
     kwiver::vital::feature_set_sptr feat,
-    std::vector< unsigned int >& indices ) const = 0;
+    std::vector< size_t >& indices ) const = 0;
 };
 
 /// type definition for shared pointer to a filter_features algorithm

@@ -185,7 +185,7 @@ triangulate_landmarks::priv
 
     lm.set_loc( pt3d );
     // count inliers
-    for( unsigned int idx = 0; idx < lm_cams.size(); ++idx )
+    for( size_t idx = 0; idx < lm_cams.size(); ++idx )
     {
       auto depth = lm_cams[ idx ].depth( lm.loc() );
       if( depth <= 0 )
@@ -281,7 +281,7 @@ triangulate_landmarks
     lm_features.clear();
 
     // extract the cameras and image points for this landmarks
-    auto lm_observations = unsigned{ 0 };
+    size_t lm_observations = 0;
 
     // get the corresponding track
     vital::track_map_t::const_iterator t_itr = track_map.find( p.first );
@@ -390,7 +390,7 @@ triangulate_landmarks
       }
 
       // set inlier/outlier states for the measurements
-      for( unsigned int idx = 0; idx < lm_cams.size(); ++idx )
+      for( size_t idx = 0; idx < lm_cams.size(); ++idx )
       {
         vital::landmark_d lm;
         lm.set_loc( pt3d );

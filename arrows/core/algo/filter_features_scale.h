@@ -33,11 +33,11 @@ public:
       "Fraction of largest scale keypoints to keep, range (0.0, 1.0]",
       0.2 ),
     PARAM_DEFAULT(
-      min_features, unsigned int,
+      min_features, size_t,
       "Minimum number of features to keep",
       100 ),
     PARAM_DEFAULT(
-      max_features, unsigned int,
+      max_features, size_t,
       "Maximum number of features to keep, use 0 for unlimited",
       1000 ),
   )
@@ -57,7 +57,7 @@ protected:
   virtual vital::feature_set_sptr
   filter(
     vital::feature_set_sptr input,
-    std::vector< unsigned int >& indices ) const;
+    std::vector< size_t >& indices ) const;
   using filter_features::filter;
 
 private:

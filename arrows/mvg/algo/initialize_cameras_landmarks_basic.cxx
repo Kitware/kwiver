@@ -149,7 +149,7 @@ public:
   c_retriangulate_all() const { return parent.c_retriangulate_all; }
   double
   c_reverse_ba_error_ratio() const { return parent.c_reverse_ba_error_ratio; }
-  unsigned int
+  size_t
   c_next_frame_max_distance() const { return parent.c_next_frame_max_distance; }
   double
   c_global_ba_rate() const { return parent.c_global_ba_rate; }
@@ -193,7 +193,7 @@ initialize_cameras_landmarks_basic::priv
   // extract corresponding image points and landmarks
   std::vector< vector_2d > pts_right, pts_left;
   std::vector< landmark_sptr > pts_lm;
-  for( unsigned int i = 0; i < trks.size(); ++i )
+  for( size_t i = 0; i < trks.size(); ++i )
   {
     auto frame_data = std::dynamic_pointer_cast< feature_track_state >(
       *( trks[ i ]->find( frame ) ) );
@@ -234,9 +234,7 @@ initialize_cameras_landmarks_basic::priv
     inliers, 2.0 );
   const essential_matrix_d E( *E_sptr );
 
-  unsigned num_inliers = static_cast< unsigned >( std::count(
-    inliers.begin(),
-    inliers.end(), true ) );
+  auto num_inliers = std::count( inliers.begin(), inliers.end(), true );
   if( this->c_verbose() )
   {
     LOG_INFO(
@@ -245,7 +243,7 @@ initialize_cameras_landmarks_basic::priv
   }
 
   // get the first inlier index
-  unsigned int inlier_idx = 0;
+  size_t inlier_idx = 0;
   for(; inlier_idx < inliers.size() && !inliers[ inlier_idx ]; ++inlier_idx ) {}
 
   // get the first inlier correspondence to
@@ -265,7 +263,7 @@ initialize_cameras_landmarks_basic::priv
   vector_3d t = cam.translation();
   std::vector< double > scales;
   scales.reserve( num_inliers );
-  for( unsigned int i = 0; i < inliers.size(); ++i )
+  for( size_t i = 0; i < inliers.size(); ++i )
   {
     if( !inliers[ i ] || !pts_lm[ i ] )
     {
@@ -596,7 +594,7 @@ std::set< frame_id_t >
 find_nearby_new_frames(
   const std::set< frame_id_t >& new_frames,
   const camera_map::map_camera_t& cams,
-  unsigned int dist )
+  frame_id_t dist )
 {
   std::set< frame_id_t > nearby;
   for( camera_map::map_camera_t::value_type p : cams )
@@ -620,20 +618,20 @@ find_nearby_new_frames(
 // find the best pair of camera indices to start with
 void
 find_best_initial_pair(
-  const Eigen::SparseMatrix< unsigned int >& mm,
+  const Eigen::SparseMatrix< size_t >& mm,
   int& i, int& j,
   vital::logger_handle_t& logger )
 {
-  typedef Eigen::Matrix< unsigned int, Eigen::Dynamic, 1 > vectorXu;
+  typedef Eigen::Matrix< size_t, Eigen::Dynamic, 1 > vectorXu;
 
   const int cols = mm.cols();
   const vectorXu d = mm.diagonal();
 
   // compute the maximum off-diagonal value
-  unsigned int global_max_matches = 0;
+  size_t global_max_matches = 0;
   for( int k = 0; k < cols; ++k )
   {
-    for( Eigen::SparseMatrix< unsigned int >::InnerIterator it( mm, k ); it;
+    for( Eigen::SparseMatrix< size_t >::InnerIterator it( mm, k ); it;
          ++it )
     {
       if( it.row() > k && it.value() > global_max_matches )
@@ -643,17 +641,17 @@ find_best_initial_pair(
     }
   }
 
-  const unsigned int threshold = std::max( global_max_matches / 2, 20u );
+  auto const threshold = std::max< size_t >( global_max_matches / 2, 20u );
 
   LOG_DEBUG(logger, "global max " << global_max_matches);
   LOG_DEBUG(logger, "threshold " << threshold);
   for( int x = 1; x < cols; ++x )
   {
-    unsigned int max_matches = 0;
+    size_t max_matches = 0;
     int max_i = 0, max_j = 0;
     for( int y = 0; y < cols - x; ++y )
     {
-      unsigned int matches = mm.coeff( x + y, y );
+      size_t matches = mm.coeff( x + y, y );
       if( matches > max_matches )
       {
         max_matches = matches;
@@ -684,7 +682,7 @@ next_best_frame(
   vital::logger_handle_t& logger )
 {
   const std::vector< track_sptr > trks = tracks->tracks();
-  typedef std::map< frame_id_t, unsigned int > frame_map_t;
+  typedef std::map< frame_id_t, size_t > frame_map_t;
 
   frame_map_t vis_count;
   for( const track_sptr& t : trks )
@@ -702,7 +700,7 @@ next_best_frame(
         frame_map_t::iterator fmi = vis_count.find( fid );
         if( fmi == vis_count.end() )
         {
-          vis_count.insert( std::pair< frame_id_t, unsigned int >( fid, 1 ) );
+          vis_count.insert( std::pair< frame_id_t, size_t >( fid, 1 ) );
         }
         else
         {
@@ -719,7 +717,7 @@ next_best_frame(
   }
 
   // find the maximum observation
-  unsigned int max_count = 0;
+  size_t max_count = 0;
   frame_id_t best_frame = 0;
   for( const frame_map_t::value_type& p : vis_count )
   {
@@ -763,9 +761,9 @@ estimate_gsd(
   }
 
   std::vector< double > gsds;
-  for( unsigned int i = 1; i < pts_3d.size(); ++i )
+  for( size_t i = 1; i < pts_3d.size(); ++i )
   {
-    for( unsigned int j = 0; j < i; ++j )
+    for( size_t j = 0; j < i; ++j )
     {
       const double dist_3d = ( pts_3d[ i ] - pts_3d[ j ] ).norm();
       const double dist_2d = ( pts_2d[ i ] - pts_2d[ j ] ).norm();
@@ -855,7 +853,7 @@ initialize_cameras_landmarks_basic
   }
 
   std::vector< frame_id_t > mm_frames( frame_ids.begin(), frame_ids.end() );
-  Eigen::SparseMatrix< unsigned int > mm = match_matrix( tracks, mm_frames );
+  Eigen::SparseMatrix< size_t > mm = match_matrix( tracks, mm_frames );
   int init_i = 0, init_j = 0;
   find_best_initial_pair( mm, init_i, init_j, d_->m_logger );
   LOG_INFO(
@@ -895,7 +893,8 @@ initialize_cameras_landmarks_basic
     }
     else
     {
-      unsigned int search_range = c_next_frame_max_distance;
+      auto search_range =
+        static_cast< frame_id_t >( c_next_frame_max_distance );
       if( search_range < 1 )
       {
         f = next_best_frame( tracks, lms, new_frame_ids, d_->m_logger );

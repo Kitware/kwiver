@@ -70,7 +70,7 @@ public:
     fid_offset_vec_t result;
     std::stringstream ss( parent.get_past_frames_to_show() );
 
-    unsigned next_int;
+    size_t next_int;
     std::string temp;
     while( std::getline( ss, temp, ',' ) )
     {
@@ -118,9 +118,9 @@ draw_tracks
 
 /// Helper function to subtract a value from all elements in a vec
 void
-subtract_from_all( fid_offset_vec_t& offsets, unsigned value )
+subtract_from_all( fid_offset_vec_t& offsets, size_t value )
 {
-  for( unsigned i = 0; i < offsets.size(); i++ )
+  for( size_t i = 0; i < offsets.size(); i++ )
   {
     offsets[ i ] -= value;
   }
@@ -172,9 +172,9 @@ generate_match_lines(
 
   fid_offset_vec_t rem_offsets = frame_offsets;
 
-  for( unsigned i = 0; i < frame_offsets.size(); i++ )
+  for( size_t i = 0; i < frame_offsets.size(); i++ )
   {
-    const unsigned offset_to_test = rem_offsets.back();
+    auto const offset_to_test = rem_offsets.back();
     rem_offsets.pop_back();
 
     if( offset_to_test && frame_id >= offset_to_test )
@@ -246,11 +246,10 @@ draw_tracks
   cv::Mat output_image;
 
   // The total number of past frames we are showing
-  const unsigned past_frames =
-    static_cast< unsigned >( past_frames_to_show.size() );
+  auto const past_frames = past_frames_to_show.size();
 
   // The total number of output frames to display
-  const unsigned display_frames = past_frames + 1;
+  auto const display_frames = past_frames + 1;
 
   // Generate output images
   frame_id_t fid = d->cur_frame_id;
@@ -420,7 +419,7 @@ draw_tracks
       img.rows, display_frames * img.cols, img.type(),
       cv::Scalar( 0 ) );
 
-    for( unsigned i = 0; i < past_frames; i++ )
+    for( size_t i = 0; i < past_frames; i++ )
     {
       cv::Mat region( output_image,
         cv::Rect( i * img.cols, 0, img.cols, img.rows ) );
@@ -437,7 +436,7 @@ draw_tracks
       cv::Rect( past_frames * img.cols, 0, img.cols, img.rows ) );
     img.copyTo( region );
 
-    for( unsigned i = 0; i < lines.size(); i++ )
+    for( size_t i = 0; i < lines.size(); i++ )
     {
       cv::line(
         output_image, lines[ i ].first, lines[ i ].second,

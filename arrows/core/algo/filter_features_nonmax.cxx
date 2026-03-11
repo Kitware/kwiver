@@ -29,8 +29,8 @@ public:
     const double suppression_radius,
     Eigen::AlignedBox< double, 2 > feat_bbox,
     const double scale_min,
-    const unsigned int scale_steps,
-    const unsigned int resolution )
+    const size_t scale_steps,
+    const size_t resolution )
     : m_resolution( resolution ),
       m_radius( suppression_radius / resolution ),
       m_feat_bbox( feat_bbox ),
@@ -40,7 +40,7 @@ public:
   {
     masks.reserve( scale_steps );
     disks.reserve( scale_steps );
-    for( unsigned s = 0; s < scale_steps; ++s )
+    for( size_t s = 0; s < scale_steps; ++s )
     {
       const size_t pad = 2 * resolution + 1;
       const size_t w = ( static_cast< size_t >( m_range[ 0 ] ) >> s ) + pad;
@@ -65,8 +65,8 @@ public:
   cover( feature const& feat )
   {
     // compute the scale and location bin indices
-    unsigned scale = static_cast< unsigned >( std::log2( feat.scale() ) -
-                                              m_scale_min );
+    auto scale =
+      static_cast< size_t >( std::log2( feat.scale() ) - m_scale_min );
     vector_2i bin_idx = ( feat.loc() / m_radius + m_offset ).cast< int >();
 
     // get the center bin at this location from the mask at the current scale
@@ -104,7 +104,7 @@ public:
     m_range = ( m_feat_bbox.sizes() / m_radius ).array() + 0.5;
 
     auto scale_steps = masks.size();
-    for( unsigned s = 0; s < scale_steps; ++s )
+    for( size_t s = 0; s < scale_steps; ++s )
     {
       const size_t pad = 2 * m_resolution + 1;
       const size_t w = ( static_cast< size_t >( m_range[ 0 ] ) >> s ) + pad;
@@ -126,8 +126,7 @@ private:
   // --------------------------------------------------------------------------
   std::vector< ptrdiff_t >
   compute_disk_offsets(
-    unsigned int radius,
-    ptrdiff_t w_step, ptrdiff_t h_step ) const
+    size_t radius, ptrdiff_t w_step, ptrdiff_t h_step ) const
   {
     std::vector< ptrdiff_t > disk;
     const int r = static_cast< int >( radius );
@@ -150,7 +149,7 @@ private:
 
   std::vector< image_of< bool > > masks;
   std::vector< std::vector< ptrdiff_t > > disks;
-  unsigned int m_resolution;
+  size_t m_resolution;
   double m_radius;
   Eigen::AlignedBox< double, 2 > m_feat_bbox;
   vector_2d m_offset;
@@ -173,16 +172,16 @@ public:
   // Configuration Values
   double
   c_suppression_radius() const { return parent.c_suppression_radius; }
-  unsigned int
+  size_t
   c_resolution() const { return parent.c_resolution; }
 
-  unsigned int
+  size_t
   c_num_features_target() const
   {
     return parent.c_num_features_target;
   }
 
-  unsigned int
+  size_t
   c_num_features_range() const
   {
     return parent.c_num_features_range;
@@ -190,7 +189,7 @@ public:
 
   // --------------------------------------------------------------------------
   feature_set_sptr
-  filter( feature_set_sptr feat_set, std::vector< unsigned int >& ind ) const
+  filter( feature_set_sptr feat_set, std::vector< size_t >& ind ) const
   {
     const std::vector< feature_sptr >& feat_vec = feat_set->features();
 
@@ -200,14 +199,14 @@ public:
     }
 
     //  Create a new vector with the index and magnitude for faster sorting
-    using ud_pair = std::pair< unsigned int, double >;
+    using ud_pair = std::pair< size_t, double >;
 
     std::vector< ud_pair > indices;
     indices.reserve( feat_vec.size() );
 
     Eigen::AlignedBox< double, 2 > bbox;
     Eigen::AlignedBox< double, 1 > scale_box;
-    for( unsigned int i = 0; i < feat_vec.size(); i++ )
+    for( size_t i = 0; i < feat_vec.size(); i++ )
     {
       auto const& feat = feat_vec[ i ];
       indices.push_back( std::make_pair( i, feat->magnitude() ) );
@@ -217,7 +216,7 @@ public:
 
     const double scale_min = std::log2( scale_box.min()[ 0 ] );
     const double scale_range = std::log2( scale_box.max()[ 0 ] ) - scale_min;
-    const unsigned scale_steps = static_cast< unsigned >( scale_range + 1 );
+    const size_t scale_steps = static_cast< size_t >( scale_range + 1 );
 
     LOG_DEBUG(parent.logger(), "Using " << scale_steps << " scale steps" );
     if( scale_steps > 20 )
@@ -272,7 +271,7 @@ public:
       // has already been covered
       for( auto const& p : indices )
       {
-        unsigned int index = p.first;
+        size_t index = p.first;
         auto const& f = feat_vec[ index ];
         if( suppressor.cover( *f ) )
         {
@@ -352,8 +351,8 @@ bool
 filter_features_nonmax
 ::check_configuration( vital::config_block_sptr config ) const
 {
-  unsigned int resolution =
-    config->get_value< unsigned int >( "resolution", d_->c_resolution() );
+  size_t resolution =
+    config->get_value< size_t >( "resolution", d_->c_resolution() );
   if( resolution < 1 )
   {
     LOG_ERROR(logger(), "resolution must be at least 1" );
@@ -369,7 +368,7 @@ vital::feature_set_sptr
 filter_features_nonmax
 ::filter(
   vital::feature_set_sptr feat,
-  std::vector< unsigned int >& indices ) const
+  std::vector< size_t >& indices ) const
 {
   return d_->filter( feat, indices );
 }

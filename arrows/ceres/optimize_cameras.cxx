@@ -110,7 +110,7 @@ optimize_cameras
   std::vector< std::vector< double > > camera_intr_params;
   // a map from frame number to index of unique camera intrinsics in
   // camera_intr_params
-  std::unordered_map< frame_id_t, unsigned int > frame_to_intr_map;
+  std::unordered_map< frame_id_t, size_t > frame_to_intr_map;
 
   // Extract the raw camera parameter into the provided maps
   c_camera_options->extract_camera_parameters(
@@ -153,7 +153,7 @@ optimize_cameras
         continue;
       }
 
-      unsigned intr_idx = frame_to_intr_map[ ( *ts )->frame() ];
+      auto const intr_idx = frame_to_intr_map[ ( *ts )->frame() ];
       double* intr_params_ptr = &camera_intr_params[ intr_idx ][ 0 ];
       auto fts = std::dynamic_pointer_cast< feature_track_state >( *ts );
       if( !fts || !fts->feature )
@@ -174,7 +174,7 @@ optimize_cameras
     }
   }
 
-  const unsigned int ndp =
+  auto const ndp =
     num_distortion_params( c_camera_options->lens_distortion_type );
   for( std::vector< double >& cip : camera_intr_params )
   {
@@ -268,7 +268,7 @@ optimize_cameras
   VITAL_UNUSED kwiver::vital::sfm_constraints_sptr constraints ) const
 {
   // extract camera parameters to optimize
-  const unsigned int ndp =
+  auto const ndp =
     num_distortion_params( c_camera_options->lens_distortion_type );
   std::vector< double > cam_intrinsic_params( 5 + ndp, 0.0 );
   std::vector< double > cam_extrinsic_params( 6 );
@@ -304,7 +304,7 @@ optimize_cameras
       c_loss_function_scale );
 
   // Add the residuals for each relevant observation
-  for( unsigned int i = 0; i < features.size(); ++i )
+  for( size_t i = 0; i < features.size(); ++i )
   {
     vector_2d pt = features[ i ]->loc();
     problem.AddResidualBlock(

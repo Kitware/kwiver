@@ -27,8 +27,8 @@ public:
   virtual kv::rotation_d rotation() const override;
   virtual kv::camera_intrinsics_sptr intrinsics() const override;
 
-  virtual unsigned int image_width() const override;
-  virtual unsigned int image_height() const override;
+  virtual size_t image_width() const override;
+  virtual size_t image_height() const override;
 
   virtual kv::camera_perspective_sptr clone_look_at(
     const kv::vector_3d& stare_point,
@@ -197,23 +197,23 @@ camera_perspective_trampoline
   );
 }
 
-unsigned int
+size_t
 camera_perspective_trampoline
 ::image_width() const
 {
   PYBIND11_OVERLOAD(
-    unsigned int,
+    size_t,
     kv::camera_perspective,
     image_width,
   );
 }
 
-unsigned int
+size_t
 camera_perspective_trampoline
 ::image_height() const
 {
   PYBIND11_OVERLOAD(
-    unsigned int,
+    size_t,
     kv::camera_perspective,
     image_height,
   );

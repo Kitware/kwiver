@@ -177,7 +177,7 @@ pointcloud_io
     view = std::make_shared< ::pdal::PointView >( table, srs );
   }
 
-  for( unsigned int id = 0; id < points.size(); ++id )
+  for( size_t id = 0; id < points.size(); ++id )
   {
     kv::vector_3d pt = points[ id ] + offset;
     view->setField( ::pdal::Dimension::Id::X, id, pt.x() );

@@ -105,7 +105,7 @@ read_pos_file( path_t const& file_path )
   std::vector< std::string > tokens;
   kwiver::vital::tokenize( line, tokens, ",", true );
 
-  unsigned int base = 0;
+  size_t base = 0;
 
   // some POS files do not have the source name
   if( ( tokens.size() < 14 ) || ( tokens.size() > 15 ) )

@@ -130,8 +130,8 @@ estimate_canonical_transform
     }
     std::sort( heights.begin(), heights.end() );
 
-    const unsigned idx = static_cast< unsigned >( d_->c_height_percentile() *
-                                                  heights.size() );
+    auto const idx = static_cast< size_t >( d_->c_height_percentile() *
+                                            heights.size() );
     center += heights[ idx ] * z;
   }
 

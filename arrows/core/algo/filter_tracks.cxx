@@ -28,7 +28,7 @@ public:
   filter_tracks& parent;
 
   // Configuration values
-  unsigned int c_min_track_length() { return parent.c_min_track_length; }
+  size_t c_min_track_length() { return parent.c_min_track_length; }
   double c_min_mm_importance() { return parent.c_min_mm_importance; }
 };
 
@@ -92,7 +92,7 @@ filter_tracks
   {
     // compute the match matrix
     std::vector< vital::frame_id_t > frames;
-    Eigen::SparseMatrix< unsigned int > mm =
+    Eigen::SparseMatrix< size_t > mm =
       kwiver::arrows::match_matrix( tracks, frames );
 
     // compute the importance scores on the tracks

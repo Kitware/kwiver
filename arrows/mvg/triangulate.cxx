@@ -170,11 +170,10 @@ triangulate_inhomog(
   typedef Eigen::Matrix< T, Eigen::Dynamic, 3 > data_matrix_t;
   typedef Eigen::Matrix< T, Eigen::Dynamic, 1 > data_vector_t;
 
-  const unsigned int num_rows = 2 *
-                                static_cast< unsigned int >( points.size() );
+  auto const num_rows = 2 * points.size();
   data_matrix_t A( num_rows, 3 );
   data_vector_t b( num_rows );
-  for( unsigned int i = 0; i < points.size(); ++i )
+  for( size_t i = 0; i < points.size(); ++i )
   {
     // the camera
     const vital::simple_camera_perspective& cam = cameras[ i ];
@@ -210,10 +209,9 @@ triangulate_homog(
   typedef Eigen::Matrix< T, 3, 3 > matrix_3x3;
   typedef Eigen::Matrix< T, Eigen::Dynamic, 4 > data_matrix_t;
 
-  const unsigned int num_rows = 2 *
-                                static_cast< unsigned int >( points.size() );
+  auto const num_rows = 2 * points.size();
   data_matrix_t A( num_rows, 4 );
-  for( unsigned int i = 0; i < points.size(); ++i )
+  for( size_t i = 0; i < points.size(); ++i )
   {
     // the camera
     const vital::simple_camera_perspective& cam = cameras[ i ];
@@ -251,7 +249,7 @@ triangulate_rpc(
   Eigen::Array3d min_pos = curr_offset - curr_scale;
   Eigen::Array3d max_pos = curr_offset + curr_scale;
 
-  for( unsigned int i = 0; i < points.size(); ++i )
+  for( size_t i = 0; i < points.size(); ++i )
   {
     // Get world offset and scale to set normalization and sample heights
     curr_scale = cameras[ i ].world_scale().array();

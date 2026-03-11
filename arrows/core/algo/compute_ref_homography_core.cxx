@@ -46,7 +46,7 @@ struct track_info_t
   bool is_good;
 
   // The number of times we haven't seen this track in the active set
-  unsigned missed_count;
+  size_t missed_count;
 
   // On the current frame was this track updated?
   bool active;
@@ -126,16 +126,16 @@ public:
     return parent.c_backproject_threshold_sqr;
   }
 
-  unsigned
+  size_t
   c_forget_track_threshold()
   {
     return parent.c_forget_track_threshold;
   }
 
-  unsigned c_min_track_length() { return parent.c_min_track_length; }
+  size_t c_min_track_length() { return parent.c_min_track_length; }
   double
   c_inlier_scale() const { return parent.c_inlier_scale; }
-  unsigned
+  size_t
   c_minimum_inliers() const { return parent.c_minimum_inliers; }
 
   bool
@@ -156,7 +156,7 @@ public:
   track_info_buffer_sptr buffer;
 
   /// Number of frames since last new reference frame declared
-  unsigned frames_since_reset;
+  size_t frames_since_reset;
 
   /// If we should allow reference frame regression or not when determining the
   /// earliest reference frame of active tracks.
@@ -204,7 +204,7 @@ public:
         this->c_inlier_scale() );
 
       // Check for positive inlier count
-      unsigned inlier_count = 0;
+      size_t inlier_count = 0;
       for( bool b : inliers )
       {
         if( b )
@@ -452,7 +452,7 @@ compute_ref_homography_core
   // Update track infos based on homography estimation result
   //  - With a valid homography, transform the reference location of active
   //    tracks with a different reference frame than the current earliest_ref
-  unsigned int ti_reset_count = 0;
+  size_t ti_reset_count = 0;
   for( track_info_t& ti : *new_buffer )
   {
     track::history_const_itr itr = ti.trk->find( frame_number );
