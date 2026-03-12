@@ -98,10 +98,8 @@ TEST_F ( video_input_image_list, read_list )
   kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
   viil.open( list_file );
 
-  kwiver::vital::timestamp ts;
-
   int num_frames = 0;
-  while( viil.next_frame( ts ) )
+  while( viil.next_frame() )
   {
     auto img = viil.frame_image();
     auto md = viil.frame_metadata();
@@ -112,6 +110,7 @@ TEST_F ( video_input_image_list, read_list )
       kwiver::vital::print_metadata( std::cout, *md[ 0 ] );
     }
 
+    auto const ts = viil.frame_timestamp();
     ++num_frames;
     EXPECT_EQ( num_frames, ts.get_frame() )
       << "Frame numbers should be sequential";
@@ -143,10 +142,8 @@ TEST_F ( video_input_image_list, read_directory )
   kwiver::vital::path_t list_file = data_dir + "/" + images_folder_name;
   viil.open( list_file );
 
-  kwiver::vital::timestamp ts;
-
   int num_frames = 0;
-  while( viil.next_frame( ts ) )
+  while( viil.next_frame() )
   {
     auto img = viil.frame_image();
     auto md = viil.frame_metadata();
@@ -157,6 +154,7 @@ TEST_F ( video_input_image_list, read_directory )
       kwiver::vital::print_metadata( std::cout, *md[ 0 ] );
     }
 
+    auto const ts = viil.frame_timestamp();
     ++num_frames;
     EXPECT_EQ( num_frames, ts.get_frame() )
       << "Frame numbers should be sequential";
@@ -186,7 +184,6 @@ TEST_F ( video_input_image_list, is_good )
   viil.set_configuration( config );
 
   kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
-  kwiver::vital::timestamp ts;
 
   EXPECT_FALSE( viil.good() )
     << "Video state before open";
@@ -197,7 +194,7 @@ TEST_F ( video_input_image_list, is_good )
     << "Video state after open but before first frame";
 
   // step one frame
-  viil.next_frame( ts );
+  viil.next_frame();
   EXPECT_TRUE( viil.good() )
     << "Video state on first frame";
 
@@ -210,11 +207,11 @@ TEST_F ( video_input_image_list, is_good )
   viil.open( list_file );
 
   int num_frames = 0;
-  while( viil.next_frame( ts ) )
+  while( viil.next_frame() )
   {
     ++num_frames;
     EXPECT_TRUE( viil.good() )
-      << "Video state on frame " << ts.get_frame();
+      << "Video state on frame " << viil.frame_timestamp().get_frame();
   }
   EXPECT_EQ( num_expected_frames, num_frames );
 }

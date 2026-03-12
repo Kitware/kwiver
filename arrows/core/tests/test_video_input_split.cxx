@@ -103,11 +103,10 @@ TEST_F ( video_input_split, read_list )
   kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
   vis.open( list_file );
 
-  kwiver::vital::timestamp ts;
-
   int num_frames = 0;
-  while( vis.next_frame( ts ) )
+  while( vis.next_frame() )
   {
+    auto const ts = vis.frame_timestamp();
     auto img = vis.frame_image();
     auto md = vis.frame_metadata();
 

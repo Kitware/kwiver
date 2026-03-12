@@ -168,14 +168,13 @@ protected:
   {
     load_stream_klv();
 
-    kv::timestamp ts;
     for( auto const& entry : expected_stream_klv )
     {
       SCOPED_TRACE( std::string{ "Frame: " } + std::to_string( entry.first ) );
 
       // Check that loading the next frame works
-      ASSERT_TRUE( input.next_frame( ts ) );
-      EXPECT_EQ( entry.first, ts.get_frame() );
+      ASSERT_TRUE( input.next_frame() );
+      EXPECT_EQ( entry.first, input.frame_timestamp().get_frame() );
 
       // Check that video has metadata
       auto const input_md = input.frame_metadata();
@@ -218,7 +217,7 @@ protected:
     }
 
     // Check end of video
-    EXPECT_FALSE( input.next_frame( ts ) );
+    EXPECT_FALSE( input.next_frame() );
     EXPECT_TRUE( input.end_of_video() );
   }
 
@@ -265,15 +264,14 @@ TEST_F ( ffmpeg_video_input_klv, h264_no_klv_verify )
 {
   input.open( no_streams_path );
 
-  kv::timestamp ts;
   for( size_t i = 0; i < expected_frame_count; ++i )
   {
     auto const frame_number = i + 1;
     SCOPED_TRACE( std::string{ "Frame: " } + std::to_string( frame_number ) );
 
     // Check that loading the next frame works
-    ASSERT_TRUE( input.next_frame( ts ) );
-    EXPECT_EQ( frame_number, ts.get_frame() );
+    ASSERT_TRUE( input.next_frame() );
+    EXPECT_EQ( frame_number, input.frame_timestamp().get_frame() );
 
     // Check that video has metadata
     auto const input_md = input.frame_metadata();
@@ -298,7 +296,7 @@ TEST_F ( ffmpeg_video_input_klv, h264_no_klv_verify )
   }
 
   // Check end of video
-  EXPECT_FALSE( input.next_frame( ts ) );
+  EXPECT_FALSE( input.next_frame() );
   EXPECT_TRUE( input.end_of_video() );
 }
 
@@ -309,15 +307,14 @@ TEST_F ( ffmpeg_video_input_klv, h265_tricky_klv_verify )
 
   input.open( tricky_streams_path );
 
-  kv::timestamp ts;
   for( size_t i = 0; i < expected_frame_count; ++i )
   {
     auto const frame_number = i + 1;
     SCOPED_TRACE( std::string{ "Frame: " } + std::to_string( frame_number ) );
 
     // Check that loading the next frame works
-    ASSERT_TRUE( input.next_frame( ts ) );
-    EXPECT_EQ( frame_number, ts.get_frame() );
+    ASSERT_TRUE( input.next_frame() );
+    EXPECT_EQ( frame_number, input.frame_timestamp().get_frame() );
 
     // Check that video has metadata
     auto const input_mds = input.frame_metadata();
@@ -395,6 +392,6 @@ TEST_F ( ffmpeg_video_input_klv, h265_tricky_klv_verify )
   }
 
   // Check end of video
-  EXPECT_FALSE( input.next_frame( ts ) );
+  EXPECT_FALSE( input.next_frame() );
   EXPECT_TRUE( input.end_of_video() );
 }

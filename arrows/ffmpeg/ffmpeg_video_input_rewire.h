@@ -46,10 +46,8 @@ public:
   size_t num_frames() const override;
 
   bool next_frame(
-    vital::timestamp& ts,
     vital::time_usec_t timeout = 0 ) override;
   bool seek_frame(
-    vital::timestamp& ts,
     vital::timestamp::frame_t frame_number,
     vital::time_usec_t timeout = 0 ) override;
 

@@ -65,14 +65,13 @@ TEST ( ffmpeg_video_input_rewire, video_only )
   ffmpeg::ffmpeg_video_input check_input;
   check_input.open( path );
 
-  kv::timestamp check_ts;
-  kv::timestamp ts;
-
   // Loop through rewired and original video together
-  for( check_input.next_frame( check_ts ), input.next_frame( ts );
+  for( check_input.next_frame(), input.next_frame();
        !check_input.end_of_video() && !input.end_of_video();
-       check_input.next_frame( check_ts ), input.next_frame( ts ) )
+       check_input.next_frame(), input.next_frame() )
   {
+    auto const check_ts = check_input.frame_timestamp();
+    auto const ts = input.frame_timestamp();
     SCOPED_TRACE(
       std::string{ "Frame: " } +
       std::to_string( check_ts.get_frame() ) + " | " +
@@ -134,16 +133,15 @@ TEST ( ffmpeg_video_input_rewire, metadata )
     check_tss.emplace_back();
   }
 
-  kv::timestamp ts;
-
   // Loop through rewired and original videos together
-  for( input.next_frame( ts ); !input.end_of_video(); input.next_frame( ts ) )
+  for( input.next_frame(); !input.end_of_video(); input.next_frame() )
   {
     for( size_t i = 0; i < n; ++i )
     {
       check_inputs[ i ]->next_frame( check_tss[ i ] );
     }
 
+    auto const ts = input.frame_timestamp();
     SCOPED_TRACE(
       std::string{ "Frame: " } +
       std::to_string( ts.get_frame() ) );
@@ -258,16 +256,16 @@ TEST ( ffmpeg_video_input_rewire, metadata_map )
 
   auto const metadata_map = metadata_map_ptr->metadata();
 
-  kv::timestamp video_ts;
-  kv::timestamp ts;
-
   // Run through rewired and original data together
-  for( video_input.next_frame( video_ts ),
-       input.next_frame( ts );
+  for( video_input.next_frame(),
+       input.next_frame();
        !video_input.end_of_video() && !input.end_of_video();
-       video_input.next_frame( video_ts ),
-       input.next_frame( ts ) )
+       video_input.next_frame(),
+       input.next_frame() )
   {
+    auto const video_ts = video_input.frame_timestamp();
+    auto const ts = input.frame_timestamp();
+
     SCOPED_TRACE(
       std::string{ "Frame: " } +
       std::to_string( video_ts.get_frame() ) + " | " +
@@ -361,19 +359,19 @@ TEST ( ffmpeg_video_input_rewire, audio )
   video_input.open( video_path );
   audio_input.open( audio_path );
 
-  kv::timestamp video_ts;
-  kv::timestamp audio_ts;
-  kv::timestamp ts;
-
   // Run through rewired and original videos together
-  for( video_input.next_frame( video_ts ),
-       audio_input.next_frame( audio_ts ),
-       input.next_frame( ts );
+  for( video_input.next_frame(),
+       audio_input.next_frame(),
+       input.next_frame();
        !video_input.end_of_video() && !input.end_of_video();
-       video_input.next_frame( video_ts ),
-       audio_input.next_frame( audio_ts ),
-       input.next_frame( ts ) )
+       video_input.next_frame(),
+       audio_input.next_frame(),
+       input.next_frame() )
   {
+    auto const video_ts = video_input.frame_timestamp();
+    auto const audio_ts = audio_input.frame_timestamp();
+    auto const ts = input.frame_timestamp();
+
     SCOPED_TRACE(
       std::string{ "Frame: " } +
       std::to_string( video_ts.get_frame() ) + " | " +

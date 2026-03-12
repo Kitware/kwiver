@@ -433,12 +433,12 @@ public:
     std::vector< kv::frame_id_t > camera_frames;
     if( use_video_metadata )
     {
-      vital::timestamp ts;
-      while( video_reader->next_frame( ts ) )
+      while( video_reader->next_frame() )
       {
-        valid_frames.emplace_back( ts.get_frame() );
+        valid_frames.emplace_back(
+          video_reader->frame_timestamp().get_frame() );
       }
-      video_reader->seek_frame( ts, 1 );
+      video_reader->seek_frame( 1 );
       camera_frames = valid_frames;
     }
     else
@@ -499,13 +499,12 @@ public:
       // step to find the next target frame
       do
       {
-        valid = video_reader->next_frame( currentTimestamp );
+        valid = video_reader->next_frame();
         if( hasMask )
         {
-          kv::timestamp dummyTimestamp;
-          valid = valid && mask_reader->next_frame( dummyTimestamp );
+          valid = valid && mask_reader->next_frame();
         }
-        frame = currentTimestamp.get_frame();
+        frame = video_reader->frame_timestamp().get_frame();
       } while( valid && frame < target_frame );
       if( !valid )
       {

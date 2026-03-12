@@ -49,16 +49,16 @@ test_clipped(
   ffmpeg::ffmpeg_video_input unclipped_input;
   unclipped_input.open( filepath.string() );
 
-  kv::timestamp ts;
   for( kv::frame_id_t i = 1; i < frame_begin; ++i )
   {
-    unclipped_input.next_frame( ts );
+    unclipped_input.next_frame();
   }
 
   input.open( filepath.string() );
   EXPECT_FALSE( input.good() );
   EXPECT_FALSE( input.end_of_video() );
-  ts = input.frame_timestamp();
+
+  auto ts = input.frame_timestamp();
   EXPECT_EQ( 1, ts.get_frame() );
 
   CALL_TEST(

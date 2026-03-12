@@ -285,7 +285,6 @@ dump_klv
     return EXIT_FAILURE;
   }
 
-  kv::timestamp ts;
   kv::wrap_text_block wtb;
   kv::metadata_map::map_metadata_t frame_metadata;
   std::vector< std::future< void > > image_write_futures;
@@ -297,8 +296,9 @@ dump_klv
   auto const quiet = cmd_args[ "quiet" ].as< bool >();
   auto const log = ( cmd_args.count( "log" ) > 0 );
 
-  while( video_reader->next_frame( ts ) )
+  while( video_reader->next_frame() )
   {
+    auto const ts = video_reader->frame_timestamp();
     if( ts.get_frame() < frame_begin )
     {
       continue;

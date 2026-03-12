@@ -126,9 +126,7 @@ void video_input_process
 void video_input_process
 ::_step()
 {
-  kwiver::vital::timestamp ts;
-
-  if ( d->m_video_reader->next_frame( ts ) )
+  if ( d->m_video_reader->next_frame() )
   {
     kwiver::vital::metadata_vector metadata;
     kwiver::vital::image_container_sptr frame;

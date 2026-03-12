@@ -37,8 +37,7 @@ TEST ( ffmpeg_video_streaming, tcp )
   file_input1.open( src_path );
 
   // Read first frame to ensure accurate video settings
-  kv::timestamp file_ts;
-  ASSERT_TRUE( file_input1.next_frame( file_ts ) );
+  ASSERT_TRUE( file_input1.next_frame() );
 
   auto const settings = file_input1.implementation_settings();
 
@@ -77,7 +76,7 @@ TEST ( ffmpeg_video_streaming, tcp )
         {
           network_output.add_image( *image_data );
         }
-      } while( file_input1.next_frame( file_ts ) );
+      } while( file_input1.next_frame() );
 
       network_output.close();
       file_input1.close();
@@ -111,8 +110,7 @@ TEST ( ffmpeg_video_streaming, next_frame_timeout )
   file_input1.open( src_path );
 
   // Read first frame to ensure accurate video settings
-  kv::timestamp file_ts;
-  ASSERT_TRUE( file_input1.next_frame( file_ts ) );
+  ASSERT_TRUE( file_input1.next_frame() );
 
   auto const settings = file_input1.implementation_settings();
 
@@ -151,7 +149,7 @@ TEST ( ffmpeg_video_streaming, next_frame_timeout )
         {
           network_output.add_image( *image_data );
         }
-      } while( file_input1.next_frame( file_ts ) );
+      } while( file_input1.next_frame() );
 
       network_output.close();
       file_input1.close();
@@ -161,31 +159,31 @@ TEST ( ffmpeg_video_streaming, next_frame_timeout )
   auto const recv_video =
     [ & ](){
       network_input.open( url );
-      kv::timestamp network_ts;
-      kv::timestamp file2_ts;
       size_t timeout_count = 0;
-      while( file_input2.next_frame( file2_ts ) )
+      while( file_input2.next_frame() )
       {
         try
         {
-          ASSERT_TRUE( network_input.next_frame( network_ts, 1 ) );
+          ASSERT_TRUE( network_input.next_frame( 1 ) );
         }
         catch( kv::video_input_timeout_exception const& )
         {
           ++timeout_count;
           EXPECT_FALSE( network_input.good() );
           EXPECT_FALSE( network_input.end_of_video() );
-          EXPECT_TRUE( network_input.next_frame( network_ts, 5'000'000 ) );
+          EXPECT_TRUE( network_input.next_frame( 5'000'000 ) );
         }
         ASSERT_NE( nullptr, network_input.frame_image() );
-        EXPECT_EQ( file2_ts, network_ts );
+        EXPECT_EQ(
+          file_input2.frame_timestamp(),
+          network_input.frame_timestamp() );
         expect_eq_images(
           file_input2.frame_image()->get_image(),
           network_input.frame_image()->get_image(), 0.0 );
       }
 
       EXPECT_EQ( 29, timeout_count );
-      EXPECT_FALSE( network_input.next_frame( network_ts ) );
+      EXPECT_FALSE( network_input.next_frame() );
 
       network_input.close();
     };

@@ -88,14 +88,13 @@ expect_eq_videos(
   double image_epsilon = 0.0, kv::frame_id_t frame_offset = 0,
   kv::time_usec_t usec_offset = 0, bool allow_different_lengths = false )
 {
-  kv::timestamp src_ts;
-  kv::timestamp tmp_ts;
-
   // Check each pair of frames for equality
-  for( src_is.next_frame( src_ts ), tmp_is.next_frame( tmp_ts );
+  for( src_is.next_frame(), tmp_is.next_frame();
        !src_is.end_of_video() && !tmp_is.end_of_video();
-       src_is.next_frame( src_ts ), tmp_is.next_frame( tmp_ts ) )
+       src_is.next_frame(), tmp_is.next_frame() )
   {
+    auto const src_ts = src_is.frame_timestamp();
+    auto const tmp_ts = tmp_is.frame_timestamp();
     SCOPED_TRACE(
       std::string{ "Frame: " } +
       std::to_string( src_ts.get_frame() ) + " | " +
@@ -135,10 +134,9 @@ expect_eq_videos(
   src_is.open( src_path );
   tmp_is.open( tmp_path );
 
-  kv::timestamp ts;
   for( kv::frame_id_t i = 0; i < frame_offset; ++i )
   {
-    src_is.next_frame( ts );
+    src_is.next_frame();
   }
 
   expect_eq_videos( src_is, tmp_is, image_epsilon );

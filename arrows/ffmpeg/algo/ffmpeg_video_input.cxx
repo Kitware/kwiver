@@ -2566,9 +2566,7 @@ ffmpeg_video_input
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
-::next_frame(
-  kv::timestamp& ts,
-  vital::time_usec_t timeout )
+::next_frame( vital::time_usec_t timeout )
 {
   d->assert_open( "next_frame()" );
 
@@ -2578,14 +2576,14 @@ ffmpeg_video_input
 
   if( d->video->advance() )
   {
-    ts = frame_timestamp();
     if( get_real_time() )
     {
       auto const now = priv::open_video_state::clock_t::now();
       if( d->video->frame_real_time )
       {
         *d->video->frame_real_time +=
-          std::chrono::microseconds{ ts.get_time_usec() - prev_microseconds };
+          std::chrono::microseconds{
+          frame_timestamp().get_time_usec() - prev_microseconds };
         if( now < *d->video->frame_real_time )
         {
           std::this_thread::sleep_for( *d->video->frame_real_time - now );
@@ -2605,23 +2603,20 @@ ffmpeg_video_input
 bool
 ffmpeg_video_input
 ::seek_frame(
-  kv::timestamp& ts,
   kv::timestamp::frame_t frame_number,
   vital::time_usec_t timeout )
 {
-  return seek_frame_( ts, frame_number, SEEK_MODE_EXACT, timeout );
+  return seek_frame_( frame_number, SEEK_MODE_EXACT, timeout );
 }
 
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::seek_frame_(
-  kv::timestamp& ts, kv::timestamp::frame_t frame_number,
+  kv::timestamp::frame_t frame_number,
   ffmpeg_video_input::seek_mode mode, vital::time_usec_t timeout )
 {
   d->assert_open( "seek_frame()" );
-
-  ts = frame_timestamp();
 
   if( frame_number <= 0 )
   {
@@ -2634,7 +2629,6 @@ ffmpeg_video_input
   try
   {
     d->video->seek( frame_number - 1, mode, timeout );
-    ts = frame_timestamp();
     return true;
   }
   catch( kv::video_input_timeout_exception const& e )

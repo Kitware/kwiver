@@ -139,7 +139,7 @@ protected:
   void initialize_data_list( int frame_id );
   void push_data(
     kwiver::vital::camera_map::map_camera_t::value_type cam_itr,
-    kwiver::vital::timestamp& ts, bool has_mask );
+    bool has_mask );
   vtkSmartPointer< vtkRenderWindow > create_depth_buffer_pipeline();
   vtkSmartPointer< vtkFloatArray > render_depth_buffer(
     vtkSmartPointer< vtkRenderWindow > ren_win,

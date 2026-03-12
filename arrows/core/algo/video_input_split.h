@@ -53,13 +53,10 @@ public:
   bool seekable() const override;
   size_t num_frames() const override;
 
-  bool next_frame(
-    kwiver::vital::timestamp& ts,
-    vital::time_usec_t timeout = 0 ) override;
+  bool next_frame( vital::time_usec_t timeout = 0 ) override;
 
   bool seek_frame(
-    kwiver::vital::timestamp& ts,
-    kwiver::vital::timestamp::frame_t frame_number,
+    vital::timestamp::frame_t frame_number,
     vital::time_usec_t timeout = 0 ) override;
 
   kwiver::vital::timestamp frame_timestamp() const override;

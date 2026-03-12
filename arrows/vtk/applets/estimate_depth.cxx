@@ -341,11 +341,10 @@ public:
     camera_map::map_camera_t cameras;
     vital::metadata_map::map_metadata_t metadata;
 
-    vital::timestamp ts;
-    while( video_reader->next_frame( ts ) )
+    while( video_reader->next_frame() )
     {
       const kv::metadata_vector mdv = video_reader->frame_metadata();
-      const size_t frame_ID = ts.get_frame();
+      const size_t frame_ID = video_reader->frame_timestamp().get_frame();
       metadata.try_emplace( frame_ID, mdv );
 
       const std::string name = basename_from_metadata( mdv, frame_ID );

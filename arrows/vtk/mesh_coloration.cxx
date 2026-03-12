@@ -530,14 +530,13 @@ mesh_coloration
 void
 mesh_coloration
 ::push_data(
-  kwiver::vital::camera_map::map_camera_t::value_type cam_itr,
-  kwiver::vital::timestamp& ts, bool has_mask )
+  kwiver::vital::camera_map::map_camera_t::value_type cam_itr, bool has_mask )
 {
   auto cam_ptr =
     std::dynamic_pointer_cast< kwiver::vital::camera_perspective >(
       cam_itr.second );
-  if( cam_ptr && video_reader_->seek_frame( ts, cam_itr.first ) &&
-      ( !has_mask || mask_reader_->seek_frame( ts, cam_itr.first ) ) )
+  if( cam_ptr && video_reader_->seek_frame( cam_itr.first ) &&
+      ( !has_mask || mask_reader_->seek_frame( cam_itr.first ) ) )
   {
     try
     {
@@ -569,7 +568,6 @@ mesh_coloration
 {
   video_reader_->open( video_path_ );
 
-  kwiver::vital::timestamp ts;
   auto cam_map = cameras_->cameras();
   bool has_mask = true;
   if( mask_path_.empty() )
@@ -599,7 +597,7 @@ mesh_coloration
       {
         continue;
       }
-      push_data( cam_itr, ts, has_mask );
+      push_data( cam_itr, has_mask );
     }
     LOG_DEBUG( logger_, "Camera and image list size: " << data_list_.size() );
   }
@@ -609,7 +607,7 @@ mesh_coloration
     auto cam_itr = cam_map.find( frame_id );
     if( cam_itr != cam_map.end() )
     {
-      push_data( *cam_itr, ts, has_mask );
+      push_data( *cam_itr, has_mask );
     }
   }
   video_reader_->close();

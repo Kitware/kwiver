@@ -191,9 +191,7 @@ video_input_split
 // ----------------------------------------------------------------------------
 bool
 video_input_split
-::next_frame(
-  kwiver::vital::timestamp& ts,               // returns timestamp
-  vital::time_usec_t timeout )
+::next_frame( vital::time_usec_t timeout )
 {
   // Check for at end of data
   if( this->end_of_video() )
@@ -207,19 +205,13 @@ video_input_split
     timeout = 0;
   }
 
-  kwiver::vital::timestamp image_ts;
-  bool image_stat = d->image_source()->next_frame( image_ts, timeout );
-
-  kwiver::vital::timestamp metadata_ts;
-  bool meta_stat = d->metadata_source()->next_frame( metadata_ts, timeout );
+  bool image_stat = d->image_source()->next_frame( timeout );
+  bool meta_stat = d->metadata_source()->next_frame( timeout );
 
   if( !image_stat || !meta_stat )
   {
     return false;
   }
-
-  // Both timestamps should be the same
-  ts = merge_timestamps( image_ts, metadata_ts );
 
   return true;
 } // video_input_split::next_frame
@@ -228,7 +220,6 @@ video_input_split
 bool
 video_input_split
 ::seek_frame(
-  kwiver::vital::timestamp& ts,               // returns timestamp
   kwiver::vital::timestamp::frame_t frame_number,
   vital::time_usec_t timeout )
 {
@@ -239,45 +230,12 @@ video_input_split
     timeout = 0;
   }
 
-  kwiver::vital::timestamp image_ts;
-  bool image_stat = d->image_source()->seek_frame(
-    image_ts, frame_number,
-    timeout );
-
-  kwiver::vital::timestamp metadata_ts;
-  bool meta_stat = d->metadata_source()->seek_frame(
-    metadata_ts, frame_number,
-    timeout );
+  bool image_stat = d->image_source()->seek_frame( frame_number, timeout );
+  bool meta_stat = d->metadata_source()->seek_frame( frame_number, timeout );
 
   if( !image_stat || !meta_stat )
   {
     return false;
-  }
-
-  // Both timestamps should be the same
-  ts = metadata_ts;
-  if( image_ts != metadata_ts )
-  {
-    if( image_ts.get_frame() == metadata_ts.get_frame() )
-    {
-      if( image_ts.has_valid_time() && !metadata_ts.has_valid_time() )
-      {
-        ts.set_time_usec( image_ts.get_time_usec() );
-      }
-      else if( image_ts.has_valid_time() && metadata_ts.has_valid_time() )
-      {
-        LOG_WARN(
-          logger(),
-          "Timestamps from image and metadata sources have different time" );
-      }
-    }
-    else
-    {
-      // throw something?
-      LOG_WARN(
-        logger(),
-        "Timestamps from image and metadata sources are out of sync" );
-    }
   }
 
   return true;

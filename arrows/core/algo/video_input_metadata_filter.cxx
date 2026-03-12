@@ -171,21 +171,20 @@ video_input_metadata_filter
 // ----------------------------------------------------------------------------
 bool
 video_input_metadata_filter
-::next_frame( kv::timestamp& ts, vital::time_usec_t timeout )
+::next_frame( vital::time_usec_t timeout )
 {
   if( !m_d->video_input() )
   {
     return false;
   }
 
-  return m_d->video_input()->next_frame( ts, timeout );
+  return m_d->video_input()->next_frame( timeout );
 }
 
 // ----------------------------------------------------------------------------
 bool
 video_input_metadata_filter
 ::seek_frame(
-  kv::timestamp& ts,
   kv::timestamp::frame_t frame_number,
   vital::time_usec_t timeout )
 {
@@ -194,7 +193,7 @@ video_input_metadata_filter
     return false;
   }
 
-  return m_d->video_input()->seek_frame( ts, frame_number, timeout );
+  return m_d->video_input()->seek_frame( frame_number, timeout );
 }
 
 // ----------------------------------------------------------------------------

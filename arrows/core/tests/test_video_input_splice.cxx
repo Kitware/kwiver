@@ -105,8 +105,6 @@ TEST_F ( video_input_splice, is_good )
   kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
   vis.open( list_file );
 
-  kwiver::vital::timestamp ts;
-
   EXPECT_FALSE( vis.good() );
 
   // open the video
@@ -114,7 +112,7 @@ TEST_F ( video_input_splice, is_good )
   EXPECT_FALSE( vis.good() );
 
   // step one frame
-  vis.next_frame( ts );
+  vis.next_frame();
   EXPECT_TRUE( vis.good() );
 
   // close the video
@@ -125,11 +123,11 @@ TEST_F ( video_input_splice, is_good )
   vis.open( list_file );
 
   int num_frames = 0;
-  while( vis.next_frame( ts ) )
+  while( vis.next_frame() )
   {
     ++num_frames;
     EXPECT_TRUE( vis.good() )
-      << "Video state on frame " << ts.get_frame();
+      << "Video state on frame " << vis.frame_timestamp().get_frame();
   }
   EXPECT_EQ( num_expected_frames, num_frames );
 
@@ -155,10 +153,8 @@ TEST_F ( video_input_splice, next_frame )
   kwiver::vital::path_t list_file = data_dir + "/" + source_list_file_name;
   vis.open( list_file );
 
-  kwiver::vital::timestamp ts;
-
   int num_frames = 0;
-  while( vis.next_frame( ts ) )
+  while( vis.next_frame() )
   {
     auto img = vis.frame_image();
     auto md = vis.frame_metadata();
@@ -169,14 +165,15 @@ TEST_F ( video_input_splice, next_frame )
       kwiver::vital::print_metadata( std::cout, *md[ 0 ] );
     }
 
+    auto const frame_number = vis.frame_timestamp().get_frame();
     ++num_frames;
-    EXPECT_EQ( num_frames, ts.get_frame() )
+    EXPECT_EQ( num_frames, frame_number )
       << "Frame numbers should be sequential";
-    EXPECT_EQ( ts.get_frame(), decode_barcode( *img ) )
+    EXPECT_EQ( frame_number, decode_barcode( *img ) )
       << "Frame number should match barcode in frame image";
   }
 
-  EXPECT_FALSE( vis.next_frame( ts ) );
+  EXPECT_FALSE( vis.next_frame() );
   EXPECT_TRUE( vis.end_of_video() );
   EXPECT_EQ( num_expected_frames, num_frames );
   EXPECT_EQ( num_expected_frames, vis.num_frames() );

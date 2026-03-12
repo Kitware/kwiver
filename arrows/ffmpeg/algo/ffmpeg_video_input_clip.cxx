@@ -69,13 +69,14 @@ ffmpeg_video_input_clip::impl
 {
   std::shared_ptr< ffmpeg_video_input > fvip = std::dynamic_pointer_cast< ffmpeg_video_input >( video() );
   if( !fvip->seek_frame_(
-    initial_timestamp, frame_begin(),
+    frame_begin(),
     start_at_keyframe()
     ? ffmpeg_video_input::SEEK_MODE_KEYFRAME_BEFORE
     : ffmpeg_video_input::SEEK_MODE_EXACT ) )
   {
     throw_error( "Could not start video clip" );
   }
+  initial_timestamp = fvip->frame_timestamp();
 }
 
 // ----------------------------------------------------------------------------
@@ -259,40 +260,33 @@ ffmpeg_video_input_clip
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input_clip
-::next_frame( vital::timestamp& ts, vital::time_usec_t timeout )
+::next_frame( vital::time_usec_t timeout )
 {
   if( end_of_video() )
   {
-    ts = vital::timestamp{};
     return false;
   }
 
   if( d->before_first_frame )
   {
     d->before_first_frame = false;
-    ts = frame_timestamp();
     return true;
   }
 
-  vital::timestamp tmp_ts;
-  auto const success =
-    d->video()->next_frame( tmp_ts, timeout ) && !end_of_video();
-  ts = success ? frame_timestamp() : vital::timestamp{};
-  return success;
+  return d->video()->next_frame( timeout ) && !end_of_video();
 }
 
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input_clip
 ::seek_frame(
-  vital::timestamp& ts, vital::timestamp::frame_t frame_number,
-  vital::time_usec_t timeout )
+  vital::timestamp::frame_t frame_number, vital::time_usec_t timeout )
 {
   if( frame_number > 1 )
   {
     frame_number += d->true_frame_begin();
     frame_number = std::min( frame_number, d->true_frame_end() );
-    return d->video()->seek_frame( ts, frame_number, timeout );
+    return d->video()->seek_frame( frame_number, timeout );
   }
   else
   {

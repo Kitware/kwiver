@@ -56,13 +56,10 @@ public:
   virtual bool seekable() const;
   virtual size_t num_frames() const;
 
-  virtual bool next_frame(
-    kwiver::vital::timestamp& ts,
-    vital::time_usec_t timeout = 0 );
+  virtual bool next_frame( vital::time_usec_t timeout = 0 );
 
   virtual bool seek_frame(
-    kwiver::vital::timestamp& ts,
-    kwiver::vital::timestamp::frame_t frame_number,
+    vital::timestamp::frame_t frame_number,
     vital::time_usec_t timeout = 0 );
 
   virtual kwiver::vital::timestamp frame_timestamp() const;

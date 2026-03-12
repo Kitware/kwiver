@@ -12,6 +12,9 @@ Vital: Algo
 
 * Removed video_input.metadata_map().
 
+* No longer require timestamp references in video_input's next_frame()
+  and seek_frame().
+
 Vital: Types
 
 * Removed local_geo_cs.

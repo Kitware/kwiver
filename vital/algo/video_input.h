@@ -197,11 +197,7 @@ public:
   /// \brief Advance to next frame in video stream.
   ///
   /// This method advances the video stream to the next frame, making
-  /// the image and metadata available. The returned timestamp is for
-  /// new current frame.
-  ///
-  /// The timestamp returned may be missing either frame number or time
-  /// or both, depending on the actual implementation.
+  /// the image and metadata available.
   ///
   /// Calling this method will make a new image and metadata packets
   /// available. They can be retrieved by calling frame_image() and
@@ -213,24 +209,18 @@ public:
   /// If the video input is already an end, then calling this method
   /// will return \b false.
   ///
-  /// \param[out] ts Time stamp of new frame.
   /// \param[in] timeout Number of microseconds to wait. 0 = no timeout.
   ///
   /// \return \b true if frame returned, \b false if end of video.
   ///
   /// \throws video_input_timeout_exception when the timeout expires.
   /// \throws video_stream_exception when there is an error in the video stream.
-  virtual bool next_frame(
-    kwiver::vital::timestamp& ts,
-    kwiver::vital::time_usec_t timeout = 0 ) = 0;
+  virtual bool next_frame( time_usec_t timeout = 0 ) = 0;
 
   /// \brief Seek to the given frame number in video stream.
   ///
   /// This method seeks the video stream to the requested frame, making
-  /// the image and metadata available. The returned timestamp is for
-  /// new current frame.
-  ///
-  /// The timestamp returned may be missing the time.
+  /// the image and metadata available.
   ///
   /// Calling this method will make a new image and metadata packets
   /// available. They can be retrieved by calling frame_image() and
@@ -245,7 +235,6 @@ public:
   /// If the video input is not seekable then calling this method will return
   /// \b false.
   ///
-  /// \param[out] ts Time stamp of new frame.
   /// \param[in] frame_number The frame to seek to.
   /// \param[in] timeout Number of microseconds to wait. 0 = no timeout.
   ///
@@ -254,7 +243,6 @@ public:
   /// \throws video_input_timeout_exception when the timeout expires.
   /// \throws video_stream_exception when there is an error in the video stream.
   virtual bool seek_frame(
-    kwiver::vital::timestamp& ts,
     kwiver::vital::timestamp::frame_t frame_number,
     kwiver::vital::time_usec_t timeout = 0 ) = 0;
 
