@@ -346,14 +346,6 @@ video_input_buffered_metadata_filter
 }
 
 // ----------------------------------------------------------------------------
-kv::metadata_map_sptr
-video_input_buffered_metadata_filter
-::metadata_map()
-{
-  return nullptr;
-}
-
-// ----------------------------------------------------------------------------
 kv::video_settings_uptr
 video_input_buffered_metadata_filter
 ::implementation_settings() const

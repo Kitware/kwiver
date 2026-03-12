@@ -93,9 +93,6 @@ public:
     return good() ? m_it->second : metadata_vector{};
   }
 
-  metadata_map_sptr
-  metadata_map() override { return nullptr; }
-
   void
   set_configuration( config_block_sptr ) override {}
 

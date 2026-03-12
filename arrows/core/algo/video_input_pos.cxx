@@ -369,35 +369,6 @@ video_input_pos
   return vect;
 }
 
-kwiver::vital::metadata_map_sptr
-video_input_pos
-::metadata_map()
-{
-  if( !d->d_have_metadata_map )
-  {
-    kwiver::vital::timestamp::frame_t fn = 0;
-    for( const auto& f : d->d_img_md_files )
-    {
-      ++fn;
-
-      kwiver::vital::timestamp ts;
-      auto md = d->process_metadata( f, fn, ts );
-      if( md )
-      {
-        vital::metadata_vector mdv( 1, md );
-        std::pair< vital::timestamp::frame_t, vital::metadata_vector > el( fn,
-          mdv );
-        d->d_metadata_map.insert( el );
-      }
-    }
-
-    d->d_have_metadata_map = true;
-  }
-
-  return std::make_shared< kwiver::vital::simple_metadata_map >(
-    d->d_metadata_map );
-}
-
 } // namespace core
 
 } // namespace arrows

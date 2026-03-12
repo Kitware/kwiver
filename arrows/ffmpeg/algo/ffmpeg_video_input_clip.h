@@ -78,7 +78,6 @@ public:
   vital::metadata_vector frame_metadata() override;
   vital::video_raw_metadata_sptr raw_frame_metadata() override;
   vital::video_uninterpreted_data_sptr uninterpreted_frame_data() override;
-  vital::metadata_map_sptr metadata_map() override;
 
   vital::video_settings_uptr implementation_settings() const override;
   ~ffmpeg_video_input_clip() override;

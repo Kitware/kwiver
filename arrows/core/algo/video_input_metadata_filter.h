@@ -67,7 +67,6 @@ public:
   vital::video_raw_metadata_sptr raw_frame_metadata() override;
   kwiver::vital::video_uninterpreted_data_sptr uninterpreted_frame_data()
   override;
-  kwiver::vital::metadata_map_sptr metadata_map() override;
 
   kwiver::vital::video_settings_uptr implementation_settings() const override;
 

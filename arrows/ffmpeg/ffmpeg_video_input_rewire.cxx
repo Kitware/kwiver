@@ -570,14 +570,6 @@ ffmpeg_video_input_rewire
 }
 
 // ----------------------------------------------------------------------------
-vital::metadata_map_sptr
-ffmpeg_video_input_rewire
-::metadata_map()
-{
-  return nullptr;
-}
-
-// ----------------------------------------------------------------------------
 vital::video_settings_uptr
 ffmpeg_video_input_rewire
 ::implementation_settings() const

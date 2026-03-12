@@ -365,26 +365,6 @@ video_input_image_list
 }
 
 // ----------------------------------------------------------------------------
-kv::metadata_map_sptr
-video_input_image_list
-::metadata_map()
-{
-  if( !d->m_have_metadata_map )
-  {
-    auto fn = kv::timestamp::frame_t{ 0 };
-    for( auto const& f : d->m_files )
-    {
-      auto mdv = vital::metadata_vector{ 1, d->frame_metadata( f ) };
-      d->m_metadata_map.emplace( ++fn, std::move( mdv ) );
-    }
-
-    d->m_have_metadata_map = true;
-  }
-
-  return std::make_shared< kv::simple_metadata_map >( d->m_metadata_map );
-}
-
-// ----------------------------------------------------------------------------
 void
 video_input_image_list::priv
 ::read_from_file( std::string const& filename )

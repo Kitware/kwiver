@@ -2739,31 +2739,6 @@ ffmpeg_video_input
 }
 
 // ----------------------------------------------------------------------------
-kv::metadata_map_sptr
-ffmpeg_video_input
-::metadata_map()
-{
-  d->assert_open( "metadata_map()" );
-
-  if( d->video->all_metadata )
-  {
-    return d->video->all_metadata;
-  }
-
-  kv::metadata_map::map_metadata_t result;
-  priv::open_video_state tmp_video{ *d, d->video->path };
-  while( tmp_video.advance() )
-  {
-    result.emplace(
-      tmp_video.frame_number() + 1, tmp_video.frame->convert_metadata() );
-  }
-
-  d->video->all_metadata.reset(
-    new kv::simple_metadata_map{ std::move( result ) } );
-  return d->video->all_metadata;
-}
-
-// ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
 ::end_of_video() const

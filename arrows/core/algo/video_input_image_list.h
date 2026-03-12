@@ -94,7 +94,6 @@ public:
   kwiver::vital::timestamp frame_timestamp() const override;
   kwiver::vital::image_container_sptr frame_image() override;
   kwiver::vital::metadata_vector frame_metadata() override;
-  kwiver::vital::metadata_map_sptr metadata_map() override;
 
 protected:
   void initialize() override;

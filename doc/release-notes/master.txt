@@ -4,6 +4,10 @@ KWIVER 2.3.1 Release Notes
 Updates
 -------
 
+Vital: Algo
+
+* Removed video_input.metadata_map().
+
 Vital: Types
 
 * Removed local_geo_cs.

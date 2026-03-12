@@ -68,7 +68,6 @@ public:
   virtual kwiver::vital::timestamp frame_timestamp() const;
   virtual kwiver::vital::image_container_sptr frame_image();
   virtual kwiver::vital::metadata_vector frame_metadata();
-  virtual kwiver::vital::metadata_map_sptr metadata_map();
 
   kwiver::vital::video_settings_uptr implementation_settings() const override;
 
