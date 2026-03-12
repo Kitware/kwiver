@@ -8,5 +8,7 @@ Vital: Types
 
 * Removed local_geo_cs.
 
+* Removed local_cartesian.
+
 Bug Fixes
 ---------

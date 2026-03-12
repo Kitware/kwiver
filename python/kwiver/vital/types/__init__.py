@@ -39,7 +39,6 @@ from kwiver.vital.types.homography_f2w import *
 from kwiver.vital.types.iqr_feedback import *
 from kwiver.vital.types.landmark import *
 from kwiver.vital.types.landmark_map import *
-from kwiver.vital.types.local_cartesian import *
 from kwiver.vital.types.rotation import *
 from kwiver.vital.types.local_tangent_space import *
 from kwiver.vital.types.match_set import *
