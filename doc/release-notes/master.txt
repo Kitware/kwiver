@@ -4,6 +4,10 @@ KWIVER 2.3.1 Release Notes
 Updates
 -------
 
+Track Oracle
+
+* Removed track_oracle.
+
 Vital: Algo
 
 * Removed video_input.metadata_map().

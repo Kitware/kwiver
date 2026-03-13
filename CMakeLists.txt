@@ -137,7 +137,6 @@ endif()
 OPTION(KWIVER_ENABLE_TESTS                "Enable testing" OFF )
 OPTION(KWIVER_ENABLE_ARROWS               "Enable building arrows" OFF )
 OPTION(KWIVER_ENABLE_TOOLS                "Enable tools" OFF )
-OPTION(KWIVER_ENABLE_TRACK_ORACLE         "Enable track_oracle (DEPRECATED)" OFF )
 OPTION(KWIVER_ENABLE_EXAMPLES             "Enable examples" OFF )
 
 OPTION(KWIVER_ENABLE_SERIALIZE_PROTOBUF   "Enable protobuf serialization" OFF )
@@ -275,11 +274,6 @@ set( LIB_SUFFIX "" CACHE STRING
   "Library directory suffix. e.g. suffix=\"kwiver\" will install libraries in \"libkwiver\" rather than \"lib\"")
 mark_as_advanced( LIB_SUFFIX )
 # Descend into project directories noq.
-
-if (KWIVER_ENABLE_TRACK_ORACLE)
-  message(WARNING "track_oracle is deprecated and will be removed from KWIVER in a future release.")
-  add_subdirectory( track_oracle )
-endif()
 
 if (KWIVER_ENABLE_ARROWS)
   add_subdirectory( arrows )
