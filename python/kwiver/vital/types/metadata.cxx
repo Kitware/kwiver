@@ -156,8 +156,5 @@ PYBIND11_MODULE( metadata, m )
         kwiver::vital::print_metadata( fout, *metadata.get() );
       } )
   ;
-
-  m.def( "test_equal_content", &test_equal_content )
-  ;
 }
 #undef REGISTER_TYPED_METADATA

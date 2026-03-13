@@ -516,13 +516,6 @@ print_metadata( std::ostream& os, metadata const& metadata )
   return os;
 }
 
-// ----------------------------------------------------------------------------
-bool
-test_equal_content( vital::metadata const& lhs, vital::metadata const& rhs )
-{
-  return lhs == rhs;
-}
-
 } // namespace vital
 
 } // namespace kwiver
