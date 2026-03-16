@@ -1098,15 +1098,16 @@ bundle_adjust_tool::priv
     if( video_reader->get_implementation_capabilities()
         .has_capability( video_input::HAS_METADATA ) )
     {
-      vital::timestamp ts;
       vital::metadata_map::map_metadata_t md_map;
-      while( video_reader->next_frame( ts ) )
+      while( video_reader->next_frame() )
       {
         if( !first_frame )
         {
           first_frame = video_reader->frame_image();
         }
-        md_map.try_emplace( ts.get_frame(), video_reader->frame_metadata() );
+        md_map.try_emplace(
+          video_reader->frame_timestamp().get_frame(),
+          video_reader->frame_metadata() );
       }
       sfm_constraint_ptr->set_metadata(
         std::make_shared< vital::simple_metadata_map >( std::move( md_map ) ) );

@@ -381,7 +381,6 @@ gather_depth_frames(
   }
 
   int ref_index = -1;
-  kwiver::vital::timestamp currentTimestamp;
   for( auto const& item : cameras.T_cameras() )
   {
     if( cb && !cb(
@@ -391,20 +390,21 @@ gather_depth_frames(
       break;
     }
     // seek to the frame
-    video->seek_frame( currentTimestamp, item.first );
-    if( currentTimestamp.get_frame() != item.first )
+    video->seek_frame( item.first );
+    if( video->frame_timestamp().get_frame() != item.first )
     {
       LOG_WARN(logger, "Could not find video frame " << item.first);
       continue;
     }
     if( masks )
     {
-      masks->seek_frame( currentTimestamp, item.first );
-    }
-    if( currentTimestamp.get_frame() != item.first )
-    {
-      LOG_WARN(logger, "Could not find mask frame " << item.first);
-      continue;
+      masks->seek_frame( item.first );
+
+      if( masks->frame_timestamp().get_frame() != item.first )
+      {
+        LOG_WARN(logger, "Could not find mask frame " << item.first);
+        continue;
+      }
     }
 
     auto cam = item.second;

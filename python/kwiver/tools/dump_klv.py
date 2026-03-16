@@ -187,7 +187,6 @@ def run():
     video_reader.open(video_file)
 
     count = 1
-    ts = Timestamp()
     # kv::wrap_text_block wtb;
     frame_metadata = dict()
     image_write_threads = []
@@ -199,7 +198,8 @@ def run():
     quiet = cmd_args.quiet
     log = cmd_args.log is not None
 
-    while video_reader.next_frame(ts):
+    while video_reader.next_frame():
+        ts = video_reader.frame_timestamp()
         if not quiet:
             print(f"========== Read frame {ts.get_frame()} (index {count}) ==========")
 

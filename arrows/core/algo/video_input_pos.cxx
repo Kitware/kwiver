@@ -221,13 +221,10 @@ video_input_pos
 // ----------------------------------------------------------------------------
 bool
 video_input_pos
-::next_frame(
-  kwiver::vital::timestamp& ts,               // returns timestamp
-  VITAL_UNUSED vital::time_usec_t timeout )   // not supported
+::next_frame( VITAL_UNUSED vital::time_usec_t timeout )   // not supported
 {
   // reset current metadata packet and timestamp
   d->d_metadata = nullptr;
-  ts = kwiver::vital::timestamp();
 
   // Check for at end of video
   if( this->end_of_video() )
@@ -254,13 +251,10 @@ video_input_pos
     d->d_metadata = vital::read_pos_file( d->d_current_files->second );
   }
 
-  // Return timestamp
-  ts = this->frame_timestamp();
-
   // Include the path to the image
   if( d->d_metadata )
   {
-    d->d_metadata->set_timestamp( ts );
+    d->d_metadata->set_timestamp( frame_timestamp() );
     d->d_metadata->add< vital::VITAL_META_IMAGE_URI >(
       d->d_current_files->first );
   }
@@ -272,13 +266,11 @@ video_input_pos
 bool
 video_input_pos
 ::seek_frame(
-  kwiver::vital::timestamp& ts,               // returns timestamp
-  kwiver::vital::timestamp::frame_t frame_number,
+  vital::timestamp::frame_t frame_number,
   VITAL_UNUSED vital::time_usec_t timeout )
 {
   // reset current metadata packet and timestamp
   d->d_metadata = nullptr;
-  ts = kwiver::vital::timestamp();
 
   // Check if requested frame exists
   if( frame_number > static_cast< int >( d->d_img_md_files.size() ) ||
@@ -305,13 +297,10 @@ video_input_pos
     d->d_metadata = vital::read_pos_file( d->d_current_files->second );
   }
 
-  // Return timestamp
-  ts = this->frame_timestamp();
-
   // Include the path to the image
   if( d->d_metadata )
   {
-    d->d_metadata->set_timestamp( ts );
+    d->d_metadata->set_timestamp( frame_timestamp() );
     d->d_metadata->add< vital::VITAL_META_IMAGE_URI >(
       d->d_current_files->first );
   }

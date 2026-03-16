@@ -90,8 +90,7 @@ example_video_frames_metadata(
   // Opening the provided video
   video_reader->open( video_file );
 
-  timestamp ts;
-  while( video_reader->next_frame( ts ) )
+  while( video_reader->next_frame() )
   {
     // Extracting the metadata at the current frame
     metadata_vector metadata = video_reader->frame_metadata();

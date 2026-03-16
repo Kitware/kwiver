@@ -70,10 +70,8 @@ TEST_F ( video_input_pos, read_list )
   kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
   vip.open( list_file );
 
-  kwiver::vital::timestamp ts;
-
   int num_frames = 0;
-  while( vip.next_frame( ts ) )
+  while( vip.next_frame() )
   {
     auto md = vip.frame_metadata();
 
@@ -83,6 +81,8 @@ TEST_F ( video_input_pos, read_list )
       kwiver::vital::print_metadata( std::cout, *md[ 0 ] );
     }
     ++num_frames;
+
+    auto const ts = vip.frame_timestamp();
     EXPECT_EQ( num_frames, ts.get_frame() )
       << "Frame numbers should be sequential";
 
@@ -108,7 +108,6 @@ TEST_F ( video_input_pos, is_good )
   vip.set_configuration( config );
 
   kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
-  kwiver::vital::timestamp ts;
 
   EXPECT_FALSE( vip.good() )
     << "Video state before open";
@@ -119,7 +118,7 @@ TEST_F ( video_input_pos, is_good )
     << "Video state after open but before first frame";
 
   // step one frame
-  vip.next_frame( ts );
+  vip.next_frame();
   EXPECT_TRUE( vip.good() )
     << "Video state on first frame";
 
@@ -132,11 +131,11 @@ TEST_F ( video_input_pos, is_good )
   vip.open( list_file );
 
   int num_frames = 0;
-  while( vip.next_frame( ts ) )
+  while( vip.next_frame() )
   {
     ++num_frames;
     EXPECT_TRUE( vip.good() )
-      << "Video state on frame " << ts.get_frame();
+      << "Video state on frame " << vip.frame_timestamp().get_frame();
   }
   EXPECT_EQ( num_expected_frames, num_frames );
 }
@@ -155,7 +154,6 @@ TEST_F ( video_input_pos, seek_frame )
   vip.set_configuration( config );
 
   kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
-  kwiver::vital::timestamp ts;
 
   // Open the video
   vip.open( list_file );
@@ -168,8 +166,8 @@ TEST_F ( video_input_pos, seek_frame )
                                                                    34, 50, 1 };
   for( auto requested_frame : valid_seeks )
   {
-    EXPECT_TRUE( vip.seek_frame( ts, requested_frame ) );
-    EXPECT_EQ( requested_frame, ts.get_frame() );
+    EXPECT_TRUE( vip.seek_frame( requested_frame ) );
+    EXPECT_EQ( requested_frame, vip.frame_timestamp().get_frame() );
   }
 
   // Test various invalid seeks past end of video
@@ -177,8 +175,8 @@ TEST_F ( video_input_pos, seek_frame )
                                                                       51, 55 };
   for( auto requested_frame : in_valid_seeks )
   {
-    EXPECT_FALSE( vip.seek_frame( ts, requested_frame ) );
-    EXPECT_NE( requested_frame, ts.get_frame() );
+    EXPECT_FALSE( vip.seek_frame( requested_frame ) );
+    EXPECT_NE( requested_frame, vip.frame_timestamp().get_frame() );
   }
 
   vip.close();

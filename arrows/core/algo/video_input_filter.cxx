@@ -233,9 +233,7 @@ video_input_filter
 // ----------------------------------------------------------------------------
 bool
 video_input_filter
-::next_frame(
-  kwiver::vital::timestamp& ts,               // returns timestamp
-  vital::time_usec_t timeout )                // not supported
+::next_frame( vital::time_usec_t timeout )
 {
   // Check for at end of data
   if( d->d_at_eov )
@@ -244,10 +242,10 @@ video_input_filter
   }
 
   bool status = false;
-
+  vital::frame_id_t frame_number;
   do
   {
-    status = d->d_video_input()->next_frame( ts, timeout );
+    status = d->d_video_input()->next_frame( timeout );
 
     if( !status )
     {
@@ -255,20 +253,16 @@ video_input_filter
       return false;
     }
 
+    frame_number = d->d_video_input()->frame_timestamp().get_frame();
+
     if( d->c_stop_after_frame() > 0 &&
-        ts.get_frame() > d->c_stop_after_frame() )
+        frame_number > d->c_stop_after_frame() )
     {
       d->d_at_eov = true;
       return false;
     }
-  }while( ( ts.get_frame() - 1 ) % d->c_frame_skip() != 0 ||
-          ts.get_frame() < d->c_start_at_frame() );
-
-  // set the frame time base on rate if missing
-  if( d->c_frame_rate() > 0 && !ts.has_valid_time() )
-  {
-    ts.set_time_seconds( ts.get_frame() / d->c_frame_rate() );
-  }
+  }while( ( frame_number - 1 ) % d->c_frame_skip() != 0 ||
+          frame_number < d->c_start_at_frame() );
 
   return status;
 }
@@ -277,7 +271,6 @@ video_input_filter
 bool
 video_input_filter
 ::seek_frame(
-  kwiver::vital::timestamp& ts,               // returns timestamp
   kwiver::vital::timestamp::frame_t frame_number,
   vital::time_usec_t timeout )                // not supported
 {
@@ -290,13 +283,7 @@ video_input_filter
     return false;
   }
 
-  bool status = d->d_video_input()->seek_frame( ts, frame_number, timeout );
-
-  // set the frame time base on rate if missing
-  if( d->c_frame_rate() > 0 && !ts.has_valid_time() )
-  {
-    ts.set_time_seconds( ts.get_frame() / d->c_frame_rate() );
-  }
+  bool status = d->d_video_input()->seek_frame( frame_number, timeout );
 
   return status;
 }

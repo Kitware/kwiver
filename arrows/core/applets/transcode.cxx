@@ -149,8 +149,7 @@ transcode_applet
   check_input( input, cmd_args );
 
   // Acquire first frame, which may help produce more accurate video settings
-  kv::timestamp timestamp;
-  input->next_frame( timestamp );
+  input->next_frame();
 
   auto const video_settings = input->implementation_settings();
 
@@ -163,7 +162,7 @@ transcode_applet
 
   // Transcode frames
   // UNCRUST-OFF
-  for( ; !input->end_of_video(); input->next_frame( timestamp ) )
+  for( ; !input->end_of_video(); input->next_frame() )
   //  ^ `uncrustify` is not stable and will oscillate on whether this space
   //  should exist or not.
   // UNCRUST-ON
@@ -174,8 +173,9 @@ transcode_applet
       auto const md = input->raw_frame_metadata();
       if( !md )
       {
-        std::cerr << "No raw metadata found for frame " << timestamp.get_frame()
-                  << "." << std::endl;
+        std::cerr
+          << "No raw metadata found for frame "
+          << input->frame_timestamp().get_frame() << "." << std::endl;
         exit( -1 );
       }
       output->add_metadata( *md );
@@ -201,15 +201,16 @@ transcode_applet
       auto const image = input->raw_frame_image();
       if( !image )
       {
-        std::cerr << "No raw image found for frame " << timestamp.get_frame()
-                  << "." << std::endl;
+        std::cerr
+          << "No raw image found for frame "
+          << input->frame_timestamp().get_frame() << "." << std::endl;
         exit( -1 );
       }
       output->add_image( *image );
     }
     else
     {
-      output->add_image( input->frame_image(), timestamp );
+      output->add_image( input->frame_image(), input->frame_timestamp() );
     }
   }
 

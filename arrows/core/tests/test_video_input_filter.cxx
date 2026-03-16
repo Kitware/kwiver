@@ -106,14 +106,12 @@ TEST_F ( video_input_filter, read_list )
   kwiver::vital::path_t list_file = data_dir + "/" + list_file_name;
   vif.open( list_file );
 
-  kwiver::vital::timestamp ts;
-
   EXPECT_EQ( num_expected_frames, vif.num_frames() )
     << "Number of frames before extracting frames should be "
     << num_expected_frames;
 
   int num_frames = 0;
-  while( vif.next_frame( ts ) )
+  while( vif.next_frame() )
   {
     auto img = vif.frame_image();
     auto md = vif.frame_metadata();
@@ -125,6 +123,8 @@ TEST_F ( video_input_filter, read_list )
     }
 
     ++num_frames;
+
+    auto const ts = vif.frame_timestamp();
     EXPECT_EQ( num_frames, ts.get_frame() )
       << "Frame numbers should be sequential";
     EXPECT_EQ( ts.get_frame(), decode_barcode( *img ) )

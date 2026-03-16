@@ -22,8 +22,7 @@ metadata_istream_from_video
   // first frame
   if( !m_video->good() && !m_video->end_of_video() )
   {
-    vital::timestamp ts;
-    m_video->next_frame( ts );
+    m_video->next_frame();
   }
 }
 
@@ -75,8 +74,7 @@ bool
 metadata_istream_from_video
 ::next_frame()
 {
-  vital::timestamp ts;
-  return m_video->next_frame( ts );
+  return m_video->next_frame();
 }
 
 // ----------------------------------------------------------------------------

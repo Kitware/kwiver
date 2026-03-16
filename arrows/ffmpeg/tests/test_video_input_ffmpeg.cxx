@@ -91,10 +91,10 @@ TEST_F ( ffmpeg_video_input, is_good_correct_file_path )
     << "Video state after open but before first frame";
 
   // Get the next frame
-  kv::timestamp ts;
-  EXPECT_TRUE( input.next_frame( ts ) )
+  EXPECT_TRUE( input.next_frame() )
     << "Video state after open but before first frame";
-  EXPECT_EQ( ts.get_frame(), 1 ) << "Initial frame value mismatch";
+  EXPECT_EQ( input.frame_timestamp().get_frame(), 1 )
+    << "Initial frame value mismatch";
   EXPECT_TRUE( input.good() ) << "Video state after first frame";
 
   // Close the video
@@ -114,9 +114,9 @@ TEST_F ( ffmpeg_video_input, is_good_invalid_file_path )
     << "Video state after open but before first frame";
 
   // Get the next frame
-  kv::timestamp ts;
-  EXPECT_THROW( input.next_frame( ts ), kv::file_not_read_exception );
-  EXPECT_EQ( ts.get_frame(), 0 ) << "Initial frame value mismatch";
+  EXPECT_THROW( input.next_frame(), kv::file_not_read_exception );
+  EXPECT_EQ( input.frame_timestamp().get_frame(), 0 )
+    << "Initial frame value mismatch";
   EXPECT_FALSE( input.good() ) << "Video state after first frame";
 
   // Close the video
@@ -137,9 +137,8 @@ TEST_F ( ffmpeg_video_input, frame_image )
     << "Video should not have an image yet";
 
   // Get the next frame
-  kv::timestamp ts;
-  input.next_frame( ts );
-  EXPECT_EQ( ts.get_frame(), 1 );
+  input.next_frame();
+  EXPECT_EQ( input.frame_timestamp().get_frame(), 1 );
 
   auto const frame = input.frame_image();
   EXPECT_EQ( frame->depth(), 3 );
@@ -171,13 +170,12 @@ TEST_F ( ffmpeg_video_input, klv_disabled )
       algo::video_input::HAS_METADATA ) );
 
   size_t frame_count = 0;
-  kv::timestamp ts;
-  while( input.next_frame( ts ) )
+  while( input.next_frame() )
   {
     ++frame_count;
     EXPECT_TRUE( input.good() );
     EXPECT_NE( input.frame_image(), nullptr );
-    EXPECT_EQ( ts.get_frame(), frame_count );
+    EXPECT_EQ( input.frame_timestamp().get_frame(), frame_count );
 
     auto const md = input.frame_metadata();
     ASSERT_FALSE( md.empty() );
@@ -251,13 +249,15 @@ TEST_F ( ffmpeg_video_input, end_of_video )
   input.open( ffmpeg_video_path );
   EXPECT_FALSE( input.end_of_video() ) << "End of video after open";
 
-  kv::timestamp ts;
-  while( input.next_frame( ts ) )
+  kv::frame_id_t frame_id = 0;
+  while( input.next_frame() )
   {
     EXPECT_FALSE( input.end_of_video() ) << "End of video while reading";
+    frame_id = input.frame_timestamp().get_frame();
   }
 
-  EXPECT_EQ( ts.get_frame(), expected_frame_count ) << "Last frame";
+  EXPECT_EQ( frame_id, expected_frame_count )
+    << "Last frame";
   EXPECT_TRUE( input.end_of_video() ) << "End of video after last frame";
 }
 
@@ -268,12 +268,11 @@ TEST_F ( ffmpeg_video_input, read_video_aphill )
 
   input.open( aphill_video_path );
 
-  kv::timestamp ts;
   size_t frame_count = 0;
-  while( input.next_frame( ts ) )
+  while( input.next_frame() )
   {
     ++frame_count;
-    EXPECT_EQ( frame_count, ts.get_frame() )
+    EXPECT_EQ( frame_count, input.frame_timestamp().get_frame() )
       << "Frame numbers should be sequential";
   }
 
@@ -290,18 +289,17 @@ TEST_F ( ffmpeg_video_input, read_video )
     << "Number of frames before extracting frames should be "
     << expected_frame_count;
 
-  kv::timestamp ts;
   size_t frame_count = 0;
-  while( input.next_frame( ts ) )
+  while( input.next_frame() )
   {
     ++frame_count;
 
     auto img = input.frame_image();
     auto md = input.frame_metadata();
 
-    EXPECT_EQ( frame_count, ts.get_frame() )
+    EXPECT_EQ( frame_count, input.frame_timestamp().get_frame() )
       << "Frame numbers should be sequential";
-    EXPECT_EQ( ts.get_frame(), decode_barcode( *img ) )
+    EXPECT_EQ( frame_count, decode_barcode( *img ) )
       << "Frame number should match barcode in frame image";
 
     EXPECT_EQ( red, test_color_pixel( 1, *img ) );
@@ -444,9 +442,8 @@ TEST_F ( ffmpeg_video_input, sync_metadata )
   auto const& caps = input.get_implementation_capabilities();
   EXPECT_TRUE( caps.capability( kv::algo::video_input::HAS_METADATA ) );
 
-  kv::timestamp ts;
   size_t frame_count = 0;
-  while( input.next_frame( ts ) && frame_count < expected_md.size() )
+  while( input.next_frame() && frame_count < expected_md.size() )
   {
     auto md_vect = input.frame_metadata();
 
@@ -491,9 +488,8 @@ TEST_F ( ffmpeg_video_input, empty_filter_desc )
   input.open( ffmpeg_video_path );
 
   // Get the next frame
-  kv::timestamp ts;
-  input.next_frame( ts );
-  EXPECT_EQ( ts.get_frame(), 1 );
+  input.next_frame();
+  EXPECT_EQ( input.frame_timestamp().get_frame(), 1 );
 
   kv::image_container_sptr frame = input.frame_image();
   EXPECT_EQ( frame->depth(), 3 );
@@ -506,9 +502,9 @@ TEST_F ( ffmpeg_video_input, empty_filter_desc )
 
   EXPECT_EQ( decode_barcode( *frame ), 1 );
 
-  input.next_frame( ts );
+  input.next_frame();
   frame = input.frame_image();
-  EXPECT_EQ( ts.get_frame(), 2 );
+  EXPECT_EQ( input.frame_timestamp().get_frame(), 2 );
   EXPECT_EQ( decode_barcode( *frame ), 2 );
 }
 
@@ -556,9 +552,8 @@ TEST_F ( ffmpeg_video_input, hflip_filter_desc )
   input.open( ffmpeg_video_path );
 
   // Get the next frame
-  kv::timestamp ts;
-  input.next_frame( ts );
-  EXPECT_EQ( ts.get_frame(), 1 );
+  input.next_frame();
+  EXPECT_EQ( input.frame_timestamp().get_frame(), 1 );
 
   kv::image_container_sptr frame = input.frame_image();
   EXPECT_EQ( frame->depth(), 3 );
@@ -575,9 +570,9 @@ TEST_F ( ffmpeg_video_input, hflip_filter_desc )
   kv::simple_image_container hflip_frame( hflip_image( frame->get_image() ) );
   EXPECT_EQ( decode_barcode( hflip_frame ), 1 );
 
-  input.next_frame( ts );
+  input.next_frame();
   frame = input.frame_image();
-  EXPECT_EQ( ts.get_frame(), 2 );
+  EXPECT_EQ( input.frame_timestamp().get_frame(), 2 );
   EXPECT_NE( decode_barcode( *frame ), 2 );
 
   // Undo horizontal flipping and confirm that the frame is now correct
@@ -615,15 +610,14 @@ TEST_F ( ffmpeg_video_input, next_frame_timeout )
   ffmpeg::ffmpeg_video_input input;
   input.open( ffmpeg_video_path );
 
-  kv::timestamp ts;
   for( size_t i = 0; i < 30; ++i )
   {
     EXPECT_THROW(
-      input.next_frame( ts, 1 );
+      input.next_frame( 1 );
       ,
       kv::video_input_timeout_exception );
-    EXPECT_TRUE( input.next_frame( ts, 1'000'000 ) );
-    EXPECT_EQ( i + 1, ts.get_frame() );
+    EXPECT_TRUE( input.next_frame( 1'000'000 ) );
+    EXPECT_EQ( i + 1, input.frame_timestamp().get_frame() );
     ASSERT_NE( nullptr, input.frame_image() );
     EXPECT_EQ( i + 1, decode_barcode( *input.frame_image() ) );
   }
@@ -635,16 +629,15 @@ TEST_F ( ffmpeg_video_input, seek_frame_timeout )
   ffmpeg::ffmpeg_video_input input;
   input.open( ffmpeg_video_path );
 
-  kv::timestamp ts;
-  input.next_frame( ts );
+  input.next_frame();
   for( auto i : { 1, 15, 8, 30, 12 } )
   {
     EXPECT_THROW(
-      input.seek_frame( ts, i + 1, 1 );
+      input.seek_frame( i + 1, 1 );
       ,
       kv::video_input_timeout_exception );
-    EXPECT_TRUE( input.seek_frame( ts, i, 1'000'000 ) );
-    EXPECT_EQ( i, ts.get_frame() );
+    EXPECT_TRUE( input.seek_frame( i, 1'000'000 ) );
+    EXPECT_EQ( i, input.frame_timestamp().get_frame() );
     ASSERT_NE( nullptr, input.frame_image() );
     EXPECT_EQ( i, decode_barcode( *input.frame_image() ) );
   }

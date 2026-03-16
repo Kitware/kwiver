@@ -237,7 +237,7 @@ video_input_image_list
 // ----------------------------------------------------------------------------
 bool
 video_input_image_list
-::next_frame( kv::timestamp& ts, kv::time_usec_t /*timeout*/ )
+::next_frame( kv::time_usec_t /*timeout*/ )
 {
   if( this->end_of_video() )
   {
@@ -257,9 +257,6 @@ video_input_image_list
 
   ++d->m_frame_number;
 
-  // Return timestamp
-  ts = this->frame_timestamp();
-
   return !this->end_of_video();
 }
 
@@ -267,7 +264,6 @@ video_input_image_list
 bool
 video_input_image_list
 ::seek_frame(
-  kv::timestamp& ts,
   kv::timestamp::frame_t frame_number,
   kv::time_usec_t /*timeout*/ )
 {
@@ -292,9 +288,6 @@ video_input_image_list
 
   // Clear the last loaded image
   d->m_image = nullptr;
-
-  // Return timestamp
-  ts = this->frame_timestamp();
 
   return !this->end_of_video();
 }

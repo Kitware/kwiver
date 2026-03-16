@@ -128,7 +128,6 @@ TEST_F ( ffmpeg_video_output, round_trip )
   auto const tmp_path =
     kwiver::testing::temp_file_name( "test-ffmpeg-output-", ".ts" );
 
-  kv::timestamp ts;
   ffmpeg::ffmpeg_video_input is;
   is.open( src_path );
 
@@ -138,10 +137,10 @@ TEST_F ( ffmpeg_video_output, round_trip )
   _tmp_file_deleter tmp_file_deleter{ tmp_path };
 
   // Write to a temporary file
-  for( is.next_frame( ts ); !is.end_of_video(); is.next_frame( ts ) )
+  for( is.next_frame(); !is.end_of_video(); is.next_frame() )
   {
     auto const image = is.frame_image();
-    os.add_image( image, ts );
+    os.add_image( image, is.frame_timestamp() );
   }
   os.close();
   is.close();
@@ -168,7 +167,6 @@ TEST_F ( ffmpeg_video_output, round_trip_direct )
   auto const tmp_path =
     kwiver::testing::temp_file_name( "test-ffmpeg-output-", ".ts" );
 
-  kv::timestamp ts;
   ffmpeg::ffmpeg_video_input is;
   is.open( src_path );
 
@@ -197,7 +195,7 @@ TEST_F ( ffmpeg_video_output, round_trip_direct )
   }
 
   // Write to a temporary file
-  for( is.next_frame( ts ); !is.end_of_video(); is.next_frame( ts ) )
+  for( is.next_frame(); !is.end_of_video(); is.next_frame() )
   {
     auto const image = is.raw_frame_image();
     ASSERT_TRUE( image );
@@ -221,7 +219,6 @@ TEST_F ( ffmpeg_video_output, round_trip_audio )
   auto const tmp_path =
     kwiver::testing::temp_file_name( "test-ffmpeg-output-", ".ts" );
 
-  kv::timestamp ts;
   ffmpeg::ffmpeg_video_input is;
   is.open( src_path );
 
@@ -231,7 +228,7 @@ TEST_F ( ffmpeg_video_output, round_trip_audio )
   _tmp_file_deleter tmp_file_deleter{ tmp_path };
 
   // Write to a temporary file
-  for( is.next_frame( ts ); !is.end_of_video(); is.next_frame( ts ) )
+  for( is.next_frame(); !is.end_of_video(); is.next_frame() )
   {
     auto const image = is.frame_image();
     auto const uninterpreted_data = is.uninterpreted_frame_data();
@@ -239,7 +236,7 @@ TEST_F ( ffmpeg_video_output, round_trip_audio )
     {
       os.add_uninterpreted_data( *uninterpreted_data );
     }
-    os.add_image( image, ts );
+    os.add_image( image, is.frame_timestamp() );
   }
   os.close();
   is.close();
@@ -295,7 +292,7 @@ TEST_F ( ffmpeg_video_output, round_trip_audio_direct )
   }
 
   // Write to a temporary file
-  for( is.next_frame( ts ); !is.end_of_video(); is.next_frame( ts ) )
+  for( is.next_frame(); !is.end_of_video(); is.next_frame() )
   {
     auto const image = is.raw_frame_image();
     ASSERT_TRUE( image );
@@ -374,10 +371,10 @@ TEST_F ( ffmpeg_video_output, round_trip_format_name )
   _tmp_file_deleter tmp_file_deleter{ tmp_path };
 
   // Write to a temporary file
-  for( is.next_frame( ts ); !is.end_of_video(); is.next_frame( ts ) )
+  for( is.next_frame(); !is.end_of_video(); is.next_frame() )
   {
     auto const image = is.frame_image();
-    os.add_image( image, ts );
+    os.add_image( image, is.frame_timestamp() );
   }
   os.close();
   is.close();

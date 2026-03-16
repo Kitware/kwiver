@@ -285,9 +285,7 @@ video_input_splice
 // ----------------------------------------------------------------------------
 bool
 video_input_splice
-::next_frame(
-  kwiver::vital::timestamp& ts,               // returns timestamp
-  vital::time_usec_t timeout )
+::next_frame( vital::time_usec_t timeout )
 {
   bool status = false;
   kwiver::vital::timestamp::frame_t frame_number = 1;
@@ -299,8 +297,9 @@ video_input_splice
 
   do
   {
-    status = ( *d->d_active_source )->next_frame( ts, timeout );
-    frame_number = ts.get_frame() + d->d_frame_offset;
+    status = ( *d->d_active_source )->next_frame( timeout );
+    frame_number = ( *d->d_active_source )->frame_timestamp().get_frame() +
+                   d->d_frame_offset;
 
     if( !status )
     {
@@ -313,24 +312,24 @@ video_input_splice
         {
           if( ( *d->d_active_source )->seekable() )
           {
-            ( *d->d_active_source )->seek_frame( ts, 1, timeout );
+            ( *d->d_active_source )->seek_frame( 1, timeout );
           }
           if( !( *d->d_active_source )->good() )
           {
-            status = ( *d->d_active_source )->next_frame( ts, timeout );
+            status = ( *d->d_active_source )->next_frame( timeout );
           }
           else
           {
-            ts = ( *d->d_active_source )->frame_timestamp();
             status = true;
           }
-          frame_number = ts.get_frame() + d->d_frame_offset;
+          frame_number =
+            ( *d->d_active_source )->frame_timestamp().get_frame() +
+            d->d_frame_offset;
         }
       }
     }
   }while( ( frame_number - 1 ) % d->c_output_nth_frame() != 0 && status );
 
-  ts.set_frame( frame_number );
   return status;
 } // video_input_splice::next_frame
 
@@ -338,7 +337,6 @@ video_input_splice
 bool
 video_input_splice
 ::seek_frame(
-  kwiver::vital::timestamp& ts,               // returns timestamp
   kwiver::vital::timestamp::frame_t frame_number,
   VITAL_UNUSED vital::time_usec_t timeout )
 {
@@ -364,7 +362,7 @@ video_input_splice
       d->d_active_source = vs_iter;
       d->d_frame_offset = frames_prior;
       status =
-        ( *d->d_active_source )->seek_frame( ts, frame_number - frames_prior );
+        ( *d->d_active_source )->seek_frame( frame_number - frames_prior );
       break;
     }
     else
@@ -373,7 +371,6 @@ video_input_splice
     }
   }
 
-  ts.set_frame( ts.get_frame() + d->d_frame_offset );
   return status;
 } // video_input_splice::seek_frame
 
@@ -387,7 +384,9 @@ video_input_splice
     return {};
   }
 
-  return ( *d->d_active_source )->frame_timestamp();
+  auto ts = ( *d->d_active_source )->frame_timestamp();
+  ts.set_frame( ts.get_frame() + d->d_frame_offset );
+  return ts;
 }
 
 // ----------------------------------------------------------------------------
