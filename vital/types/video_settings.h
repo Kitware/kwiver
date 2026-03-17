@@ -12,19 +12,48 @@
 
 #include <memory>
 
+#include <cstdint>
+
 namespace kwiver {
 
 namespace vital {
 
 // ----------------------------------------------------------------------------
 /// Base class for holding information about how to encode a video.
-struct VITAL_TYPES_EXPORT video_settings
+class VITAL_TYPES_EXPORT video_settings
 {
+public:
   virtual ~video_settings();
+
+  /// Return the width of each video frame in pixels.
+  virtual size_t width() const = 0;
+
+  /// Return the height of each video frame in pixels.
+  virtual size_t height() const = 0;
+
+  /// Return the frame rate of the video, or -1.0 to indicate no value.
+  virtual double frame_rate() const = 0;
 };
 
 using video_settings_sptr = std::shared_ptr< video_settings >;
 using video_settings_uptr = std::unique_ptr< video_settings >;
+
+// ----------------------------------------------------------------------------
+class VITAL_TYPES_EXPORT simple_video_settings : public video_settings
+{
+public:
+  simple_video_settings(
+    size_t width, size_t height, double frame_rate = -1.0 );
+
+  size_t width() const override;
+  size_t height() const override;
+  double frame_rate() const override;
+
+private:
+  size_t m_width;
+  size_t m_height;
+  double m_frame_rate;
+};
 
 } // namespace vital
 

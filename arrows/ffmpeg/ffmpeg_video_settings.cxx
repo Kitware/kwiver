@@ -18,7 +18,7 @@ namespace ffmpeg {
 // ----------------------------------------------------------------------------
 ffmpeg_video_settings
 ::ffmpeg_video_settings()
-  : frame_rate{ 0, 1 },
+  : frame_rate_q{ 0, 1 },
     parameters{ avcodec_parameters_alloc() },
     klv_streams{},
     audio_streams{},
@@ -36,7 +36,7 @@ ffmpeg_video_settings
 // ----------------------------------------------------------------------------
 ffmpeg_video_settings
 ::ffmpeg_video_settings( ffmpeg_video_settings const& other )
-  : frame_rate{ other.frame_rate },
+  : frame_rate_q{ other.frame_rate_q },
     format_name{ other.format_name },
     parameters{ avcodec_parameters_alloc() },
     klv_streams{ other.klv_streams },
@@ -53,7 +53,7 @@ ffmpeg_video_settings
 // ----------------------------------------------------------------------------
 ffmpeg_video_settings
 ::ffmpeg_video_settings( ffmpeg_video_settings&& other )
-  : frame_rate{ std::move( other.frame_rate ) },
+  : frame_rate_q{ std::move( other.frame_rate_q ) },
     format_name{ std::move( other.format_name ) },
     parameters{ std::move( other.parameters ) },
     klv_streams{ std::move( other.klv_streams ) },
@@ -69,7 +69,7 @@ ffmpeg_video_settings
   size_t width, size_t height,
   AVRational frame_rate,
   std::vector< klv::klv_stream_settings > const& klv_streams )
-  : frame_rate( frame_rate ),
+  : frame_rate_q( frame_rate ),
     format_name{},
     parameters{ avcodec_parameters_alloc() },
     klv_streams{ klv_streams },
@@ -96,7 +96,7 @@ ffmpeg_video_settings&
 ffmpeg_video_settings
 ::operator=( ffmpeg_video_settings const& other )
 {
-  frame_rate = other.frame_rate;
+  frame_rate_q = other.frame_rate_q;
   format_name = other.format_name;
   parameters.reset( avcodec_parameters_alloc() );
   throw_error_code(
@@ -114,7 +114,7 @@ ffmpeg_video_settings&
 ffmpeg_video_settings
 ::operator=( ffmpeg_video_settings&& other )
 {
-  frame_rate = std::move( other.frame_rate );
+  frame_rate_q = std::move( other.frame_rate_q );
   format_name = std::move( other.format_name );
   parameters = std::move( other.parameters );
   klv_streams = std::move( other.klv_streams );
@@ -122,6 +122,30 @@ ffmpeg_video_settings
   start_timestamp = std::move( other.start_timestamp );
   codec_options = std::move( other.codec_options );
   return *this;
+}
+
+// ----------------------------------------------------------------------------
+size_t
+ffmpeg_video_settings
+::height() const
+{
+  return parameters->height;
+}
+
+// ----------------------------------------------------------------------------
+size_t
+ffmpeg_video_settings
+::width() const
+{
+  return parameters->width;
+}
+
+// ----------------------------------------------------------------------------
+double
+ffmpeg_video_settings
+::frame_rate() const
+{
+  return av_q2d( frame_rate_q );
 }
 
 } // namespace ffmpeg

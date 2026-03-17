@@ -36,9 +36,10 @@ namespace ffmpeg {
 /// This struct will be filled in by ffmpeg_video_input when transcoding, or
 /// by the user when created a new video from scratch. Members have been left
 /// public so the user may modify them before passing to ffmpeg_video_output.
-struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
+class KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   : public vital::video_settings
 {
+public:
   ffmpeg_video_settings();
   ffmpeg_video_settings( ffmpeg_video_settings const& other );
   ffmpeg_video_settings( ffmpeg_video_settings&& other );
@@ -54,8 +55,12 @@ struct KWIVER_ALGO_FFMPEG_EXPORT ffmpeg_video_settings
   ffmpeg_video_settings&
   operator=( ffmpeg_video_settings&& other );
 
+  size_t height() const override;
+  size_t width() const override;
+  double frame_rate() const override;
+
   /// Desired frame rate of the video. Must be set in most cases.
-  AVRational frame_rate;
+  AVRational frame_rate_q;
 
   // Name of video format to use, in case it cannot be derived from the
   // filename.

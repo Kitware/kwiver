@@ -23,5 +23,7 @@ Vital: Types
 
 * Removed test_equal_content().
 
+* Added width, height, and frame rate accessors to video_settings.
+
 Bug Fixes
 ---------

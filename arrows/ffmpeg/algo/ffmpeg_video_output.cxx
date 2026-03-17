@@ -333,11 +333,22 @@ ffmpeg_video_output
   close();
 
   ffmpeg_video_settings const default_settings;
-  auto settings =
-    generic_settings
-    ? dynamic_cast< ffmpeg_video_settings const* >( generic_settings )
-    : nullptr;
-  if( !settings )
+  std::optional< ffmpeg_video_settings > derived_settings;
+  ffmpeg_video_settings const* settings;
+  if( auto const ptr =
+        dynamic_cast< ffmpeg_video_settings const* >( generic_settings ) )
+  {
+    settings = ptr;
+  }
+  else if( generic_settings )
+  {
+    derived_settings.emplace(
+      generic_settings->width(),
+      generic_settings->height(),
+      av_d2q( generic_settings->frame_rate(), 1001 ) );
+    settings = &*derived_settings;
+  }
+  else
   {
     settings = &default_settings;
   }
@@ -416,7 +427,7 @@ ffmpeg_video_output
   }
 
   auto const result = new ffmpeg_video_settings{};
-  result->frame_rate = d->video->video_stream->avg_frame_rate;
+  result->frame_rate_q = d->video->codec_context->framerate;
   avcodec_parameters_from_context(
     result->parameters.get(),
     d->video->codec_context.get() );
@@ -671,8 +682,8 @@ ffmpeg_video_output::impl::open_video_state
     codec_context->width = video_settings.parameters->width;
     codec_context->height = video_settings.parameters->height;
   }
-  codec_context->time_base = av_inv_q( video_settings.frame_rate );
-  codec_context->framerate = video_settings.frame_rate;
+  codec_context->time_base = av_inv_q( video_settings.frame_rate_q );
+  codec_context->framerate = video_settings.frame_rate_q;
 
   // Fill in backup parameters from config
   codec_context->pix_fmt = avcodec_find_best_pix_fmt_of_list(
