@@ -52,7 +52,7 @@ public:
   bool m_first;
   int m_frame_number;
   std::string m_delim;
-  std::map< unsigned, vital::track_sptr > m_tracks;
+  std::map< size_t, vital::track_sptr > m_tracks;
 };
 
 // ----------------------------------------------------------------------------

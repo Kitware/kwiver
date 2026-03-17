@@ -412,7 +412,7 @@ track_features_core
   }
   else
   {
-    std::set< unsigned > matched;
+    std::set< size_t > matched;
 
     for( match m : vm )
     {
@@ -430,14 +430,14 @@ track_features_core
     }
 
     // find the set of unmatched active track indices
-    std::vector< unsigned int > unmatched;
-    std::back_insert_iterator< std::vector< unsigned int > >
+    std::vector< size_t > unmatched;
+    std::back_insert_iterator< std::vector< size_t > >
     unmatched_insert_itr( unmatched );
 
     //
     // Generate a sequence of numbers
     //
-    std::vector< unsigned int > sequence( vf.size() );
+    std::vector< size_t > sequence( vf.size() );
     std::iota( sequence.begin(), sequence.end(), 0 );
 
     std::set_difference(
@@ -445,7 +445,7 @@ track_features_core
       matched.begin(), matched.end(),
       unmatched_insert_itr );
 
-    for( unsigned i : unmatched )
+    for( size_t i : unmatched )
     {
       auto fts = std::make_shared< feature_track_state >( frame_number );
       fts->feature = vf[ i ];

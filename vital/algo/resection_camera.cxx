@@ -29,7 +29,7 @@ resection_camera
   frame_id_t frame_id,
   landmark_map_sptr landmarks,
   feature_track_set_sptr tracks,
-  unsigned width, unsigned height,
+  size_t width, size_t height,
   std::unordered_set< landmark_id_t >* inliers ) const
 {
   // Generate calibration guess from image dimensions.

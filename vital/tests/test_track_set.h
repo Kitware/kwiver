@@ -88,7 +88,7 @@ EXPECT_PRED2( ::kwiver::vital::testing::compare_tracks, a, b )
 track_set_sptr
 make_simple_track_set( frame_id_t starting_frame_id )
 {
-  unsigned track_id = 0;
+  track_id_t track_id = 0;
 
   std::vector< track_sptr > test_tracks;
 

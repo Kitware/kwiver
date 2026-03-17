@@ -52,10 +52,10 @@ template < typename T >
 cv::Mat
 vital_descriptors_to_ocv( const std::vector< vital::descriptor_sptr >& desc )
 {
-  const unsigned int num = static_cast< unsigned int >( desc.size() );
-  const unsigned int dim = static_cast< unsigned int >( desc[ 0 ]->size() );
+  auto const num = desc.size();
+  auto const dim = desc[ 0 ]->size();
   cv::Mat_< T > mat( num, dim );
-  for( unsigned int i = 0; i < num; ++i )
+  for( size_t i = 0; i < num; ++i )
   {
     const vital::descriptor_array_of< T >* d =
       dynamic_cast< const vital::descriptor_array_of< T >* >( desc[ i ].get() );
@@ -124,11 +124,11 @@ descriptor_set
 ::descriptors() const
 {
   std::vector< vital::descriptor_sptr > desc;
-  const unsigned num_desc = data_.rows;
+  auto num_desc = data_.rows;
   /// \cond DoxygenSuppress
 #define CONVERT_CASE( T )                                               \
   case cv::DataType< T >::type:                                         \
-    for( unsigned i = 0; i < num_desc; ++i )                            \
+    for( int i = 0; i < num_desc; ++i )                                 \
     {                                                                   \
       desc.push_back( ocv_to_vital_descriptor< T >( data_.row( i ) ) ); \
     }                                                                   \

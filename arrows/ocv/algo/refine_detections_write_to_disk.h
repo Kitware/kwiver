@@ -60,7 +60,7 @@ public:
 
 private:
   // Variables
-  mutable unsigned id { 0 };
+  mutable size_t id { 0 };
 };
 
 } // end namespace ocv

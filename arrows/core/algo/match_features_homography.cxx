@@ -220,7 +220,7 @@ match_features_homography
     // return the subset of inlier matches
     std::vector< vital::match > m = init_matches->matches();
     std::vector< vital::match > inlier_m;
-    for( unsigned int i = 0; i < inliers.size(); ++i )
+    for( size_t i = 0; i < inliers.size(); ++i )
     {
       if( inliers[ i ] )
       {
@@ -237,7 +237,7 @@ match_features_homography
   warped_feat1.reserve( feat1_vec.size() );
 
   homography_< double > Hd( *H );
-  for( unsigned int i = 0; i < feat1_vec.size(); i++ )
+  for( size_t i = 0; i < feat1_vec.size(); i++ )
   {
     feature_< double > f( *feat1_vec[ i ] );
     f.set_loc( Hd.map_point( f.get_loc() ) );

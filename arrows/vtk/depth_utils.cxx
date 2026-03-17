@@ -256,11 +256,11 @@ volume_to_vtk(
   vtkIdType pt_id = 0;
   const kwiver::vital::image& vol = volume->get_image();
 
-  for( unsigned int k = 0; k < volume->depth(); k++ )
+  for( size_t k = 0; k < volume->depth(); k++ )
   {
-    for( unsigned int j = 0; j < volume->height(); j++ )
+    for( size_t j = 0; j < volume->height(); j++ )
     {
-      for( unsigned int i = 0; i < volume->width(); i++ )
+      for( size_t i = 0; i < volume->width(); i++ )
       {
         vals->SetTuple1( pt_id++, vol.at< double >( i, j, k ) );
       }

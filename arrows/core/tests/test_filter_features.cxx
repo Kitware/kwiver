@@ -23,10 +23,10 @@ int const num_features = 2000;
 
 // ----------------------------------------------------------------------------
 // Function to generate the x-coord into a vector of filtered set
-std::vector< unsigned >
+std::vector< size_t >
 extract_x_coordinates( const feature_set_sptr& feature_set )
 {
-  std::vector< unsigned > x_coords;
+  std::vector< size_t > x_coords;
   auto features = feature_set->features();
   for( const auto& feature : features )
   {
@@ -355,8 +355,8 @@ TEST ( filter_features_nonmax, filter_12_features )
 
   // Based on these feature attributes, the selected features ought to have
   // expected x-coordinates
-  std::vector< unsigned > expected_x_coords = { 110, 300, 320, 510, 700, 710,
-                                                720, 800 };
+  std::vector< size_t > expected_x_coords = { 110, 300, 320, 510, 700, 710,
+                                              720, 800 };
 
   feature_set_sptr feature_set =
     kwiver::testing::make_12_features< double >();
@@ -372,7 +372,7 @@ TEST ( filter_features_nonmax, filter_12_features )
   feature_set_sptr filtered_set = filter_algo->filter( feature_set );
 
   // Extract x-coordinates from the feature set
-  std::vector< unsigned > feature_x_coords =
+  std::vector< size_t > feature_x_coords =
     extract_x_coordinates( filtered_set );
 
   // Sort feature x-coordinates

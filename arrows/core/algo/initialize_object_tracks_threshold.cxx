@@ -36,7 +36,7 @@ public:
   initialize_object_tracks_threshold& parent;
 
   /// Maximum number of tracks to initialize
-  unsigned c_max_new_tracks() { return parent.c_max_new_tracks; }
+  size_t c_max_new_tracks() { return parent.c_max_new_tracks; }
 
   /// The feature matching algorithm to use
   vital::algo::detected_object_filter_sptr
@@ -46,11 +46,11 @@ public:
   }
 
   /// Next track ID to assign - make unique across all processes
-  static std::atomic< unsigned > next_track_id;
+  static std::atomic< size_t > next_track_id;
 };
 
 // Initialize statics
-std::atomic< unsigned >
+std::atomic< size_t >
 initialize_object_tracks_threshold::priv::next_track_id( 1 );
 
 void
@@ -88,13 +88,13 @@ initialize_object_tracks_threshold
   auto filtered = d_->c_filter()->filter( detections );
   std::vector< vital::track_sptr > output;
 
-  unsigned max_tracks = std::min(
-    static_cast< unsigned >( filtered->size() ),
+  size_t max_tracks = std::min(
+    static_cast< size_t >( filtered->size() ),
     d_->c_max_new_tracks() );
 
-  for( unsigned i = 0; i < max_tracks; i++ )
+  for( size_t i = 0; i < max_tracks; i++ )
   {
-    unsigned new_id = initialize_object_tracks_threshold::priv::next_track_id++;
+    size_t new_id = initialize_object_tracks_threshold::priv::next_track_id++;
 
     vital::track_sptr new_track( vital::track::create() );
     new_track->set_id( new_id );

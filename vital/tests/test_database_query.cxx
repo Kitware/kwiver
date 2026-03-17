@@ -13,8 +13,8 @@ using namespace kwiver::vital;
 
 namespace {
 
-std::vector< unsigned > const positive_samples  = { 2, 5, 6, 7, 8 };
-std::vector< unsigned > const negative_samples  = { 1, 3, 4 };
+std::vector< size_t > const positive_samples  = { 2, 5, 6, 7, 8 };
+std::vector< size_t > const negative_samples  = { 1, 3, 4 };
 
 } // namespace
 

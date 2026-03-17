@@ -21,8 +21,8 @@ struct feature_at_index_is_greater
 {
   bool
   operator()(
-    const std::pair< unsigned int, double >& l,
-    const std::pair< unsigned int, double >& r )
+    const std::pair< size_t, double >& l,
+    const std::pair< size_t, double >& r )
   {
     return l.second > r.second;
   }
@@ -41,19 +41,19 @@ public:
   // Configuration values
   double
   c_top_fraction() const { return parent.c_top_fraction; }
-  unsigned int
+  size_t
   c_min_features() const { return parent.c_min_features; }
 
   // -------------------------------------------------------------------------
   feature_set_sptr
-  filter( feature_set_sptr feat, std::vector< unsigned int >& ind ) const
+  filter( feature_set_sptr feat, std::vector< size_t >& ind ) const
   {
     const std::vector< feature_sptr >& feat_vec = feat->features();
     ind.clear();
     if( feat_vec.size() <= parent.c_min_features )
     {
       ind.resize( feat_vec.size() );
-      for( unsigned int i = 0; i < ind.size(); ++i )
+      for( size_t i = 0; i < ind.size(); ++i )
       {
         ind[ i ] = i;
       }
@@ -61,17 +61,17 @@ public:
     }
 
     //  Create a new vector with the index and magnitude for faster sorting
-    std::vector< std::pair< unsigned int, double > > indices;
+    std::vector< std::pair< size_t, double > > indices;
     indices.reserve( feat_vec.size() );
-    for( unsigned int i = 0; i < feat_vec.size(); i++ )
+    for( size_t i = 0; i < feat_vec.size(); i++ )
     {
       indices.push_back( std::make_pair( i, feat_vec[ i ]->magnitude() ) );
     }
 
     // compute threshold
-    unsigned int cutoff = std::max(
+    size_t cutoff = std::max(
       parent.c_min_features,
-      static_cast< unsigned int >( parent.c_top_fraction * indices.size() ) );
+      static_cast< size_t >( parent.c_top_fraction * indices.size() ) );
 
     // partially sort on descending feature magnitude
     std::nth_element(
@@ -80,9 +80,9 @@ public:
 
     std::vector< feature_sptr > filtered( cutoff );
     ind.resize( cutoff );
-    for( unsigned int i = 0; i < cutoff; i++ )
+    for( size_t i = 0; i < cutoff; i++ )
     {
-      unsigned int index = indices[ i ].first;
+      auto const index = indices[ i ].first;
       ind[ i ] = index;
       filtered[ i ] = feat_vec[ index ];
     }
@@ -137,7 +137,7 @@ vital::feature_set_sptr
 filter_features_magnitude
 ::filter(
   vital::feature_set_sptr feat,
-  std::vector< unsigned int >& indices ) const
+  std::vector< size_t >& indices ) const
 {
   return d_->filter( feat, indices );
 }

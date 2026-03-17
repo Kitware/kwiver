@@ -41,7 +41,7 @@ public:
   int c_search_bandwidth() { return parent.c_search_bandwidth; }
 
   /// minimum number of keyframe misses before creating a new keyframe
-  unsigned int c_min_keyframe_misses() { return parent.c_min_keyframe_misses; }
+  size_t c_min_keyframe_misses() { return parent.c_min_keyframe_misses; }
 
   /// stop matching against additional keyframes if at least one succeeds
   bool c_stop_after_match() { return parent.c_stop_after_match; }
@@ -51,7 +51,7 @@ public:
   { return parent.c_feature_matcher; }
 
   /// histogram of matches associated with each frame
-  std::map< frame_id_t, unsigned int > frame_matches;
+  std::map< frame_id_t, size_t > frame_matches;
 
   /// a collection of recent frame that didn't match any keyframe
   std::vector< frame_id_t > keyframe_misses;
@@ -159,8 +159,7 @@ close_loops_keyframe
   // between the current and previous frames.  This matching was done outside
   // of loop closure as part of the standard frame-to-frame tracking
   d_->frame_matches[ frame_number ] =
-    static_cast< unsigned int >( current_set->active_tracks(
-      frames[ frames.size() - 2 ] ).size() );
+    current_set->active_tracks( frames[ frames.size() - 2 ] ).size();
 
   // used to compute the maximum number of matches between the current frame
   // and any of the key frames
@@ -245,7 +244,7 @@ close_loops_keyframe
   }
   // divide by number of matched frames to get the average
   d_->frame_matches[ frame_number ] /=
-    static_cast< unsigned int >( last_frame_itr - frames.rbegin() - 2 );
+    static_cast< size_t >( last_frame_itr - frames.rbegin() - 2 );
 
   // stitch with all previous keyframes
   for( auto k_itr = keyframes.rbegin(); k_itr != keyframes.rend(); ++k_itr )
@@ -312,7 +311,7 @@ close_loops_keyframe
       d_->keyframe_misses.front() < *last_frame_itr )
   {
     auto hitr = d_->frame_matches.find( d_->keyframe_misses.front() );
-    unsigned int max_matches = 0;
+    size_t max_matches = 0;
     frame_id_t max_id = d_->keyframe_misses.front();
     // find the frame with the most accumulated matches
     for( ++hitr; hitr != d_->frame_matches.end(); ++hitr )
@@ -324,7 +323,7 @@ close_loops_keyframe
       }
     }
     // the new key frame must have the required number of matches on average
-    if( max_matches > static_cast< unsigned int >( d_->c_match_req() ) )
+    if( max_matches > static_cast< size_t >( d_->c_match_req() ) )
     {
       // create the new keyframe and clear the list of misses
       LOG_INFO(logger(), "creating new keyframe on frame " << max_id);

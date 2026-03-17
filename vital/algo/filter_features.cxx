@@ -26,7 +26,7 @@ feature_set_sptr
 filter_features
 ::filter( feature_set_sptr feat ) const
 {
-  std::vector< unsigned int > indices;
+  std::vector< size_t > indices;
   return filter( feat, indices );
 }
 
@@ -34,7 +34,7 @@ std::pair< feature_set_sptr, descriptor_set_sptr >
 filter_features
 ::filter( feature_set_sptr feat, descriptor_set_sptr descr ) const
 {
-  std::vector< unsigned int > indices;
+  std::vector< size_t > indices;
   feature_set_sptr filt_feat = filter( feat, indices );
 
   // Iterate through descriptor sptrs, keeping those in the same index as the
@@ -42,7 +42,7 @@ filter_features
   std::vector< descriptor_sptr > filtered_descr;
   filtered_descr.reserve( indices.size() );
 
-  for( unsigned int i = 0; i < indices.size(); i++ )
+  for( size_t i = 0; i < indices.size(); i++ )
   {
     filtered_descr.push_back( descr->at( indices[ i ] ) );
   }

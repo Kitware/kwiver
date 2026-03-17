@@ -167,7 +167,7 @@ compute_depth
   std::vector< kwiver::vital::image_container_sptr > const& frames_in,
   std::vector< kwiver::vital::camera_perspective_sptr > const& cameras_in,
   double depth_min, double depth_max,
-  unsigned int ref_frame,
+  size_t ref_frame,
   vital::bounding_box< int > const& roi,
   kwiver::vital::image_container_sptr& depth_uncertainty,
   std::vector< kwiver::vital::image_container_sptr > const& masks_in ) const

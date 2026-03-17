@@ -81,14 +81,14 @@ associate_detections_to_tracks_threshold
   std::vector< vital::track_sptr > tracks_to_output;
   std::vector< bool > detections_used( all_detections->size(), false );
 
-  for( unsigned t = 0; t < all_tracks.size(); ++t )
+  for( size_t t = 0; t < all_tracks.size(); ++t )
   {
     double best_score = ( d_->c_higher_is_better() ? -1 : 1 ) *
                         std::numeric_limits< double >::max();
 
-    unsigned best_index = std::numeric_limits< unsigned >::max();
+    size_t best_index = std::numeric_limits< size_t >::max();
 
-    for( unsigned d = 0; d < all_detections->size(); ++d )
+    for( size_t d = 0; d < all_detections->size(); ++d )
     {
       double value = matrix( t, d );
 
@@ -131,7 +131,7 @@ associate_detections_to_tracks_threshold
 
   std::vector< vital::detected_object_sptr > unused_dets;
 
-  for( unsigned i = 0; i < all_detections->size(); ++i )
+  for( size_t i = 0; i < all_detections->size(); ++i )
   {
     if( !detections_used[ i ] )
     {

@@ -102,7 +102,7 @@ convert_from_protobuf(
   COV& covariance )
 {
   typename COV::data_type values[ COV::data_size ];
-  for( unsigned i = 0; i < COV::data_size; ++i )
+  for( size_t i = 0; i < COV::data_size; ++i )
   {
     values[ i ] = proto_covariance.value( i );
   }
@@ -119,7 +119,7 @@ convert_to_protobuf(
 
   proto_covariance.set_dim( COV::data_size );
 
-  for( unsigned i = 0; i < COV::data_size; ++i )
+  for( size_t i = 0; i < COV::data_size; ++i )
   {
     proto_covariance.add_value( data[ i ] );
   }

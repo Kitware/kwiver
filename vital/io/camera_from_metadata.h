@@ -46,8 +46,8 @@ VITAL_EXPORT
 camera_intrinsics_sptr
 intrinsics_from_metadata(
   metadata const& md,
-  unsigned int image_width,
-  unsigned int image_height );
+  size_t image_width,
+  size_t image_height );
 
 /// Use a sequence of metadata objects to initialize a sequence of cameras.
 ///

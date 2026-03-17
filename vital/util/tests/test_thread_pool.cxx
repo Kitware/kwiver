@@ -42,19 +42,19 @@ TEST_P ( thread_pool_backend, run_jobs )
   // futures to collect
   std::vector< std::future< double > > futures;
   // lamda function to run in threads
-  auto func = []( unsigned i ){
+  auto func = []( size_t i ){
                 double x = static_cast< double >( i );
                 return x * x;
               };
 
   // enqueue all the jobs
-  for( unsigned i = 0; i < 100; ++i )
+  for( size_t i = 0; i < 100; ++i )
   {
     futures.push_back( thread_pool::instance().enqueue( func, i ) );
   }
 
   // collect all the results
-  for( unsigned i = 0; i < 100; ++i )
+  for( size_t i = 0; i < 100; ++i )
   {
     SCOPED_TRACE( "For thread " + std::to_string( i ) );
     EXPECT_EQ( func( i ), futures[ i ].get() );

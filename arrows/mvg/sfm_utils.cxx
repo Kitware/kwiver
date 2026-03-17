@@ -100,7 +100,7 @@ namespace {
 void
 subdivide_keyframes(
   std::set< vital::frame_id_t >& key_idx,
-  Eigen::SparseMatrix< unsigned int > const& mm,
+  Eigen::SparseMatrix< size_t > const& mm,
   double ratio_threshold = 0.75 )
 {
   if( key_idx.empty() )
@@ -179,11 +179,11 @@ keyframes_for_sfm(
   // The track score is the sum of the lengths of the tracks
   // passing through that frame.  This is equal to the sum
   // of the rows or columns of the match matrix.
-  std::vector< std::pair< unsigned long, frame_id_t > > scores;
+  std::vector< std::pair< size_t, frame_id_t > > scores;
   scores.reserve( all_frames.size() );
   for( frame_id_t k = 0; k < mm.outerSize(); ++k )
   {
-    unsigned long score = 0;
+    size_t score = 0;
     for( decltype( mm )::InnerIterator it( mm, k ); it; ++it )
     {
       score += it.value();
@@ -415,7 +415,7 @@ connected_camera_components(
 
     // which of the existing cliques does cam_clique overlap with?
     std::vector< int > overlapping_comps;
-    for( unsigned int comp_id = 0; comp_id < comps.size(); ++comp_id )
+    for( size_t comp_id = 0; comp_id < comps.size(); ++comp_id )
     {
       auto& cur_comp = comps[ comp_id ];
       for( auto cn : cam_clique )
@@ -441,7 +441,7 @@ connected_camera_components(
         final_comp.insert( cn );
       }
       // merge all other overlapping components into final_comp
-      for( unsigned int oc = 1; oc < overlapping_comps.size(); ++oc )
+      for( size_t oc = 1; oc < overlapping_comps.size(); ++oc )
       {
         auto& merged_comp = comps[ overlapping_comps[ oc ] ];
         final_comp.insert( merged_comp.begin(), merged_comp.end() );
@@ -471,8 +471,8 @@ detect_critical_tracks(
 {
   std::vector< track_sptr > critical_tracks;
   // build a mapping from frame number to connected component index
-  std::map< frame_id_t, unsigned int > cc_map;
-  for( unsigned int i = 0; i < cc.size(); ++i )
+  std::map< frame_id_t, size_t > cc_map;
+  for( size_t i = 0; i < cc.size(); ++i )
   {
     for( auto const& f : cc[ i ] )
     {
@@ -483,7 +483,7 @@ detect_critical_tracks(
   // find tracks which span more than one connected component
   for( auto const& t : tracks->tracks() )
   {
-    unsigned int first_idx = cc_map[ t->first_frame() ];
+    size_t first_idx = cc_map[ t->first_frame() ];
     for( auto const& ts : *t )
     {
       auto idx = cc_map[ ts->frame() ];

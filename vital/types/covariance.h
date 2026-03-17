@@ -19,12 +19,12 @@ namespace kwiver {
 namespace vital {
 
 /// A representation of covariance of a measurement
-template < unsigned N, typename T >
+template < size_t N, typename T >
 class covariance_
 {
 public:
   /// Number of unique values in a NxN symmetric matrix
-  static const unsigned int data_size = N * ( N + 1 ) / 2;
+  static auto const data_size = N * ( N + 1 ) / 2;
   using data_type = T;
   using matrix_type = Eigen::Matrix< T, N, N >;
 
@@ -32,10 +32,10 @@ public:
   covariance_< N, T >()
   {
     // Setting identity matrix values
-    unsigned int n = 0;
-    for( unsigned int j = 0; j < N; ++j )
+    size_t n = 0;
+    for( size_t j = 0; j < N; ++j )
     {
-      for( unsigned int i = 0; i < j; ++i )
+      for( size_t i = 0; i < j; ++i )
       {
         data_[ n++ ] = T( 0 );
       }
@@ -55,7 +55,7 @@ public:
   {
     const U* in = other.data();
     T* out = this->data_;
-    for( unsigned i = 0; i < data_size; ++i, ++in, ++out )
+    for( size_t i = 0; i < data_size; ++i, ++in, ++out )
     {
       *out = static_cast< T >( *in );
     }
@@ -64,10 +64,10 @@ public:
   /// Constructor - initialize to identity matrix times a scalar
   explicit covariance_< N, T >( const T& value )
   {
-    unsigned int n = 0;
-    for( unsigned int j = 0; j < N; ++j )
+    size_t n = 0;
+    for( size_t j = 0; j < N; ++j )
     {
-      for( unsigned int i = 0; i < j; ++i )
+      for( size_t i = 0; i < j; ++i )
       {
         data_[ n++ ] = T( 0 );
       }
@@ -81,10 +81,10 @@ public:
   /// \param mat matrix to construct from.
   explicit covariance_< N, T >( const matrix_type& mat )
   {
-    unsigned int n = 0;
-    for( unsigned int j = 0; j < N; ++j )
+    size_t n = 0;
+    for( size_t j = 0; j < N; ++j )
     {
-      for( unsigned int i = 0; i < j; ++i )
+      for( size_t i = 0; i < j; ++i )
       {
         data_[ n++ ] = ( mat( i, j ) + mat( j, i ) ) / 2;
       }
@@ -105,10 +105,10 @@ public:
   matrix() const
   {
     Eigen::Matrix< T, N, N > mat;
-    unsigned int n = 0;
-    for( unsigned int j = 0; j < N; ++j )
+    size_t n = 0;
+    for( size_t j = 0; j < N; ++j )
     {
-      for( unsigned int i = 0; i < j; ++i )
+      for( size_t i = 0; i < j; ++i )
       {
         mat( i, j ) = mat( j, i ) = data_[ n++ ];
       }
@@ -119,7 +119,7 @@ public:
 
   /// Return the i-th row, j-th column
   T&
-  operator()( unsigned int i, unsigned int j )
+  operator()( size_t i, size_t j )
   {
     assert( i < N );
     assert( j < N );
@@ -128,7 +128,7 @@ public:
 
   /// Return the i-th row, j-th column (const)
   const T&
-  operator()( unsigned int i, unsigned int j ) const
+  operator()( size_t i, size_t j ) const
   {
     assert( i < N );
     assert( j < N );
@@ -146,7 +146,7 @@ public:
   {
     const T* d1 = data_;
     const T* d2 = other.data_;
-    for( unsigned i = 0; i < data_size; ++i, ++d1, ++d2 )
+    for( size_t i = 0; i < data_size; ++i, ++d1, ++d2 )
     {
       if( *d1 != *d2 )
       {
@@ -171,7 +171,7 @@ public:
   serialize( Archive& archive )
   {
     T* d = data_;
-    for( unsigned i = 0; i < data_size; ++i, ++d )
+    for( size_t i = 0; i < data_size; ++i, ++d )
     {
       archive( *d );
     }
@@ -179,8 +179,8 @@ public:
 
 protected:
   /// Convert from matrix to vector indices
-  unsigned int
-  vector_index( unsigned int i, unsigned int j ) const
+  size_t
+  vector_index( size_t i, size_t j ) const
   {
     return ( j > i ) ? j * ( j + 1 ) / 2 + i
                      : i * ( i + 1 ) / 2 + j;

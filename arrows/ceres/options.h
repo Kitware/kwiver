@@ -53,7 +53,7 @@ struct KWIVER_ALGO_CERES_EXPORT camera_options : public mvg::camera_options
   using cam_param_map_t =
     std::unordered_map< vital::frame_id_t, std::vector< double > >;
   using cam_intrinsic_id_map_t =
-    std::unordered_map< vital::frame_id_t, unsigned int >;
+    std::unordered_map< vital::frame_id_t, size_t >;
   using frame_params_t =
     std::vector< std::pair< vital::frame_id_t, double* > >;
 
@@ -208,7 +208,7 @@ struct KWIVER_ALGO_CERES_EXPORT camera_options : public mvg::camera_options
 
 /// Return the number of distortion parameters required for each type.
 KWIVER_ALGO_CERES_EXPORT
-unsigned int
+size_t
 num_distortion_params( mvg::LensDistortionType type );
 
 typedef std::shared_ptr< camera_options > camera_options_sptr;

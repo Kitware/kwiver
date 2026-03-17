@@ -171,7 +171,7 @@ read_ply_file( path_t const& file_path )
   std::vector< vertex_property_t > vert_props;
   std::string line;
 
-  unsigned int num_verts = 0, vert_count = 0;
+  size_t num_verts = 0, vert_count = 0;
   while( std::getline( ifile, line ) )
   {
     std::vector< std::string > tokens = get_tokens( line );
@@ -230,8 +230,8 @@ read_ply_file( path_t const& file_path )
     rgb_color color;
     int cvalue;
     landmark_id_t id = static_cast< landmark_id_t >( vert_count++ );
-    unsigned observations = 0;
-    for( unsigned int i = 0; i < tokens.size() && i < vert_props.size(); ++i )
+    size_t observations = 0;
+    for( size_t i = 0; i < tokens.size() && i < vert_props.size(); ++i )
     {
       std::istringstream iss( tokens[ i ] );
       switch( vert_props[ i ] )

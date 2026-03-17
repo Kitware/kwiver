@@ -96,9 +96,9 @@ compute_association_matrix_from_features
       filtered_tracks.size(),
       filtered_dets->size() );
 
-    for( unsigned t = 0; t < filtered_tracks.size(); ++t )
+    for( size_t t = 0; t < filtered_tracks.size(); ++t )
     {
-      for( unsigned d = 0; d < filtered_dets->size(); ++d )
+      for( size_t d = 0; d < filtered_dets->size(); ++d )
       {
         track_sptr trk = filtered_tracks[ t ];
         detected_object_sptr det = filtered_dets->at( d );

@@ -130,7 +130,7 @@ TEST ( integrate_depth_maps, integrate_weighted )
   image_of< double > weight( depth_maps[ 0 ]->width(),
     depth_maps[ 0 ]->height() );
   transform_image( weight, [](double){ return 1.0; } );
-  for( unsigned i = 0; i < depth_maps.size(); ++i )
+  for( size_t i = 0; i < depth_maps.size(); ++i )
   {
     weights.push_back( std::make_shared< simple_image_container >( weight ) );
   }

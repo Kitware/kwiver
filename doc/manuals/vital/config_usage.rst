@@ -57,7 +57,7 @@ An example configuration for the ``filter_tracks`` algorithm is shown below.
       filter_tracks,
       "Filter tracks by track length or matrix matrix importance.",
       PARAM_DEFAULT(
-        min_track_length, unsigned int,
+        min_track_length, size_t,
         "Filter the tracks keeping those covering "
         "at least this many frames. Set to 0 to disable.",
         3 ),

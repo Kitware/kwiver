@@ -37,19 +37,19 @@ public:
       "is not adapted.",
       0.0 ),
     PARAM_DEFAULT(
-      num_features_target, unsigned int,
+      num_features_target, size_t,
       "The target number of features to detect. "
       "The suppression radius is dynamically adjusted to "
       "acheive this number of features.",
       500 ),
     PARAM_DEFAULT(
-      num_features_range, unsigned int,
+      num_features_range, size_t,
       "The number of features above target_num_features to "
       "allow in the output.  This window allows the binary "
       "search on radius to terminate sooner.",
       50 ),
     PARAM_DEFAULT(
-      resolution, unsigned int,
+      resolution, size_t,
       "The resolution (N) of the filter for computing neighbors."
       " The filter is an (2N+1) x (2N+1) box containing a circle"
       " of radius N. The value must be a positive integer. "
@@ -73,7 +73,7 @@ protected:
   virtual vital::feature_set_sptr
   filter(
     vital::feature_set_sptr input,
-    std::vector< unsigned int >& indices ) const;
+    std::vector< size_t >& indices ) const;
   using filter_features::filter;
 
 private:

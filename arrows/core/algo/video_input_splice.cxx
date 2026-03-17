@@ -41,7 +41,7 @@ public:
   video_input_splice& parent;
 
   // Configuration values
-  unsigned int c_output_nth_frame() { return parent.c_output_nth_frame; }
+  size_t c_output_nth_frame() { return parent.c_output_nth_frame; }
 
   std::vector< std::string > d_search_path;
   bool d_has_timeout;

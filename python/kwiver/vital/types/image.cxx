@@ -73,7 +73,7 @@ py::object
 kwiver::vital::python::image
 ::get_pixel2(
   std::shared_ptr< image_t >& img,
-  unsigned i, unsigned j )
+  size_t i, size_t j )
 {
   std::string type = pixel_type_name( img );
 
@@ -105,7 +105,7 @@ py::object
 kwiver::vital::python::image
 ::get_pixel3(
   std::shared_ptr< image_t >& img,
-  unsigned i, unsigned j, unsigned k )
+  size_t i, size_t j, size_t k )
 {
   std::string type = pixel_type_name( img );
 
@@ -139,7 +139,7 @@ py::object
 kwiver::vital::python::image
 ::get_pixel(
   std::shared_ptr< image_t >& img,
-  std::vector< unsigned > idx )
+  std::vector< size_t > idx )
 {
   if( idx.size() == 2 )
   {

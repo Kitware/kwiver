@@ -399,7 +399,7 @@ INSTANTIATE_TEST_CASE_P(
 // ----------------------------------------------------------------------------
 // Helper for tests of intrinsics sharing models in bundle adjustment; returns
 // the number of unique camera intrinsics objects in the optimized cameras
-static unsigned int
+static size_t
 test_ba_intrinsic_sharing(
   camera_map_sptr cameras,
   kwiver::vital::config_block_sptr cfg )
@@ -446,7 +446,7 @@ test_ba_intrinsic_sharing(
     intrin_set.insert( cam_ptr->intrinsics() );
   }
 
-  return static_cast< unsigned int >( intrin_set.size() );
+  return intrin_set.size();
 }
 
 // ----------------------------------------------------------------------------
@@ -525,7 +525,7 @@ TEST ( bundle_adjust, auto_share_intrinsics )
   camera_map_sptr cameras2 = kwiver::testing::camera_seq( 7, K2 );
 
   // combine the camera maps and offset the frame numbers
-  const unsigned int offset = static_cast< unsigned int >( cameras1->size() );
+  auto const offset = cameras1->size();
   camera_map::map_camera_t cams = cameras1->cameras();
   for( auto const& ci : cameras2->cameras() )
   {

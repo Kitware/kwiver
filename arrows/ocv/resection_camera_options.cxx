@@ -13,7 +13,7 @@ namespace ocv {
 std::ostream&
 operator<<( std::ostream& s, resection_camera_options::vectorf const& v )
 {
-  for( unsigned i = 0, n = v.size(); i < n; ++i )
+  for( size_t i = 0, n = v.size(); i < n; ++i )
   {
     if( i > 0 ) { s << ' '; }
     s << v[ i ];

@@ -232,9 +232,9 @@ do                                                           \
     // Populate the vector of observations in the correct order using mask
     // matrices
     vector_2d t_loc;
-    for( unsigned int i = 0; i < active_vcams.size(); ++i )
+    for( size_t i = 0; i < active_vcams.size(); ++i )
         {
-          for( unsigned int j = 0; j < active_worldpts.size(); ++j )
+          for( size_t j = 0; j < active_worldpts.size(); ++j )
           {
             if( mask[ i ][ j ] )
             {
@@ -256,11 +256,11 @@ do                                                           \
   // map optimized results back into vital structures
   SBA_TIMED(
     "Mapping optimized results back to VITAL structures",
-    for( unsigned int i = 0; i < active_vcams.size(); ++i )
+    for( size_t i = 0; i < active_vcams.size(); ++i )
         {
           vcams[ cam_idindex[ i ] ] = active_vcams[ i ];
         }
-    for( unsigned int i = 0; i < active_worldpts.size(); ++i )
+    for( size_t i = 0; i < active_worldpts.size(); ++i )
         {
           const vgl_point_3d< double >& pt = active_worldpts[ i ];
           vector_3d loc( pt.x(), pt.y(), pt.z() );

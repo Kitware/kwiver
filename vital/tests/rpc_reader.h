@@ -24,7 +24,7 @@ read_rpc( std::string filename )
   std::ifstream rpc_file;
   rpc_file.open( filename );
 
-  unsigned int line_idx = 0;
+  size_t line_idx = 0;
   while( !rpc_file.eof() )
   {
     std::string line;
@@ -32,7 +32,7 @@ read_rpc( std::string filename )
 
     std::stringstream ss( line );
     double value;
-    unsigned int word_idx = 0;
+    size_t word_idx = 0;
     while( ss >> value )
     {
       if( line_idx < 4 )

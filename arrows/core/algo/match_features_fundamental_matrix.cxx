@@ -154,7 +154,7 @@ match_features_fundamental_matrix
   // return the subset of inlier matches
   std::vector< vital::match > m = init_matches->matches();
   std::vector< vital::match > inlier_m;
-  for( unsigned int i = 0; i < inliers.size(); ++i )
+  for( size_t i = 0; i < inliers.size(); ++i )
   {
     if( inliers[ i ] )
     {
@@ -183,7 +183,7 @@ match_features_fundamental_matrix
 
   double max_dist = 2.0 * percentile( dists, d_->c_motion_filter_percentile() );
   std::vector< vital::match > filtered_m;
-  for( unsigned i = 0; i < inlier_m.size(); ++i )
+  for( size_t i = 0; i < inlier_m.size(); ++i )
   {
     if( dists[ i ] < max_dist )
     {

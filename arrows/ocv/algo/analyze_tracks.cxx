@@ -81,7 +81,7 @@ analyze_tracks
     tsi_uptr( new core::frame_index_track_set_impl( track_set->tracks() ) ) );
 
   // Constants
-  const unsigned num_tracks = static_cast< unsigned >( track_set->size() );
+  auto const num_tracks = track_set->size();
   const frame_id_t first_frame = track_set->first_frame();
   const frame_id_t last_frame = track_set->last_frame();
   const frame_id_t total_frames = last_frame - first_frame + 1;
@@ -98,7 +98,7 @@ analyze_tracks
       std::endl;
     stream << "(FrameID) (NumTrks) (%TrkFromID ";
 
-    for( unsigned i = 0; i < frames_to_compare.size(); i++ )
+    for( size_t i = 0; i < frames_to_compare.size(); i++ )
     {
       stream << " -" << frames_to_compare[ i ];
     }
@@ -120,7 +120,7 @@ analyze_tracks
       static_cast< int >( fid ),
       1 ) = static_cast< double >( track_set->active_tracks( fid ).size() );
 
-    for( unsigned i = 0; i < frames_to_compare.size(); i++ )
+    for( size_t i = 0; i < frames_to_compare.size(); i++ )
     {
       int adj = frames_to_compare[ i ];
 

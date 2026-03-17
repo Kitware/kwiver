@@ -358,7 +358,7 @@ track_set_implementation
   const frame_id_t frame_number2 = offset_to_frame( offset2 );
 
   const std::vector< track_sptr > all_tracks = this->tracks();
-  unsigned total_tracks = 0, tracks_both = 0;
+  size_t total_tracks = 0, tracks_both = 0;
 
   for( track_sptr t : all_tracks )
   {

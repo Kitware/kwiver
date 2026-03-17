@@ -68,7 +68,7 @@ bool
 close_loops_multi_method
 ::check_configuration( vital::config_block_sptr config ) const
 {
-  for( unsigned i = 0; i < c_method.size(); i++ )
+  for( size_t i = 0; i < c_method.size(); i++ )
   {
     if( !check_nested_algo_configuration< vital::algo::close_loops >(
       source_name( i ),
@@ -90,7 +90,7 @@ close_loops_multi_method
 {
   feature_track_set_sptr updated_set = input;
 
-  for( unsigned i = 0; i < c_method.size(); i++ )
+  for( size_t i = 0; i < c_method.size(); i++ )
   {
     updated_set = c_method[ i ]->stitch(
       frame_number, updated_set, image,

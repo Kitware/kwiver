@@ -91,7 +91,7 @@ estimate_fundamental_matrix
     this->get_confidence_threshold(),
     inliers_mat );
   inliers.resize( inliers_mat.rows );
-  for( unsigned i = 0; i < inliers.size(); ++i )
+  for( size_t i = 0; i < inliers.size(); ++i )
   {
     inliers[ i ] = inliers_mat.at< bool >( i );
   }

@@ -31,7 +31,7 @@ mesh_triangulate( mesh_face_array_base const& faces )
   {
     group = 0;
   }
-  for( unsigned int f = 0; f < faces.size(); ++f )
+  for( size_t f = 0; f < faces.size(); ++f )
   {
     for( unsigned i = 2; i < faces.num_verts( f ); ++i )
     {
@@ -59,7 +59,7 @@ mesh_triangulate( mesh_regular_face_array< 4 > const& faces )
   {
     group = 0;
   }
-  for( unsigned int f = 0; f < faces.size(); ++f )
+  for( size_t f = 0; f < faces.size(); ++f )
   {
     const mesh_regular_face< 4 >& face = faces[ f ];
     tris->push_back( mesh_tri( face[ 0 ], face[ 1 ], face[ 2 ] ) );

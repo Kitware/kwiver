@@ -54,12 +54,12 @@ public:
       "1.0).",
       0.35 ),
     PARAM_DEFAULT(
-      new_shot_length, unsigned,
+      new_shot_length, size_t,
       "Number of frames for a new shot to be considered valid before "
       "attempting to stitch to prior shots.",
       2 ),
     PARAM_DEFAULT(
-      max_search_length, unsigned,
+      max_search_length, size_t,
       "Maximum number of frames to search in the past for matching to "
       "the end of the last shot.",
       5 ),

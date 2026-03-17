@@ -82,7 +82,7 @@ TEST ( close_loops_appearance_indexed, default_config )
     close_loops_appearance_indexed,
     "Uses bag of words index to close loops.",
     PARAM_DEFAULT(
-      min_loop_inlier_matches, unsigned,
+      min_loop_inlier_matches, size_t,
       "The minimum number of inlier feature matches to accept a loop "
       "connection and join tracks",
       128 ),
@@ -143,12 +143,12 @@ TEST ( close_loops_bad_frames_only, default_config )
       "1.0).",
       0.35 ),
     PARAM_DEFAULT(
-      new_shot_length, unsigned,
+      new_shot_length, size_t,
       "Number of frames for a new shot to be considered valid before "
       "attempting to stitch to prior shots.",
       2 ),
     PARAM_DEFAULT(
-      max_search_length, unsigned,
+      max_search_length, size_t,
       "Maximum number of frames to search in the past for matching to "
       "the end of the last shot.",
       5 ),
@@ -195,7 +195,7 @@ TEST ( close_loops_keyframe, default_config )
       "Number of adjacent frames to match to (must be at least 1).",
       10 ),
     PARAM_DEFAULT(
-      min_keyframe_misses, unsigned int,
+      min_keyframe_misses, size_t,
       "Minimum number of keyframe match misses before creating a new keyframe. "
       "A match miss occurs when the current frame does not match any existing "
       "keyframe (must be at least 1).",

@@ -60,8 +60,8 @@ public:
   /// Get an in-memory image class to access a sub-image of the data
   virtual image
   get_image(
-    unsigned x_offset, unsigned y_offset,
-    unsigned width, unsigned height ) const
+    size_t x_offset, size_t y_offset,
+    size_t width, size_t height ) const
   {
     return get_image().crop( x_offset, y_offset, width, height );
   }
@@ -126,8 +126,8 @@ public:
   /// Get an in-memory image class to access the data cropped
   virtual image
   get_image(
-    unsigned x_offset, unsigned y_offset,
-    unsigned width, unsigned height ) const
+    size_t x_offset, size_t y_offset,
+    size_t width, size_t height ) const
   {
     return data.crop( x_offset, y_offset, width, height );
   }

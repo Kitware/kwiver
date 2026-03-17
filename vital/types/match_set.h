@@ -19,7 +19,7 @@ namespace vital {
 
 // ----------------------------------------------------------------------------
 /// Index pair indicating matching features between two arrays
-typedef std::pair< unsigned, unsigned > match;
+typedef std::pair< size_t, size_t > match;
 
 /// A collection of matching indices between one set of objects and another.
 class match_set

@@ -39,7 +39,7 @@ namespace kwiver {                                                     \
   typedef NS::mvg_type T;                                              \
   std::string options_str = "\nMust be one of the following options:"; \
   std::string opt;                                                     \
-  for( unsigned i = 0; i < 20; ++i )                                   \
+  for( size_t i = 0; i < 20; ++i )                                     \
   {                                                                    \
     opt = NS::mvg_type##ToString( static_cast< T >( i ) );             \
     if( opt == "UNKNOWN" )                                             \

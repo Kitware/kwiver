@@ -43,8 +43,8 @@ TEST ( descriptor_set, default_set )
 // ----------------------------------------------------------------------------
 TEST ( descriptor_set, populated_set )
 {
-  static constexpr unsigned num_desc = 100;
-  static constexpr unsigned dim = 128;
+  static constexpr size_t num_desc = 100;
+  static constexpr size_t dim = 128;
 
   cv::Mat data( num_desc, dim, CV_64F );
   cv::randu( data, 0, 1 );
@@ -65,7 +65,7 @@ TEST ( descriptor_set, populated_set )
   }
   EXPECT_EQ( ds.size(), count );
 
-  for( unsigned i = 0; i < num_desc; ++i )
+  for( size_t i = 0; i < num_desc; ++i )
   {
     SCOPED_TRACE( "At descriptor " + std::to_string( i ) );
     ASSERT_EQ( dim, ds.at( i )->size() );
@@ -112,7 +112,7 @@ test_conversions( const cv::Mat& data )
   data.convertTo( double_data, CV_64F );
 
   [ & ]{
-    for( unsigned i = 0; i < ds.size(); ++i )
+    for( size_t i = 0; i < ds.size(); ++i )
     {
       SCOPED_TRACE( "At descriptor " + std::to_string( i ) );
       EXPECT_EQ( data.cols, static_cast< int >( ds.at( i )->size() ) );

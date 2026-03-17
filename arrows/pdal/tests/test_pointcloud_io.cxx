@@ -84,7 +84,7 @@ TEST_F ( pointcloud_io, load )
 
     EXPECT_EQ( positions.size(), points.size() );
 
-    for( unsigned int i = 0; i < positions.size(); ++i )
+    for( size_t i = 0; i < positions.size(); ++i )
     {
       EXPECT_TRUE( positions[ i ].isApprox( points[ i ], 0.0000001 ) );
       EXPECT_EQ( colors[ i ], test_colors[ i ] );

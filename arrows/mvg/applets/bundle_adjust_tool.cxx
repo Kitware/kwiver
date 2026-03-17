@@ -497,7 +497,7 @@ struct bundle_adjust_tool::priv
   kv::path_t GCPFN = "gcps.json";
   bool ignore_metadata = false;
 
-  using mapID2FN = std::unordered_map< unsigned, kv::path_t >;
+  using mapID2FN = std::unordered_map< size_t, kv::path_t >;
 
   mapID2FN camID2FN;
 
@@ -794,7 +794,7 @@ bundle_adjust_tool::priv
   std::ifstream f( cam_in );
   std::string FN;
   kv::camera_map::map_camera_t cameras; // keys expected to be 1-based
-  for( unsigned id = 1; std::getline( f, FN ); ++id )
+  for( size_t id = 1; std::getline( f, FN ); ++id )
   {
     LOG_INFO( logger, FN );
     try
@@ -1001,7 +1001,7 @@ bundle_adjust_tool::priv
 
   // == optimize
   kv::simple_camera_perspective_map cams;
-  unsigned min_frm_id = -1;
+  kv::frame_id_t min_frm_id = -1;
   for( auto const& p : camera_map_ptr->cameras() )
   {
     auto ID = p.first;
@@ -1163,8 +1163,8 @@ config->get_value< type >( bc + #name, K_def.name() )
     if( init_cams_with_metadata )
     {
       auto im = first_frame;
-      K->set_image_width( static_cast< unsigned >( im->width() ) );
-      K->set_image_height( static_cast< unsigned >( im->height() ) );
+      K->set_image_width( im->width() );
+      K->set_image_height( im->height() );
       base_camera.set_intrinsics( K );
 
       bool init_intrinsics_with_metadata =
@@ -1180,9 +1180,7 @@ config->get_value< type >( bc + #name, K_def.name() )
         {
           auto md_K =
             intrinsics_from_metadata(
-              *mdp.second,
-              static_cast< unsigned >( im->width() ),
-              static_cast< unsigned >( im->height() ) );
+              *mdp.second, im->width(), im->height() );
           if( md_K != nullptr )
           {
             base_camera.set_intrinsics( md_K );

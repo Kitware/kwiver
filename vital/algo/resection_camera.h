@@ -72,7 +72,7 @@ public:
     kwiver::vital::frame_id_t frame_id,
     kwiver::vital::landmark_map_sptr landmarks,
     kwiver::vital::feature_track_set_sptr tracks,
-    unsigned width, unsigned height,
+    size_t width, size_t height,
     std::unordered_set< landmark_id_t >* inliers = nullptr ) const;
 
   /// Estimate camera parameters for a frame from landmarks and tracks.

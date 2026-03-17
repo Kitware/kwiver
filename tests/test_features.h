@@ -34,7 +34,7 @@ feature_set_sptr
 make_n_features( size_t num_feat )
 {
   std::vector< feature_sptr > feat;
-  for( unsigned i = 0; i < num_feat; ++i )
+  for( size_t i = 0; i < num_feat; ++i )
   {
     T v = static_cast< T >( i ) / num_feat;
     auto f = std::make_shared< feature_< T > >();
@@ -62,7 +62,7 @@ template < typename T >
 feature_set_sptr
 make_10_features()
 {
-  unsigned num_feat = 10;
+  size_t num_feat = 10;
 
   std::vector< double > scale = {
     1.0, 2.0, 1.8, 1.2, 1.1, 1.3, 1.7, 1.2, 1.1, 1.1 };
@@ -71,7 +71,7 @@ make_10_features()
     0.7, 0.1, 0.1, 0.2, 0.3, 0.5, 0.8, 0.5, 0.9, 0.1 };
 
   std::vector< feature_sptr > feat;
-  for( unsigned i = 0; i < num_feat; ++i )
+  for( size_t i = 0; i < num_feat; ++i )
   {
     T v = static_cast< T >( i ) / num_feat;
     auto f = std::make_shared< feature_< T > >();
@@ -100,7 +100,7 @@ template < typename T >
 feature_set_sptr
 make_12_features()
 {
-  unsigned num_feat = 12;
+  size_t num_feat = 12;
 
   std::vector< double > scale = {
     1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 4.0, 1.0  };
@@ -108,11 +108,11 @@ make_12_features()
   std::vector< double > mag = {
     0.5, 1.0, 1.0, 0.5, 1.0, 0.2, 1.0, 0.2, 1.0, 1.0, 1.0, 1.0 };
 
-  std::vector< unsigned > coord = {
+  std::vector< size_t > coord = {
     100, 110, 300, 310, 320, 505, 510, 515, 700, 710, 720, 800 };
 
   std::vector< feature_sptr > feat;
-  for( unsigned i = 0; i < num_feat; ++i )
+  for( size_t i = 0; i < num_feat; ++i )
   {
     T v = static_cast< T >( i ) / num_feat;
     auto f = std::make_shared< feature_< T > >();

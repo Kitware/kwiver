@@ -41,7 +41,7 @@ public:
       "Number of adjacent frames to match to (must be at least 1).",
       10 ),
     PARAM_DEFAULT(
-      min_keyframe_misses, unsigned int,
+      min_keyframe_misses, size_t,
       "Minimum number of keyframe match misses before creating a new keyframe. "
       "A match miss occurs when the current frame does not match any existing "
       "keyframe (must be at least 1).",

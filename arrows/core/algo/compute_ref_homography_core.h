@@ -57,12 +57,12 @@ public:
       16.0 ),
     PARAM_DEFAULT(
       forget_track_threshold,
-      unsigned,
+      size_t,
       "After how many frames should we forget all info about a track?",
       5 ),
     PARAM_DEFAULT(
       min_track_length,
-      unsigned,
+      size_t,
       "Minimum track length to use for homography regression",
       1 ),
     PARAM_DEFAULT(
@@ -72,7 +72,7 @@ public:
       "and measured points to be considered an inlier match.",
       2.0 ),
     PARAM_DEFAULT(
-      minimum_inliers, unsigned,
+      minimum_inliers, size_t,
       "Minimum number of matches required between source and "
       "reference planes for valid homography estimation.",
       4 ),

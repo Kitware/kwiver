@@ -15,7 +15,7 @@ namespace kv = kwiver::vital;
 // Easy way to automate bindings of templated classes.
 // For more information, see below link
 // https://stackoverflow.com/questions/47487888/pybind11-template-class-of-many-types
-template < unsigned N, typename T >
+template < size_t N, typename T >
 void
 declare_point( py::module& m, std::string const& typestr )
 {

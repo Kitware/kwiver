@@ -52,10 +52,10 @@ keypoints_equal( const cv::KeyPoint& kp1, const cv::KeyPoint& kp2 )
 // ----------------------------------------------------------------------------
 TEST ( feature_set, populated_set )
 {
-  static constexpr unsigned num_feat = 100;
+  static constexpr size_t num_feat = 100;
 
   std::vector< cv::KeyPoint > kpts;
-  for( unsigned i = 0; i < num_feat; ++i )
+  for( size_t i = 0; i < num_feat; ++i )
   {
     cv::KeyPoint kp( i / 2.0f, i / 3.0f, i / 10.0f, ( i * 3.14159f ) / num_feat,
       100.0f / i );
@@ -75,7 +75,7 @@ TEST ( feature_set, populated_set )
   EXPECT_EQ( fs.size(), feats.size() );
 
   [ & ]{
-    for( unsigned i = 0; i < num_feat; ++i )
+    for( size_t i = 0; i < num_feat; ++i )
     {
       SCOPED_TRACE( "At feature " + std::to_string( i ) );
       ASSERT_EQ( typeid( float ), feats[ i ]->data_type() );

@@ -31,13 +31,13 @@ size_t pixel_num_bytes( std::shared_ptr< image_t >& self );
 
 py::object get_pixel2(
   std::shared_ptr< image_t >& img,
-  unsigned i, unsigned j );
+  size_t i, size_t j );
 py::object get_pixel3(
   std::shared_ptr< image_t >& img,
-  unsigned i, unsigned j, unsigned k );
+  size_t i, size_t j, size_t k );
 py::object get_pixel(
   std::shared_ptr< image_t >& img,
-  std::vector< unsigned > idx );
+  std::vector< size_t > idx );
 void* first_pixel( std::shared_ptr< image_t >& img );
 image_t new_image(
   size_t width, size_t height, size_t depth, bool interleave,

@@ -31,8 +31,8 @@ extract_feature_colors(
     auto const fd = std::make_shared< vital::feature_d >( *f );
     fd->set_color(
       image_data.at(
-        static_cast< unsigned >( loc[ 0 ] ),
-        static_cast< unsigned >( loc[ 1 ] ) ) );
+        static_cast< size_t >( loc[ 0 ] ),
+        static_cast< size_t >( loc[ 1 ] ) ) );
     out_feat.push_back( fd );
   }
 
@@ -65,8 +65,8 @@ extract_feature_colors(
     auto const& loc = feat->get_loc();
     feat->set_color(
       image_data.at(
-        static_cast< unsigned >( loc[ 0 ] ),
-        static_cast< unsigned >( loc[ 1 ] ) ) );
+        static_cast< size_t >( loc[ 0 ] ),
+        static_cast< size_t >( loc[ 1 ] ) ) );
 
     fts->feature = feat;
   }

@@ -124,7 +124,7 @@ save_descriptors( Archive& ar, descriptor_set_sptr const& descriptors )
     if( auto dt = std::dynamic_pointer_cast< descriptor_array_of< T > >( d ) )
     {
       const T* data = dt->raw_data();
-      for( unsigned i = 0; i < dim; ++i, ++data )
+      for( size_t i = 0; i < dim; ++i, ++data )
       {
         ar( *data );
       }
@@ -168,7 +168,7 @@ read_descriptors( Archive& ar, size_t num_desc )
     }
 
     T* data = d->raw_data();
-    for( unsigned x = 0; x < dim; ++x, ++data )
+    for( size_t x = 0; x < dim; ++x, ++data )
     {
       ar( *data );
     }

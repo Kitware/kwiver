@@ -42,10 +42,10 @@ dmatch_equal( const cv::DMatch& dm1, const cv::DMatch& dm2 )
 // ----------------------------------------------------------------------------
 TEST ( match_set, populated_set )
 {
-  static constexpr unsigned num_matches = 100;
+  static constexpr size_t num_matches = 100;
 
   std::vector< cv::DMatch > dms;
-  for( unsigned i = 0; i < num_matches; ++i )
+  for( size_t i = 0; i < num_matches; ++i )
   {
     cv::DMatch dm( i, num_matches - i - 1, FLT_MAX );
     dms.push_back( dm );

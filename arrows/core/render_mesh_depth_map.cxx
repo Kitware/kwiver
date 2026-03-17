@@ -30,7 +30,7 @@ render_mesh_depth_map(
 
   std::vector< vital::vector_2d > points_2d( vertices.size() );
   std::vector< double > depths( vertices.size() );
-  for( unsigned int i = 0; i < vertices.size(); ++i )
+  for( size_t i = 0; i < vertices.size(); ++i )
   {
     points_2d[ i ] = camera->project( vertices[ i ] );
     depths[ i ] = camera->depth( vertices[ i ] );
@@ -112,14 +112,14 @@ render_mesh_height_map( vital::mesh_sptr mesh, vital::camera_sptr camera )
         dynamic_cast< vital::mesh_vertex_array< 3 >& >( mesh->vertices() );
 
       std::vector< vital::vector_2d > points_2d( vertices.size() );
-      for( unsigned int i = 0; i < vertices.size(); ++i )
+      for( size_t i = 0; i < vertices.size(); ++i )
       {
         points_2d[ i ] = camera->project( vertices[ i ] );
       }
 
       auto const& triangles = static_cast< const vital::mesh_regular_face_array< 3 >& >( mesh->faces() );
       double h1, h2, h3;
-      for( unsigned int f = 0; f < triangles.size(); ++f )
+      for( size_t f = 0; f < triangles.size(); ++f )
       {
         vital::vector_2d& v1 = points_2d[ triangles( f, 0 ) ];
         vital::vector_2d& v2 = points_2d[ triangles( f, 1 ) ];
@@ -159,9 +159,9 @@ depth_map_to_height_map(
   double const o = v.dot( -P.col( 3 ) );
   assert( depth_map.depth() == 1 );
   height_map.set_size( depth_map.width(), depth_map.height(), 1 );
-  for( unsigned int j = 0; j < depth_map.height(); ++j )
+  for( size_t j = 0; j < depth_map.height(); ++j )
   {
-    for( unsigned int i = 0; i < depth_map.width(); ++i )
+    for( size_t i = 0; i < depth_map.width(); ++i )
     {
       double const& d = depth_map( i, j );
       vital::vector_3d pt( i, j, 1 );

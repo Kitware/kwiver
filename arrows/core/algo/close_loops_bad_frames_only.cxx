@@ -67,7 +67,8 @@ close_loops_bad_frames_only
   vital::image_container_sptr ) const
 {
   // check if enabled and possible
-  if( !c_enabled || frame_number <= c_new_shot_length )
+  if( !c_enabled || frame_number < 0 ||
+      static_cast< size_t >( frame_number ) <= c_new_shot_length )
   {
     return input;
   }
@@ -98,7 +99,8 @@ close_loops_bad_frames_only
 
   vital::frame_id_t last_frame_to_test = 0;
 
-  if( frame_to_test > c_max_search_length )
+  if( frame_to_test > 0 &&
+      static_cast< size_t >( frame_to_test ) > c_max_search_length )
   {
     last_frame_to_test = frame_to_test - c_max_search_length;
   }
@@ -119,11 +121,10 @@ close_loops_bad_frames_only
       stitch_frame_set->frame_descriptors( frame_to_stitch ) );
 
     // test matcher results
-    unsigned total_features = static_cast< unsigned >( test_frame_set->size() +
-                                                       stitch_frame_set->size() );
+    auto total_features = test_frame_set->size() + stitch_frame_set->size();
 
     if( 2 * mset->size() >=
-        static_cast< unsigned >( c_percent_match_req * total_features ) )
+        static_cast< size_t >( c_percent_match_req * total_features ) )
     {
       // modify track history and exit
       std::vector< vital::track_sptr > test_frame_trks =
@@ -132,7 +133,7 @@ close_loops_bad_frames_only
         stitch_frame_set->tracks();
       std::vector< vital::match > matches = mset->matches();
 
-      for( unsigned i = 0; i < matches.size(); i++ )
+      for( size_t i = 0; i < matches.size(); i++ )
       {
         input->merge_tracks(
           stitch_frame_trks[ matches[ i ].second ],

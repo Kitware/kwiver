@@ -68,7 +68,7 @@ estimate_homography
   }
 
   inliers.resize( inliers_mat.rows );
-  for( unsigned i = 0; i < inliers.size(); ++i )
+  for( size_t i = 0; i < inliers.size(); ++i )
   {
     inliers[ i ] = inliers_mat.at< bool >( i );
   }

@@ -25,7 +25,7 @@ tags_to_vector(
 
   Eigen::VectorXd rslt( vec_length );
 
-  for( unsigned int i = 0; i < vec_length; ++i )
+  for( size_t i = 0; i < vec_length; ++i )
   {
     if( auto& mdi = md->find( tags[ i ] ) )
     {
@@ -88,7 +88,7 @@ string_to_vector( std::string const& s )
   }
 
   Eigen::VectorXd result( tokens.size() );
-  for( unsigned int i = 0; i < tokens.size(); ++i )
+  for( size_t i = 0; i < tokens.size(); ++i )
   {
     result[ i ] = std::stod( tokens[ i ] );
   }
@@ -145,8 +145,8 @@ VITAL_EXPORT
 camera_intrinsics_sptr
 intrinsics_from_metadata(
   metadata const& md,
-  unsigned int image_width,
-  unsigned int image_height )
+  size_t image_width,
+  size_t image_height )
 {
   double im_w = static_cast< double >( image_width );
   double im_h = static_cast< double >( image_height );

@@ -395,8 +395,8 @@ config->get_value< type >( bc + #name, K_def.name() )
       if( init_cams_with_metadata )
       {
         auto im = first_frame;
-        K->set_image_width( static_cast< unsigned >( im->width() ) );
-        K->set_image_height( static_cast< unsigned >( im->height() ) );
+        K->set_image_width( im->width() );
+        K->set_image_height( im->height() );
         base_camera.set_intrinsics( K );
 
         bool init_intrinsics_with_metadata =
@@ -412,9 +412,7 @@ config->get_value< type >( bc + #name, K_def.name() )
           {
             auto md_K =
               intrinsics_from_metadata(
-                *mdp.second,
-                static_cast< unsigned >( im->width() ),
-                static_cast< unsigned >( im->height() ) );
+                *mdp.second, im->width(), im->height() );
             if( md_K != nullptr )
             {
               base_camera.set_intrinsics( md_K );

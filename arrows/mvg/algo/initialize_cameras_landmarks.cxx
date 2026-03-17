@@ -225,7 +225,7 @@ public:
     simple_camera_perspective_map_sptr cams,
     const std::vector< track_sptr >& trks,
     std::set< landmark_id_t >& inlier_lm_ids,
-    unsigned int min_inlier_observations = 2,
+    size_t min_inlier_observations = 2,
     double inlier_threshold = 0.0 ) const;
 
   void triangulate_landmarks_visible_in_frames(
@@ -387,7 +387,7 @@ public:
     return parent.c_max_cams_in_keyframe_init;
   }
 
-  unsigned int
+  size_t
   c_min_frame_to_frame_matches() const
   {
     return parent.c_min_frame_to_frame_matches;
@@ -435,7 +435,7 @@ public:
 
   std::set< rel_pose > m_rel_poses;
   std::set< frame_id_t > m_keyframes;
-  Eigen::SparseMatrix< unsigned int > m_kf_match_matrix;
+  Eigen::SparseMatrix< size_t > m_kf_match_matrix;
   std::set< frame_id_t > m_frames_removed_from_sfm_solution;
   vital::track_map_t m_track_map;
 
@@ -593,7 +593,7 @@ initialize_cameras_landmarks::priv
   simple_camera_perspective_map_sptr cams,
   const std::vector< track_sptr >& trks,
   std::set< landmark_id_t >& inlier_lm_ids,
-  unsigned int min_inlier_observations,
+  size_t min_inlier_observations,
   double inlier_threshold ) const
 {
   typedef landmark_map::map_landmark_t lm_map_t;
@@ -934,7 +934,7 @@ initialize_cameras_landmarks::priv
     cal_right->clone() );
   cal_right_no_dist->set_dist_coeffs( Eigen::VectorXd() );
 
-  for( unsigned int i = 0; i < trks.size(); ++i )
+  for( size_t i = 0; i < trks.size(); ++i )
   {
     auto frame_data_0 = std::dynamic_pointer_cast< feature_track_state >(
       *( trks[ i ]->find( frame_0 ) ) );
@@ -959,16 +959,14 @@ initialize_cameras_landmarks::priv
     inliers, c_interim_reproj_thresh() );
   const essential_matrix_d E( *E_sptr );
 
-  unsigned num_inliers = static_cast< unsigned >( std::count(
-    inliers.begin(),
-    inliers.end(), true ) );
+  auto num_inliers = std::count( inliers.begin(), inliers.end(), true );
 
   LOG_DEBUG(
     m_logger, "E matrix num inliers = " << num_inliers
                                         << "/" << inliers.size() );
 
   // get the first inlier index
-  unsigned int inlier_idx = 0;
+  size_t inlier_idx = 0;
   for(; inlier_idx < inliers.size() && !inliers[ inlier_idx ]; ++inlier_idx ) {}
 
   // get the first inlier correspondence to
@@ -1098,14 +1096,12 @@ initialize_cameras_landmarks::priv
 
   m_rel_poses.clear();
 
-  unsigned frames_skip = std::max(
-    1u,
-    static_cast< unsigned >( frames.size() / 2 ) );
+  auto frames_skip = std::max< size_t >( 1u, frames.size() / 2 );
 
   do
   {
     std::vector< frame_id_t > kf_mm_frames;
-    unsigned fid_idx = 0;
+    size_t fid_idx = 0;
     for( auto fid : frames )
     {
       if( fid_idx % frames_skip == 0 )
@@ -1122,7 +1118,7 @@ initialize_cameras_landmarks::priv
     std::vector< std::pair< frame_id_t, frame_id_t > > pairs_to_process;
     for( int k = 0; k < cols; ++k )
     {
-      for( Eigen::SparseMatrix< unsigned int >::InnerIterator
+      for( Eigen::SparseMatrix< size_t >::InnerIterator
            it( m_kf_match_matrix, k ); it; ++it )
       {
         if( it.row() > k && it.value() > c_min_frame_to_frame_matches() )
@@ -2070,7 +2066,7 @@ initialize_cameras_landmarks::priv
       std::uniform_int_distribution< size_t > uni( 0, cameras.size() - 1 );
       auto ri = uni( m_rng );
       auto cams_it = cameras.begin();
-      for( unsigned int i = 0; i < ri; ++i )
+      for( size_t i = 0; i < ri; ++i )
       {
         ++cams_it;
       }

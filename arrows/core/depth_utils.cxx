@@ -63,7 +63,7 @@ compute_robust_ROI(
   double zmax_percentile,
   double margin )
 {
-  unsigned int num_pts = static_cast< unsigned int >( landmarks.size() );
+  auto const num_pts = landmarks.size();
   if( num_pts < 2 )
   {
     return false;
@@ -74,7 +74,7 @@ compute_robust_ROI(
   y.reserve( num_pts );
   z.reserve( num_pts );
 
-  for( unsigned int i = 0; i < num_pts; ++i )
+  for( size_t i = 0; i < num_pts; ++i )
   {
     vector_3d pt = landmarks[ i ]->loc();
     x.push_back( pt[ 0 ] );
@@ -86,13 +86,12 @@ compute_robust_ROI(
   std::sort( y.begin(), y.end() );
   std::sort( z.begin(), z.end() );
 
-  unsigned int min_index = static_cast< unsigned int >( percentile *
-                                                        ( num_pts - 1 ) );
-  unsigned int max_index = static_cast< unsigned int >( num_pts - 1 -
-                                                        min_index );
-  unsigned int zmax_index = static_cast< unsigned int >( ( num_pts - 1 ) *
-                                                         ( 1.0 -
-                                                           zmax_percentile ) );
+  auto const min_index =
+    static_cast< size_t >( percentile * ( num_pts - 1 ) );
+  auto const max_index =
+    static_cast< size_t >( num_pts - 1 - min_index );
+  auto const zmax_index =
+    static_cast< size_t >( ( num_pts - 1 ) * ( 1.0 - zmax_percentile ) );
 
   bounds[ 0 ] = x[ min_index ];
   bounds[ 1 ] = x[ max_index ];
@@ -101,10 +100,10 @@ compute_robust_ROI(
   bounds[ 4 ] = z[ min_index ];
   bounds[ 5 ] = z[ zmax_index ];
 
-  for( unsigned i = 0; i < 3; ++i )
+  for( size_t i = 0; i < 3; ++i )
   {
-    unsigned i_min = 2 * i;
-    unsigned i_max = i_min + 1;
+    auto const i_min = 2 * i;
+    auto const i_max = i_min + 1;
     double offset = ( bounds[ i_max ] - bounds[ i_min ] ) * margin;
     bounds[ i_min ] -= offset;
     bounds[ i_max ] += offset;
@@ -222,7 +221,7 @@ filter_visible_landmarks(
 {
   std::vector< vector_3d > visible_landmarks;
 
-  for( unsigned int i = 0; i < landmarks.size(); i++ )
+  for( size_t i = 0; i < landmarks.size(); i++ )
   {
     vector_3d p = landmarks[ i ]->loc();
     vector_2d pp = cam.project( p );
@@ -251,7 +250,7 @@ compute_offset_range(
 
   std::vector< double > offsets;
 
-  for( unsigned int i = 0; i < landmarks.size(); i++ )
+  for( size_t i = 0; i < landmarks.size(); i++ )
   {
     offsets.push_back( normal.dot( landmarks[ i ] ) );
   }
@@ -286,7 +285,7 @@ compute_depth_range(
 
   std::vector< double > depths;
 
-  for( unsigned int i = 0; i < landmarks.size(); i++ )
+  for( size_t i = 0; i < landmarks.size(); i++ )
   {
     depths.push_back( cam.depth( landmarks[ i ] ) );
   }
@@ -315,8 +314,8 @@ compute_pixel_to_world_scale(
   std::vector< vector_3d > pts = points_of_box( minpt, maxpt );
 
   double scale = 0.0;
-  unsigned int count = 0;
-  for( unsigned int c = 0; c < cameras.size(); c++ )
+  size_t count = 0;
+  for( size_t c = 0; c < cameras.size(); c++ )
   {
     // iterate thru different cameras
     camera_perspective const& cam = *cameras[ c ];
@@ -324,9 +323,9 @@ compute_pixel_to_world_scale(
     vector_3d cam_axis( P( 2, 0 ), P( 2, 1 ), P( 2, 2 ) );
     cam_axis.normalize();
 
-    for( unsigned int i = 0; i < pts.size(); i++ )
+    for( size_t i = 0; i < pts.size(); i++ )
     {
-      for( unsigned int j = i + 1; j < pts.size(); j++ )
+      for( size_t j = i + 1; j < pts.size(); j++ )
       {
         vector_3d const& pt1 = pts[ i ];
         vector_3d const& pt2 = pts[ j ];
@@ -383,9 +382,7 @@ gather_depth_frames(
   int ref_index = -1;
   for( auto const& item : cameras.T_cameras() )
   {
-    if( cb && !cb(
-      static_cast< unsigned int >( frames_out.size() ),
-      static_cast< unsigned int >( cameras.size() ) ) )
+    if( cb && !cb( frames_out.size(), cameras.size() ) )
     {
       break;
     }
@@ -442,7 +439,7 @@ find_similar_cameras_angles(
   camera_perspective const& ref_camera,
   camera_perspective_map const& cameras,
   double max_angle,
-  unsigned max_count )
+  size_t max_count )
 {
   const vector_3d z( 0.0, 0.0, 1.0 );
   const double cos_max_angle = std::cos( max_angle * deg_to_rad );
@@ -470,7 +467,7 @@ find_similar_cameras_angles(
     {
       frames.push_back( item.first );
     }
-    for( unsigned i = 0; i < max_count; ++i )
+    for( size_t i = 0; i < max_count; ++i )
     {
       size_t j = ( i * selected_cameras.size() ) / max_count;
       sub_selected_cameras.insert( *selected_cameras.find( frames[ j ] ) );

@@ -61,7 +61,7 @@ public:
   { return parent.c_fundamental_mat_estimator; }
 
   /// The minimum number of inliers required for a putative loop to be accepted
-  unsigned c_min_loop_inlier_matches()
+  size_t c_min_loop_inlier_matches()
   { return parent.c_min_loop_inlier_matches; }
 
   /// Inlier threshold for fundamental matrix geometric verification
@@ -362,8 +362,8 @@ close_loops_appearance_indexed::priv
         continue;
       }
 
-      unsigned num_inliers =
-        static_cast< unsigned >( std::count(
+      auto num_inliers =
+        static_cast< size_t >( std::count(
           inliers.begin(), inliers.end(),
           true ) );
 
@@ -514,8 +514,8 @@ close_loops_appearance_indexed::priv
 
   struct match_with_cost
   {
-    unsigned m1;
-    unsigned m2;
+    size_t m1;
+    size_t m2;
     double cost;
 
     match_with_cost()
@@ -524,7 +524,7 @@ close_loops_appearance_indexed::priv
         cost( std::numeric_limits< double >::infinity() )
     {}
 
-    match_with_cost( unsigned _m1, unsigned _m2, double _cost )
+    match_with_cost( size_t _m1, size_t _m2, double _cost )
       : m1( _m1 ),
         m2( _m2 ),
         cost( _cost )
@@ -574,7 +574,7 @@ close_loops_appearance_indexed::priv
 
   // sorting makes us add the lowest cost matches first.  This means if we have
   // duplicate matches, the best ones will end up in the final match set.
-  std::set< unsigned > matched_indices_1, matched_indices_2;
+  std::set< size_t > matched_indices_1, matched_indices_2;
 
   std::vector< match > unique_matches;
 

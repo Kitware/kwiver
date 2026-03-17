@@ -29,7 +29,7 @@ public:
     initialize_object_tracks_threshold,
     "Perform thresholding on detection confidence values to create tracks.",
     PARAM_DEFAULT(
-      max_new_tracks, unsigned,
+      max_new_tracks, size_t,
       "Maximum number of new tracks to initialize on a single frame.",
       10000 ),
     PARAM(

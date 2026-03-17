@@ -14,7 +14,7 @@ namespace kwiver {
 namespace arrows {
 
 /// Compute the match matrix from a track set
-Eigen::SparseMatrix< unsigned int >
+Eigen::SparseMatrix< size_t >
 match_matrix(
   vital::track_set_sptr tracks,
   std::vector< vital::frame_id_t >& frames )
@@ -28,28 +28,28 @@ match_matrix(
       frame_ids.end() );
   }
 
-  const unsigned int num_frames = static_cast< unsigned int >( frames.size() );
+  auto const num_frames = frames.size();
 
   // build a frame map for reverse lookup of matrix indices
-  std::map< vital::frame_id_t, unsigned int > frame_map;
-  for( unsigned int i = 0; i < num_frames; ++i )
+  std::map< vital::frame_id_t, size_t > frame_map;
+  for( size_t i = 0; i < num_frames; ++i )
   {
     frame_map[ frames[ i ] ] = i;
   }
 
   // compute an upper bound on non-zero matrix entries to
   // pre-allocate the sparse matrix memory
-  unsigned int max_size = 0;
+  size_t max_size = 0;
   const std::vector< vital::track_sptr > trks = tracks->tracks();
   for( const vital::track_sptr& t : trks )
   {
     if( t->size() > max_size )
     {
-      max_size = static_cast< unsigned int >( t->size() );
+      max_size = t->size();
     }
   }
 
-  Eigen::SparseMatrix< unsigned int > mm( num_frames, num_frames );
+  Eigen::SparseMatrix< size_t > mm( num_frames, num_frames );
   mm.reserve( Eigen::VectorXi::Constant( num_frames, max_size ) );
 
   // fill in the matching matrix (lower triangular part only)
@@ -58,11 +58,10 @@ match_matrix(
     // get all the frames covered by this track
     std::set< vital::frame_id_t > t_frames = t->all_frame_ids();
     // map the frames to a vector of all valid matrix indices
-    std::set< unsigned int > t_ind;
+    std::set< size_t > t_ind;
     for( const vital::frame_id_t& fid : t_frames )
     {
-      std::map< vital::frame_id_t,
-        unsigned int >::const_iterator fmi = frame_map.find( fid );
+      auto const fmi = frame_map.find( fid );
       // only add to the vector if in the map
       if( fmi != frame_map.end() )
       {
@@ -71,10 +70,9 @@ match_matrix(
     }
 
     // fill in the matrix (lower triangular part)
-    typedef std::set< unsigned int >::const_iterator sitr_t;
-    for( sitr_t tfi1 = t_ind.begin(); tfi1 != t_ind.end(); ++tfi1 )
+    for( auto tfi1 = t_ind.begin(); tfi1 != t_ind.end(); ++tfi1 )
     {
-      for( sitr_t tfi2 = tfi1; tfi2 != t_ind.end(); ++tfi2 )
+      for( auto tfi2 = tfi1; tfi2 != t_ind.end(); ++tfi2 )
       {
         ++mm.coeffRef( *tfi2, *tfi1 );
       }
@@ -92,12 +90,12 @@ std::map< vital::track_id_t, double >
 match_matrix_track_importance(
   vital::track_set_sptr tracks,
   std::vector< vital::frame_id_t > const& frames,
-  Eigen::SparseMatrix< unsigned int > const& mm )
+  Eigen::SparseMatrix< size_t > const& mm )
 {
   // build a frame map for reverse lookup of matrix indices
-  std::map< vital::frame_id_t, unsigned int > frame_map;
-  const unsigned int num_frames = static_cast< unsigned int >( frames.size() );
-  for( unsigned int i = 0; i < num_frames; ++i )
+  std::map< vital::frame_id_t, size_t > frame_map;
+  auto const num_frames = frames.size();
+  for( size_t i = 0; i < num_frames; ++i )
   {
     frame_map[ frames[ i ] ] = i;
   }
@@ -110,11 +108,10 @@ match_matrix_track_importance(
     // get all the frames covered by this track
     std::set< vital::frame_id_t > t_frames = t->all_frame_ids();
     // map the frames to a vector of all valid matrix indices
-    std::set< unsigned int > t_ind;
+    std::set< size_t > t_ind;
     for( const vital::frame_id_t& fid : t_frames )
     {
-      std::map< vital::frame_id_t,
-        unsigned int >::const_iterator fmi = frame_map.find( fid );
+      auto const fmi = frame_map.find( fid );
       // only add to the vector if in the map
       if( fmi != frame_map.end() )
       {
@@ -124,10 +121,9 @@ match_matrix_track_importance(
 
     // get the scores from the match matrix
     double score = 0.0;
-    typedef std::set< unsigned int >::const_iterator sitr_t;
-    for( sitr_t tfi1 = t_ind.begin(); tfi1 != t_ind.end(); ++tfi1 )
+    for( auto tfi1 = t_ind.begin(); tfi1 != t_ind.end(); ++tfi1 )
     {
-      for( sitr_t tfi2 = tfi1; tfi2 != t_ind.end(); ++tfi2 )
+      for( auto tfi2 = tfi1; tfi2 != t_ind.end(); ++tfi2 )
       {
         score += 1.0 / mm.coeff( *tfi2, *tfi1 );
       }

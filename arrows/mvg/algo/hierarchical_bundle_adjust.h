@@ -34,12 +34,12 @@ public:
     "Run a bundle adjustment algorithm in a temporally hierarchical fashion"
     " (useful for video)",
     PARAM_DEFAULT(
-      initial_sub_sample, unsigned int,
+      initial_sub_sample, long,
       "Sub-sample the given cameras by this factor. Gaps will "
       "then be filled in by iterations of interpolation.", 1 ),
 
     PARAM_DEFAULT(
-      interpolation_rate, unsigned int,
+      interpolation_rate, long,
       "Number of cameras to fill in each iteration. When this "
       "is set to 0, we will interpolate all missing cameras "
       "at the first moment possible.", 0 ),

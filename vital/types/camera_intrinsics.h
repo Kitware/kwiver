@@ -49,9 +49,9 @@ public:
   virtual double skew() const = 0;
 
   /// Access the image width
-  virtual unsigned int image_width() const = 0;
+  virtual size_t image_width() const = 0;
   /// Access the image height
-  virtual unsigned int image_height() const = 0;
+  virtual size_t image_height() const = 0;
   /// Access the distortion coefficients
   virtual std::vector< double >
   dist_coeffs() const
@@ -137,8 +137,8 @@ public:
     const double aspect_ratio = 1.0,
     const double skew = 0.0,
     const vector_t dist_coeffs = vector_t(),
-    const unsigned int image_width = 0,
-    const unsigned int image_height = 0 )
+    const size_t image_width = 0,
+    const size_t image_height = 0 )
     : focal_length_( focal_length ),
       principal_point_( principal_point ),
       aspect_ratio_( aspect_ratio ),
@@ -190,10 +190,10 @@ public:
   virtual double
   skew() const { return skew_; }
   /// Access the image width
-  virtual unsigned int
+  virtual size_t
   image_width() const { return image_width_; }
   /// Access the image height
-  virtual unsigned int
+  virtual size_t
   image_height() const { return image_height_; }
 
   /// Access the distortion coefficients
@@ -222,10 +222,10 @@ public:
   const double&
   get_skew() const { return skew_; }
   /// Access the image width
-  const unsigned int&
+  const size_t&
   get_image_width() const { return image_width_; }
   /// Access the image height
-  const unsigned int&
+  const size_t&
   get_image_height() const { return image_height_; }
   /// Access the distortion coefficients
   const vector_t&
@@ -254,9 +254,9 @@ public:
   /// Set the skew
   void set_skew( const double& skew ) { skew_ = skew; }
   /// Set the image width
-  void set_image_width( const unsigned int width ) { image_width_ = width; }
+  void set_image_width( const size_t width ) { image_width_ = width; }
   /// Set the image height
-  void set_image_height( const unsigned int height ) { image_height_ = height; }
+  void set_image_height( const size_t height ) { image_height_ = height; }
 
   /// Set the distortion coefficients
   void
@@ -308,9 +308,9 @@ protected:
   /// Lens distortion coefficients
   vector_t dist_coeffs_;
   /// Image width
-  unsigned int image_width_;
+  size_t image_width_;
   /// Image height
-  unsigned int image_height_;
+  size_t image_height_;
   /// maximum distortion radius (squared)
   ///
   /// Do not trust the radial distortion of points beyond this radius.

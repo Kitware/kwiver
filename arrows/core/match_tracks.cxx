@@ -91,10 +91,10 @@ match_tracks(
   std::vector< vital::match > matches = mset->matches();
 
   track_pairs_t track_matches;
-  for( unsigned i = 0; i < matches.size(); i++ )
+  for( size_t i = 0; i < matches.size(); i++ )
   {
-    unsigned tgt_idx = matches[ i ].first;
-    unsigned cur_idx = matches[ i ].second;
+    size_t tgt_idx = matches[ i ].first;
+    size_t cur_idx = matches[ i ].second;
     track_matches.push_back(
       std::make_pair(
         cur_tracks[ cur_idx ],

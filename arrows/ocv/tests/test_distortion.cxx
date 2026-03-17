@@ -48,7 +48,7 @@ test_distortion( const Eigen::VectorXd& d )
   std::cout << "K = " << cam_mat << "\nd = " << dist << std::endl;
 
   kwiver::testing::rng_t rng( 1 );
-  for( unsigned int i = 1; i < 100; ++i )
+  for( size_t i = 1; i < 100; ++i )
   {
     vector_2d test_pt = kwiver::testing::random_point2d( 0.5, rng );
     // the distortion model is only valid within about a unit distance

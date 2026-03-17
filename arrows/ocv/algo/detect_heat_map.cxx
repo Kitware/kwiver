@@ -652,7 +652,7 @@ public:
     auto dot = std::make_shared< detected_object_type >();
     dot->set_score( m_class_name(), m_fixed_score() );
 
-    for( unsigned j = 0; j < contours.size(); ++j )
+    for( size_t j = 0; j < contours.size(); ++j )
     {
       // LOG_DEBUG( logger(), "Contour " << j << ": " <<
       // std::to_string(contourArea(contours[j], false)));
