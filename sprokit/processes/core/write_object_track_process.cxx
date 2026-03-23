@@ -157,8 +157,29 @@ void write_object_track_process
   }
 
   auto const& input = grab_from_port_using_trait( object_track_set );
-  auto const& ts = try_grab_from_port_using_trait( timestamp );
-  auto const& file_name = try_grab_from_port_using_trait( image_file_name );
+
+  // Optional ports may carry a complete datum if their upstream source
+  // finished before us (e.g. when refine_tracks emits a final batch
+  // in _finalize).  Peek before grabbing to avoid a bad cast.
+  vital::timestamp ts;
+  if( has_input_port_edge_using_trait( timestamp ) )
+  {
+    auto const& ts_info = peek_at_port_using_trait( timestamp );
+    if( ts_info.datum->type() != sprokit::datum::complete )
+    {
+      ts = grab_from_port_using_trait( timestamp );
+    }
+  }
+
+  std::string file_name;
+  if( has_input_port_edge_using_trait( image_file_name ) )
+  {
+    auto const& fn_info = peek_at_port_using_trait( image_file_name );
+    if( fn_info.datum->type() != sprokit::datum::complete )
+    {
+      file_name = grab_from_port_using_trait( image_file_name );
+    }
+  }
 
   if ( d->m_frame_list_writer )
   {

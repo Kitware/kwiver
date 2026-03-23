@@ -62,6 +62,15 @@ class refine_tracks_trampoline :
         tracks
       );
     }
+
+    kwiver::vital::object_track_set_sptr finalize() const override
+    {
+      PYBIND11_OVERLOAD(
+        kwiver::vital::object_track_set_sptr,
+        kwiver::vital::algo::refine_tracks,
+        finalize,
+      );
+    }
 };
 
 }

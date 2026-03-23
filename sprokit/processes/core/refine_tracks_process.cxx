@@ -72,6 +72,15 @@ void
 refine_tracks_process::
 _finalize()
 {
+  // Give the algorithm a chance to run deferred processing (e.g. SAM3
+  // video propagation over the full accumulated buffer) and emit a
+  // final result before the pipeline shuts down.
+  auto final_tracks = d->m_refiner->finalize();
+  if( final_tracks && !final_tracks->tracks().empty() )
+  {
+    push_to_port_using_trait( object_track_set, final_tracks );
+  }
+
   mark_process_as_complete();
 
   const sprokit::datum_t dat = sprokit::datum::complete_datum();

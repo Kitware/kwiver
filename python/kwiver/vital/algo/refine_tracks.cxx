@@ -21,7 +21,8 @@ void refine_tracks(py::module &m)
     .def(py::init())
     .def_static("static_type_name",
         &kwiver::vital::algo::refine_tracks::static_type_name)
-    .def("refine", &kwiver::vital::algo::refine_tracks::refine);
+    .def("refine", &kwiver::vital::algo::refine_tracks::refine)
+    .def("finalize", &kwiver::vital::algo::refine_tracks::finalize);
 }
 }
 }
