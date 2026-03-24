@@ -136,19 +136,21 @@ public:
   Eigen::Matrix< T, 3,
     1 > operator*( const Eigen::Matrix< T, 3, 1 >& rhs ) const;
 
-  /// Equality operator
-  ///
-  /// TODO: two quaternions can represent the same rotation but have different
-  /// components. The test is to calculate the product of the first rotation
-  /// with
-  /// the inverse of the second to calculate the difference rotation. Convert
-  /// the
-  /// difference rotation to axis and angle form, and if the angle is greater
-  /// than some threshold, they should not be considered equal.
   inline bool
   operator==( const rotation_< T >& rhs ) const
   {
-    return this->q_.coeffs() == rhs.q_.coeffs();
+    // Allow slight difference in scalar values to account for rounding error,
+    // based on the precision of the underlying type
+    static auto epsilon =
+      std::pow(
+        static_cast< T >( std::numeric_limits< T >::radix ),
+        -static_cast< T >( std::numeric_limits< T >::digits - 2 ) );
+
+    // A quaternion and its negative represent the same rotation, so two checks
+    // are needed
+    return
+      ( q_.coeffs() - rhs.q_.coeffs() ).cwiseAbs().maxCoeff() <= epsilon ||
+      ( q_.coeffs() + rhs.q_.coeffs() ).cwiseAbs().maxCoeff() <= epsilon;
   }
 
   /// Inequality operator
@@ -253,26 +255,26 @@ VITAL_TYPES_EXPORT
 rotation_< T >
 ned_to_enu( rotation_< T > const& r );
 
-/// Combine platform and sensor YPR from a UAS source into a single rotation.
+/// Convert rotation \c r from "sensor" orientation to "camera" orientation.
 ///
-/// This is a convenience function to compose the yaw, pitch, and roll of an
-/// unmanned aerial system's platform and sensor into a single rotation object
-/// in the ENU coordinate system.
-///
-/// \param platform_yaw z (down) rotation of the aerial platform
-/// \param platform_pitch y (east) rotation of the aerial platform
-/// \param platform_roll x (north) rotation of the aerial platform
-/// \param sensor_yaw z (down) rotation of the sensor relative to the platform
-/// \param sensor_pitch y (east) rotation of the sensor relative to the platform
-/// \param sensor_roll x (north) rotation of the sensor relative to the platform
-///
-/// \returns The total rotation of the sensor in East-North-Up coordinates
+/// "Sensor" orientation is defined as the coordinate space which aligns the X
+/// axis with "forward" as viewed by the sensor, the Y axis with "left", and the
+/// Z axis with "up".
+/// "Camera" orientation is defined as the inverse of the coordinate space which
+/// aligns the X axis with "right" as viewed in an image, the Y axis with
+/// "down", and the Z axis with "forward".
 template < typename T >
 VITAL_TYPES_EXPORT
 rotation_< T >
-uas_ypr_to_rotation(
-  T platform_yaw, T platform_pitch, T platform_roll,
-  T sensor_yaw,   T sensor_pitch,   T sensor_roll );
+sensor_to_camera( rotation_< T > const& r );
+
+/// Convert rotation \c r from "camera" orientation to "sensor" orientation.
+///
+/// Inverse of sensor_to_camera().
+template < typename T >
+VITAL_TYPES_EXPORT
+rotation_< T >
+camera_to_sensor( rotation_< T > const& r );
 
 } // namespace vital
 

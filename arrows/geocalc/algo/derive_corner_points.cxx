@@ -74,44 +74,16 @@ derive_corner_points_from_frame(
     metadata.find( vital::VITAL_META_SENSOR_LOCATION );
   auto const& frame_center_item =
     metadata.find( vital::VITAL_META_FRAME_CENTER );
-  auto const& sensor_yaw_item =
-    metadata.find( vital::VITAL_META_SENSOR_REL_AZ_ANGLE );
-  auto const& sensor_pitch_item =
-    metadata.find( vital::VITAL_META_SENSOR_REL_EL_ANGLE );
-  auto const& sensor_roll_item =
-    metadata.find( vital::VITAL_META_SENSOR_REL_ROLL_ANGLE );
-  auto const& sensor_abs_yaw_item =
-    metadata.find( vital::VITAL_META_SENSOR_YAW_ANGLE );
-  auto const& sensor_abs_pitch_item =
-    metadata.find( vital::VITAL_META_SENSOR_PITCH_ANGLE );
-  auto const& sensor_abs_roll_item =
-    metadata.find( vital::VITAL_META_SENSOR_ROLL_ANGLE );
-  auto const& platform_yaw_item =
-    metadata.find( vital::VITAL_META_PLATFORM_HEADING_ANGLE );
-  auto const& platform_pitch_item =
-    metadata.find( vital::VITAL_META_PLATFORM_PITCH_ANGLE );
-  auto const& platform_roll_item =
-    metadata.find( vital::VITAL_META_PLATFORM_ROLL_ANGLE );
+  auto const& sensor_orientation_item =
+    metadata.find( vital::VITAL_META_SENSOR_ORIENTATION );
   auto const& sensor_hfov_item =
     metadata.find( vital::VITAL_META_SENSOR_HORIZONTAL_FOV );
   auto const& sensor_vfov_item =
     metadata.find( vital::VITAL_META_SENSOR_VERTICAL_FOV );
 
-  auto const abs_sensor_rotation_available =
-    is_valid< double >( sensor_abs_yaw_item ) &&
-    is_valid< double >( sensor_abs_pitch_item ) &&
-    is_valid< double >( sensor_abs_roll_item );
-  auto const rel_sensor_rotation_available =
-    is_valid< double >( sensor_yaw_item ) &&
-    is_valid< double >( platform_yaw_item ) &&
-    is_valid< double >( sensor_pitch_item ) &&
-    is_valid< double >( platform_pitch_item ) &&
-    is_valid< double >( sensor_roll_item ) &&
-    is_valid< double >( platform_roll_item );
-
   if(
     !is_valid< vital::geo_point >( sensor_location_item ) ||
-    ( !abs_sensor_rotation_available && !rel_sensor_rotation_available ) ||
+    !is_valid< vital::rotation_d >( sensor_orientation_item ) ||
     !is_valid< double >( sensor_hfov_item ) ||
     !is_valid< double >( sensor_vfov_item ) )
   {
@@ -138,30 +110,9 @@ derive_corner_points_from_frame(
         default_altitude );
   }
 
-  // Combine rotations and convert to proper coordinate system
-  vital::rotation_d geodetic_rotation;
-  if( abs_sensor_rotation_available )
-  {
-    geodetic_rotation =
-      vital::rotation_d{
-      sensor_abs_yaw_item.as_double() * vital::deg_to_rad,
-      sensor_abs_pitch_item.as_double() * vital::deg_to_rad,
-      sensor_abs_roll_item.as_double() * vital::deg_to_rad };
-  }
-  else
-  {
-    auto const platform_rotation =
-      vital::rotation_d{
-      platform_yaw_item.as_double() * vital::deg_to_rad,
-      platform_pitch_item.as_double() * vital::deg_to_rad,
-      platform_roll_item.as_double() * vital::deg_to_rad };
-    auto const sensor_rel_rotation =
-      vital::rotation_d{
-      sensor_yaw_item.as_double() * vital::deg_to_rad,
-      sensor_pitch_item.as_double() * vital::deg_to_rad,
-      sensor_roll_item.as_double() * vital::deg_to_rad };
-    geodetic_rotation = platform_rotation * sensor_rel_rotation;
-  }
+  // Convert rotations to proper coordinate system
+  auto const geodetic_rotation =
+    sensor_orientation_item.get< vital::rotation_d >();
 
   auto const geodetic_to_ecef_rotation = vital::rotation_d{
     sensor_geodetic_location[ 0 ] * vital::deg_to_rad,

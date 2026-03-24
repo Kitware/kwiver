@@ -64,5 +64,12 @@ Vital: Types
 
 * landmark_ now uses size_t for observations().
 
+* Unified platform and sensor yaw/pitch/roll metadata items into orientations
+  using vital::rotation_d.
+
+* Metadata now holds absolute instead of relative sensor orientation.
+
 Bug Fixes
 ---------
+
+* The rotation_ equality operator now operates more correctly.

@@ -7,6 +7,7 @@
 
 #include <arrows/proj/geo_conv.h>
 #include <gtest/gtest.h>
+#include <vital/math_constants.h>
 #include <vital/types/geodesy.h>
 #include <vital/types/metadata.h>
 #include <vital/types/metadata_map.h>
@@ -152,8 +153,8 @@ TEST ( sfm_constraints, get_camera_orientation_prior_local )
   static auto geo_conv = kwiver::arrows::proj::geo_conversion{};
   set_geo_conv( &geo_conv );
 
-  local_tangent_space local_space(
-    geo_point( vector_3d( 0, 0, 0 ), SRID::lat_lon_WGS84 ) );
+  geo_point origin( vector_3d( 0, 0, 0 ), SRID::lat_lon_WGS84 );
+  local_tangent_space local_space( origin );
   constraints.set_local_space( local_space );
 
   // Expect failure if the metadata map is not set
@@ -161,20 +162,19 @@ TEST ( sfm_constraints, get_camera_orientation_prior_local )
   EXPECT_EQ( R_loc, rotation_d{} );
 
   // Create metadata map
+
   metadata_map::map_metadata_t mdm;
-  add_metadata< VITAL_META_PLATFORM_HEADING_ANGLE >( mdm, 0, 90.0 );
-  add_metadata< VITAL_META_PLATFORM_ROLL_ANGLE >( mdm, 0, 90.0 );
-  add_metadata< VITAL_META_PLATFORM_PITCH_ANGLE >( mdm, 0, 90.0 );
-  add_metadata< VITAL_META_SENSOR_REL_AZ_ANGLE >( mdm, 0, 90.0 );
-  add_metadata< VITAL_META_SENSOR_REL_EL_ANGLE >( mdm, 0, 90.0 );
-  add_metadata< VITAL_META_SENSOR_REL_ROLL_ANGLE >( mdm, 0, 90.0 );
-  add_metadata< VITAL_META_SENSOR_REL_ROLL_ANGLE >( mdm, 1, 90.0 );
-  add_metadata< VITAL_META_PLATFORM_HEADING_ANGLE >( mdm, 2, 90.0 );
-  add_metadata< VITAL_META_PLATFORM_ROLL_ANGLE >( mdm, 2, 90.0 );
-  add_metadata< VITAL_META_PLATFORM_PITCH_ANGLE >( mdm, 2, 90.0 );
-  add_metadata< VITAL_META_SENSOR_REL_AZ_ANGLE >( mdm, 2, 90.0 );
-  add_metadata< VITAL_META_SENSOR_REL_EL_ANGLE >( mdm, 2, 90.0 );
-  add_metadata< VITAL_META_SENSOR_REL_ROLL_ANGLE >( mdm, 2, std::nan( "" ) );
+  add_metadata< VITAL_META_SENSOR_ORIENTATION >(
+    mdm, 0,
+    rotation_d{ pi_over_2, pi_over_2, pi_over_2 } *
+    rotation_d{ pi_over_2, pi_over_2, pi_over_2 } );
+  add_metadata< VITAL_META_SENSOR_ORIENTATION >(
+    mdm, 2,
+    rotation_d{ pi_over_2, pi_over_2, pi_over_2 } *
+    rotation_d{ pi_over_2, pi_over_2, 0.0 } );
+  add_metadata< VITAL_META_SENSOR_LOCATION >( mdm, 0, origin );
+  add_metadata< VITAL_META_SENSOR_LOCATION >( mdm, 1, origin );
+  add_metadata< VITAL_META_SENSOR_LOCATION >( mdm, 2, origin );
 
   metadata_map_sptr metadata_map =
     std::make_shared< simple_metadata_map >( mdm );
@@ -185,16 +185,12 @@ TEST ( sfm_constraints, get_camera_orientation_prior_local )
   EXPECT_FALSE( constraints.get_camera_orientation_prior_local( 1, R_loc ) );
   EXPECT_EQ( R_loc, rotation_d{} );
 
-  // Expect failure if a metadata value is nan
-  EXPECT_FALSE( constraints.get_camera_orientation_prior_local( 2, R_loc ) );
-  EXPECT_EQ( R_loc, rotation_d{} );
-
   // Success case
   EXPECT_TRUE( constraints.get_camera_orientation_prior_local( 0, R_loc ) );
-  EXPECT_NEAR( R_loc.quaternion().coeffs()[ 0 ], 0.0446255, 1e-6 );
-  EXPECT_NEAR( R_loc.quaternion().coeffs()[ 1 ], -0.26865, 1e-6 );
-  EXPECT_NEAR( R_loc.quaternion().coeffs()[ 2 ], -0.818742, 1e-6 );
-  EXPECT_NEAR( R_loc.quaternion().coeffs()[ 3 ], 0.505467, 1e-6 );
+  EXPECT_NEAR( R_loc.quaternion().coeffs()[ 0 ], std::sqrt( 0.5 ), 1e-6 );
+  EXPECT_NEAR( R_loc.quaternion().coeffs()[ 1 ], 0.0, 1e-6 );
+  EXPECT_NEAR( R_loc.quaternion().coeffs()[ 2 ], 0.0, 1e-6 );
+  EXPECT_NEAR( R_loc.quaternion().coeffs()[ 3 ], -std::sqrt( 0.5 ), 1e-6 );
 }
 
 // ----------------------------------------------------------------------------

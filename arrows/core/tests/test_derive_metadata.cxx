@@ -7,6 +7,7 @@
 
 #include <arrows/core/algo/derive_metadata.h>
 
+#include <vital/math_constants.h>
 #include <vital/types/geo_point.h>
 #include <vital/types/geodesy.h>
 #include <vital/types/metadata.h>
@@ -32,12 +33,16 @@ make_metadata()
   kv::metadata_sptr m1 = std::make_shared< kv::metadata >();
 
   // Add the double traits
-  m1->add< kv::VITAL_META_PLATFORM_HEADING_ANGLE >( 324.266418 );
-  m1->add< kv::VITAL_META_PLATFORM_PITCH_ANGLE >( -0.19776 );
-  m1->add< kv::VITAL_META_PLATFORM_ROLL_ANGLE >( 20.050661 );
-  m1->add< kv::VITAL_META_SENSOR_REL_AZ_ANGLE >( 73.911217 );
-  m1->add< kv::VITAL_META_SENSOR_REL_EL_ANGLE >( -8.558719 );
-  m1->add< kv::VITAL_META_SENSOR_REL_ROLL_ANGLE >( 0.526359 );
+  auto const sensor_orientation =
+    kv::rotation_d{
+    324.266418 * kv::deg_to_rad,
+    -0.19776 * kv::deg_to_rad,
+    20.050661 * kv::deg_to_rad } *
+  kv::rotation_d{
+    73.911217 * kv::deg_to_rad,
+    -8.558719 * kv::deg_to_rad,
+    0.526359 * kv::deg_to_rad };
+  m1->add< kv::VITAL_META_SENSOR_ORIENTATION >( sensor_orientation );
   m1->add< kv::VITAL_META_SENSOR_VERTICAL_FOV >( 0.42298 );
   m1->add< kv::VITAL_META_SENSOR_HORIZONTAL_FOV >( 0.771801 );
   m1->add< kv::VITAL_META_SLANT_RANGE >( 13296.55762 );

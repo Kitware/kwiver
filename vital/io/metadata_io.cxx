@@ -133,9 +133,11 @@ read_pos_file( path_t const& file_path )
     md->add< VITAL_META_IMAGE_SOURCE_SENSOR >( "KWIVER" );
   }
 
-  md->add< VITAL_META_SENSOR_YAW_ANGLE >( std::stod( tokens[ base + 0 ] ) );
-  md->add< VITAL_META_SENSOR_PITCH_ANGLE >( std::stod( tokens[ base + 1 ] ) );
-  md->add< VITAL_META_SENSOR_ROLL_ANGLE >( std::stod( tokens[ base + 2 ] ) );
+  md->add< VITAL_META_SENSOR_ORIENTATION >(
+      {
+        std::stod( tokens[ base + 0 ] ),
+        std::stod( tokens[ base + 1 ] ),
+        std::stod( tokens[ base + 2 ] ), } );
 
   // altitude is in feet in a POS file and needs to be converted to meters
   constexpr double feet2meters = 0.3048;
@@ -206,9 +208,17 @@ write_pos_file(
   std::ofstream ofile( file_path.c_str() );
   ofile.precision( 12 );
   print_default( ofile, VITAL_META_IMAGE_SOURCE_SENSOR, "KWIVER" ) << ", ";
-  print_default( ofile, VITAL_META_SENSOR_YAW_ANGLE,    "0" ) << ", ";
-  print_default( ofile, VITAL_META_SENSOR_PITCH_ANGLE,  "0" ) << ", ";
-  print_default( ofile, VITAL_META_SENSOR_ROLL_ANGLE,   "0" ) << ", ";
+  if( auto const& item = md.find( VITAL_META_SENSOR_ORIENTATION ) )
+  {
+    auto const orientation = item.get< rotation_d >();
+    double yaw, pitch, roll;
+    orientation.get_yaw_pitch_roll( yaw, pitch, roll );
+    ofile << yaw << ", " << pitch << ", " << roll << ", ";
+  }
+  else
+  {
+    ofile << "0, 0, 0, ";
+  }
 
   if( auto& mdi = md.find( VITAL_META_SENSOR_LOCATION ) )
   {

@@ -14,6 +14,7 @@
 #include <vital/types/geo_polygon.h>
 #include <vital/types/metadata_tags.h>
 #include <vital/types/metadata_traits.h>
+#include <vital/types/rotation.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/vital_types_export.h>
 #include <vital/util/visit.h>
@@ -42,7 +43,8 @@ namespace vital {
 // ----------------------------------------------------------------------------
 using metadata_value =
   std::variant<
-    bool, int, uint64_t, double, std::string, geo_point, geo_polygon >;
+    bool, int, uint64_t, double, std::string,
+    geo_point, geo_polygon, rotation_d >;
 
 // ----------------------------------------------------------------------------
 /// Call \p visitor with template type parameter corresponding to \p type.

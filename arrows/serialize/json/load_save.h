@@ -146,6 +146,15 @@ void load(
 KWIVER_SERIALIZE_JSON_EXPORT
 void save(
   ::cereal::JSONOutputArchive& archive,
+  ::kwiver::vital::rotation_d const& rotation );
+KWIVER_SERIALIZE_JSON_EXPORT
+void load(
+  ::cereal::JSONInputArchive& archive,
+  ::kwiver::vital::rotation_d& rotation );
+
+KWIVER_SERIALIZE_JSON_EXPORT
+void save(
+  ::cereal::JSONOutputArchive& archive,
   ::kwiver::vital::polygon const& poly );
 KWIVER_SERIALIZE_JSON_EXPORT
 void load(

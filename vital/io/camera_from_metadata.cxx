@@ -8,6 +8,7 @@
 #include "camera_from_metadata.h"
 
 #include <vital/math_constants.h>
+#include <vital/types/geodesy.h>
 #include <vital/types/metadata_traits.h>
 #include <vital/vital_config.h>
 
@@ -211,9 +212,10 @@ initialize_cameras_with_metadata(
         auto gloc = mdi.get< geo_point >();
 
         // set the origin to the ground
-        vital::vector_3d loc = gloc.location();
+        auto const crs = vital::SRID::lat_lon_WGS84;
+        auto loc = gloc.location( crs );
         loc[ 2 ] = 0.0;
-        gloc.set_location( loc, gloc.crs() );
+        gloc.set_location( loc, crs );
 
         local_space = local_tangent_space( gloc );
         update_local_origin = true;
@@ -290,65 +292,19 @@ update_camera_from_metadata(
   simple_camera_perspective& cam,
   VITAL_UNUSED rotation_d const& rot_offset )
 {
-  bool has_platform_yaw = false;
-  bool has_platform_pitch = false;
-  bool has_platform_roll = false;
-  bool has_sensor_yaw = false;
-  bool has_sensor_pitch = false;
-
-  double platform_yaw = 0.0, platform_pitch = 0.0, platform_roll = 0.0;
-  if( auto& mdi = md.find( VITAL_META_PLATFORM_HEADING_ANGLE ) )
-  {
-    platform_yaw = mdi.get< double >();
-    has_platform_yaw = true;
-  }
-  if( auto& mdi = md.find( VITAL_META_PLATFORM_PITCH_ANGLE ) )
-  {
-    platform_pitch = mdi.get< double >();
-    has_platform_pitch = true;
-  }
-  if( auto& mdi = md.find( VITAL_META_PLATFORM_ROLL_ANGLE ) )
-  {
-    platform_roll = mdi.get< double >();
-    has_platform_roll = true;
-  }
-
-  double sensor_yaw = 0.0, sensor_pitch = 0.0, sensor_roll = 0.0;
-  if( auto& mdi = md.find( VITAL_META_SENSOR_REL_AZ_ANGLE ) )
-  {
-    sensor_yaw = mdi.get< double >();
-    has_sensor_yaw = true;
-  }
-  if( auto& mdi = md.find( VITAL_META_SENSOR_REL_EL_ANGLE ) )
-  {
-    sensor_pitch = mdi.get< double >();
-    has_sensor_pitch = true;
-  }
-  if( auto& mdi = md.find( VITAL_META_SENSOR_REL_ROLL_ANGLE ) )
-  {
-    sensor_roll = mdi.get< double >();
-  }
-
   if( auto& mdi = md.find( VITAL_META_SENSOR_LOCATION ) )
   {
     auto const gloc = mdi.get< geo_point >();
     auto const loc = local_space.to_local( gloc );
     cam.set_center( loc );
 
-    if( has_platform_yaw && has_platform_pitch && has_platform_roll &&
-        has_sensor_yaw && has_sensor_pitch &&
-        // Sensor roll is ignored here on purpose.
-        // It is fixed on some platforms to zero.
-        !( std::isnan( platform_yaw ) || std::isnan( platform_pitch ) ||
-           std::isnan( platform_roll ) || std::isnan( sensor_yaw ) ||
-           std::isnan( sensor_pitch ) || std::isnan( sensor_roll ) ) )
+    if( auto const mdi2 = md.find( VITAL_META_SENSOR_ORIENTATION ) )
     {
-      // Only set the camera's rotation if all metadata angles are present
-      auto const rotation =
-        uas_ypr_to_rotation(
-          platform_yaw, platform_pitch, platform_roll,
-          sensor_yaw,   sensor_pitch,   sensor_roll );
-      cam.set_rotation( local_space.to_local( rotation, gloc ) );
+      auto const crs = SRID::lat_lon_WGS84;
+      auto const rotation = ned_to_enu( mdi2.get< rotation_d >() );
+      cam.set_rotation(
+        sensor_to_camera(
+          local_space.to_local( rotation, { gloc.location( crs ), crs } ) ) );
     }
 
     return true;
@@ -398,30 +354,16 @@ update_metadata_from_camera(
   local_tangent_space const& local_space,
   metadata& md )
 {
-  if( md.has( VITAL_META_PLATFORM_HEADING_ANGLE ) &&
-      md.has( VITAL_META_PLATFORM_PITCH_ANGLE ) &&
-      md.has( VITAL_META_PLATFORM_ROLL_ANGLE ) &&
-      md.has( VITAL_META_SENSOR_REL_AZ_ANGLE ) &&
-      md.has( VITAL_META_SENSOR_REL_EL_ANGLE ) )
-  {
-    // We have a complete metadata rotation.
-    // Note that sensor roll is ignored here on purpose.
-    double yaw, pitch, roll;
-    auto rotation = enu_to_ned( cam.rotation() );
-    rotation.get_yaw_pitch_roll( yaw, pitch, roll );
-    md.add< VITAL_META_SENSOR_YAW_ANGLE >( yaw * rad_to_deg );
-    md.add< VITAL_META_SENSOR_PITCH_ANGLE >( pitch * rad_to_deg );
-    md.add< VITAL_META_SENSOR_ROLL_ANGLE >( roll * rad_to_deg );
-  }
+  auto const location = local_space.to_global( cam.center() );
+  md.add< VITAL_META_SENSOR_LOCATION >( location );
 
-  if( md.has( VITAL_META_SENSOR_LOCATION ) )
-  {
-    // we have a complete position from metadata.
-    const vector_3d loc = cam.get_center() + local_space.origin().location();
-    geo_point gc( loc, local_space.origin().crs() );
-
-    md.add< VITAL_META_SENSOR_LOCATION >( gc );
-  }
+  auto const crs = SRID::lat_lon_WGS84;
+  auto orientation =
+    enu_to_ned(
+      local_space.to_global(
+        camera_to_sensor( cam.rotation() ),
+        { location.location( crs ), crs } ) );
+  md.add< VITAL_META_SENSOR_ORIENTATION >( orientation );
 }
 
 } // namespace vital

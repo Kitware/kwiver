@@ -263,16 +263,20 @@ enu_to_ned( rotation_< T > const& r )
 
 template < typename T >
 rotation_< T >
-uas_ypr_to_rotation(
-  T platform_yaw, T platform_pitch, T platform_roll,
-  T sensor_yaw,   T sensor_pitch,   T sensor_roll )
+sensor_to_camera( rotation_< T > const& r )
 {
-  auto const platform_rotation =
-    rotation_< T >{ platform_yaw, platform_pitch, platform_roll };
-  auto const sensor_rotation =
-    rotation_< T >{ sensor_yaw, sensor_pitch, sensor_roll };
+  static const rotation_< T > conversion{
+    Eigen::Quaternion< T >{ 0.5, 0.5, 0.5, 0.5 } };
+  return ( r * conversion ).inverse();
+}
 
-  return ned_to_enu( platform_rotation * sensor_rotation );
+template < typename T >
+rotation_< T >
+camera_to_sensor( rotation_< T > const& r )
+{
+  static const rotation_< T > conversion{
+    Eigen::Quaternion< T >{ 0.5, -0.5, -0.5, -0.5 } };
+  return r.inverse() * conversion;
 }
 
 /// \cond DoxygenSuppress
@@ -292,9 +296,10 @@ template VITAL_TYPES_EXPORT rotation_< T > ned_to_enu(           \
   rotation_< T > const& r );                                     \
 template VITAL_TYPES_EXPORT rotation_< T > enu_to_ned(           \
   rotation_< T > const& r );                                     \
-template VITAL_TYPES_EXPORT rotation_< T > uas_ypr_to_rotation(  \
-  T platform_yaw, T platform_pitch, T platform_roll,             \
-  T sensor_yaw,   T sensor_pitch,   T sensor_roll )
+template VITAL_TYPES_EXPORT rotation_< T > sensor_to_camera(     \
+  rotation_< T > const& r );                                     \
+template VITAL_TYPES_EXPORT rotation_< T > camera_to_sensor(     \
+  rotation_< T > const& r );
 
 INSTANTIATE_ROTATION( double );
 INSTANTIATE_ROTATION( float );
