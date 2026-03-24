@@ -195,13 +195,14 @@ ffmpeg_video_input_clip
           vi::HAS_METADATA,
           vi::HAS_ABSOLUTE_FRAME_TIME,
           vi::HAS_TIMEOUT,
-          vi::IS_SEEKABLE,
+          vi::IS_SEEKABLE_BY_FRAME,
           vi::HAS_RAW_IMAGE,
           vi::HAS_RAW_METADATA,
           vi::HAS_UNINTERPRETED_DATA, } )
   {
     set_capability( capability, capabilities.capability( capability ) );
   }
+  set_capability( vi::IS_SEEKABLE_BY_FRAME, false );
 }
 
 // ----------------------------------------------------------------------------
@@ -239,14 +240,6 @@ ffmpeg_video_input_clip
   }
 
   return d->video()->good();
-}
-
-// ----------------------------------------------------------------------------
-bool
-ffmpeg_video_input_clip
-::seekable() const
-{
-  return d->video()->seekable();
 }
 
 // ----------------------------------------------------------------------------
@@ -293,6 +286,17 @@ ffmpeg_video_input_clip
     d->seek_to_start();
     return good();
   }
+}
+
+// ----------------------------------------------------------------------------
+bool
+ffmpeg_video_input_clip
+::seek_time(
+  VITAL_UNUSED vital::timestamp::time_t time_usec,
+  VITAL_UNUSED vital::time_usec_t timeout )
+{
+  // TODO: Unimplemented
+  return false;
 }
 
 // ----------------------------------------------------------------------------

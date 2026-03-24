@@ -63,12 +63,14 @@ public:
   bool end_of_video() const override;
   bool good() const override;
 
-  bool seekable() const override;
   size_t num_frames() const override;
 
   bool next_frame( vital::time_usec_t timeout = 0 ) override;
   bool seek_frame(
     vital::timestamp::frame_t frame_number,
+    vital::time_usec_t timeout = 0 ) override;
+  bool seek_time(
+    vital::timestamp::time_t time_usec,
     vital::time_usec_t timeout = 0 ) override;
 
   vital::timestamp frame_timestamp() const override;

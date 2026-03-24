@@ -92,8 +92,11 @@ namespace algo {
 /// HAS_TIMEOUT - This capability is set if the implementation supports the
 ///     timeout parameter on the next_frame() method.
 ///
-/// IS_SEEKABLE - This capability is set if the video source can seek to a
-///      specific frame.
+/// IS_SEEKABLE_BY_FRAME -
+///   This capability is set if the video source can seek to a specific frame.
+///
+/// IS_SEEKABLE_BY_TIME -
+///   This capability is set if the video source can seek to a specific time.
 ///
 /// All implementations \b must support the basic traits, in that they
 /// are registered with a \b true or \b false value. Additional
@@ -123,7 +126,8 @@ public:
   static const algorithm_capabilities::capability_name_t HAS_ABSOLUTE_FRAME_TIME;
   static const algorithm_capabilities::capability_name_t HAS_METADATA;
   static const algorithm_capabilities::capability_name_t HAS_TIMEOUT;
-  static const algorithm_capabilities::capability_name_t IS_SEEKABLE;
+  static const algorithm_capabilities::capability_name_t IS_SEEKABLE_BY_FRAME;
+  static const algorithm_capabilities::capability_name_t IS_SEEKABLE_BY_TIME;
   static const algorithm_capabilities::capability_name_t HAS_RAW_IMAGE;
   static const algorithm_capabilities::capability_name_t HAS_RAW_METADATA;
   static const algorithm_capabilities::capability_name_t HAS_UNINTERPRETED_DATA;
@@ -176,13 +180,6 @@ public:
   ///
   /// \return \b true if video stream is good, \b false if not good.
   virtual bool good() const = 0; // like io stream API
-
-  /// \brief Return whether video stream is seekable.
-  ///
-  /// This method returns whether the video stream is seekable.
-  ///
-  /// \return \b true if video stream is seekable, \b false otherwise.
-  virtual bool seekable() const = 0;
 
   /// \brief Get the number of frames in the video stream.
   ///
@@ -245,6 +242,30 @@ public:
   virtual bool seek_frame(
     kwiver::vital::timestamp::frame_t frame_number,
     kwiver::vital::time_usec_t timeout = 0 ) = 0;
+
+  /// Seek to the given timestamp in the video stream.
+  ///
+  /// This method seeks the video stream to the first frame with a timestamp
+  /// greater than or equal to \p time_usec.
+  ///
+  /// Check the HAS_TIMEOUT capability from the concrete implementation to
+  /// see if the timeout feature is supported.
+  ///
+  /// If the \p time_usec is past the final frame of the video, this method
+  /// will return \c false.
+  ///
+  /// If the video input is not seekable, or has no timestamp data associated
+  /// with each frame, this method will return \c false.
+  ///
+  /// \param[in] time_usec The time to seek to, in microseconds.
+  /// \param[in] timeout Number of microseconds to wait. 0 = no timeout.
+  ///
+  /// \return \c true if successful.
+  ///
+  /// \throws video_input_timeout_exception when the timeout expires.
+  /// \throws video_stream_exception when there is an error in the video stream.
+  virtual bool seek_time(
+    timestamp::time_t time_usec, time_usec_t timeout = 0 ) = 0;
 
   /// \brief Obtain the time stamp of the current frame.
   ///

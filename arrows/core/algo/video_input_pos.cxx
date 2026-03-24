@@ -113,7 +113,8 @@ video_input_pos
   set_capability( vital::algo::video_input::HAS_ABSOLUTE_FRAME_TIME, false );
 
   set_capability( vital::algo::video_input::HAS_TIMEOUT, false );
-  set_capability( vital::algo::video_input::IS_SEEKABLE, true );
+  set_capability( vital::algo::video_input::IS_SEEKABLE_BY_FRAME, true );
+  set_capability( vital::algo::video_input::IS_SEEKABLE_BY_TIME, false );
 }
 
 // ----------------------------------------------------------------------------
@@ -200,14 +201,6 @@ video_input_pos
 ::good() const
 {
   return d->d_frame_number > 0 && !this->end_of_video();
-}
-
-// ----------------------------------------------------------------------------
-bool
-video_input_pos
-::seekable() const
-{
-  return true;
 }
 
 // ----------------------------------------------------------------------------
@@ -306,6 +299,17 @@ video_input_pos
   }
 
   return true;
+}
+
+// ----------------------------------------------------------------------------
+bool
+video_input_pos
+::seek_time(
+  VITAL_UNUSED vital::timestamp::time_t time_usec,
+  VITAL_UNUSED vital::time_usec_t timeout )
+{
+  // TODO: Unimplemented
+  return false;
 }
 
 // ----------------------------------------------------------------------------

@@ -30,8 +30,11 @@ algorithm_capabilities::capability_name_t const video_input::HAS_METADATA(
   "has-metadata" );
 algorithm_capabilities::capability_name_t const video_input::HAS_TIMEOUT(
   "has-timeout" );
-algorithm_capabilities::capability_name_t const video_input::IS_SEEKABLE(
-  "is-seekable" );
+algorithm_capabilities::capability_name_t const
+video_input::IS_SEEKABLE_BY_FRAME( "is-seekable-by-frame" );
+algorithm_capabilities::capability_name_t const
+video_input::IS_SEEKABLE_BY_TIME( "is-seekable-by-time" );
+
 algorithm_capabilities::capability_name_t const video_input::HAS_RAW_IMAGE(
   "has-raw-image" );
 algorithm_capabilities::capability_name_t const video_input::HAS_RAW_METADATA(

@@ -2475,7 +2475,8 @@ ffmpeg_video_input
   set_capability( kva::video_input::HAS_FRAME_TIME, false );
   set_capability( kva::video_input::HAS_ABSOLUTE_FRAME_TIME, false );
   set_capability( kva::video_input::HAS_TIMEOUT, true );
-  set_capability( kva::video_input::IS_SEEKABLE, true );
+  set_capability( kva::video_input::IS_SEEKABLE_BY_FRAME, true );
+  set_capability( kva::video_input::IS_SEEKABLE_BY_TIME, false );
   set_capability( kva::video_input::HAS_RAW_IMAGE, true );
   set_capability( kva::video_input::HAS_RAW_METADATA, true );
   set_capability( kva::video_input::HAS_UNINTERPRETED_DATA, true );
@@ -2643,6 +2644,17 @@ ffmpeg_video_input
 }
 
 // ----------------------------------------------------------------------------
+bool
+ffmpeg_video_input
+::seek_time(
+  VITAL_UNUSED vital::timestamp::time_t time_usec,
+  VITAL_UNUSED vital::time_usec_t timeout )
+{
+  // TODO: Unimplemented
+  return false;
+}
+
+// ----------------------------------------------------------------------------
 kv::image_container_sptr
 ffmpeg_video_input
 ::frame_image()
@@ -2746,14 +2758,6 @@ ffmpeg_video_input
 ::good() const
 {
   return d->is_valid();
-}
-
-// ----------------------------------------------------------------------------
-bool
-ffmpeg_video_input
-::seekable() const
-{
-  return true;
 }
 
 // ----------------------------------------------------------------------------

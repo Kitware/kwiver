@@ -124,9 +124,10 @@ video_input_split
                      is_caps.capability( vi::HAS_TIMEOUT );
   set_capability( vi::HAS_TIMEOUT, d->d_has_timeout );
   set_capability(
-    vi::IS_SEEKABLE,
-    is_caps.capability( vi::IS_SEEKABLE ) &&
-    ms_caps.capability( vi::IS_SEEKABLE ) );
+    vi::IS_SEEKABLE_BY_FRAME,
+    is_caps.capability( vi::IS_SEEKABLE_BY_FRAME ) &&
+    ms_caps.capability( vi::IS_SEEKABLE_BY_FRAME ) );
+  set_capability( vi::IS_SEEKABLE_BY_TIME, false );
 }
 
 // ----------------------------------------------------------------------------
@@ -160,15 +161,6 @@ video_input_split
 {
   return ( d->image_source() && d->image_source()->good() ) &&
          ( d->metadata_source() && d->metadata_source()->good() );
-}
-
-// ----------------------------------------------------------------------------
-bool
-video_input_split
-::seekable() const
-{
-  return ( d->image_source() && d->image_source()->seekable() ) &&
-         ( d->metadata_source() && d->metadata_source()->seekable() );
 }
 
 // ----------------------------------------------------------------------------
@@ -240,6 +232,17 @@ video_input_split
 
   return true;
 } // video_input_split::seek_frame
+
+// ----------------------------------------------------------------------------
+bool
+video_input_split
+::seek_time(
+  VITAL_UNUSED vital::timestamp::time_t time_usec,
+  VITAL_UNUSED vital::time_usec_t timeout )
+{
+  // TODO: Unimplemented
+  return false;
+}
 
 // ----------------------------------------------------------------------------
 kwiver::vital::timestamp

@@ -35,9 +35,6 @@ public:
   bool
   good() const override { return m_good; }
 
-  bool
-  seekable() const override { return false; }
-
   size_t
   num_frames() const override { return 0; }
 
@@ -67,6 +64,12 @@ public:
 
   bool
   seek_frame( frame_id_t, time_usec_t = 0 ) override
+  {
+    return false;
+  }
+
+  bool
+  seek_time( time_usec_t, time_usec_t = 0 ) override
   {
     return false;
   }

@@ -129,7 +129,8 @@ video_input_buffered_metadata_filter
   }
 
   // Only supports single forward pass
-  set_capability( vi::IS_SEEKABLE, false );
+  set_capability( vi::IS_SEEKABLE_BY_FRAME, false );
+  set_capability( vi::IS_SEEKABLE_BY_TIME, false );
 }
 
 // ----------------------------------------------------------------------------
@@ -161,14 +162,6 @@ video_input_buffered_metadata_filter
 ::good() const
 {
   return d->c_video_input() && !d->frames.empty();
-}
-
-// ----------------------------------------------------------------------------
-bool
-video_input_buffered_metadata_filter
-::seekable() const
-{
-  return false;
 }
 
 // ----------------------------------------------------------------------------
@@ -257,6 +250,14 @@ video_input_buffered_metadata_filter
 bool
 video_input_buffered_metadata_filter
 ::seek_frame( kv::timestamp::frame_t, kv::time_usec_t )
+{
+  return false;
+}
+
+// ----------------------------------------------------------------------------
+bool
+video_input_buffered_metadata_filter
+::seek_time( kv::timestamp::time_t, kv::time_usec_t )
 {
   return false;
 }

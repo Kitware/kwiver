@@ -162,8 +162,9 @@ video_input_filter
     vi::HAS_TIMEOUT,
     vi_caps.capability( vi::HAS_TIMEOUT ) );
   set_capability(
-    vi::IS_SEEKABLE,
-    vi_caps.capability( vi::IS_SEEKABLE ) );
+    vi::IS_SEEKABLE_BY_FRAME,
+    vi_caps.capability( vi::IS_SEEKABLE_BY_FRAME ) );
+  set_capability( vi::IS_SEEKABLE_BY_TIME, false );
 }
 
 // ----------------------------------------------------------------------------
@@ -195,18 +196,6 @@ video_input_filter
     return false;
   }
   return d->d_video_input()->good();
-}
-
-// ----------------------------------------------------------------------------
-bool
-video_input_filter
-::seekable() const
-{
-  if( !d->d_video_input() )
-  {
-    return false;
-  }
-  return d->d_video_input()->seekable();
 }
 
 // ----------------------------------------------------------------------------
@@ -286,6 +275,17 @@ video_input_filter
   bool status = d->d_video_input()->seek_frame( frame_number, timeout );
 
   return status;
+}
+
+// ----------------------------------------------------------------------------
+bool
+video_input_filter
+::seek_time(
+  VITAL_UNUSED vital::timestamp::time_t time_usec,
+  VITAL_UNUSED vital::time_usec_t timeout )
+{
+  // TODO: Unimplemented
+  return false;
 }
 
 // ----------------------------------------------------------------------------
