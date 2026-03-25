@@ -421,7 +421,8 @@ metadata_tag_traits
     { typeid( double ), "double" },
     { typeid( std::string ), "string" },
     { typeid( geo_point ), "geo_point" },
-    { typeid( geo_polygon ), "geo_polygon" } };
+    { typeid( geo_polygon ), "geo_polygon" },
+    { typeid( rotation_d ), "rotation_d" }, };
 
   return map.at( m_type );
 }
