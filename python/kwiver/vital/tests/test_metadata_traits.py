@@ -91,6 +91,15 @@ class TestVitalMetaTraits(unittest.TestCase):
             "True if the current frame is a key frame.",
         )
 
+        self.check_are_valid_traits(
+            tag_traits_by_tag(mt.tags.VITAL_META_SENSOR_ORIENTATION),
+            mt.tags.VITAL_META_SENSOR_ORIENTATION,
+            "Sensor Orientation",
+            "SENSOR_ORIENTATION",
+            "rotation_d",
+            "Absolute orientation of sensor using North-East-Down (NED) axes.",
+        )
+
     def check_are_valid_traits(
         self, traits, exp_tag, exp_name, exp_enum_name, exp_type, exp_description
     ):
