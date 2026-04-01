@@ -72,8 +72,7 @@ void
 refine_tracks_process::
 _finalize()
 {
-  // Give the algorithm a chance to run deferred processing (e.g. SAM3
-  // video propagation over the full accumulated buffer) and emit a
+  // Give the algorithm a chance to run deferred processing and emit a
   // final result before the pipeline shuts down.
   auto final_tracks = d->m_refiner->finalize();
   if( final_tracks && !final_tracks->tracks().empty() )
@@ -113,11 +112,27 @@ _step()
 
   if( has_input_port_edge_using_trait( image ) )
   {
+    auto port_check = peek_at_port_using_trait( image );
+
+    if( port_check.datum->type() == sprokit::datum::complete )
+    {
+      this->_finalize();
+      return;
+    }
+
     image = grab_from_port_using_trait( image );
   }
 
   if( has_input_port_edge_using_trait( timestamp ) )
   {
+    auto port_check = peek_at_port_using_trait( timestamp );
+
+    if( port_check.datum->type() == sprokit::datum::complete )
+    {
+      this->_finalize();
+      return;
+    }
+
     timestamp = grab_from_port_using_trait( timestamp );
 
     if( timestamp.has_valid_frame() )
@@ -136,16 +151,14 @@ _step()
   {
     scoped_step_instrumentation();
 
-    // Refine tracks for this frame
-    if( tracks )
+    // Refine tracks for this frame.  When no input tracks are
+    // connected, pass an empty set so the refiner can still detect
+    // new objects.
+    if( !tracks )
     {
-      output_tracks = d->m_refiner->refine( timestamp, image, tracks );
+      tracks = std::make_shared< kwiver::vital::object_track_set >();
     }
-    else
-    {
-      // No input tracks, output empty track set
-      output_tracks = std::make_shared< kwiver::vital::object_track_set >();
-    }
+    output_tracks = d->m_refiner->refine( timestamp, image, tracks );
   }
 
   push_to_port_using_trait( object_track_set, output_tracks );
