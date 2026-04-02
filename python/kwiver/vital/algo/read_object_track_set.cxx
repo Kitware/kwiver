@@ -12,18 +12,25 @@ namespace vital  {
 namespace python {
 namespace py = pybind11;
 
+using rots = kwiver::vital::algo::read_object_track_set;
+
 void read_object_track_set(py::module &m)
 {
-  py::class_< kwiver::vital::algo::read_object_track_set,
-              std::shared_ptr<kwiver::vital::algo::read_object_track_set>,
-              kwiver::vital::algorithm_def<kwiver::vital::algo::read_object_track_set>,
+  py::class_< rots,
+              std::shared_ptr<rots>,
+              kwiver::vital::algorithm_def<rots>,
               read_object_track_set_trampoline<> >(m, "ReadObjectTrackSet")
     .def(py::init())
-    .def_static("static_type_name",
-        &kwiver::vital::algo::read_object_track_set::static_type_name)
-    .def("open", &kwiver::vital::algo::read_object_track_set::open)
-    .def("close", &kwiver::vital::algo::read_object_track_set::close)
-    .def("read_set", &kwiver::vital::algo::read_object_track_set::read_set);
+    .def_static("static_type_name", &rots::static_type_name)
+    .def("open", &rots::open)
+    .def("close", &rots::close)
+    .def("read_set",
+      [](rots& self) {
+        kwiver::vital::object_track_set_sptr result;
+        bool has_result = self.read_set(result);
+        return has_result ? py::cast(result) : py::cast(nullptr);
+      },
+      R"(Return the next ObjectTrackSet, or None if the input is exhausted)");
 }
 }
 }

@@ -71,12 +71,22 @@ class read_object_track_set_trampoline :
     bool
     read_set( kwiver::vital::object_track_set_sptr& track_set ) override
     {
-      PYBIND11_OVERLOAD_PURE(
-        bool,
-        kwiver::vital::algo::read_object_track_set,
-        read_set,
-        track_set
-      );
+      pybind11::gil_scoped_acquire gil;
+      pybind11::function overload =
+        pybind11::get_overload(
+          static_cast<kwiver::vital::algo::read_object_track_set const*>(this),
+          "read_set");
+      if (overload) {
+        auto o = overload();
+        if (pybind11::isinstance<pybind11::none>(o)) {
+          return false;
+        }
+        track_set = o.cast<kwiver::vital::object_track_set_sptr>();
+        return true;
+      }
+      pybind11::pybind11_fail(
+        "Tried to call pure virtual function "
+        "\"read_object_track_set::read_set\"");
     }
 };
 
