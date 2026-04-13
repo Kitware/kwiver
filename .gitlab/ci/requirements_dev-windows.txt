@@ -3,7 +3,7 @@ numpy==1.24.4
 
 # Required for testing
 coverage==7.4.1
-pytest==8.0.0
+pytest==9.0.3
 multimethod==1.4
 
 # if creating a wheel
