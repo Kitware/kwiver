@@ -16,7 +16,7 @@ scikit-build<=0.11.1
 
 # Required for testing
 coverage>=4.4.1,<5.0.0
-pytest==6.2.5
+pytest==9.0.3
 multimethod>=1.2,<=1.4
 
 # for pybind11 wrapping generation
