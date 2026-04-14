@@ -22,6 +22,8 @@ kwiver_discover_gtests(ocv feature_detect_extract      LIBRARIES ${test_librarie
 kwiver_discover_gtests(ocv feature_set                 LIBRARIES ${test_libraries})
 kwiver_discover_gtests(ocv hough_circle_detector       LIBRARIES ${test_libraries})
 kwiver_discover_gtests(ocv image                       LIBRARIES ${test_libraries})
+kwiver_discover_gtests(ocv image_CLAHE                 LIBRARIES ${test_libraries})
+kwiver_discover_gtests(ocv image_histogram_eq          LIBRARIES ${test_libraries})
 kwiver_discover_gtests(ocv inpaint                     LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(ocv match_features              LIBRARIES ${test_libraries})
 kwiver_discover_gtests(ocv match_set                   LIBRARIES ${test_libraries})

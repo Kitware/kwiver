@@ -39,6 +39,8 @@
 #include <arrows/ocv/algo/feature_detect_extract_SIFT.h>
 #include <arrows/ocv/algo/feature_detect_extract_SURF.h>
 #include <arrows/ocv/algo/hough_circle_detector.h>
+#include <arrows/ocv/algo/image_CLAHE.h>
+#include <arrows/ocv/algo/image_histogram_eq.h>
 #include <arrows/ocv/algo/image_io.h>
 #include <arrows/ocv/algo/inpaint.h>
 #include <arrows/ocv/algo/match_features_bruteforce.h>
@@ -76,6 +78,12 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ocv" );
   fact = vpm.add_factory< vital::algo::estimate_homography,
     estimate_homography >( "ocv" );
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ocv" );
+  fact = vpm.add_factory< vital::algo::image_filter,
+    image_CLAHE >( "ocv_CLAHE" );
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ocv" );
+  fact = vpm.add_factory< vital::algo::image_filter,
+    image_histogram_eq >( "ocv_histogram_eq" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ocv" );
   fact = vpm.add_factory< vital::algo::image_io, image_io >( "ocv" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ocv" );
