@@ -9,8 +9,6 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <iomanip>
-#include <iostream>
 
 using namespace kwiver::vital;
 using namespace kwiver::arrows::core;
@@ -98,47 +96,25 @@ TEST_F ( uv_unwrap_mesh_test, check_texture_coordinates )
 }
 
 // ----------------------------------------------------------------------------
-// Run this test to print the exact UV coordinates produced by the current
-// implementation (spacing=0.005, ascending sort, no compact packing).
-// Copy the output into check_texture_coordinates_exact below.
-TEST_F ( uv_unwrap_mesh_test, print_texture_coordinates )
-{
-  uv_unwrap_mesh mesh_unwrap;
-  config_block_sptr algo_config = mesh_unwrap.get_configuration();
-  algo_config->set_value< double >( "spacing", 0.005 );
-  mesh_unwrap.set_configuration( algo_config );
-
-  mesh_unwrap.unwrap( mesh );
-
-  const std::vector< vector_2d >& tcoords = mesh->tex_coords();
-  std::cout << std::fixed << std::setprecision( 15 );
-  std::cout << "// " << tcoords.size() << " texture coordinates "
-            << "(" << tcoords.size() / 3 << " faces x 3)\n";
-  for( std::size_t i = 0; i < tcoords.size(); ++i )
-  {
-    std::cout << "  { " << tcoords[ i ][ 0 ]
-              << ", " << tcoords[ i ][ 1 ] << " },  // tc[" << i << "]\n";
-  }
-}
-
-// ----------------------------------------------------------------------------
-// Regression test: exact UV coordinates for the unit cube, spacing=0.005,
-// ascending sort, no compact packing.
-// Values captured from print_texture_coordinates above.
-// Update this table if the algorithm is intentionally changed.
+// Regression test: exact UV coordinates for the unit cube with the legacy
+// code path (spacing=0.005, ascending sort, no compact packing).
+// Captured before the compact-packing feature was added; used to verify
+// that compact=false, sort_descending=false reproduces the original output.
+// Update this table only if the legacy code path is intentionally changed.
 TEST_F ( uv_unwrap_mesh_test, check_texture_coordinates_exact )
 {
   uv_unwrap_mesh mesh_unwrap;
   config_block_sptr algo_config = mesh_unwrap.get_configuration();
+  // Parameters to replicate legacy behavior
   algo_config->set_value< double >( "spacing", 0.005 );
+  algo_config->set_value< bool >( "sort_descending", false );
+  algo_config->set_value< bool >( "compact", false );
   mesh_unwrap.set_configuration( algo_config );
 
   mesh_unwrap.unwrap( mesh );
 
   const std::vector< vector_2d >& tcoords = mesh->tex_coords();
 
-  // Expected values captured from print_texture_coordinates.
-  // Reflects: spacing=0.005, ascending area sort, no compact packing.
   const std::vector< vector_2d > expected = {
     { 0.165906090208019, 0.165906090208019 },  // tc[0]
     { 0.004563458751885, 0.004563458751885 },  // tc[1]
@@ -177,13 +153,6 @@ TEST_F ( uv_unwrap_mesh_test, check_texture_coordinates_exact )
     { 0.331812180416038, 0.834093909791981 },  // tc[34]
     { 0.654497443328308, 0.834093909791981 },  // tc[35]
   };
-
-  if( expected.empty() )
-  {
-    std::cout << "[  SKIPPED ] Expected values not yet filled in; "
-                 "run print_texture_coordinates first.\n";
-    return;
-  }
 
   ASSERT_EQ( expected.size(), tcoords.size() );
 

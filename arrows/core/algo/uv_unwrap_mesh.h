@@ -34,9 +34,30 @@ public:
     "A class for unwrapping a mesh and generating texture coordinates. ",
     PARAM_DEFAULT(
       spacing, double,
-      "Spacing between triangles. It is a percentage of the texture size "
-      "and should be relatively small (default is 0.005).",
-      0.005 )
+      "Spacing between triangles as a fraction of the texture size. "
+      "Should be in (0.0, 1.0].",
+      0.005 ),
+    PARAM_DEFAULT(
+      sort_descending, bool,
+      "Sort triangles from largest to smallest area before packing. "
+      "Set to false to use ascending sort (legacy behavior).",
+      true ),
+    PARAM_DEFAULT(
+      compact, bool,
+      "Use compact triangle packing by alternating 180-degree rotations "
+      "so adjacent triangles interlock. Set to false for simple row "
+      "packing (legacy behavior).",
+      true ),
+    PARAM_DEFAULT(
+      padding_ratio, double,
+      "When compact packing is enabled, fraction of the margin used as "
+      "horizontal padding between adjacent triangles. Must be in (0.0, 1.0].",
+      1.0 ),
+    PARAM_DEFAULT(
+      iterations, int,
+      "When compact packing is enabled, number of simulation iterations "
+      "used to find an efficient texture atlas width. Must be >= 1.",
+      10 )
   )
 
   /// Destructor
