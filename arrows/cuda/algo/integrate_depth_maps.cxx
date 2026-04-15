@@ -7,9 +7,9 @@
 /// sequence
 
 #include <arrows/core/depth_utils.h>
+#include <arrows/cuda/algo/integrate_depth_maps.h>
 #include <arrows/cuda/cuda_error_check.h>
 #include <arrows/cuda/cuda_memory.h>
-#include <arrows/cuda/integrate_depth_maps.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <sstream>

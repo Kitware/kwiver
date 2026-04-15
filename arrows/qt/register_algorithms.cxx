@@ -8,7 +8,7 @@
 #include <arrows/qt/kwiver_algo_qt_plugin_export.h>
 #include <vital/plugin_management/plugin_manager.h>
 
-#include <arrows/qt/image_io.h>
+#include <arrows/qt/algo/image_io.h>
 
 namespace kwiver {
 

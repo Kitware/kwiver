@@ -4,8 +4,8 @@
 
 #include <test_gtest.h>
 
-#include <arrows/vxl/image_io.h>
-#include <arrows/vxl/match_features_constrained.h>
+#include <arrows/vxl/algo/image_io.h>
+#include <arrows/vxl/algo/match_features_constrained.h>
 
 #include <vital/algo/algorithm.txx>
 #include <vital/plugin_management/pluggable_macro_testing.h>

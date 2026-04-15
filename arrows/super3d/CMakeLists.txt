@@ -7,7 +7,7 @@ set( plugin_super3d_sources
   warp_image_instances.cxx
   )
 set( plugin_super3d_classes
-  compute_depth
+  algo/compute_depth
   cost_volume
   tv_refine_search
   util

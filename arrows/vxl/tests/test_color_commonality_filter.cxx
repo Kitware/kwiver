@@ -4,8 +4,8 @@
 
 #include <test_gtest.h>
 
-#include <arrows/vxl/color_commonality_filter.h>
-#include <arrows/vxl/image_io.h>
+#include <arrows/vxl/algo/color_commonality_filter.h>
+#include <arrows/vxl/algo/image_io.h>
 
 #include <vital/algo/algorithm.txx>
 #include <vital/plugin_management/pluggable_macro_testing.h>

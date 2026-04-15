@@ -20,32 +20,32 @@ set( vxl_sources
   )
 
 set( vxl_classes
-  aligned_edge_detection
-  average_frames
-  bundle_adjust
+  algo/aligned_edge_detection
+  algo/average_frames
+  algo/bundle_adjust
+  algo/close_loops_homography_guided
+  algo/color_commonality_filter
+  algo/convert_image
+  algo/estimate_canonical_transform
+  algo/estimate_essential_matrix
+  algo/estimate_fundamental_matrix
+  algo/estimate_homography
+  algo/estimate_similarity_transform
+  algo/hashed_image_classifier_filter
+  algo/high_pass_filter
+  algo/image_io
+  algo/match_features_constrained
+  algo/morphology
+  algo/optimize_cameras
+  algo/pixel_feature_extractor
+  algo/split_image
+  algo/threshold
+  algo/triangulate_landmarks
   camera_map
-  close_loops_homography_guided
-  color_commonality_filter
   compute_homography_overlap
-  convert_image
-  estimate_canonical_transform
-  estimate_essential_matrix
-  estimate_fundamental_matrix
-  estimate_homography
-  estimate_similarity_transform
   hashed_image_classifier
-  hashed_image_classifier_filter
-  high_pass_filter
   image_container
-  image_io
   kd_tree
-  match_features_constrained
-  morphology
-  optimize_cameras
-  pixel_feature_extractor
-  split_image
-  threshold
-  triangulate_landmarks
   vil_image_memory
   )
 

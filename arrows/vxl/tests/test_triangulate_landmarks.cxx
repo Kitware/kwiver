@@ -5,7 +5,7 @@
 #include <test_scene.h>
 
 #include <arrows/tests/test_triangulate_landmarks.h>
-#include <arrows/vxl/triangulate_landmarks.h>
+#include <arrows/vxl/algo/triangulate_landmarks.h>
 
 #include <vital/algo/algorithm.txx>
 #include <vital/plugin_management/plugin_manager.h>

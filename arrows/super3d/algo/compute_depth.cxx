@@ -6,7 +6,7 @@
 /// \brief Source file for compute_depth, driver for depth from an image
 /// sequence
 
-#include <arrows/super3d/compute_depth.h>
+#include <arrows/super3d/algo/compute_depth.h>
 
 #include <arrows/vxl/camera.h>
 #include <arrows/vxl/image_container.h>
@@ -23,10 +23,10 @@
 #include <memory>
 #include <sstream>
 
-#include "cost_volume.h"
-#include "tv_refine_search.h"
-#include "util.h"
-#include "world_angled_frustum.h"
+#include <arrows/super3d/cost_volume.h>
+#include <arrows/super3d/tv_refine_search.h>
+#include <arrows/super3d/util.h>
+#include <arrows/super3d/world_angled_frustum.h>
 
 using namespace kwiver::vital;
 

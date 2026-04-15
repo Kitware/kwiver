@@ -17,28 +17,28 @@
 #include <vital/algo/optimize_cameras.h>
 
 // implementation
-#include <arrows/vxl/aligned_edge_detection.h>
-#include <arrows/vxl/average_frames.h>
-#include <arrows/vxl/bundle_adjust.h>
-#include <arrows/vxl/close_loops_homography_guided.h>
-#include <arrows/vxl/color_commonality_filter.h>
-#include <arrows/vxl/convert_image.h>
-#include <arrows/vxl/estimate_canonical_transform.h>
-#include <arrows/vxl/estimate_essential_matrix.h>
-#include <arrows/vxl/estimate_fundamental_matrix.h>
-#include <arrows/vxl/estimate_homography.h>
-#include <arrows/vxl/estimate_similarity_transform.h>
-#include <arrows/vxl/hashed_image_classifier_filter.h>
-#include <arrows/vxl/high_pass_filter.h>
-#include <arrows/vxl/image_io.h>
+#include <arrows/vxl/algo/aligned_edge_detection.h>
+#include <arrows/vxl/algo/average_frames.h>
+#include <arrows/vxl/algo/bundle_adjust.h>
+#include <arrows/vxl/algo/close_loops_homography_guided.h>
+#include <arrows/vxl/algo/color_commonality_filter.h>
+#include <arrows/vxl/algo/convert_image.h>
+#include <arrows/vxl/algo/estimate_canonical_transform.h>
+#include <arrows/vxl/algo/estimate_essential_matrix.h>
+#include <arrows/vxl/algo/estimate_fundamental_matrix.h>
+#include <arrows/vxl/algo/estimate_homography.h>
+#include <arrows/vxl/algo/estimate_similarity_transform.h>
+#include <arrows/vxl/algo/hashed_image_classifier_filter.h>
+#include <arrows/vxl/algo/high_pass_filter.h>
+#include <arrows/vxl/algo/image_io.h>
+#include <arrows/vxl/algo/match_features_constrained.h>
+#include <arrows/vxl/algo/morphology.h>
+#include <arrows/vxl/algo/optimize_cameras.h>
+#include <arrows/vxl/algo/pixel_feature_extractor.h>
+#include <arrows/vxl/algo/split_image.h>
+#include <arrows/vxl/algo/threshold.h>
+#include <arrows/vxl/algo/triangulate_landmarks.h>
 #include <arrows/vxl/kd_tree.h>
-#include <arrows/vxl/match_features_constrained.h>
-#include <arrows/vxl/morphology.h>
-#include <arrows/vxl/optimize_cameras.h>
-#include <arrows/vxl/pixel_feature_extractor.h>
-#include <arrows/vxl/split_image.h>
-#include <arrows/vxl/threshold.h>
-#include <arrows/vxl/triangulate_landmarks.h>
 
 namespace kwiver {
 

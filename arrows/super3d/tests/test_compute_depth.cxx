@@ -2,7 +2,7 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <arrows/super3d/compute_depth.h>
+#include <arrows/super3d/algo/compute_depth.h>
 #include <vital/plugin_management/plugin_manager.h>
 
 #include <gtest/gtest.h>

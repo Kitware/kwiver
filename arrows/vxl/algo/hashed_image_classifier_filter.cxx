@@ -2,9 +2,9 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include "hashed_image_classifier.h"
 #include "hashed_image_classifier_filter.h"
 
+#include <arrows/vxl/hashed_image_classifier.h>
 #include <arrows/vxl/image_container.h>
 
 #include <vital/config/config_block_io.h>

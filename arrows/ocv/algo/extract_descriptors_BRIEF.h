@@ -13,7 +13,7 @@
 
 #include <vital/algo/extract_descriptors.h>
 
-#include <arrows/ocv/extract_descriptors.h>
+#include <arrows/ocv/algo/extract_descriptors.h>
 
 #include <string>
 

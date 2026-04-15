@@ -8,8 +8,8 @@
 #ifndef KWIVER_ARROWS_FEATURE_DETECT_EXTRACT_ORB_H_
 #define KWIVER_ARROWS_FEATURE_DETECT_EXTRACT_ORB_H_
 
-#include <arrows/ocv/detect_features.h>
-#include <arrows/ocv/extract_descriptors.h>
+#include <arrows/ocv/algo/detect_features.h>
+#include <arrows/ocv/algo/extract_descriptors.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
 #include <string>

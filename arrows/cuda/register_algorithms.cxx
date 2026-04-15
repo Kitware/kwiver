@@ -8,7 +8,7 @@
 #include <arrows/cuda/kwiver_algo_cuda_plugin_export.h>
 #include <vital/plugin_management/plugin_manager.h>
 
-#include <arrows/cuda/integrate_depth_maps.h>
+#include <arrows/cuda/algo/integrate_depth_maps.h>
 
 namespace kwiver {
 

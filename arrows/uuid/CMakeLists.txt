@@ -5,7 +5,7 @@ set(CMAKE_FOLDER "Arrows/UUID")
 set ( plugin_uuid_headers )
 set ( plugin_uuid_sources )
 set( plugin_uuid_classes
-  uuid_factory_uuid
+  algo/uuid_factory_uuid
   )
 
 kwiver_expand_class_list( "${plugin_uuid_classes}" plugin_uuid_headers plugin_uuid_sources )

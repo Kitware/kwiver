@@ -6,8 +6,8 @@ set(CMAKE_FOLDER "Arrows/GDAL")
 set( gdal_headers_public )
 set( gdal_sources )
 set( gdal_classes
+  algo/image_io
   image_container
-  image_io
   )
 kwiver_expand_class_list("${gdal_classes}" gdal_headers_public gdal_sources)
 

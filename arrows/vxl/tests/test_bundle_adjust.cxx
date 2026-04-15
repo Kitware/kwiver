@@ -5,7 +5,7 @@
 /// \file
 /// \brief test VXL bundle adjustment functionality
 
-#include <arrows/vxl/bundle_adjust.h>
+#include <arrows/vxl/algo/bundle_adjust.h>
 
 #include <vital/algo/algorithm.txx>
 #include <vital/plugin_management/pluggable_macro_testing.h>

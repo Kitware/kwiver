@@ -9,7 +9,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <vector>
-#include "cuda_error_check.h"
+#include <arrows/cuda/cuda_error_check.h>
 #include <vital/logger/logger.h>
 
 #define size4x4 16

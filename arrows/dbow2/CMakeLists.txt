@@ -11,8 +11,8 @@ set( plugin_dbow2_headers
   )
 set( plugin_dbow2_sources )
 set( plugin_dbow2_classes
+  algo/match_descriptor_sets
   BowVector
-  match_descriptor_sets
   FeatureVector
   FORB
   QueryResults

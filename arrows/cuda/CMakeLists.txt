@@ -4,7 +4,7 @@ project(kwiver_arrow_cuda LANGUAGES CXX CUDA)
 set(CMAKE_FOLDER "Arrows/CUDA")
 
 set(header_files
-  integrate_depth_maps.h
+  algo/integrate_depth_maps.h
   )
 
 set(private_header_files
@@ -13,9 +13,9 @@ set(private_header_files
   )
 
 set(source_files
+  algo/integrate_depth_maps.cxx
+  algo/integrate_depth_maps.cu
   cuda_error_check.cxx
-  integrate_depth_maps.cxx
-  integrate_depth_maps.cu
   )
 
 kwiver_install_headers(

@@ -9,8 +9,8 @@
 
 #include <arrows/ffmpeg/tests/common.h>
 
+#include <arrows/ffmpeg/algo/ffmpeg_video_input_rewire.h>
 #include <arrows/ffmpeg/ffmpeg_video_input.h>
-#include <arrows/ffmpeg/ffmpeg_video_input_rewire.h>
 
 #include <arrows/klv/klv_metadata.h>
 

@@ -4,9 +4,9 @@
 
 #include <test_gtest.h>
 
+#include <arrows/vxl/algo/image_io.h>
+#include <arrows/vxl/algo/morphology.h>
 #include <arrows/vxl/image_container.h>
-#include <arrows/vxl/image_io.h>
-#include <arrows/vxl/morphology.h>
 
 #include <vil/algo/vil_threshold.h>
 #include <vil/vil_convert.h>

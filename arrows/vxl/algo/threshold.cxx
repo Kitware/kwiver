@@ -4,9 +4,8 @@
 
 #include "threshold.h"
 
-#include "image_statistics.h"
-
 #include <arrows/vxl/image_container.h>
+#include <arrows/vxl/image_statistics.h>
 
 #include <vital/range/iota.h>
 

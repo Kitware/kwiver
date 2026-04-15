@@ -8,7 +8,7 @@
 #include <test_eigen.h>
 #include <test_scene.h>
 
-#include <arrows/ceres/bundle_adjust.h>
+#include <arrows/ceres/algo/bundle_adjust.h>
 
 #include <arrows/mvg/metrics.h>
 #include <arrows/mvg/projected_track_set.h>

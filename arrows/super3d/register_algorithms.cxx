@@ -8,7 +8,7 @@
 #include <arrows/super3d/kwiver_algo_super3d_plugin_export.h>
 #include <vital/plugin_management/plugin_factory.h>
 
-#include <arrows/super3d/compute_depth.h>
+#include <arrows/super3d/algo/compute_depth.h>
 
 namespace kwiver {
 

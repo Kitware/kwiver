@@ -6,8 +6,8 @@
 #include <test_gtest.h>
 #include <test_scene.h>
 
-#include <arrows/vxl/estimate_essential_matrix.h>
-#include <arrows/vxl/estimate_similarity_transform.h>
+#include <arrows/vxl/algo/estimate_essential_matrix.h>
+#include <arrows/vxl/algo/estimate_similarity_transform.h>
 
 #include <arrows/mvg/algo/initialize_cameras_landmarks_basic.h>
 #include <arrows/mvg/metrics.h>

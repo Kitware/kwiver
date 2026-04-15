@@ -7,13 +7,13 @@ set( CMAKE_AUTOUIC ON )
 set( CMAKE_INCLUDE_CURRENT_DIR ON )
 
 set( qt_sources
+  algo/image_io.cxx
   image_container.cxx
-  image_io.cxx
   )
 
 set( qt_headers_public
+  algo/image_io.h
   image_container.h
-  image_io.h
   kq_global.h
   )
 

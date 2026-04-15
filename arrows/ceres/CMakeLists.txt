@@ -17,8 +17,8 @@ set( ceres_sources
   logging.cxx
   )
 set( ceres_classes
-  bundle_adjust
-  optimize_cameras
+  algo/bundle_adjust
+  algo/optimize_cameras
   options
   reprojection_error
   types

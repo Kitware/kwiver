@@ -2,7 +2,7 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <arrows/dbow2/match_descriptor_sets.h>
+#include <arrows/dbow2/algo/match_descriptor_sets.h>
 
 #include <vital/algo/algorithm.txx>
 #include <vital/plugin_management/pluggable_macro_testing.h>

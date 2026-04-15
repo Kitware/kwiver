@@ -8,7 +8,7 @@
 #include <test_gtest.h>
 #include <test_tmpfn.h>
 
-#include <arrows/gdal/image_io.h>
+#include <arrows/gdal/algo/image_io.h>
 #include <arrows/tests/test_image.h>
 #include <vital/plugin_management/plugin_manager.h>
 #include <vital/types/geodesy.h>

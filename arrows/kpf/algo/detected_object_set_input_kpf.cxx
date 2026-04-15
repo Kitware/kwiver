@@ -7,11 +7,11 @@
 
 #include "detected_object_set_input_kpf.h"
 
-#include "yaml/kpf_canonical_io_adapter.h"
-#include "yaml/kpf_reader.h"
-#include "yaml/kpf_yaml_parser.h"
+#include <arrows/kpf/yaml/kpf_canonical_io_adapter.h>
+#include <arrows/kpf/yaml/kpf_reader.h>
+#include <arrows/kpf/yaml/kpf_yaml_parser.h>
 
-#include "vital_kpf_adapters.h"
+#include <arrows/kpf/vital_kpf_adapters.h>
 
 #include <vital/exceptions.h>
 #include <vital/util/data_stream_reader.h>
