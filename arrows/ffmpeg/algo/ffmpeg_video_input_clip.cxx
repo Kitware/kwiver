@@ -367,7 +367,7 @@ ffmpeg_video_input_clip
 }
 
 // ----------------------------------------------------------------------------
-vital::video_settings_uptr
+vital::video_settings_sptr
 ffmpeg_video_input_clip
 ::implementation_settings() const
 {

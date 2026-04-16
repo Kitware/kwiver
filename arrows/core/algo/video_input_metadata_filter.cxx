@@ -273,7 +273,7 @@ video_input_metadata_filter
 }
 
 // ----------------------------------------------------------------------------
-kwiver::vital::video_settings_uptr
+kwiver::vital::video_settings_sptr
 video_input_metadata_filter
 ::implementation_settings() const
 {

@@ -430,7 +430,7 @@ public:
     size_t num_frames() const;
     kv::frame_id_t frame_number() const;
     kv::timestamp timestamp() const;
-    kv::video_settings_uptr implementation_settings() const;
+    kv::video_settings_sptr implementation_settings() const;
     void set_timeout( kv::time_usec_t timeout );
     void check_timeout();
     bool check_timeout_error( int err );
@@ -2381,7 +2381,7 @@ ffmpeg_video_input::priv::open_video_state
 }
 
 // ----------------------------------------------------------------------------
-kv::video_settings_uptr
+kv::video_settings_sptr
 ffmpeg_video_input::priv::open_video_state
 ::implementation_settings() const
 {
@@ -2787,7 +2787,7 @@ ffmpeg_video_input
 }
 
 // ----------------------------------------------------------------------------
-kv::video_settings_uptr
+kv::video_settings_sptr
 ffmpeg_video_input
 ::implementation_settings() const
 {

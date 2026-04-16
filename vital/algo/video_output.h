@@ -155,7 +155,7 @@ public:
   /// open().
   ///
   /// \return Implementation video settings, or \c nullptr if none are needed.
-  virtual vital::video_settings_uptr implementation_settings() const;
+  virtual vital::video_settings_sptr implementation_settings() const;
 
   /// Return capabilities of concrete implementation.
   ///

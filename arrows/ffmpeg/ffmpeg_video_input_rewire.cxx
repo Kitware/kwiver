@@ -560,7 +560,7 @@ ffmpeg_video_input_rewire
 }
 
 // ----------------------------------------------------------------------------
-vital::video_settings_uptr
+vital::video_settings_sptr
 ffmpeg_video_input_rewire
 ::implementation_settings() const
 {

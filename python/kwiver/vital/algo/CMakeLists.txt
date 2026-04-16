@@ -79,6 +79,7 @@ set( classes
   uuid_factory
   uv_unwrap_mesh
   video_input
+  video_output
   write_object_track_set
   write_track_descriptor_set
 )

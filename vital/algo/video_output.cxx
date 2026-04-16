@@ -65,7 +65,7 @@ video_output
 }
 
 // ----------------------------------------------------------------------------
-vital::video_settings_uptr
+vital::video_settings_sptr
 video_output
 ::implementation_settings() const
 {

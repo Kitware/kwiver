@@ -48,6 +48,7 @@ set(__test_algorithms
   simple_triangulate_landmarks
   simple_uuid_factory
   simple_video_input
+  simple_video_output
   simple_uv_unwrap_mesh
   simple_write_object_track_set
   simple_write_track_descriptor_set

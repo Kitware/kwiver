@@ -16,6 +16,10 @@ Arrows: MVG
 
 * All algorithms taking unsigned int configuration parameters now take size_t.
 
+Python
+
+* Added bindings for video_output and video_settings.
+
 Track Oracle
 
 * Removed track_oracle.
@@ -39,6 +43,9 @@ Vital: Algo
 
 * Replaced video_input.IS_SEEKABLE with video_input.IS_SEEKABLE_BY_FRAME
   and video_input.IS_SEEKABLE_BY_TIME.
+
+* Used shared_ptr instead of unique_ptr for video_settings returned by
+  video_input.implementation_settings().
 
 Vital: IO
 
