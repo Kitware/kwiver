@@ -33,17 +33,30 @@ main( int argc, char** argv )
 class mesh_io : public ::testing::Test
 {
   TEST_ARG( data_dir );
+
+protected:
+  std::string temp_dir;
+
+  void
+  SetUp() override
+  {
+    temp_dir = std::string( "temp_" ) +
+               ::testing::UnitTest::GetInstance()->current_test_info()->name();
+    kwiversys::SystemTools::MakeDirectory( temp_dir );
+  }
+
+  void
+  TearDown() override
+  {
+    kwiversys::SystemTools::RemoveADirectory( temp_dir );
+  }
 };
 
 // ----------------------------------------------------------------------------
 TEST_F ( mesh_io, invalid_output_file )
 {
-  kwiversys::SystemTools::MakeDirectory( "temp" );
-
   mesh empty_mesh;
-  EXPECT_THROW( write_ply2( "temp", empty_mesh ), file_write_exception );
-
-  kwiversys::SystemTools::RemoveADirectory( "temp" );
+  EXPECT_THROW( write_ply2( temp_dir, empty_mesh ), file_write_exception );
 }
 
 // ----------------------------------------------------------------------------
@@ -72,14 +85,12 @@ TEST_F ( mesh_io, read_write_ply2 )
     std::unique_ptr< mesh_face_array_base >(
       new mesh_face_array( original->faces() ) ) );
 
-  std::string path = "temp/cube_mesh.ply2";
+  std::string path = temp_dir + "/cube_mesh.ply2";
   write_ply2( path, *original );
 
   mesh_sptr copy = read_ply2( path );
 
   EXPECT_TRUE( original->approx_equal( *copy ) );
-
-  kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
 
 // ----------------------------------------------------------------------------
@@ -103,48 +114,41 @@ TEST_F ( mesh_io, read_write_obj )
     std::unique_ptr< mesh_face_array_base >(
       new mesh_face_array( original->faces() ) ) );
 
-  std::string path = "temp/cube_mesh.obj";
+  std::string path = temp_dir + "/cube_mesh.obj";
   write_obj( path, *original );
 
   mesh_sptr copy = read_obj( path );
 
   EXPECT_TRUE( original->approx_equal( *copy ) );
-
-  kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
 
 // ----------------------------------------------------------------------------
 TEST_F ( mesh_io, write_kml )
 {
   mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
-  EXPECT_NO_THROW( write_kml( "temp/cube_mesh.kml", *cube_mesh ) );
-  kwiversys::SystemTools::RemoveADirectory( "temp" );
+  EXPECT_NO_THROW( write_kml( temp_dir + "/cube_mesh.kml", *cube_mesh ) );
 }
 
 // ----------------------------------------------------------------------------
 TEST_F ( mesh_io, write_kml_collada_not_triangular )
 {
-  std::string output_file_name = "temp/cube_mesh.kml_collada";
+  std::string output_file_name = temp_dir + "/cube_mesh.kml_collada";
 
   mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
   EXPECT_NO_THROW( write_kml_collada( output_file_name, *cube_mesh ) );
 
   std::ifstream stream( output_file_name.c_str() );
   EXPECT_EQ( stream.peek(), std::ifstream::traits_type::eof() );
-
-  kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
 
 // ----------------------------------------------------------------------------
 TEST_F ( mesh_io, write_vrml_not_triangular )
 {
-  std::string output_file_name = "temp/cube_mesh.vrml";
+  std::string output_file_name = temp_dir + "/cube_mesh.vrml";
 
   mesh_sptr cube_mesh = kwiver::testing::cube_mesh( 1.0 );
   EXPECT_NO_THROW( write_vrml( output_file_name, *cube_mesh ) );
 
   std::ifstream stream( output_file_name.c_str() );
   EXPECT_EQ( stream.peek(), std::ifstream::traits_type::eof() );
-
-  kwiversys::SystemTools::RemoveADirectory( "temp" );
 }
