@@ -60,6 +60,7 @@ from kwiver.vital.types.track_interval import *
 from kwiver.vital.types.track_set import *
 from kwiver.vital.types.video_raw_image import *
 from kwiver.vital.types.video_raw_metadata import *
+from kwiver.vital.types.video_settings import *
 
 # For an explanation of why these modules are out of order,
 # see the CMakeLists.txt in this directory

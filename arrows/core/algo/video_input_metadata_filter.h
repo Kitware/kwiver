@@ -68,7 +68,7 @@ public:
   kwiver::vital::video_uninterpreted_data_sptr uninterpreted_frame_data()
   override;
 
-  kwiver::vital::video_settings_uptr implementation_settings() const override;
+  kwiver::vital::video_settings_sptr implementation_settings() const override;
 
   void set_configuration_internal(  vital::config_block_sptr config  ) override;
 

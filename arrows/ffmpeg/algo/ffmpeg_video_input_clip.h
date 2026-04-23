@@ -80,7 +80,7 @@ public:
   vital::video_raw_metadata_sptr raw_frame_metadata() override;
   vital::video_uninterpreted_data_sptr uninterpreted_frame_data() override;
 
-  vital::video_settings_uptr implementation_settings() const override;
+  vital::video_settings_sptr implementation_settings() const override;
   ~ffmpeg_video_input_clip() override;
 
 protected:

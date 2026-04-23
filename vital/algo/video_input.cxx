@@ -84,7 +84,7 @@ video_input
 }
 
 // ----------------------------------------------------------------------------
-video_settings_uptr
+video_settings_sptr
 video_input
 ::implementation_settings() const
 {

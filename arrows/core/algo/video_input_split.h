@@ -65,7 +65,7 @@ public:
   kwiver::vital::image_container_sptr frame_image() override;
   kwiver::vital::metadata_vector frame_metadata() override;
 
-  kwiver::vital::video_settings_uptr implementation_settings() const override;
+  kwiver::vital::video_settings_sptr implementation_settings() const override;
 
 protected:
   void initialize() override;

@@ -417,7 +417,7 @@ ffmpeg_video_output
 }
 
 // ----------------------------------------------------------------------------
-vital::video_settings_uptr
+vital::video_settings_sptr
 ffmpeg_video_output
 ::implementation_settings() const
 {
@@ -438,7 +438,7 @@ ffmpeg_video_output
   }
   result->time_base = d->video->video_stream->time_base;
   result->start_timestamp = d->video->format_context->start_time;
-  return kwiver::vital::video_settings_uptr{ result };
+  return kwiver::vital::video_settings_sptr{ result };
 }
 
 // ----------------------------------------------------------------------------

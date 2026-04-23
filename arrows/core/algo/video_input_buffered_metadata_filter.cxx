@@ -341,7 +341,7 @@ video_input_buffered_metadata_filter
 }
 
 // ----------------------------------------------------------------------------
-kv::video_settings_uptr
+kv::video_settings_sptr
 video_input_buffered_metadata_filter
 ::implementation_settings() const
 {

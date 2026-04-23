@@ -36,7 +36,6 @@ public:
 };
 
 using video_settings_sptr = std::shared_ptr< video_settings >;
-using video_settings_uptr = std::unique_ptr< video_settings >;
 
 // ----------------------------------------------------------------------------
 class VITAL_TYPES_EXPORT simple_video_settings : public video_settings
@@ -54,6 +53,8 @@ private:
   size_t m_height;
   double m_frame_rate;
 };
+
+using simple_video_settings_sptr = std::shared_ptr< simple_video_settings >;
 
 } // namespace vital
 

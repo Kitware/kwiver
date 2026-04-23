@@ -98,7 +98,7 @@ public:
   void add_uninterpreted_data(
     vital::video_uninterpreted_data const& misc_data ) override;
 
-  vital::video_settings_uptr implementation_settings() const override;
+  vital::video_settings_sptr implementation_settings() const override;
 
 protected:
   void set_configuration_internal( vital::config_block_sptr config ) override;
