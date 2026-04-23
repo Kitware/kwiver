@@ -45,7 +45,7 @@ target_link_libraries( kwiver_algo_qt
   )
 
 algorithms_create_plugin( kwiver_algo_qt
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 kwiver_install_headers(

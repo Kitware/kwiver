@@ -83,7 +83,7 @@ target_link_libraries( kwiver_algo_ocv
   )
 
 algorithms_create_plugin( kwiver_algo_ocv
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

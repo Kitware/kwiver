@@ -31,7 +31,7 @@ target_link_libraries( kwiver_algo_gdal
   )
 
 algorithms_create_plugin( kwiver_algo_gdal
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

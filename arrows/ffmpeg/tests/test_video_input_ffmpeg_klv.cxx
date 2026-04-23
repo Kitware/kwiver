@@ -9,7 +9,7 @@
 
 #include <arrows/ffmpeg/algo/ffmpeg_video_input.h>
 #include <arrows/klv/klv_metadata.h>
-#include <arrows/serialize/json/klv/metadata_map_io.h>
+#include <arrows/serialize/json/klv/algo/metadata_map_io.h>
 
 #include <vital/plugin_management/plugin_manager.h>
 

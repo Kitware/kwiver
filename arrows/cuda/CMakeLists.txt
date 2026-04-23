@@ -48,7 +48,7 @@ target_include_directories( kwiver_algo_cuda SYSTEM
 )
 
 algorithms_create_plugin( kwiver_algo_cuda
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

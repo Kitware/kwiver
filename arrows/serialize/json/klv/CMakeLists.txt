@@ -5,7 +5,7 @@ if(NOT KWIVER_ENABLE_ZLIB)
 endif()
 
 set( public_headers
-  metadata_map_io.h
+  algo/metadata_map_io.h
  )
 
 set( private_headers
@@ -14,7 +14,7 @@ set( private_headers
 
 set( sources
   load_save_klv.cxx
-  metadata_map_io.cxx
+  algo/metadata_map_io.cxx
   )
 
 kwiver_install_headers(
@@ -41,7 +41,7 @@ target_link_libraries( kwiver_serialize_json_klv
   )
 
 algorithms_create_plugin( kwiver_serialize_json_klv
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

@@ -43,7 +43,7 @@ target_link_libraries( kwiver_algo_kpf
   )
 
 algorithms_create_plugin( kwiver_algo_kpf
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

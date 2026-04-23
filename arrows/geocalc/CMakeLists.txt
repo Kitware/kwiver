@@ -37,7 +37,7 @@ target_link_libraries( kwiver_algo_geocalc
   )
 
 algorithms_create_plugin( kwiver_algo_geocalc
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

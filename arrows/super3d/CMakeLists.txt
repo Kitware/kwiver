@@ -40,7 +40,7 @@ target_link_libraries(kwiver_algo_super3d
   )
 
 algorithms_create_plugin( kwiver_algo_super3d
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 

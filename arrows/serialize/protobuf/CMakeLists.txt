@@ -67,7 +67,7 @@ kwiver_install_headers(
   )
 
 algorithms_create_plugin( kwiver_serialize_protobuf
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

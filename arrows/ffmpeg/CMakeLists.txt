@@ -91,7 +91,7 @@ if (KWIVER_ENABLE_FFMPEG_CUDA)
 endif()
 
 algorithms_create_plugin( kwiver_algo_ffmpeg
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

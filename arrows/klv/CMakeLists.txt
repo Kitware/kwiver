@@ -104,7 +104,7 @@ target_link_libraries( kwiver_algo_klv
   )
 
 kwiver_add_plugin( kwiver_algo_klv_plugin
-                   SOURCES          register_algorithms.cxx
+                   SOURCES          algo/register_algorithms.cxx
                    PRIVATE
                                     vital_vpm
                                     kwiver_algo_klv

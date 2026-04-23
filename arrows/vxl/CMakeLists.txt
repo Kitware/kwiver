@@ -80,7 +80,7 @@ target_link_libraries( kwiver_algo_vxl
   )
 
 algorithms_create_plugin( kwiver_algo_vxl
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)
