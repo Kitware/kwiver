@@ -12,6 +12,10 @@ Arrows: Core
 
 * All algorithms taking unsigned int configuration parameters now take size_t.
 
+* Moved Obstacle Telesculptor fork UV unwrap mesh behavior into
+  core/algo/uv_unwrap_mesh, with legacy behavior available using
+  sort_descending=true and compact=false.
+
 Arrows: MVG
 
 * All algorithms taking unsigned int configuration parameters now take size_t.
