@@ -19,6 +19,7 @@ set( vital_types_public_headers
   landmark_map.h
   match_set.h
   matrix.h
+  mesh_container.h
   metadata_map.h
   metadata_tags.h
   query_result_set.h

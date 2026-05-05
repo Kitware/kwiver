@@ -11,7 +11,7 @@
 #include <arrows/core/kwiver_algo_core_export.h>
 
 #include <vital/algo/uv_unwrap_mesh.h>
-#include <vital/types/mesh.h>
+#include <vital/types/mesh_container.h>
 #include <vital/vital_config.h>
 
 #include <vital/algo/algorithm.txx>
@@ -69,7 +69,8 @@ public:
   /// Unwrap a mesh and generate texture coordinate
   ///
   /// \param mesh [in/out]
-  void unwrap( kwiver::vital::mesh_sptr mesh ) const override;
+  void unwrap(
+    kwiver::vital::mesh_container_sptr mesh_container ) const override;
 
 private:
   void initialize() override;

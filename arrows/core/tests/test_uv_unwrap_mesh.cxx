@@ -82,7 +82,9 @@ TEST_F ( uv_unwrap_mesh_test, check_texture_coordinates )
   algo_config->set_value< double >( "spacing", 0.005 );
   mesh_unwrap.set_configuration( algo_config );
 
-  mesh_unwrap.unwrap( mesh );
+  auto mesh_container = std::make_shared< simple_mesh_container >( mesh );
+
+  mesh_unwrap.unwrap( mesh_container );
 
   // check that texture coordinates are between 0 and 1
   const std::vector< vector_2d >& tcoords = mesh->tex_coords();
@@ -111,7 +113,9 @@ TEST_F ( uv_unwrap_mesh_test, check_texture_coordinates_exact )
   algo_config->set_value< bool >( "compact", false );
   mesh_unwrap.set_configuration( algo_config );
 
-  mesh_unwrap.unwrap( mesh );
+  auto mesh_container = std::make_shared< simple_mesh_container >( mesh );
+
+  mesh_unwrap.unwrap( mesh_container );
 
   const std::vector< vector_2d >& tcoords = mesh->tex_coords();
 

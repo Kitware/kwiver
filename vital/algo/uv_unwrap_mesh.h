@@ -11,7 +11,7 @@
 #include <vital/algo/algorithm.h>
 #include <vital/vital_config.h>
 
-#include <vital/types/mesh.h>
+#include <vital/types/mesh_container.h>
 
 namespace kwiver {
 
@@ -29,7 +29,8 @@ public:
   /// Unwrap a mesh and generate texture coordinates
   ///
   /// \param mesh [in/out] mesh to unwrap
-  virtual void unwrap( kwiver::vital::mesh_sptr mesh ) const = 0;
+  virtual void unwrap(
+    kwiver::vital::mesh_container_sptr mesh_container ) const = 0;
 };
 
 typedef std::shared_ptr< uv_unwrap_mesh > uv_unwrap_mesh_sptr;

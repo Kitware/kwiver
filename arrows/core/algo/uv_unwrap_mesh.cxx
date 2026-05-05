@@ -118,8 +118,15 @@ uv_unwrap_mesh
 // Unwrap a mesh
 void
 uv_unwrap_mesh
-::unwrap( kwiver::vital::mesh_sptr mesh ) const
+::unwrap( kwiver::vital::mesh_container_sptr mesh_container ) const
 {
+  auto mesh = mesh_container->get_mesh();
+  if( !mesh )
+  {
+    VITAL_THROW(
+      algorithm_exception, this->interface_name(), this->plugin_name(),
+      "This algorithm expects a non-empty mesh container." );
+  }
   if( mesh->faces().regularity() != 3 )
   {
     VITAL_THROW(
