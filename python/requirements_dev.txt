@@ -3,7 +3,7 @@ numpy>=1.13.0
 
 # For arrows
 opencv-python>=3.4.2.17,<=4.0.0
-pillow==8.4.0
+pillow==12.2.0
 scipy>=1.8,<=1.9
 
 # For pytorch arrow
