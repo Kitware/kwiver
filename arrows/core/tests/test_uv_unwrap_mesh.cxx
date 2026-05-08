@@ -55,13 +55,12 @@ public:
       new mesh_vertex_array< 3 >( verts ) );
     std::unique_ptr< mesh_face_array_base > faces_array_ptr(
       new mesh_regular_face_array< 3 >( faces ) );
-    mesh =
-      std::make_shared< kwiver::vital::mesh >(
-        std::move( vertices_array_ptr ),
-        std::move( faces_array_ptr ) );
+    mesh = kwiver::vital::mesh(
+      std::move( vertices_array_ptr ),
+      std::move( faces_array_ptr ) );
   }
 
-  mesh_sptr mesh;
+  kwiver::vital::mesh mesh;
 };
 
 // ----------------------------------------------------------------------------
@@ -87,7 +86,7 @@ TEST_F ( uv_unwrap_mesh_test, check_texture_coordinates )
   mesh_unwrap.unwrap( mesh_container );
 
   // check that texture coordinates are between 0 and 1
-  const std::vector< vector_2d >& tcoords = mesh->tex_coords();
+  const std::vector< vector_2d > tcoords = mesh_container->tex_coords();
   for( auto tc : tcoords )
   {
     EXPECT_GE( tc[ 0 ], 0.0 );
@@ -117,7 +116,7 @@ TEST_F ( uv_unwrap_mesh_test, check_texture_coordinates_exact )
 
   mesh_unwrap.unwrap( mesh_container );
 
-  const std::vector< vector_2d >& tcoords = mesh->tex_coords();
+  const std::vector< vector_2d >& tcoords = mesh_container->tex_coords();
 
   const std::vector< vector_2d > expected = {
     { 0.165906090208019, 0.165906090208019 },  // tc[0]

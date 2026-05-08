@@ -120,23 +120,17 @@ void
 uv_unwrap_mesh
 ::unwrap( kwiver::vital::mesh_container_sptr mesh_container ) const
 {
-  auto mesh = mesh_container->get_mesh();
-  if( !mesh )
-  {
-    VITAL_THROW(
-      algorithm_exception, this->interface_name(), this->plugin_name(),
-      "This algorithm expects a non-empty mesh container." );
-  }
-  if( mesh->faces().regularity() != 3 )
+  auto mesh = mesh_container->mesh();
+  if( mesh.faces().regularity() != 3 )
   {
     VITAL_THROW(
       algorithm_exception, this->interface_name(), this->plugin_name(),
       "This algorithm expects a regular mesh with triangular faces." );
   }
 
-  auto const& faces = mesh->faces();
+  auto const& faces = mesh.faces();
   auto const& vertices =
-    dynamic_cast< const mesh_vertex_array< 3 >& >( mesh->vertices() );
+    dynamic_cast< const mesh_vertex_array< 3 >& >( mesh.vertices() );
 
   bool const use_compact        = d_->c_compact();
   bool const sort_descending    = d_->c_sort_descending();
@@ -146,7 +140,7 @@ uv_unwrap_mesh
 
   // Map each triangle in 2D. The longest edge is placed horizontally with its
   // left point at (0, 0) and its apex pointing up.
-  auto const num_faces = mesh->num_faces();
+  auto const num_faces = mesh.num_faces();
   std::vector< triangle_t > triangles( num_faces );
   double total_area = 0.0;
 
@@ -461,7 +455,7 @@ uv_unwrap_mesh
     tcoords[ i * 3 + 1 ] = triangles[ i ].b * normalize;
     tcoords[ i * 3 + 2 ] = triangles[ i ].c * normalize;
   }
-  mesh->set_tex_coords( tcoords );
+  mesh_container->set_tex_coords( tcoords );
 }
 
 } // namespace core

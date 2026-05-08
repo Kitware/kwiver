@@ -27,25 +27,31 @@ namespace vital {
 class mesh_container
 {
 public:
-  /// Destructor
   virtual ~mesh_container() = default;
 
-  /// The number of vertices in the mesh
+  /// Return the number of vertices in the mesh.
   virtual size_t num_verts() const = 0;
 
-  /// The number of faces in the mesh
+  /// Return the number of faces in the mesh.
   virtual size_t num_faces() const = 0;
 
-  /// Get an in-memory mesh class to access the data
-  virtual mesh_sptr get_mesh() const = 0;
+  /// Return mesh/convert arrow's mesh representation to vital.
+  virtual kwiver::vital::mesh mesh() const = 0;
 
-  /// Get the texture coordinate status for the mesh
-  virtual mesh::tex_coord_type has_tex_coords() const = 0;
+  /// Return value indicates how texture coordinates are indexed.
+  ///
+  /// ON_VERT is one coordinate per vertex
+  /// ON_CORNER is one coordinate per half edge (i.e. corner)
+  virtual kwiver::vital::mesh::tex_coord_type has_tex_coords() const = 0;
 
-  /// Get the texture coordinates for the mesh
-  virtual std::vector< vector_2d > const& tex_coords() const = 0;
+  /// Return the texture coordinates.
+  ///
+  /// Coordinates are ordered as indicated by has_tex_coords
+  virtual std::vector< vector_2d > tex_coords() const = 0;
 
-  /// Set the texture coordinates for the mesh
+  /// Set the texture coordinates.
+  ///
+  /// See vital::mesh::set_tex_coordinates for details
   virtual void set_tex_coords( std::vector< vector_2d > const& tc ) = 0;
 };
 
@@ -59,49 +65,54 @@ class simple_mesh_container
   : public mesh_container
 {
 public:
-  /// Constructor
-  explicit simple_mesh_container( const mesh_sptr d ) : data( d ) {}
+  explicit simple_mesh_container( const kwiver::vital::mesh& d ) : data( d ) {}
 
-  /// The number of vertices in the mesh
+  /// Return the number of vertices in the mesh.
   virtual size_t
-  num_verts() const { return data->num_verts(); }
+  num_verts() const { return data.num_verts(); }
 
-  /// The number of faces in the mesh
+  /// Return the number of faces in the mesh.
   virtual size_t
-  num_faces() const { return data->num_faces(); }
+  num_faces() const { return data.num_faces(); }
 
-  /// Get an in-memory mesh class to access the data
-  virtual mesh_sptr
-  get_mesh() const { return data; }
+  /// Return an in-memory mesh class to access the data
+  virtual kwiver::vital::mesh
+  mesh() const { return data; }
 
-  /// Get the texture coordinate status for the mesh
-  virtual mesh::tex_coord_type
+  /// Return a reference to the underlying mesh.
+  kwiver::vital::mesh& mesh_ref() { return data; }
+
+  /// Return a const reference to the underlying mesh.
+  kwiver::vital::mesh const&
+  mesh_ref() const { return data; }
+
+  /// Return the texture coordinate status for the mesh.
+  virtual kwiver::vital::mesh::tex_coord_type
   has_tex_coords() const
   {
-    return data->has_tex_coords();
+    return data.has_tex_coords();
   }
 
-  /// Get the texture coordinates for the mesh
-  virtual std::vector< vector_2d > const&
+  /// Return the texture coordinates.
+  virtual std::vector< vector_2d >
   tex_coords() const
   {
-    return data->tex_coords();
+    return data.tex_coords();
   }
 
-  /// Set the texture coordinates for the mesh
+  /// Set the texture coordinates.
   virtual void
   set_tex_coords( std::vector< vector_2d > const& tc )
   {
-    data->set_tex_coords( tc );
+    data.set_tex_coords( tc );
   }
 
 protected:
-  /// data for this mesh container
-  mesh_sptr data;
+  kwiver::vital::mesh data;
 };
 
 } // namespace vital
 
-}   // end namespace vital
+} // namespace kwiver
 
-#endif // VITAL_MESH_CONTAINER_H_
+#endif

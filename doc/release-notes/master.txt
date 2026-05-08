@@ -58,6 +58,9 @@ Vital: IO
 
 Vital: Types
 
+* Added mesh_container and simple_mesh_container types for passing mesh data
+  between algorithms.
+
 * Removed local_geo_cs.
 
 * Removed local_cartesian.
