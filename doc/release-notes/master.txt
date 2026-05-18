@@ -23,6 +23,7 @@ Arrows: MVG
 Python
 
 * Added bindings for video_output and video_settings.
+* No building wheels for or testing against python version 3.8
 
 Track Oracle
 
