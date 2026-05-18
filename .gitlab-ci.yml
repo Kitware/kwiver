@@ -56,7 +56,7 @@ ubuntu2204-arrows:test:
 .python-wheel-matrix:
     parallel:
         matrix:
-            - PYTHON_VERSION: ["38", "39", "310"]
+            - PYTHON_VERSION: ["39", "310"]
               WHEEL_TYPE: ["full", "burnout"]
 
 # linux python wheels
