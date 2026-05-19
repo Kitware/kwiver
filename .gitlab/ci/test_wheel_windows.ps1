@@ -1,6 +1,6 @@
 # Test Python wheel for Windows
 # Environment variables expected:
-#   PYTHON_VERSION: Python version (e.g., "38", "39", "310")
+#   PYTHON_VERSION: Python version (e.g., "39", "310")
 #   WHEEL_TYPE: Wheel type ("burnout" or "full")
 
 $ErrorActionPreference = "Stop"

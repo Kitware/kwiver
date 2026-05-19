@@ -3,7 +3,7 @@ set -e
 
 # Test Python wheel for Linux
 # Environment variables expected:
-#   PYTHON_VERSION: Python version (e.g., "38", "39", "310")
+#   PYTHON_VERSION: Python version (e.g., "39", "310")
 #   WHEEL_TYPE: Wheel type ("burnout" or "full")
 #   PYTHON_PREFIX: Python installation prefix
 #   KWIVER_PYTHON_PLUGIN_PATH: Plugin path for KWIVER
