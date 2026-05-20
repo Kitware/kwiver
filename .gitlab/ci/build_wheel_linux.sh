@@ -25,7 +25,10 @@ echo "CMAKE_CONFIGURATION: $CMAKE_CONFIGURATION"
 . build/ci-venv/bin/activate
 pip install -U pip
 pip install -r ./python/requirements_dev.txt
-pip install scikit-build auditwheel
+# Override the older scikit-build from requirements_dev.txt for wheel builds.
+# Keep setuptools new enough for the Windows logging fix and below 74 to stay
+# compatible with the current Windows scikit-build wheel path.
+pip install "scikit-build==0.17.6" auditwheel "setuptools>=65.6.3,<74"
 
 .gitlab/ci/sccache.sh
 sccache --start-server
