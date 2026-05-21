@@ -239,7 +239,7 @@ From a command prompt execute the following command::
   > setup_KWIVER.bat
 
 This will set up your PATH, PYTHONPATH and other environment variables
-to allow KWIVER to work conveniently within in the shell/cmd window.
+to allow KWIVER to work conveniently within the shell/cmd window.
 
 You can now test the kwiver build by viewing the available applets with the
 terminal command ``kwiver help``. Further help and commands to configure and
