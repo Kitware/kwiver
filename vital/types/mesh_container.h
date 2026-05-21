@@ -40,18 +40,18 @@ public:
 
   /// Return value indicates how texture coordinates are indexed.
   ///
-  /// ON_VERT is one coordinate per vertex
-  /// ON_CORNER is one coordinate per half edge (i.e. corner)
+  /// ON_VERT is one coordinate per vertex.
+  /// ON_CORNER is one coordinate per half edge (i.e. corner).
   virtual kwiver::vital::mesh::tex_coord_type has_tex_coords() const = 0;
 
   /// Return the texture coordinates.
   ///
-  /// Coordinates are ordered as indicated by has_tex_coords
+  /// Coordinates are ordered as indicated by has_tex_coords.
   virtual std::vector< vector_2d > tex_coords() const = 0;
 
   /// Set the texture coordinates.
   ///
-  /// See vital::mesh::set_tex_coordinates for details
+  /// See vital::mesh::set_tex_coordinates for details.
   virtual void set_tex_coords( std::vector< vector_2d > const& tc ) = 0;
 };
 
@@ -60,7 +60,7 @@ using mesh_container_sptr = std::shared_ptr< mesh_container >;
 using mesh_container_scptr = std::shared_ptr< mesh_container const >;
 
 // ----------------------------------------------------------------------------
-/// This concrete mesh container is simply a wrapper around a mesh
+/// This concrete mesh container is simply a wrapper around a mesh.
 class simple_mesh_container
   : public mesh_container
 {
@@ -75,7 +75,7 @@ public:
   virtual size_t
   num_faces() const { return data.num_faces(); }
 
-  /// Return an in-memory mesh class to access the data
+  /// Return an in-memory mesh class to access the data.
   virtual kwiver::vital::mesh
   mesh() const { return data; }
 
