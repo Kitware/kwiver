@@ -243,6 +243,25 @@ void video_output_process
 
 
 // -----------------------------------------------------------------------------
+// Flush and finalize the output video once the input stream ends. This hook is
+// invoked when a complete datum arrives on all required input ports, after
+// which _step() is never called again. Without it, the writer is only closed
+// in the process destructor, which the scheduler may not invoke before the
+// program exits -- leaving an MP4 with no moov atom and unflushed buffered
+// packets, i.e. an unplayable file.
+void video_output_process
+::_finalize()
+{
+  scoped_finalize_instrumentation();
+
+  if( d->m_video_writer )
+  {
+    d->m_video_writer->close();
+  }
+}
+
+
+// -----------------------------------------------------------------------------
 void video_output_process
 ::make_ports()
 {

@@ -18,6 +18,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
 #include <libavutil/opt.h>
+#include <libavutil/pixdesc.h>
 #include <libswscale/swscale.h>
 }
 
@@ -166,6 +167,7 @@ public:
   std::string codec_name;
   size_t bitrate;
   std::string crf;
+  std::string pixel_format;
   bool cuda_enabled;
   int cuda_device_index;
 
@@ -182,6 +184,7 @@ ffmpeg_video_output::impl
     codec_name{},
     bitrate{ 0 },
     crf{ "" },
+    pixel_format{ "yuv420p" },
 #ifdef KWIVER_ENABLE_FFMPEG_CUDA
     cuda_enabled{ true },
 #else
@@ -333,6 +336,15 @@ ffmpeg_video_output
     "crf", d->crf,
     "Desired CRF quality setting (empty indicates unused)."
   );
+  config->set_value(
+    "pixel_format", d->pixel_format,
+    "Preferred output pixel format (e.g. yuv420p). Used when the incoming "
+    "video settings do not specify one, such as when transcoding from images. "
+    "Defaults to yuv420p for broad playback compatibility; the encoder will "
+    "pick the closest supported format if the exact one is unavailable. Leave "
+    "empty to let the encoder choose freely (may yield 4:4:4 / RGB streams "
+    "that many players cannot decode)."
+  );
 
   config->set_value(
     "cuda_enabled", d->cuda_enabled,
@@ -369,6 +381,8 @@ ffmpeg_video_output
     config->get_value< std::string >( "codec_name", d->codec_name );
   d->bitrate = config->get_value< size_t >( "bitrate", d->bitrate );
   d->crf = config->get_value< std::string >( "crf", d->crf );
+  d->pixel_format =
+    config->get_value< std::string >( "pixel_format", d->pixel_format );
 
   d->cuda_enabled =
     config->get_value< bool >(
@@ -688,10 +702,32 @@ ffmpeg_video_output::impl::open_video_state
   codec_context->time_base = av_inv_q( video_settings.frame_rate );
   codec_context->framerate = video_settings.frame_rate;
 
-  // Fill in backup parameters from config
+  // Fill in backup parameters from config. When the incoming settings do not
+  // specify a pixel format (e.g. when transcoding from images), fall back to
+  // the configured pixel_format. This defaults to yuv420p because an RGB24
+  // hint biases avcodec_find_best_pix_fmt_of_list toward least-lossy 4:4:4 /
+  // RGB formats, producing H.264/H.265 streams that most players (VLC,
+  // browsers, hardware decoders) cannot play.
+  auto fallback_pix_fmt = AV_PIX_FMT_RGB24;
+  if( !parent->pixel_format.empty() )
+  {
+    auto const requested_pix_fmt =
+      av_get_pix_fmt( parent->pixel_format.c_str() );
+    if( requested_pix_fmt != AV_PIX_FMT_NONE )
+    {
+      fallback_pix_fmt = requested_pix_fmt;
+    }
+    else
+    {
+      LOG_WARN(
+        parent->logger,
+        "Unrecognized pixel_format '" << parent->pixel_format
+        << "'; letting the encoder choose its preferred format" );
+    }
+  }
   codec_context->pix_fmt = avcodec_find_best_pix_fmt_of_list(
     codec->pix_fmts,
-    ( codec_context->pix_fmt < 0 ) ? AV_PIX_FMT_RGB24 : codec_context->pix_fmt,
+    ( codec_context->pix_fmt < 0 ) ? fallback_pix_fmt : codec_context->pix_fmt,
     false, nullptr );
   if( codec_context->framerate.num <= 0 )
   {
