@@ -106,6 +106,8 @@ public:
   virtual size_t tile_width() const = 0;
 };
 
+using tiled_image_container_sptr = std::shared_ptr< tiled_image_container >;
+
 } // namespace vital
 
 } // namespace kwiver
