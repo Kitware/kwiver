@@ -130,10 +130,10 @@ ffmpeg_klv_stream
   switch( stream->codecpar->profile )
   {
 #if LIBAVCODEC_VERSION_MAJOR > 57
-    case FF_PROFILE_KLVA_SYNC:
+    case KWIVER_FFMPEG_PROFILE( KLVA_SYNC ):
       result.type = klv::KLV_STREAM_TYPE_SYNC;
       break;
-    case FF_PROFILE_KLVA_ASYNC:
+    case KWIVER_FFMPEG_PROFILE( KLVA_ASYNC ):
       result.type = klv::KLV_STREAM_TYPE_ASYNC;
       break;
 #endif
@@ -174,10 +174,10 @@ ffmpeg_klv_stream
     switch( *stream_id )
     {
       case 0xBD:
-        stream->codecpar->profile = FF_PROFILE_KLVA_ASYNC;
+        stream->codecpar->profile = KWIVER_FFMPEG_PROFILE( KLVA_ASYNC );
         break;
       case 0xFC:
-        stream->codecpar->profile = FF_PROFILE_KLVA_SYNC;
+        stream->codecpar->profile = KWIVER_FFMPEG_PROFILE( KLVA_SYNC );
         break;
       default:
         break;
@@ -1267,7 +1267,8 @@ ffmpeg_video_input::priv::open_video_state
     } while( send_err || recv_err );
 
     auto const duration_q =
-      AVRational{ static_cast< int >( tmp_frame->pkt_duration ), 1 };
+      AVRational{
+        static_cast< int >( KWIVER_FFMPEG_PKT_DURATION( tmp_frame ) ), 1 };
     maybe_frame_rate =
       av_inv_q( av_mul_q( duration_q, video_stream->time_base ) );
     start_ts = tmp_frame->best_effort_timestamp;
@@ -1377,6 +1378,7 @@ ffmpeg_video_input::priv::open_video_state
 
   // Run through video until we can assemble a frame image
   std::vector< int64_t > video_pos_list;
+  int64_t pkt_pos = -1;
   while( !frame.has_value() && !at_eof )
   {
     // Functor determining if we need to parse more of other streams before
@@ -1625,10 +1627,7 @@ ffmpeg_video_input::priv::open_video_state
                              return lhs.second < rhs.second;
                            };
           auto const it = std::min_element( range.first, range.second, cmp );
-          if( frame->frame->pkt_pos < 0 )
-          {
-            frame->frame->pkt_pos = it->second;
-          }
+          pkt_pos = it->second;
           packet_pts_to_pos.erase( it );
         }
 
@@ -1637,7 +1636,7 @@ ffmpeg_video_input::priv::open_video_state
           packet_pts_to_pos.lower_bound( frame->frame->pts ) );
 
         // Look up the dts of the packet that contained this frame
-        if( auto const it = packet_pos_to_dts.find( frame->frame->pkt_pos );
+        if( auto const it = packet_pos_to_dts.find( pkt_pos );
             it != packet_pos_to_dts.end() )
         {
           for( auto jt = raw_image_buffer.begin();
@@ -1673,13 +1672,14 @@ ffmpeg_video_input::priv::open_video_state
           // know for sure which entry to erase
         }
         frame->get_raw_image().frame_pts = frame->frame->best_effort_timestamp;
-        frame->get_raw_image().is_keyframe = frame->frame->key_frame;
+        frame->get_raw_image().is_keyframe =
+          KWIVER_FFMPEG_IS_KEYFRAME( frame->frame );
 
         // Clean up
-        if( frame->frame->key_frame && !dts_lookup_failed )
+        if( KWIVER_FFMPEG_IS_KEYFRAME( frame->frame ) && !dts_lookup_failed )
         {
           auto const it =
-            packet_pos_to_dts.lower_bound( frame->frame->pkt_pos );
+            packet_pos_to_dts.lower_bound( pkt_pos );
           if( it != packet_pos_to_dts.begin() )
           {
             auto const cleanup_count =
@@ -1725,20 +1725,21 @@ ffmpeg_video_input::priv::open_video_state
           AVRational{ 1, AV_TIME_BASE } );
       auto const frame_minus_one_pts =
         av_rescale_q(
-          frame->frame->best_effort_timestamp - frame->frame->pkt_duration,
+          frame->frame->best_effort_timestamp -
+          KWIVER_FFMPEG_PKT_DURATION( frame->frame ),
           video_stream->time_base,
           AVRational{ 1, AV_TIME_BASE } );
       auto const frame_plus_one_pts =
         av_rescale_q(
-          frame->frame->best_effort_timestamp + frame->frame->pkt_duration,
+          frame->frame->best_effort_timestamp +
+          KWIVER_FFMPEG_PKT_DURATION( frame->frame ),
           video_stream->time_base,
           AVRational{ 1, AV_TIME_BASE } );
 
       int64_t min_pos = AV_NOPTS_VALUE;
       if( auto const pos_it =
             std::lower_bound(
-              video_pos_list.begin(), video_pos_list.end(),
-              frame->frame->pkt_pos );
+              video_pos_list.begin(), video_pos_list.end(), pkt_pos );
           pos_it != video_pos_list.end() && pos_it != video_pos_list.begin() )
       {
         min_pos = *std::prev( pos_it );
@@ -1821,9 +1822,9 @@ ffmpeg_video_input::priv::open_video_state
         video_stream->time_base,
         stream.stream->time_base );
 
-      if( frame->frame->pkt_pos >= 0 )
+      if( pkt_pos >= 0 )
       {
-        max_pos = frame->frame->pkt_pos;
+        max_pos = pkt_pos;
       }
     }
 
@@ -1996,7 +1997,8 @@ ffmpeg_video_input::priv::open_video_state
 
     // Check for success
     if( ( mode == SEEK_MODE_EXACT && this->frame_number() == frame_number ) ||
-        ( mode != SEEK_MODE_EXACT && frame && frame->frame->key_frame &&
+        ( mode != SEEK_MODE_EXACT && frame &&
+          KWIVER_FFMPEG_IS_KEYFRAME( frame->frame ) &&
           this->frame_number() <= frame_number ) )
     {
       if( parent->klv_enabled() && advance_count <= 1 && false )
@@ -2077,7 +2079,8 @@ ffmpeg_video_input::priv::open_video_state
   {
     advance();
 
-    if( mode == SEEK_MODE_KEYFRAME_BEFORE && frame && frame->frame->key_frame )
+    if( mode == SEEK_MODE_KEYFRAME_BEFORE && frame &&
+        KWIVER_FFMPEG_IS_KEYFRAME( frame->frame ) )
     {
       last_keyframe_dts = frame->get_raw_image().frame_dts;
       last_keyframe_pts = frame->frame->pts;
@@ -2121,10 +2124,12 @@ ffmpeg_video_input::priv::open_video_state
       {
         advance();
       } while(
-        frame_number > 0 && frame && !frame->frame->key_frame &&
+        frame_number > 0 && frame &&
+        !KWIVER_FFMPEG_IS_KEYFRAME( frame->frame ) &&
         frame->frame->pts < last_keyframe_pts );
 
-      if( frame_number <= 0 || ( frame && frame->frame->key_frame ) )
+      if( frame_number <= 0 ||
+          ( frame && KWIVER_FFMPEG_IS_KEYFRAME( frame->frame ) ) )
       {
         success = true;
         break;
@@ -2153,7 +2158,8 @@ ffmpeg_video_input::priv::open_video_state
   md.add< kv::VITAL_META_VIDEO_URI >( path );
 
   // Mark whether the frame is a key frame
-  md.add< kv::VITAL_META_VIDEO_KEY_FRAME >( frame->frame->key_frame > 0 );
+  md.add< kv::VITAL_META_VIDEO_KEY_FRAME >(
+    KWIVER_FFMPEG_IS_KEYFRAME( frame->frame ) > 0 );
 
   // Add image dimensions
   md.add< kv::VITAL_META_IMAGE_WIDTH >( frame->frame->width );
@@ -2181,34 +2187,37 @@ ffmpeg_video_input::priv::open_video_state
 
   // Add compression information
   static std::map< int, std::string > h262_profiles = {
-    { FF_PROFILE_MPEG2_SIMPLE, "Simple" },
-    { FF_PROFILE_MPEG2_MAIN, "Main" },
-    { FF_PROFILE_MPEG2_SNR_SCALABLE, "SNR Scalable" },
-    { FF_PROFILE_MPEG2_SS, "Spatially Scalable" },
-    { FF_PROFILE_MPEG2_HIGH, "High" },
-    { FF_PROFILE_MPEG2_422, "4:2:2" }, };
+    { KWIVER_FFMPEG_PROFILE( MPEG2_SIMPLE ), "Simple" },
+    { KWIVER_FFMPEG_PROFILE( MPEG2_MAIN ), "Main" },
+    { KWIVER_FFMPEG_PROFILE( MPEG2_SNR_SCALABLE ), "SNR Scalable" },
+    { KWIVER_FFMPEG_PROFILE( MPEG2_SS ), "Spatially Scalable" },
+    { KWIVER_FFMPEG_PROFILE( MPEG2_HIGH ), "High" },
+    { KWIVER_FFMPEG_PROFILE( MPEG2_422 ), "4:2:2" }, };
   static std::map< int, std::string > h262_levels = {
     { 10, "Low" },
     { 8, "Main" },
     { 6, "High-1440" },
     { 4, "High" }, };
   static std::map< int, std::string > h264_profiles = {
-    { FF_PROFILE_H264_BASELINE, "Baseline" },
-    { FF_PROFILE_H264_CONSTRAINED_BASELINE, "Constrained Baseline" },
-    { FF_PROFILE_H264_MAIN, "Main" },
-    { FF_PROFILE_H264_EXTENDED, "Extended" },
-    { FF_PROFILE_H264_HIGH, "High" },
-    { FF_PROFILE_H264_HIGH_10, "High 10" },
-    { FF_PROFILE_H264_HIGH_422, "High 4:2:2" },
-    { FF_PROFILE_H264_HIGH_444_PREDICTIVE, "High 4:4:4 Predictive" },
-    { FF_PROFILE_H264_HIGH_10_INTRA, "High 10 Intra" },
-    { FF_PROFILE_H264_HIGH_422_INTRA, "High 4:2:2 Intra" },
-    { FF_PROFILE_H264_HIGH_444_INTRA, "High 4:4:4 Intra" },
-    { FF_PROFILE_H264_CAVLC_444, "CAVLC 4:4:4 Intra" }, };
+    { KWIVER_FFMPEG_PROFILE( H264_BASELINE ), "Baseline" },
+    { KWIVER_FFMPEG_PROFILE( H264_CONSTRAINED_BASELINE ),
+      "Constrained Baseline" },
+    { KWIVER_FFMPEG_PROFILE( H264_MAIN ), "Main" },
+    { KWIVER_FFMPEG_PROFILE( H264_EXTENDED ), "Extended" },
+    { KWIVER_FFMPEG_PROFILE( H264_HIGH ), "High" },
+    { KWIVER_FFMPEG_PROFILE( H264_HIGH_10 ), "High 10" },
+    { KWIVER_FFMPEG_PROFILE( H264_HIGH_422 ), "High 4:2:2" },
+    { KWIVER_FFMPEG_PROFILE( H264_HIGH_444_PREDICTIVE ),
+      "High 4:4:4 Predictive" },
+    { KWIVER_FFMPEG_PROFILE( H264_HIGH_10_INTRA ), "High 10 Intra" },
+    { KWIVER_FFMPEG_PROFILE( H264_HIGH_422_INTRA ), "High 4:2:2 Intra" },
+    { KWIVER_FFMPEG_PROFILE( H264_HIGH_444_INTRA ), "High 4:4:4 Intra" },
+    { KWIVER_FFMPEG_PROFILE( H264_CAVLC_444 ), "CAVLC 4:4:4 Intra" }, };
   static std::map< int, std::string > h265_profiles = {
-    { FF_PROFILE_HEVC_MAIN, "Main" },
-    { FF_PROFILE_HEVC_MAIN_10, "Main 10" },
-    { FF_PROFILE_HEVC_MAIN_STILL_PICTURE, "Main Still Picture" }, };
+    { KWIVER_FFMPEG_PROFILE( HEVC_MAIN ), "Main" },
+    { KWIVER_FFMPEG_PROFILE( HEVC_MAIN_10 ), "Main 10" },
+    { KWIVER_FFMPEG_PROFILE( HEVC_MAIN_STILL_PICTURE ),
+      "Main Still Picture" }, };
 
   std::string compression_type;
   std::string compression_profile;

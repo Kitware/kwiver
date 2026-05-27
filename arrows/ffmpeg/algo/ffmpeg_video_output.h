@@ -67,6 +67,10 @@ public:
       "Defaults to 0.",
       0 ),
     PARAM_DEFAULT(
+      write_misp_timestamps, bool,
+      "Set to false to omit writing MISP frame timestamps in the video stream.",
+      true ),
+    PARAM_DEFAULT(
       approximate, bool,
       "When set to true, may use faster but inexact image processing.",
       false ),
