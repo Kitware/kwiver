@@ -260,9 +260,24 @@ ffmpeg_image_io
       data->depth(),
       data->get_image().pixel_traits(),
       is_image_planar( data->get_image() ) );
+
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT( 61, 13, 100 )
+  void const* pix_fmts = nullptr;
+  int pix_fmts_count = 0;
+  throw_error_code(
+    avcodec_get_supported_config(
+      codec_context.get(), codec, AV_CODEC_CONFIG_PIX_FORMAT, 0,
+      &pix_fmts, &pix_fmts_count ),
+    "Could not determine pixel format"
+  );
+#else
+  auto pix_fmts = codec->pix_fmts;
+#endif
+  throw_error_null( pix_fmts, "NULL pixel format list" );
   codec_context->pix_fmt =
     avcodec_find_best_pix_fmt_of_list(
-      codec->pix_fmts, src_pix_fmt, true, nullptr );
+      static_cast< AVPixelFormat const* >( pix_fmts ),
+      src_pix_fmt, true, nullptr );
 
   // Create the "video" (image) stream
   AVStream* video_stream = throw_error_null(

@@ -104,6 +104,26 @@ DECLARE_PTRS( bsf_context, AVBSFContext )
 
 #undef DECLARE_PTRS
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT( 60, 26, 100 )
+#define KWIVER_FFMPEG_PROFILE( s ) AV_PROFILE_ ## s
+#else
+#define KWIVER_FFMPEG_PROFILE( s ) FF_PROFILE_ ## s
+#endif
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT( 58, 7, 100 )
+#define KWIVER_FFMPEG_IS_KEYFRAME( frame ) \
+static_cast< bool >( frame->flags & AV_FRAME_FLAG_KEY )
+#else
+#define KWIVER_FFMPEG_IS_KEYFRAME( frame ) \
+static_cast< bool >( frame->key_frame )
+#endif
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT( 57, 30, 100 )
+#define KWIVER_FFMPEG_PKT_DURATION( frame ) ( frame->duration )
+#else
+#define KWIVER_FFMPEG_PKT_DURATION( frame ) ( frame->pkt_duration )
+#endif
+
 } // namespace ffmpeg
 
 } // namespace arrows

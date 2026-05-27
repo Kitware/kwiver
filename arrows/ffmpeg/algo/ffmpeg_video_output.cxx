@@ -686,8 +686,21 @@ ffmpeg_video_output::impl::open_video_state
   codec_context->framerate = video_settings.frame_rate_q;
 
   // Fill in backup parameters from config
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT( 61, 13, 100 )
+  void const* pix_fmts = nullptr;
+  int pix_fmts_count = 0;
+  throw_error_code(
+    avcodec_get_supported_config(
+      codec_context.get(), codec, AV_CODEC_CONFIG_PIX_FORMAT, 0,
+      &pix_fmts, &pix_fmts_count ),
+    "Could not determine pixel format"
+  );
+#else
+  auto pix_fmts = codec->pix_fmts;
+#endif
+  throw_error_null( pix_fmts, "NULL pixel format list" );
   codec_context->pix_fmt = avcodec_find_best_pix_fmt_of_list(
-    codec->pix_fmts,
+    static_cast< AVPixelFormat const* >( pix_fmts ),
     ( codec_context->pix_fmt < 0 ) ? AV_PIX_FMT_RGB24 : codec_context->pix_fmt,
     false, nullptr );
   if( codec_context->framerate.num <= 0 )
