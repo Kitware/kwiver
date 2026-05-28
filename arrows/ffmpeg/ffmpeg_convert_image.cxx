@@ -505,7 +505,7 @@ frame_to_vital_image(
     cached_sws = &tmp_sws;
   }
 
-  auto flags = SWS_POINT;
+  int flags = SWS_POINT;
   if( !approximate )
   {
     flags |=
@@ -694,7 +694,7 @@ vital_image_to_frame(
     cached_sws = &tmp_sws;
   }
 
-  auto flags = SWS_POINT;
+  int flags = SWS_POINT;
   if( !approximate )
   {
     flags |=
