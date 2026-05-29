@@ -58,6 +58,7 @@ kwiver_discover_gtests(core read_track_descriptor_set_csv
                                                       LIBRARIES ${test_libraries})
 
 kwiver_discover_gtests(core render_mesh_depth_map     LIBRARIES ${test_libraries})
+kwiver_discover_gtests(core texture_mesh              LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(core track_features            LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core track_set_impl            LIBRARIES ${test_libraries})
 kwiver_discover_gtests(core transfer_bbox_with_depth_map

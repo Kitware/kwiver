@@ -79,6 +79,7 @@
 #include <arrows/core/algo/metadata_map_io_csv.h>
 #include <arrows/core/algo/read_object_track_set_kw18.h>
 #include <arrows/core/algo/read_track_descriptor_set_csv.h>
+#include <arrows/core/algo/texture_mesh.h>
 #include <arrows/core/algo/track_features_augment_keyframes.h>
 #include <arrows/core/algo/track_features_core.h>
 #include <arrows/core/algo/transfer_bbox_with_depth_map.h>
@@ -110,6 +111,10 @@ register_factories( kwiver::vital::plugin_loader& vpl )
 
   auto fact =
     vpl.add_factory< vital::algo::video_input, video_input_filter >( "filter" );
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
+
+  fact = vpl.add_factory< vital::algo::texture_mesh,
+    texture_mesh >( "core" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_core" );
 
   fact = vpl.add_factory< vital::algo::uv_unwrap_mesh,
