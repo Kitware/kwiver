@@ -24,8 +24,7 @@ vtk_to_vital( vtkSmartPointer< vtkPolyData > const& mesh )
   int num_verts = mesh->GetNumberOfPoints();
 
   auto verts = std::make_unique< vital::mesh_vertex_array< 3 > >();
-  std::unique_ptr< vital::mesh_face_array_base > faces =
-    std::make_unique< vital::mesh_face_array >();
+  auto faces = std::make_unique< vital::mesh_face_array >();
 
   // Populate the vertices
   double point[ 3 ];
@@ -73,7 +72,7 @@ vtk_to_vital( vtkSmartPointer< vtkPolyData > const& mesh )
   {
     faces = std::make_unique< vital::mesh_regular_face_array< 3 > >();
 
-    vital::mesh_regular_face_array< 3 >& faces_ref =
+    auto& faces_ref =
       static_cast< vital::mesh_regular_face_array< 3 >& >( *faces );
 
     for( iter->GoToFirstCell(); !iter->IsDoneWithTraversal();
@@ -102,7 +101,7 @@ vtk_to_vital( vtkSmartPointer< vtkPolyData > const& mesh )
   {
     faces = std::make_unique< vital::mesh_face_array >();
 
-    vital::mesh_face_array& faces_ref =
+    auto& faces_ref =
       static_cast< vital::mesh_face_array& >( *faces );
 
     iter->GoToFirstCell();
@@ -121,13 +120,11 @@ vtk_to_vital( vtkSmartPointer< vtkPolyData > const& mesh )
 vtkSmartPointer< vtkPolyData >
 vital_to_vtk( vital::mesh const& mesh )
 {
-  int num_verts, num_faces;
-  num_verts = mesh.num_verts();
-  num_faces = mesh.num_faces();
+  int num_verts = mesh.num_verts();
+  int num_faces = mesh.num_faces();
 
-  vtkSmartPointer< vtkPoints > points = vtkSmartPointer< vtkPoints >::New();
-  vtkSmartPointer< vtkCellArray > polys =
-    vtkSmartPointer< vtkCellArray >::New();
+  auto points = vtkSmartPointer< vtkPoints >::New();
+  auto polys = vtkSmartPointer< vtkCellArray >::New();
 
   vital::mesh_vertex_array_base const& vertices = mesh.vertices();
   vital::mesh_face_array_base const& faces = mesh.faces();
@@ -143,7 +140,7 @@ vital_to_vtk( vital::mesh const& mesh )
   // Populate the faces
   for( int f = 0; f < num_faces; ++f )
   {
-    vtkSmartPointer< vtkIdList > pts = vtkSmartPointer< vtkIdList >::New();
+    auto pts = vtkSmartPointer< vtkIdList >::New();
     int num_pts = faces.num_verts( f );
 
     for( int v = 0; v < num_pts; ++v )
@@ -153,7 +150,7 @@ vital_to_vtk( vital::mesh const& mesh )
     polys->InsertNextCell( pts );
   }
 
-  vtkSmartPointer< vtkPolyData > out = vtkSmartPointer< vtkPolyData >::New();
+  auto out = vtkSmartPointer< vtkPolyData >::New();
   out->SetPoints( points );
   out->SetPolys( polys );
   out->BuildCells();
@@ -163,7 +160,7 @@ vital_to_vtk( vital::mesh const& mesh )
 vtkSmartPointer< vtkPolyData >
 container_to_polydata( kwiver::vital::mesh_container const& container )
 {
-  if( vtk::mesh_container const* vtk_container =
+  if( auto vtk_container =
         dynamic_cast< vtk::mesh_container const* >( &container ) )
   {
     return vtk_container->get_data();

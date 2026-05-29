@@ -35,10 +35,10 @@ KWIVER_ALGO_VTK_EXPORT
 vtkSmartPointer< vtkPolyData >
 container_to_polydata( kwiver::vital::mesh_container const& container );
 
-} // end namespace vtk
+} // namespace vtk
 
-} // end namespace arrows
+} // namespace arrows
 
-} // end namespace kwiver
+} // namespace kwiver
 
 #endif

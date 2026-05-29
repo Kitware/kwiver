@@ -84,7 +84,7 @@ public:
     return tex_coords_;
   }
 
-  /// Set the texture coordinates for the mesh
+  /// Set the texture coordinates for the mesh.
   virtual void
   set_tex_coords( std::vector< vital::vector_2d > const& tc )
   {
@@ -102,6 +102,6 @@ using mesh_container_sptr = std::shared_ptr< mesh_container >;
 
 } // namespace arrows
 
-}     // end namespace vtk
+} // namespace kwiver
 
-#endif // KWIVER_ARROWS_VTK_MESH_CONTAINER_H_
+#endif
