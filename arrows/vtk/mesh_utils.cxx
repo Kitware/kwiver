@@ -24,7 +24,8 @@ vtk_to_vital( vtkSmartPointer< vtkPolyData > const& mesh )
   int num_verts = mesh->GetNumberOfPoints();
 
   auto verts = std::make_unique< vital::mesh_vertex_array< 3 > >();
-  auto faces = std::make_unique< vital::mesh_face_array >();
+  std::unique_ptr< vital::mesh_face_array_base > faces =
+    std::make_unique< vital::mesh_face_array >();
 
   // Populate the vertices
   double point[ 3 ];
