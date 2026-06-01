@@ -3,6 +3,9 @@
 set(CMAKE_FOLDER "Arrows/VTK")
 
 set( plugin_vtk_headers
+  algo/decimate_mesh_filter.h
+  algo/smooth_mesh_filter.h
+  algo/triangulate_mesh_filter.h
   depth_utils.h
   mesh_container.h
   mesh_utils.h
@@ -20,6 +23,9 @@ kwiver_install_headers(
   )
 
 set( plugin_vtk_sources
+  algo/decimate_mesh_filter.cxx
+  algo/smooth_mesh_filter.cxx
+  algo/triangulate_mesh_filter.cxx
   depth_utils.cxx
   mesh_utils.cxx
   vtkKwiverCamera.cxx
@@ -43,6 +49,7 @@ if(VTK_VERSION VERSION_LESS 9.0)
   set(VTK_private_targets
       vtkCommonCore
       vtkCommonDataModel
+      vtkFiltersCore
       vtkIOImage
       vtkIOXML)
 else()
@@ -52,6 +59,7 @@ else()
   set(VTK_private_targets
       VTK::CommonCore
       VTK::CommonDataModel
+      VTK::FiltersCore
       VTK::IOImage
       VTK::IOXML)
   vtk_module_autoinit(
@@ -66,9 +74,13 @@ target_link_libraries( kwiver_algo_vtk
                        ${VTK_private_targets}
   )
 
-#algorithms_create_plugin( kwiver_algo_vtk
-#  register_algorithms.cxx
-#  )
+kwiver_add_plugin( kwiver_algo_vtk_plugin
+                   SOURCES          register_algorithms.cxx
+                   PRIVATE
+                                    vital_vpm
+                                    kwiver_algo_vtk
+                   SUBDIR           ${kwiver_plugin_algorithm_subdir}
+                   )
 
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory(tests)
