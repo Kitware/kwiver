@@ -4,6 +4,11 @@ KWIVER 2.3.1 Release Notes
 Updates
 -------
 
+Arrows: OCV
+
+* Add CLAHE image_filter
+* Add histogram equalization image_filter
+
 Arrows: Ceres
 
 * num_distortion_params() now returns size_t.
