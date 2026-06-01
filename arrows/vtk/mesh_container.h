@@ -26,30 +26,29 @@ class KWIVER_ALGO_VTK_EXPORT mesh_container
   : public vital::mesh_container
 {
 public:
-  /// Generic Mesh Constructor
+  /// Generic Mesh Constructor.
   mesh_container( vital::mesh const& d )
     : data( vital_to_vtk( d ) ),
       tex_coords_( d.tex_coords() ) {}
 
-  /// vtkPolyData Constructor
+  /// vtkPolyData Constructor.
   mesh_container( vtkSmartPointer< vtkPolyData > d )
     : data( d ) {}
 
-  /// Converting Constructor
+  /// Converting Constructor.
   mesh_container( vital::mesh_container const& other )
     : data( container_to_polydata( other ) ),
       tex_coords_( other.tex_coords() ) {}
 
-  // ----------------------------------------------------------------------------
-  /// The number of vertices in the mesh
+  /// The number of vertices in the mesh.
   virtual size_t
   num_verts() const { return data->GetNumberOfPoints(); }
 
-  /// The number of faces in the mesh
+  /// The number of faces in the mesh.
   virtual size_t
   num_faces() const { return data->GetNumberOfPolys(); }
 
-  /// Get an in-memory mesh class to access the data
+  /// Get an in-memory mesh class to access the data.
   virtual vital::mesh
   mesh() const
   {
@@ -58,11 +57,11 @@ public:
     return m;
   }
 
-  /// Get native vtkPolyData pointer to data
+  /// Get native vtkPolyData pointer to data.
   vtkSmartPointer< vtkPolyData >
   get_data() const { return data; }
 
-  /// Get the texture coordinate status for the mesh
+  /// Get the texture coordinate status for the mesh.
   virtual vital::mesh::tex_coord_type
   has_tex_coords() const
   {
@@ -77,7 +76,7 @@ public:
     return vital::mesh::tex_coord_type::TEX_COORD_ON_CORNER;
   }
 
-  /// Get the texture coordinates for the mesh
+  /// Get the texture coordinates for the mesh.
   virtual std::vector< vital::vector_2d >
   tex_coords() const
   {

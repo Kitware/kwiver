@@ -170,8 +170,8 @@ container_to_polydata( kwiver::vital::mesh_container const& container )
   return vital_to_vtk( container.mesh() );
 }
 
-} // end namespace vtk
+} // namespace vtk
 
-} // end namespace arrows
+} // namespace arrows
 
-} // end namespace kwiver
+} // namespace kwiver

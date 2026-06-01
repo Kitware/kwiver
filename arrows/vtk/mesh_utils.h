@@ -21,16 +21,20 @@ namespace arrows {
 
 namespace vtk {
 
-/// Convert a vtk polydata mesh to a vital mesh
+/// Convert a vtk polydata mesh to a vital mesh.
 KWIVER_ALGO_VTK_EXPORT
 kwiver::vital::mesh
 vtk_to_vital( vtkSmartPointer< vtkPolyData > const& mesh );
 
-/// Convert a vital mesh to a vtk polydata mesh
+/// Convert a vital mesh to a vtk polydata mesh.
 KWIVER_ALGO_VTK_EXPORT
 vtkSmartPointer< vtkPolyData >
 vital_to_vtk( kwiver::vital::mesh const& mesh );
 
+/// Convert a vital mesh container to a vtk polydata mesh.
+///
+/// If the container is already a vtk::mesh_container, returns its underlying
+/// vtkPolyData without copying. Otherwise, converts it.
 KWIVER_ALGO_VTK_EXPORT
 vtkSmartPointer< vtkPolyData >
 container_to_polydata( kwiver::vital::mesh_container const& container );

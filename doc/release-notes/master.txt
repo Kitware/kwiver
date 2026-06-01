@@ -6,7 +6,7 @@ Updates
 
 Arrows: VTK
 
-* Add VTK mesh_container implementation
+* Add VTK mesh_container implementation.
 
 Arrows: Ceres
 
