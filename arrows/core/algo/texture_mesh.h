@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Header for mesh texturing algorithm
+/// Header for mesh texturing algorithm
 
 #ifndef KWIVER_ARROWS_CORE_TEXTURE_MESH_H
 #define KWIVER_ARROWS_CORE_TEXTURE_MESH_H
@@ -12,6 +12,7 @@
 
 #include <vital/algo/algorithm.txx>
 #include <vital/algo/texture_mesh.h>
+#include <vital/types/camera_perspective.h>
 
 #include "vital/plugin_management/pluggable_macro_magic.h"
 
@@ -53,7 +54,7 @@ public:
     kv::mesh_container_sptr mesh_container,
     kv::image_container_sptr output_image,
     kv::image_container_sptr frame,
-    kv::camera_perspective_sptr camera ) override;
+    kv::camera_sptr camera ) override;
 
   void texture_list(
     kv::mesh_container_sptr mesh_container,
@@ -114,15 +115,15 @@ private:
   /// Fill all pixels in triangle with XYZA values using alpha as validity.
   void
   fill_triangle_xyz(
-    kv::matrix_3x3d const& uv_to_mesh, int face_id,
+    kv::matrix_3x3d const& world_from_uv, int face_id,
     kv::image_container_sptr output_image );
 
   /// Copy all pixels in camera's view of the face triangle to output_image.
   void
   copy_triangle(
-    kv::matrix_4x4d const& uv_to_camera,
-    kv::matrix_4x4d const& camera_proj,
-    kv::camera_perspective_sptr camera,
+    kv::matrix_3x3d const& camera_from_uv,
+    kv::matrix_3x3d const& camera_K,
+    kv::camera_intrinsics_sptr intrinsics,
     kv::image_container_sptr frame,
     bool distortion,
     int face_id,
@@ -149,4 +150,4 @@ private:
 
 } // end namespace kwiver
 
-#endif // KWIVER_ARROWS_CORE_TEXTURE_MESH_H
+#endif

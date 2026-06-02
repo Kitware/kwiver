@@ -3,13 +3,13 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief Interface to abstract texture mesh algorithm
+/// Interface to abstract texture mesh algorithm
 
 #ifndef VITAL_ALGO_TEXTURE_MESH_H
 #define VITAL_ALGO_TEXTURE_MESH_H
 
 #include <vital/algo/algorithm.h>
-#include <vital/types/camera_perspective.h>
+#include <vital/types/camera.h>
 #include <vital/types/image_container.h>
 #include <vital/types/mesh_container.h>
 #include <vital/vital_config.h>
@@ -36,13 +36,13 @@ public:
   /// \param output_image Pre-allocated RGBA output texture atlas (preferably
   ///        square).
   /// \param frame Video frame corresponding to \p camera.
-  /// \param camera Perspective camera corresponding to \p frame.
+  /// \param camera Camera corresponding to \p frame.
   virtual void
   texture(
-    kwiver::vital::mesh_container_sptr mesh_container,
-    kwiver::vital::image_container_sptr output_image,
-    kwiver::vital::image_container_sptr frame,
-    kwiver::vital::camera_perspective_sptr camera ) = 0;
+    mesh_container_sptr mesh_container,
+    image_container_sptr output_image,
+    image_container_sptr frame,
+    camera_sptr camera ) = 0;
 
   /// Project multiple frames onto the mesh and aggregate into one or more
   /// texture atlases using the specified mode.
@@ -57,10 +57,10 @@ public:
   ///   \c "mean" and \c "median" collapse all frames into a single atlas.
   virtual void
   texture_list(
-    kwiver::vital::mesh_container_sptr mesh_container,
-    kwiver::vital::image_container_sptr_list& output_images,
-    kwiver::vital::image_container_sptr_list const& frames,
-    kwiver::vital::camera_sptr_list const& cameras,
+    mesh_container_sptr mesh_container,
+    image_container_sptr_list& output_images,
+    image_container_sptr_list const& frames,
+    camera_sptr_list const& cameras,
     std::string const& mode = "all" ) = 0;
 
   /// Generate a float texture map encoding the 3D world-space surface position
@@ -72,8 +72,8 @@ public:
   ///   present.
   virtual void
   texture_xyz(
-    kwiver::vital::mesh_container_sptr mesh_container,
-    kwiver::vital::image_container_sptr output_image ) = 0;
+    mesh_container_sptr mesh_container,
+    image_container_sptr output_image ) = 0;
 };
 
 typedef std::shared_ptr< texture_mesh > texture_mesh_sptr;
@@ -84,4 +84,4 @@ typedef std::shared_ptr< texture_mesh > texture_mesh_sptr;
 
 } // namespace kwiver
 
-#endif // VITAL_ALGO_TEXTURE_MESH_H
+#endif

@@ -18,34 +18,6 @@ namespace arrows {
 namespace core {
 
 // ----------------------------------------------------------------------------
-namespace {
-
-kv::vector_2d
-perspective_divide( const kv::vector_4d& p )
-{
-  double z = p[ 2 ];
-  if( z == 0 )
-  {
-    return { -1, -1 };
-  }
-  return { p[ 0 ] / z, p[ 1 ] / z };
-}
-
-kv::vector_4d
-homogenize( kv::vector_2d const& p )
-{
-  return { p[ 0 ], p[ 1 ], 1, 1 };
-}
-
-kv::vector_3d
-homogenize3( kv::vector_2d const& p )
-{
-  return { p[ 0 ], p[ 1 ], 1 };
-}
-
-} // end anonymous namespace
-
-// ----------------------------------------------------------------------------
 void
 texture_mesh
 ::initialize()
@@ -112,7 +84,7 @@ texture_mesh
   kv::mesh_container_sptr mesh_container,
   kv::image_container_sptr output_image,
   kv::image_container_sptr frame,
-  kv::camera_perspective_sptr camera )
+  kv::camera_sptr camera )
 {
   if( !mesh_container )
   {
@@ -131,8 +103,15 @@ texture_mesh
     VITAL_THROW( kv::invalid_value, "camera is NULL" );
   }
 
+  auto perspective_camera =
+    std::dynamic_pointer_cast< kv::camera_perspective >( camera );
+  if( !perspective_camera )
+  {
+    VITAL_THROW( kv::invalid_value, "Camera must be a perspective camera." );
+  }
+
   prepare( mesh_container, output_image );
-  texture_frame( frame, camera, output_image );
+  texture_frame( frame, perspective_camera, output_image );
 }
 
 // ----------------------------------------------------------------------------
@@ -275,16 +254,9 @@ texture_mesh
 {
   z_buffer_ = core::render_mesh_depth_map( mesh_, camera )->get_image();
 
-  kv::matrix_4x4d cam_rot = kv::matrix_4x4d::Identity();
-  cam_rot.block( 0, 0, 3, 3 ) << camera->rotation().matrix();
+  kv::matrix_3x4d camera_from_world = camera->pose_matrix();
 
-  kv::matrix_4x4d cam_trans = kv::matrix_4x4d::Identity();
-  cam_trans.col( 3 ).head( 3 ) << -camera->center();
-
-  kv::matrix_4x4d camera_center = cam_rot * cam_trans;
-
-  kv::matrix_4x4d camera_proj = kv::matrix_4x4d::Identity();
-  camera_proj.block( 0, 0, 3, 3 ) << camera->intrinsics()->as_matrix();
+  kv::matrix_3x3d camera_K = camera->intrinsics()->as_matrix();
 
   bool distortion = camera->intrinsics()->dist_coeffs().size() > 0;
   auto& faces = mesh_->faces();
@@ -303,16 +275,18 @@ texture_mesh
           verts( fi, 2 ) } );
     }
 
+    // Cull backfaces
     kv::vector_3d normal = faces.normal( f );
     kv::vector_3d position = ( mesh_triangle[ 0 ] +
                                mesh_triangle[ 1 ] +
                                mesh_triangle[ 2 ] ) / 3.0;
-    kv::vector_3d cameraPointVec = position - camera->center();
-    if( cameraPointVec.dot( normal ) > 0.0 )
+    kv::vector_3d camera_to_position = position - camera->center();
+    if( camera_to_position.dot( normal ) > 0.0 )
     {
       continue;
     }
 
+    // Cull if has a vertex with negative depth
     bool out_of_bounds = false;
     for( kv::vector_3d p : mesh_triangle )
     {
@@ -333,32 +307,98 @@ texture_mesh
       out_scale_* texture_coords_[ f3 + 1 ],
       out_scale_* texture_coords_[ f3 + 2 ] };
 
-    kv::matrix_3x3d basis_uv = kv::matrix_3x3d::Identity();
-    basis_uv.col( 0 ).head( 2 ) << uv_points[ 0 ] - uv_points[ 2 ];
-    basis_uv.col( 1 ).head( 2 ) << uv_points[ 1 ] - uv_points[ 2 ];
+    kv::matrix_3x3d uv_from_bary;
+    uv_from_bary.col( 0 ) << uv_points[ 0 ], 1;
+    uv_from_bary.col( 1 ) << uv_points[ 1 ], 1;
+    uv_from_bary.col( 2 ) << uv_points[ 2 ], 1;
 
-    if( !basis_uv.determinant() )
+    if( !uv_from_bary.determinant() )
     {
       continue;
     }
 
-    kv::matrix_3x3d basis_3d;
-    basis_3d << mesh_triangle[ 0 ] - mesh_triangle[ 2 ],
-      mesh_triangle[ 1 ] - mesh_triangle[ 2 ],
-      mesh_triangle[ 2 ];
+    kv::matrix_3x3d world_from_bary;
+    world_from_bary.col( 0 ) << mesh_triangle[ 0 ];
+    world_from_bary.col( 1 ) << mesh_triangle[ 1 ];
+    world_from_bary.col( 2 ) << mesh_triangle[ 2 ];
 
-    kv::matrix_3x3d uv_translation = kv::matrix_3x3d::Identity();
-    uv_translation.col( 2 ).head( 2 ) << -uv_points[ 2 ];
+    kv::matrix_4x3d world_from_uv = kv::matrix_4x3d::Zero();
+    world_from_uv.block< 3, 3 >(
+      0,
+      0 ) = world_from_bary * uv_from_bary.inverse();
+    world_from_uv( 3, 2 ) = 1.0;
 
-    kv::matrix_4x4d uv_to_mesh = kv::matrix_4x4d::Identity();
-    uv_to_mesh.block( 0, 0, 3, 3 ) << basis_3d *
-      basis_uv.inverse() *
-      uv_translation;
-
-    kv::matrix_4x4d uv_to_camera = camera_center * uv_to_mesh;
+    kv::matrix_3x3d camera_from_uv = camera_from_world * world_from_uv;
 
     copy_triangle(
-      uv_to_camera, camera_proj, camera, frame, distortion, f,
+      camera_from_uv, camera_K, camera->intrinsics(), frame, distortion, f,
+      output_image );
+  }
+}
+
+// ----------------------------------------------------------------------------
+void
+texture_mesh
+::copy_triangle(
+  const kv::matrix_3x3d& camera_from_uv,
+  const kv::matrix_3x3d& camera_K,
+  kv::camera_intrinsics_sptr intrinsics,
+  kv::image_container_sptr frame,
+  bool distortion,
+  int face_id,
+  kv::image_container_sptr output_image )
+{
+  auto frame_data_itr = frame_data_map_.find( face_id );
+  if( frame_data_itr == frame_data_map_.end() )
+  {
+    return;
+  }
+
+  const auto& face_points = frame_data_itr->second;
+
+  kv::matrix_3x3d combined_transform;
+  if( !distortion )
+  {
+    combined_transform = camera_K * camera_from_uv;
+  }
+
+  for( size_t i = 0; i < face_points.size(); ++i )
+  {
+    const kv::vector_2d& uv_point = face_points[ i ];
+    kv::vector_2d frame_position;
+
+    auto const cam_point = camera_from_uv * uv_point.homogeneous();
+    double depth = cam_point.z();
+
+    if( distortion )
+    {
+      kv::vector_2d point_dist = intrinsics->distort(
+        cam_point.head< 2 >() / depth );
+
+      frame_position =
+        ( camera_K * point_dist.homogeneous() ).head< 2 >();
+    }
+    else
+    {
+      auto const proj_point = combined_transform * uv_point.homogeneous();
+      frame_position = proj_point.head< 2 >() / proj_point.z();
+    }
+
+    int x = frame_position.x();
+    int y = frame_position.y();
+
+    if( x < 0 || x >= ( int ) frame->width() ||
+        y < 0 || y >= ( int ) frame->height() )
+    {
+      continue;
+    }
+    if( depth - c_z_threshold > z_buffer_.at< double >( x, y ) )
+    {
+      continue;
+    }
+
+    sample_pixel(
+      frame, frame_position, { uv_point[ 0 ], out_scale_ - uv_point[ 1 ] },
       output_image );
   }
 }
@@ -390,19 +430,22 @@ texture_mesh
       out_scale_* texture_coords_[ f3 + 1 ],
       out_scale_* texture_coords_[ f3 + 2 ] };
 
-    kv::matrix_3x3d Q = kv::matrix_3x3d::Ones();
-    Q.block( 0, 0, 2, 3 ) << uv_points[ 0 ], uv_points[ 1 ], uv_points[ 2 ];
-    if( !Q.determinant() )
+    kv::matrix_3x3d uv_from_bary = kv::matrix_3x3d::Ones();
+    uv_from_bary.block( 0, 0, 2, 3 ) << uv_points[ 0 ], uv_points[ 1 ],
+      uv_points[ 2 ];
+    if( !uv_from_bary.determinant() )
     {
       LOG_DEBUG( logger(), "skip degenerate triangle " << f );
       continue;
     }
 
-    kv::matrix_3x3d P;
-    P << mesh_triangle[ 0 ], mesh_triangle[ 1 ], mesh_triangle[ 2 ];
+    kv::matrix_3x3d world_from_bary;
+    world_from_bary << mesh_triangle[ 0 ], mesh_triangle[ 1 ],
+      mesh_triangle[ 2 ];
 
-    kv::matrix_3x3d const M = P * Q.inverse();
-    fill_triangle_xyz( M, f, output_image );
+    kv::matrix_3x3d const world_from_uv = world_from_bary *
+                                          uv_from_bary.inverse();
+    fill_triangle_xyz( world_from_uv, f, output_image );
   }
 }
 
@@ -549,7 +592,7 @@ texture_mesh
 void
 texture_mesh
 ::fill_triangle_xyz(
-  kv::matrix_3x3d const& uv_to_mesh, int face_id,
+  kv::matrix_3x3d const& world_from_uv, int face_id,
   kv::image_container_sptr output_image )
 {
   auto frame_data_itr = frame_data_map_.find( face_id );
@@ -570,70 +613,8 @@ texture_mesh
     kv::vector_2d const
     & point = face_points[ i ],
     & output_position = { point[ 0 ], out_scale_ - point[ 1 ] };
-    kv::vector_3d const mesh_point = uv_to_mesh * homogenize3( point );
+    kv::vector_3d const mesh_point = world_from_uv * point.homogeneous();
     set_pixel_xyz( mesh_point, output_position, output_image );
-  }
-}
-
-// ----------------------------------------------------------------------------
-void
-texture_mesh
-::copy_triangle(
-  const kv::matrix_4x4d& uv_to_camera,
-  const kv::matrix_4x4d& camera_proj,
-  kv::camera_perspective_sptr camera,
-  kv::image_container_sptr frame,
-  bool distortion,
-  int face_id,
-  kv::image_container_sptr output_image )
-{
-  auto frame_data_itr = frame_data_map_.find( face_id );
-  if( frame_data_itr == frame_data_map_.end() )
-  {
-    return;
-  }
-
-  const auto& face_points = frame_data_itr->second;
-
-  kv::matrix_4x4d combined_transform = camera_proj * uv_to_camera;
-
-  for( size_t i = 0; i < face_points.size(); ++i )
-  {
-    const kv::vector_2d& point = face_points[ i ];
-    kv::vector_2d frame_position;
-
-    if( distortion )
-    {
-      kv::vector_2d point_dist = camera->intrinsics()->distort(
-        perspective_divide( uv_to_camera * homogenize( point ) ) );
-
-      frame_position =
-        ( camera_proj * homogenize( point_dist ) ).head( 2 );
-    }
-    else
-    {
-      frame_position =
-        perspective_divide( combined_transform * homogenize( point ) );
-    }
-
-    int x = frame_position.x();
-    int y = frame_position.y();
-
-    if( x < 0 || x >= ( int ) frame->width() ||
-        y < 0 || y >= ( int ) frame->height() )
-    {
-      continue;
-    }
-
-    double depth = ( uv_to_camera * homogenize( point ) ).z();
-    if( depth - c_z_threshold > z_buffer_.at< double >( x, y ) )
-    {
-      continue;
-    }
-
-    sample_pixel(
-      frame, frame_position, { point[ 0 ], out_scale_ - point[ 1 ] },
-      output_image );
   }
 }
 
@@ -651,9 +632,9 @@ texture_mesh
     return std::make_shared< kv::simple_image_container >( img );
   }
 
-  for( size_t w = 0; w < out_scale_; ++w )
+  for( size_t h = 0; h < out_scale_; ++h )
   {
-    for( size_t h = 0; h < out_scale_; ++h )
+    for( size_t w = 0; w < out_scale_; ++w )
     {
       size_t transparent_count = 0;
 
@@ -704,9 +685,9 @@ texture_mesh
     return std::make_shared< kv::simple_image_container >( img );
   }
 
-  for( size_t w = 0; w < out_scale_; ++w )
+  for( size_t h = 0; h < out_scale_; ++h )
   {
-    for( size_t h = 0; h < out_scale_; ++h )
+    for( size_t w = 0; w < out_scale_; ++w )
     {
       size_t transparent_count = 0;
 
@@ -724,8 +705,7 @@ texture_mesh
           }
           values.push_back(
             textures[ i ]->get_image().at< uint8_t >(
-              w, h,
-              d ) );
+              w, h, d ) );
         }
 
         if( transparent_count == n )
@@ -745,10 +725,8 @@ texture_mesh
   return std::make_shared< kv::simple_image_container >( img );
 }
 
-// ----------------------------------------------------------------------------
+} // namespace core
 
-} // end namespace core
+} // namespace arrows
 
-} // end namespace arrows
-
-} // end namespace kwiver
+} // namespace kwiver
