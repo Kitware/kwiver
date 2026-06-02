@@ -51,8 +51,12 @@ public:
       0.05f ),
     PARAM_DEFAULT(
       mode, std::string,
-      "Aggregation mode for texture_list. Options: " +
-      texture_list_mode_converter().element_name_string(),
+      "Aggregation mode used by texture_list. "
+      "\"all\": write one texture atlas per frame into output_images. "
+      "\"mean\": project all frames and write their per-pixel mean into "
+      "output_images[0]. "
+      "\"median\": project all frames and write their per-pixel median into "
+      "output_images[0].",
       texture_list_mode_converter().to_string( MODE_all ) )
   )
 
@@ -64,12 +68,18 @@ public:
     return true;
   }
 
+  /// \throws invalid_value if \p camera is not a camera_perspective.
   void texture(
     kv::mesh_container_sptr mesh_container,
     kv::image_container_sptr output_image,
     kv::image_container_sptr frame,
     kv::camera_sptr camera ) override;
 
+  /// Behavior is controlled by the \c mode configuration parameter.
+  /// In \c "all" mode, one pre-allocated RGBA image per frame is required in
+  /// \p output_images. In \c "mean" or \c "median" mode only
+  /// \p output_images[0] is written.
+  /// \throws invalid_value if any camera is not a camera_perspective.
   void texture_list(
     kv::mesh_container_sptr mesh_container,
     kv::image_container_sptr_list& output_images,
