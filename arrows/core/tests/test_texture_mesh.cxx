@@ -276,7 +276,7 @@ TEST_F ( texture_mesh_test, texture_list_all_mode )
                                         make_output_uint8() };
 
   kwiver::arrows::core::texture_mesh texer;
-  texer.texture_list( mesh_cont, outputs, frames, cameras, "all" );
+  texer.texture_list( mesh_cont, outputs, frames, cameras );
 
   auto [ red_count, red_ok ]   = check_rgba_output( outputs[ 0 ], 255, 0, 0 );
   auto [ blue_count, blue_ok ] = check_rgba_output( outputs[ 1 ], 0, 0, 255 );
@@ -300,7 +300,10 @@ TEST_F ( texture_mesh_test, texture_list_mean_mode )
   image_container_sptr_list outputs = { make_output_uint8() };
 
   kwiver::arrows::core::texture_mesh texer;
-  texer.texture_list( mesh_cont, outputs, frames, cameras, "mean" );
+  auto conf = texer.get_configuration();
+  conf->set_value( "mode", "mean" );
+  texer.set_configuration( conf );
+  texer.texture_list( mesh_cont, outputs, frames, cameras );
 
   image_of< uint8_t > result( outputs[ 0 ]->get_image() );
   int filled = 0;
@@ -340,7 +343,10 @@ TEST_F ( texture_mesh_test, texture_list_median_mode )
   image_container_sptr_list outputs = { make_output_uint8() };
 
   kwiver::arrows::core::texture_mesh texer;
-  texer.texture_list( mesh_cont, outputs, frames, cameras, "median" );
+  auto conf = texer.get_configuration();
+  conf->set_value( "mode", "median" );
+  texer.set_configuration( conf );
+  texer.texture_list( mesh_cont, outputs, frames, cameras );
 
   image_of< uint8_t > result( outputs[ 0 ]->get_image() );
   int filled = 0;
@@ -415,9 +421,12 @@ TEST_F ( texture_mesh_test, texture_list_invalid_mode_throws )
   camera_sptr_list cameras = { camera };
   image_container_sptr_list outputs = { make_output_uint8() };
   kwiver::arrows::core::texture_mesh texer;
+  auto conf = texer.get_configuration();
+  conf->set_value( "mode", "bogus" );
+  texer.set_configuration( conf );
   EXPECT_THROW(
-    texer.texture_list( mesh_cont, outputs, frames, cameras, "bogus" ),
-    invalid_value );
+    texer.texture_list( mesh_cont, outputs, frames, cameras ),
+    std::runtime_error );
 }
 
 // ----------------------------------------------------------------------------
@@ -521,7 +530,10 @@ TEST ( texture_mesh_cube, six_face_colors )
     std::make_shared< simple_image_container >( out_img ) };
 
   kwiver::arrows::core::texture_mesh texer;
-  texer.texture_list( mesh_cont, outputs, frames, cameras, "mean" );
+  auto conf = texer.get_configuration();
+  conf->set_value( "mode", "mean" );
+  texer.set_configuration( conf );
+  texer.texture_list( mesh_cont, outputs, frames, cameras );
 
   // Uncomment to inspect the output texture:
   // auto io =

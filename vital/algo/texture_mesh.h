@@ -20,8 +20,7 @@ namespace vital {
 
 namespace algo {
 
-/// \brief Project camera frames onto a UV-unwrapped mesh to produce texture
-///        atlas images.
+/// Project camera frames onto a UV-unwrapped mesh to produce texture images.
 class VITAL_ALGO_EXPORT texture_mesh
   : public kwiver::vital::algorithm
 {
@@ -33,8 +32,7 @@ public:
   /// \p output_image.
   ///
   /// \param mesh_container Mesh container with UV coordinates.
-  /// \param output_image Pre-allocated RGBA output texture atlas (preferably
-  ///        square).
+  /// \param output_image Pre-allocated RGBA output texture atlas.
   /// \param frame Video frame corresponding to \p camera.
   /// \param camera Camera corresponding to \p frame.
   virtual void
@@ -45,29 +43,24 @@ public:
     camera_sptr camera ) = 0;
 
   /// Project multiple frames onto the mesh and aggregate into one or more
-  /// texture atlases using the specified mode.
+  /// texture atlases. The aggregation mode is implementation-defined.
   ///
   /// \param mesh_container Mesh container with UV coordinates.
-  /// \param [in,out] output_images Output texture atlas list. In \c "all" mode
-  ///   one pre-allocated RGBA image per frame is required. In \c "mean" or
-  ///   \c "median" mode only the first element is used and modified.
+  /// \param [in,out] output_images Output texture atlas list.
   /// \param frames Video frames corresponding to \p cameras.
   /// \param cameras Perspective cameras corresponding to \p frames.
-  /// \param mode Aggregation mode: \c "all" writes one atlas per frame;
-  ///   \c "mean" and \c "median" collapse all frames into a single atlas.
   virtual void
   texture_list(
     mesh_container_sptr mesh_container,
     image_container_sptr_list& output_images,
     image_container_sptr_list const& frames,
-    camera_sptr_list const& cameras,
-    std::string const& mode = "all" ) = 0;
+    camera_sptr_list const& cameras ) = 0;
 
   /// Generate a float texture map encoding the 3D world-space surface position
   /// (XYZ + validity alpha) at each UV texel.
   ///
   /// \param mesh_container Mesh container with UV coordinates.
-  /// \param output_image Pre-allocated zero-initialized 4-channel float image;
+  /// \param output_image Pre-allocated 4-channel float image;
   ///   RGB channels receive world XYZ, alpha is 1 where mesh surface is
   ///   present.
   virtual void

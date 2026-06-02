@@ -13,6 +13,7 @@
 #include <vital/algo/algorithm.txx>
 #include <vital/algo/texture_mesh.h>
 #include <vital/types/camera_perspective.h>
+#include <vital/util/enum_converter.h>
 
 #include "vital/plugin_management/pluggable_macro_magic.h"
 
@@ -25,6 +26,14 @@ namespace kwiver {
 namespace arrows {
 
 namespace core {
+
+enum texture_list_mode { MODE_all, MODE_mean, MODE_median, };
+
+ENUM_CONVERTER(
+  texture_list_mode_converter, texture_list_mode,
+  { "all",    MODE_all    },
+  { "mean",   MODE_mean   },
+  { "median", MODE_median } );
 
 /// Create a UV texture map for a mesh given posed images
 class KWIVER_ALGO_CORE_EXPORT texture_mesh
@@ -39,7 +48,12 @@ public:
       "The difference in depth between Z Buffer values and mesh points. "
       "If (depth - z_threshold) > z, the given pixel will be untextured. "
       "Values should be small.",
-      0.05f )
+      0.05f ),
+    PARAM_DEFAULT(
+      mode, std::string,
+      "Aggregation mode for texture_list. Options: " +
+      texture_list_mode_converter().element_name_string(),
+      texture_list_mode_converter().to_string( MODE_all ) )
   )
 
   virtual ~texture_mesh();
@@ -60,8 +74,7 @@ public:
     kv::mesh_container_sptr mesh_container,
     kv::image_container_sptr_list& output_images,
     kv::image_container_sptr_list const& frames,
-    kv::camera_sptr_list const& cameras,
-    std::string const& mode = "all" ) override;
+    kv::camera_sptr_list const& cameras ) override;
 
   void texture_xyz(
     kv::mesh_container_sptr mesh_container,

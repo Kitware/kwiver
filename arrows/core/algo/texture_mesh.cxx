@@ -141,8 +141,7 @@ texture_mesh
   kv::mesh_container_sptr mesh_container,
   kv::image_container_sptr_list& output_images,
   kv::image_container_sptr_list const& frames,
-  kv::camera_sptr_list const& cameras,
-  std::string const& mode )
+  kv::camera_sptr_list const& cameras )
 {
   if( !mesh_container )
   {
@@ -176,16 +175,12 @@ texture_mesh
 
   prepare( mesh_container, output_images[ 0 ] );
 
-  if( mode == "all" )
+  auto const mode = texture_list_mode_converter().from_string( c_mode );
+
+  if( mode == MODE_all )
   {
     texture_list_all( output_images, frames, cameras );
     return;
-  }
-  else if( mode != "mean" && mode != "median" )
-  {
-    VITAL_THROW(
-      kv::invalid_value, "Invalid mode specified. Valid modes are "
-                         "\"all\", \"mean\", and \"median\"." );
   }
 
   kv::image_container_sptr_list outputs( frames.size() );
@@ -198,13 +193,13 @@ texture_mesh
 
   texture_list_all( outputs, frames, cameras );
 
-  if( mode == "mean" )
+  switch( mode )
   {
-    output_images[ 0 ] = aggregate_mean( outputs );
-  }
-  else if( mode == "median" )
-  {
-    output_images[ 0 ] = aggregate_median( outputs );
+    case MODE_mean:   output_images[ 0 ] = aggregate_mean( outputs );
+      break;
+    case MODE_median: output_images[ 0 ] = aggregate_median( outputs );
+      break;
+    default: break;
   }
 }
 
