@@ -4,6 +4,10 @@ KWIVER 2.3.1 Release Notes
 Updates
 -------
 
+Arrows: VTK
+
+* Add VTK mesh_container implementation.
+
 Arrows: Ceres
 
 * num_distortion_params() now returns size_t.
