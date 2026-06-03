@@ -28,9 +28,10 @@ their functionality.
    :maxdepth: 1
 
    common
+   configuration
+   plugin_management
    images
    detectors
-   configuration
 
 
 .. _Eigen: http://eigen.tuxfamily.org/
