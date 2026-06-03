@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief VTK/Vital mesh conversion utility functions.
+/// VTK/Vital mesh conversion utility functions.
 
 #include <arrows/vtk/mesh_container.h>
 #include <arrows/vtk/mesh_utils.h>
@@ -17,7 +17,7 @@ namespace arrows {
 
 namespace vtk {
 
-/// Convert a vtk polydata mesh to a vital mesh
+/// Convert a vtk polydata mesh to a vital mesh.
 vital::mesh
 vtk_to_vital( vtkSmartPointer< vtkPolyData > const& mesh )
 {
