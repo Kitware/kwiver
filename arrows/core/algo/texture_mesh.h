@@ -167,10 +167,10 @@ private:
   kv::image z_buffer_;
 };
 
-} // end namespace core
+} // namespace core
 
-} // end namespace arrows
+} // namespace arrows
 
-} // end namespace kwiver
+} // namespace kwiver
 
 #endif

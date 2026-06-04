@@ -318,9 +318,8 @@ texture_mesh
     world_from_bary.col( 2 ) << mesh_triangle[ 2 ];
 
     kv::matrix_4x3d world_from_uv = kv::matrix_4x3d::Zero();
-    world_from_uv.block< 3, 3 >(
-      0,
-      0 ) = world_from_bary * uv_from_bary.inverse();
+    world_from_uv.block< 3, 3 >( 0, 0 ) =
+      world_from_bary * uv_from_bary.inverse();
     world_from_uv( 3, 2 ) = 1.0;
 
     kv::matrix_3x3d camera_from_uv = camera_from_world * world_from_uv;
