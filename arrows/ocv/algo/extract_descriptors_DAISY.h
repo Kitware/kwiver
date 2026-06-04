@@ -15,7 +15,7 @@
 #include <memory>
 #include <string>
 
-#include <arrows/ocv/extract_descriptors.h>
+#include <arrows/ocv/algo/extract_descriptors.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
 namespace kwiver {

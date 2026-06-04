@@ -8,7 +8,7 @@
 #include <arrows/gdal/kwiver_algo_gdal_plugin_export.h>
 #include <vital/plugin_management/plugin_manager.h>
 
-#include <arrows/gdal/image_io.h>
+#include <arrows/gdal/algo/image_io.h>
 
 namespace kwiver {
 

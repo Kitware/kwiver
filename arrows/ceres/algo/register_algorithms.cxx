@@ -8,8 +8,8 @@
 #include <arrows/ceres/kwiver_algo_ceres_plugin_export.h>
 #include <vital/plugin_management/plugin_factory.h>
 
-#include <arrows/ceres/bundle_adjust.h>
-#include <arrows/ceres/optimize_cameras.h>
+#include <arrows/ceres/algo/bundle_adjust.h>
+#include <arrows/ceres/algo/optimize_cameras.h>
 #include <arrows/ceres/types.h>
 
 namespace kwiver {

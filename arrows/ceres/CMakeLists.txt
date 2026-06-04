@@ -17,8 +17,8 @@ set( ceres_sources
   logging.cxx
   )
 set( ceres_classes
-  bundle_adjust
-  optimize_cameras
+  algo/bundle_adjust
+  algo/optimize_cameras
   options
   reprojection_error
   types
@@ -49,7 +49,7 @@ target_link_libraries( kwiver_algo_ceres
   )
 
 algorithms_create_plugin( kwiver_algo_ceres
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

@@ -4,7 +4,7 @@
 
 #include <arrows/serialize/json/klv/kwiver_serialize_json_klv_plugin_export.h>
 
-#include "metadata_map_io.h"
+#include <arrows/serialize/json/klv/algo/metadata_map_io.h>
 
 #include <vital/plugin_management/plugin_manager.h>
 

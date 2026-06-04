@@ -4,7 +4,7 @@
 
 #include <test_gtest.h>
 
-#include <arrows/vxl/split_image.h>
+#include <arrows/vxl/algo/split_image.h>
 
 #include <vital/algo/algorithm.txx>
 #include <vital/plugin_management/pluggable_macro_testing.h>

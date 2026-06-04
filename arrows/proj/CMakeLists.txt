@@ -35,5 +35,5 @@ target_link_libraries( kwiver_algo_proj
   )
 
 algorithms_create_plugin( kwiver_algo_proj
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )

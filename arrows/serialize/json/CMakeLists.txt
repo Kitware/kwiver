@@ -62,7 +62,7 @@ target_link_libraries( kwiver_serialize_json
   )
 
 algorithms_create_plugin( kwiver_serialize_json
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

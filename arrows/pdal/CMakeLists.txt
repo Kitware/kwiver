@@ -37,7 +37,7 @@ target_include_directories( kwiver_algo_pdal SYSTEM
   )
 
 algorithms_create_plugin( kwiver_algo_pdal
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

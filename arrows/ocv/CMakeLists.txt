@@ -42,16 +42,16 @@ set( plugin_ocv_classes
   algo/refine_detections_write_to_disk
   algo/resection_camera
   algo/split_image
+  algo/detect_features
+  algo/extract_descriptors
+  algo/match_features
   algo/track_features_klt
 
   camera_intrinsics
   descriptor_set
-  detect_features
-  extract_descriptors
   feature_set
   image_container
   mat_image_memory
-  match_features
   match_set
   resection_camera_options
   )
@@ -83,7 +83,7 @@ target_link_libraries( kwiver_algo_ocv
   )
 
 algorithms_create_plugin( kwiver_algo_ocv
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

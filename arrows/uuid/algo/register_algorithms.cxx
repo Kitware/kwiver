@@ -8,7 +8,7 @@
 #include <arrows/uuid/kwiver_algo_uuid_plugin_export.h>
 #include <vital/plugin_management/plugin_manager.h>
 
-#include <arrows/uuid/uuid_factory_uuid.h>
+#include <arrows/uuid/algo/uuid_factory_uuid.h>
 
 namespace kwiver {
 

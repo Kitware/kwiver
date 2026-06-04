@@ -11,7 +11,7 @@
 
 #include <arrows/mvg/epipolar_geometry.h>
 #include <arrows/mvg/projected_track_set.h>
-#include <arrows/vxl/estimate_essential_matrix.h>
+#include <arrows/vxl/algo/estimate_essential_matrix.h>
 
 #include <Eigen/LU>
 

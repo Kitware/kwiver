@@ -5,7 +5,7 @@
 /// \file
 /// \brief test dynamic configuration
 
-#include <arrows/uuid/uuid_factory_uuid.h>
+#include <arrows/uuid/algo/uuid_factory_uuid.h>
 
 #include <vital/algo/algorithm.txx>
 #include <vital/plugin_management/pluggable_macro_testing.h>

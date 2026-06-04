@@ -10,8 +10,8 @@
 
 #include <arrows/tests/test_image.h>
 
+#include <arrows/vxl/algo/image_io.h>
 #include <arrows/vxl/image_container.h>
-#include <arrows/vxl/image_io.h>
 
 #include <kwiversys/SystemTools.hxx>
 #include <vital/algo/algorithm.txx>

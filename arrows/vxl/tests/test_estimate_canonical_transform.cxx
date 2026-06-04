@@ -4,8 +4,8 @@
 
 #include <test_gtest.h>
 
-#include <arrows/vxl/estimate_canonical_transform.h>
-#include <arrows/vxl/image_io.h>
+#include <arrows/vxl/algo/estimate_canonical_transform.h>
+#include <arrows/vxl/algo/image_io.h>
 
 #include <vital/algo/algorithm.txx>
 #include <vital/plugin_management/pluggable_macro_testing.h>

@@ -11,8 +11,8 @@ set( plugin_dbow2_headers
   )
 set( plugin_dbow2_sources )
 set( plugin_dbow2_classes
+  algo/match_descriptor_sets
   BowVector
-  match_descriptor_sets
   FeatureVector
   FORB
   QueryResults
@@ -46,7 +46,7 @@ target_link_libraries( kwiver_algo_dbow2
   )
 
 algorithms_create_plugin( kwiver_algo_dbow2
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

@@ -4,7 +4,7 @@
 
 #include <test_scene.h>
 
-#include <arrows/cuda/integrate_depth_maps.h>
+#include <arrows/cuda/algo/integrate_depth_maps.h>
 #include <arrows/tests/test_integrate_depth_maps.h>
 
 #include <vital/algo/algorithm.txx>
