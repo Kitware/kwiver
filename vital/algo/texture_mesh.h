@@ -48,7 +48,7 @@ public:
   /// \param mesh_container Mesh container with UV coordinates.
   /// \param [in,out] output_images Output texture atlas list.
   /// \param frames Video frames corresponding to \p cameras.
-  /// \param cameras Perspective cameras corresponding to \p frames.
+  /// \param cameras corresponding to \p frames.
   virtual void
   texture_list(
     mesh_container_sptr mesh_container,
