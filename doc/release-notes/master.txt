@@ -6,8 +6,8 @@ Updates
 
 Arrows: OCV
 
-* Add CLAHE image_filter
-* Add histogram equalization image_filter
+* Add CLAHE image_filter.
+* Add histogram equalization image_filter.
 
 Arrows: VTK
 
