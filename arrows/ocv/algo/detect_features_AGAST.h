@@ -11,7 +11,7 @@
 // Only available in OpenCV 3.x
 #if KWIVER_OPENCV_VERSION_MAJOR >= 3
 
-#include <arrows/ocv/detect_features.h>
+#include <arrows/ocv/algo/detect_features.h>
 #include <arrows/ocv/kwiver_algo_ocv_export.h>
 
 #include <string>

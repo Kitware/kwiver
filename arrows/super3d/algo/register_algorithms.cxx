@@ -5,31 +5,30 @@
 /// \file
 /// \brief Register depth algorithms implementation
 
-#include <arrows/cuda/kwiver_algo_cuda_plugin_export.h>
-#include <vital/plugin_management/plugin_manager.h>
+#include <arrows/super3d/kwiver_algo_super3d_plugin_export.h>
+#include <vital/plugin_management/plugin_factory.h>
 
-#include <arrows/cuda/integrate_depth_maps.h>
+#include <arrows/super3d/algo/compute_depth.h>
 
 namespace kwiver {
 
 namespace arrows {
 
-namespace cuda {
+namespace super3d {
 
-// ----------------------------------------------------------------------------
 extern "C"
-KWIVER_ALGO_CUDA_PLUGIN_EXPORT
+KWIVER_ALGO_SUPER3D_PLUGIN_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpl )
 {
   using kvpf = ::kwiver::vital::plugin_factory;
 
-  auto fact = vpl.add_factory< vital::algo::integrate_depth_maps,
-    integrate_depth_maps >( "cuda" );
-  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows.cuda" );
+  auto fact = vpl.add_factory< vital::algo::compute_depth,
+    kwiver::arrows::super3d::compute_depth >( "super3d" );
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows.super3d" );
 }
 
-} // end namespace cuda
+} // end namespace super3d
 
 } // end namespace arrows
 

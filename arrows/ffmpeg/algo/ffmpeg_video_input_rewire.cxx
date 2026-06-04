@@ -5,7 +5,7 @@
 /// \file
 /// Definition of the ffmpeg_video_input_rewire class.
 
-#include <arrows/ffmpeg/ffmpeg_video_input_rewire.h>
+#include <arrows/ffmpeg/algo/ffmpeg_video_input_rewire.h>
 
 #include <arrows/ffmpeg/ffmpeg_util.h>
 #include <arrows/ffmpeg/ffmpeg_video_raw_metadata.h>

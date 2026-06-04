@@ -95,7 +95,7 @@ target_link_libraries( kwiver_algo_core
   )
 
 kwiver_add_plugin( kwiver_algo_core_plugin
-                   SOURCES          register_algorithms.cxx
+                   SOURCES          algo/register_algorithms.cxx
                    PRIVATE
                                     vital_vpm
                                     kwiver_algo_core

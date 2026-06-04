@@ -42,7 +42,7 @@
 #include <opencv2/nonfree/nonfree.hpp>
 #endif
 
-#include <arrows/dbow2/match_descriptor_sets.h>
+#include <arrows/dbow2/algo/match_descriptor_sets.h>
 
 namespace kwiver {
 

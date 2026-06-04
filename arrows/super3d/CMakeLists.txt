@@ -7,7 +7,7 @@ set( plugin_super3d_sources
   warp_image_instances.cxx
   )
 set( plugin_super3d_classes
-  compute_depth
+  algo/compute_depth
   cost_volume
   tv_refine_search
   util
@@ -40,7 +40,7 @@ target_link_libraries(kwiver_algo_super3d
   )
 
 algorithms_create_plugin( kwiver_algo_super3d
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 

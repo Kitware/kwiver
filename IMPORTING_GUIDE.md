@@ -5,13 +5,13 @@ The instructions are currently restricted to C++.
 
 ## Importing interface classes
 
-This is the simplest case. 
+This is the simplest case.
 
 * If the class inherits from
 `kwiver::vital::algorithm_def<>` change it to inherit directly from
 `kwiver::vital::algorithm` the templated algorithm class has been removed.
 * Remove `INSTANTIATE_ALGORITHM_DEF` from the cxx file if it exists as well as the line including `algorithm.txx`
-* Make the default constructor public if it isn't 
+* Make the default constructor public if it isn't
 * Remove the function with signature
 ```
 static std::string static_type_name() { return <name>; }
@@ -38,7 +38,7 @@ For reference compare `vital/algo/video_input.h` in this repository and in kwive
   class priv;
   const std::unique_ptr<priv> d;
   ```
-  becomes 
+  becomes
   ```
   class priv;
   KWIVER_UNIQUE_PTR(priv,d);
@@ -61,7 +61,7 @@ For reference compare `vital/algo/video_input.h` in this repository and in kwive
   <parameter description>,
   <default value>)
   ```
-  and 
+  and
   ```
   PARAM(
   <parameter name>,
@@ -72,7 +72,7 @@ For reference compare `vital/algo/video_input.h` in this repository and in kwive
   * `description` should be copied from `PLUGIN_INFO`
   * `PARAM` list should be populated based on the content of `get_configuration()` in the cxx file
 
-* Finally, since the parameters are now proper member variables of the class the PIMPL pointer needs to hold references to the parent values instead of holding its  own. So, convert the members of the PIMPL class to functions and update the calling code. 
+* Finally, since the parameters are now proper member variables of the class the PIMPL pointer needs to hold references to the parent values instead of holding its  own. So, convert the members of the PIMPL class to functions and update the calling code.
 
 For a complete example compare `arrows/core/video_input_filter.{cxx,h}` between kwiver-v2 and kwiver-v1 . For a more complex  example check
 `arrows/ffmpeg/ffmpeg_video_output.{cxx,h}` .

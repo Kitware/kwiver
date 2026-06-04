@@ -20,9 +20,9 @@
 #include <arrows/ocv/algo/feature_detect_extract_SIFT.h>
 #include <arrows/ocv/algo/feature_detect_extract_SURF.h>
 
-#include <arrows/ocv/detect_features.h>
-#include <arrows/ocv/extract_descriptors.h>
-#include <arrows/ocv/match_features.h>
+#include <arrows/ocv/algo/detect_features.h>
+#include <arrows/ocv/algo/extract_descriptors.h>
+#include <arrows/ocv/algo/match_features.h>
 
 #include <vital/algo/algorithm.txx>
 #include <vital/exceptions.h>

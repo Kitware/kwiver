@@ -8,7 +8,7 @@
 #ifndef KWIVER_ARROWS_DETECT_FEATURES_FAST_H_
 #define KWIVER_ARROWS_DETECT_FEATURES_FAST_H_
 
-#include <arrows/ocv/detect_features.h>
+#include <arrows/ocv/algo/detect_features.h>
 
 #include <string>
 

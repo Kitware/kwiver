@@ -34,8 +34,8 @@
  * \brief Implementation of bag of words matching
  */
 
-#include "arrows/dbow2/match_descriptor_sets.h"
-#include "DBoW2.h"
+#include "arrows/dbow2/algo/match_descriptor_sets.h"
+#include <arrows/dbow2/DBoW2.h>
 #include <opencv2/features2d.hpp>
 
 #include <kwiversys/SystemTools.hxx>

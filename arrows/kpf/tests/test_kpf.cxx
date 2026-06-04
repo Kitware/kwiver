@@ -2,8 +2,8 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
-#include <arrows/kpf/detected_object_set_input_kpf.h>
-#include <arrows/kpf/detected_object_set_output_kpf.h>
+#include <arrows/kpf/algo/detected_object_set_input_kpf.h>
+#include <arrows/kpf/algo/detected_object_set_output_kpf.h>
 #include <vital/plugin_management/plugin_manager.h>
 
 #include <vital/algo/algorithm.txx>

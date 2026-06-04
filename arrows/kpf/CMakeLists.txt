@@ -8,14 +8,14 @@ add_subdirectory(yaml)
 #
 
 set( headers
-  detected_object_set_input_kpf.h
-  detected_object_set_output_kpf.h
+  algo/detected_object_set_input_kpf.h
+  algo/detected_object_set_output_kpf.h
 )
 
 set( sources
+  algo/detected_object_set_input_kpf.cxx
+  algo/detected_object_set_output_kpf.cxx
   vital_kpf_adapters.h
-  detected_object_set_input_kpf.cxx
-  detected_object_set_output_kpf.cxx
   )
 
 set( kpf_linked_libs
@@ -43,7 +43,7 @@ target_link_libraries( kwiver_algo_kpf
   )
 
 algorithms_create_plugin( kwiver_algo_kpf
-  register_algorithms.cxx
+  algo/register_algorithms.cxx
   )
 
 if (KWIVER_ENABLE_TESTS)

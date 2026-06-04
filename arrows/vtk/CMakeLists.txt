@@ -4,6 +4,8 @@ set(CMAKE_FOLDER "Arrows/VTK")
 
 set( plugin_vtk_headers
   depth_utils.h
+  mesh_container.h
+  mesh_utils.h
   vtkKwiverCamera.h
   )
 
@@ -19,6 +21,7 @@ kwiver_install_headers(
 
 set( plugin_vtk_sources
   depth_utils.cxx
+  mesh_utils.cxx
   vtkKwiverCamera.cxx
   )
 
@@ -68,7 +71,7 @@ target_link_libraries( kwiver_algo_vtk
 #  )
 
 if (KWIVER_ENABLE_TESTS)
-#  add_subdirectory(tests)
+  add_subdirectory(tests)
 endif()
 
 if (KWIVER_ENABLE_TOOLS)
