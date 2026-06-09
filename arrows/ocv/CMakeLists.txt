@@ -34,6 +34,8 @@ set( plugin_ocv_classes
   algo/feature_detect_extract_SIFT
   algo/feature_detect_extract_SURF
   algo/hough_circle_detector
+  algo/image_CLAHE
+  algo/image_histogram_eq
   algo/image_io
   algo/inpaint
   algo/match_features_bruteforce
