@@ -14,6 +14,8 @@ Arrows: Ceres
 
 Arrows: Core
 
+* Added texture_mesh algorithm implementation.
+
 * All algorithms taking unsigned int configuration parameters now take size_t.
 
 * Moved Obstacle Telesculptor fork UV unwrap mesh behavior into
@@ -38,6 +40,8 @@ Track Oracle
 * Removed track_oracle.
 
 Vital: Algo
+
+* Added texture_mesh algorithm interface.
 
 * Removed video_input.metadata_map().
 

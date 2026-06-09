@@ -59,6 +59,7 @@ set( public_headers
   refine_detections.h
   resection_camera.h
   split_image.h
+  texture_mesh.h
   track_features.h
   train_detector.h
   transform_2d_io.h
@@ -127,6 +128,7 @@ set( sources
   refine_detections.cxx
   resection_camera.cxx
   split_image.cxx
+  texture_mesh.cxx
   track_features.cxx
   train_detector.cxx
   transform_2d_io.cxx

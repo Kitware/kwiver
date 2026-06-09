@@ -42,6 +42,7 @@ set( plugin_core_classes
   algo/metadata_map_io_csv
   algo/read_object_track_set_kw18
   algo/read_track_descriptor_set_csv
+  algo/texture_mesh
   algo/track_features_augment_keyframes
   algo/track_features_core
   algo/transfer_bbox_with_depth_map
