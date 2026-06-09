@@ -17,6 +17,7 @@ namespace arrows {
 
 namespace vtk {
 
+// ----------------------------------------------------------------------------
 void
 triangulate_mesh_filter
 ::initialize()
@@ -24,9 +25,12 @@ triangulate_mesh_filter
   attach_logger( "arrows.vtk.triangulate_mesh_filter" );
 }
 
+// ----------------------------------------------------------------------------
 triangulate_mesh_filter::
-~triangulate_mesh_filter() {}
+~triangulate_mesh_filter()
+{}
 
+// ----------------------------------------------------------------------------
 vital::mesh_container_sptr
 triangulate_mesh_filter
 ::filter( vital::mesh_container_sptr input )

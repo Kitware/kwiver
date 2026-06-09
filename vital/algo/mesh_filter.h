@@ -19,7 +19,7 @@ namespace vital {
 
 namespace algo {
 
-/// \brief Abstract base class for mesh filter algorithms.
+/// Abstract base class for mesh filter algorithms.
 class VITAL_ALGO_EXPORT mesh_filter
   : public kwiver::vital::algorithm
 {

@@ -3,7 +3,7 @@
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
 /// \file
-/// \brief VTK algorithm registration implementation
+/// VTK algorithm registration implementation
 
 #include <arrows/vtk/kwiver_algo_vtk_plugin_export.h>
 
@@ -41,8 +41,8 @@ register_factories( kwiver::vital::plugin_loader& vpl )
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_vtk" );
 }
 
-} // end namespace vtk
+} // namespace vtk
 
-} // end namespace arrows
+} // namespace arrows
 
-} // end namespace kwiver
+} // namespace kwiver

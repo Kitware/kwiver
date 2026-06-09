@@ -18,6 +18,7 @@ namespace arrows {
 
 namespace vtk {
 
+// ----------------------------------------------------------------------------
 void
 decimate_mesh_filter
 ::initialize()
@@ -25,9 +26,12 @@ decimate_mesh_filter
   attach_logger( "arrows.vtk.decimate_mesh_filter" );
 }
 
+// ----------------------------------------------------------------------------
 decimate_mesh_filter::
-~decimate_mesh_filter() {}
+~decimate_mesh_filter()
+{}
 
+// ----------------------------------------------------------------------------
 vital::mesh_container_sptr
 decimate_mesh_filter
 ::filter( vital::mesh_container_sptr input )

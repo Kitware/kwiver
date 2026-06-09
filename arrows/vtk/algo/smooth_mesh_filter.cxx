@@ -17,6 +17,7 @@ namespace arrows {
 
 namespace vtk {
 
+// ----------------------------------------------------------------------------
 void
 smooth_mesh_filter
 ::initialize()
@@ -24,9 +25,12 @@ smooth_mesh_filter
   attach_logger( "arrows.vtk.smooth_mesh_filter" );
 }
 
+// ----------------------------------------------------------------------------
 smooth_mesh_filter::
-~smooth_mesh_filter() {}
+~smooth_mesh_filter()
+{}
 
+// ----------------------------------------------------------------------------
 bool
 smooth_mesh_filter
 ::check_configuration( vital::config_block_sptr config ) const
@@ -62,6 +66,7 @@ smooth_mesh_filter
   return true;
 }
 
+// ----------------------------------------------------------------------------
 vital::mesh_container_sptr
 smooth_mesh_filter
 ::filter( vital::mesh_container_sptr input )
