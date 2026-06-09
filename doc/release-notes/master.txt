@@ -33,6 +33,9 @@ Arrows: FFmpeg
 
 Arrows: MVG
 
+* The bundle-adjust-tool applet now reports reprojection RMSE over all tracks
+  (in addition to trusted tracks only) before and after bundle adjustment.
+
 * All algorithms taking unsigned int configuration parameters now take size_t.
 
 Python

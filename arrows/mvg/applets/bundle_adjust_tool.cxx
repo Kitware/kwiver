@@ -1029,7 +1029,8 @@ bundle_adjust_tool::priv
   auto lms = landmark_map_ptr->landmarks();
   std::set< kv::landmark_id_t > fixed_landmarks;
   std::vector< kv::track_sptr > trusted_tracks;
-  for( auto t : feature_track_set_ptr->tracks() )
+  auto tracks = feature_track_set_ptr->tracks();
+  for( auto t : tracks )
   {
     auto attrs = t->attributes();
     if( attrs && attrs->has( "trusted" ) )
@@ -1042,16 +1043,27 @@ bundle_adjust_tool::priv
 
   auto const& cms = cams.cameras();
   std::set< vital::frame_id_t > fixed_cameras;
-  auto err = reprojection_rmse( cms, lms, trusted_tracks );
-  LOG_DEBUG( logger, "initial re-projection RMSE: " << err );
+  auto err = reprojection_rmse( cms, lms, tracks );
+  LOG_DEBUG( logger, "initial re-projection RMSE (all): " << err );
+  if( !trusted_tracks.empty() )
+  {
+    err = reprojection_rmse( cms, lms, trusted_tracks );
+    LOG_DEBUG( logger, "initial re-projection RMSE (trusted): " << err );
+  }
 
   algo_bundle_adjust->optimize(
     cams, lms, feature_track_set_ptr,
     fixed_cameras,
     fixed_landmarks, sfm_constraint_ptr );
 
-  err = reprojection_rmse( cms, lms, trusted_tracks );
-  LOG_DEBUG( logger, "final re-projection RMSE: " << err );
+  tracks = feature_track_set_ptr->tracks();
+  err = reprojection_rmse( cms, lms, tracks );
+  LOG_DEBUG( logger, "final re-projection RMSE (all): " << err );
+  if( !trusted_tracks.empty() )
+  {
+    err = reprojection_rmse( cms, lms, trusted_tracks );
+    LOG_DEBUG( logger, "final re-projection RMSE (trusted): " << err );
+  }
 
   landmark_map_ptr = std::make_shared< kv::simple_landmark_map >( lms );
   camera_map_ptr =
