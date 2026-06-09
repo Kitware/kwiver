@@ -74,6 +74,10 @@ config_valid = false
     config_valid;
 
   config_valid =
+    validate_optional_input_file( "input_cameras", *config, main_logger ) &&
+    config_valid;
+
+  config_valid =
     validate_required_output_dir(
       "output_cameras_directory", *config,
       main_logger ) &&
@@ -126,10 +130,15 @@ public:
   size_t num_frames = 0;
   kv::path_t video_file;
   kv::path_t tracks_file;
+  kv::path_t cam_in;
   kv::path_t camera_directory = "results/krtd";
   kv::path_t landmarks_file = "results/landmarks.ply";
   kv::path_t local_space_file = "results/local_space.txt";
   bool ignore_metadata = false;
+
+  using mapID2FN = std::unordered_map< size_t, kv::path_t >;
+
+  mapID2FN camID2FN;
 
   enum commandline_mode { SUCCESS, HELP, WRITE, FAIL, };
 
@@ -176,6 +185,11 @@ public:
       // choose video or image list reader based on file extension
       config->subblock_view( "video_reader" )->merge_config(
         load_default_video_input_config( video_file ) );
+    }
+    if( cmd_args.count( "cam-in" ) > 0 )
+    {
+      cam_in = cmd_args[ "cam-in" ].as< std::string >();
+      config->set_value( "input_cameras", cam_in );
     }
     if( cmd_args.count( "camera" ) > 0 )
     {
@@ -246,6 +260,12 @@ public:
     config->set_value(
       "input_tracks_file", tracks_file,
       "Path to a file to read input tracks from." );
+
+    config->set_value(
+      "input_cameras", cam_in,
+      "(optional) Path to a newline-delimited list file of KRTD camera "
+      "model paths. When provided, cameras are loaded from this list "
+      "instead of being initialized from metadata." );
 
     config->set_value(
       "output_cameras_directory", camera_directory,
@@ -422,17 +442,62 @@ config->get_value< type >( bc + #name, K_def.name() )
         }
 
         auto local_space = sfm_constraint_ptr->get_local_space();
-        kv::camera_map::map_camera_t cam_map =
-          initialize_cameras_with_metadata(
-            md_map, base_camera, local_space,
-            init_intrinsics_with_metadata );
-        camera_map_ptr =
-          std::make_shared< kv::simple_camera_map >( cam_map );
+        if( !config->has_value( "input_cameras" ) ||
+            config->get_value< std::string >( "input_cameras" ).empty() )
+        {
+          kv::camera_map::map_camera_t cam_map =
+            initialize_cameras_with_metadata(
+              md_map, base_camera, local_space,
+              init_intrinsics_with_metadata );
+          camera_map_ptr =
+            std::make_shared< kv::simple_camera_map >( cam_map );
+        }
         if( local_space.valid() )
         {
           sfm_constraint_ptr->set_local_space( local_space );
         }
       }
+    }
+  }
+
+  void
+  load_cameras()
+  {
+    if( !config )
+    {
+      return;
+    }
+    cam_in = config->get_value< kv::path_t >( "input_cameras", "" );
+    if( cam_in.empty() )
+    {
+      return;
+    }
+    std::ifstream f( cam_in );
+    if( !f )
+    {
+      LOG_ERROR( main_logger, "Failed to open camera list file: " << cam_in );
+      return;
+    }
+    std::string FN;
+    kv::camera_map::map_camera_t cameras;
+    for( size_t id = 1; std::getline( f, FN ); ++id )
+    {
+      try
+      {
+        cameras[ id ] = kv::read_krtd_file( FN );
+        camID2FN[ id ] =
+          kwiversys::SystemTools::GetFilenameWithoutLastExtension( FN );
+      }
+      catch( std::exception const& e )
+      {
+        LOG_WARN(
+          main_logger,
+          "Failed to load camera from " << FN << ": " << e.what() );
+      }
+    }
+    if( !cameras.empty() )
+    {
+      camera_map_ptr = std::make_shared< kv::simple_camera_map >( cameras );
     }
   }
 
@@ -539,6 +604,14 @@ config->get_value< type >( bc + #name, K_def.name() )
   std::string
   get_filename( kv::frame_id_t frame_id )
   {
+    if( !camID2FN.empty() )
+    {
+      auto it = camID2FN.find( static_cast< size_t >( frame_id ) );
+      if( it != camID2FN.end() )
+      {
+        return it->second;
+      }
+    }
     if( sfm_constraint_ptr && sfm_constraint_ptr->get_metadata() )
     {
       auto videoMetadataMap = sfm_constraint_ptr->get_metadata();
@@ -648,9 +721,17 @@ init_cameras_landmarks
       d_->load_sfm_constraint();
     }
 
+    if( d_->camera_map_ptr == nullptr )
+    {
+      d_->load_cameras();
+    }
+
     d_->run_algorithm();
 
-    d_->recenter_to_landmarks();
+    if( d_->cam_in.empty() )
+    {
+      d_->recenter_to_landmarks();
+    }
 
     if( !d_->write_cameras() )
     {
@@ -700,6 +781,8 @@ init_cameras_landmarks
     cxxopts::value< std::string > () )
   ( "v,video", "Input video", cxxopts::value< std::string > () )
   ( "t,tracks", "Input tracks", cxxopts::value< std::string > () )
+  ( "i,cam-in", "Input camera models list file (newline-delimited KRTD paths)",
+    cxxopts::value< std::string > () )
   ( "k,camera", "Output directory for cameras",
     cxxopts::value< std::string > () )
   ( "l,landmarks", "Output landmarks file", cxxopts::value< std::string > () )
