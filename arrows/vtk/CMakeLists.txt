@@ -69,9 +69,9 @@ endif()
 
 target_link_libraries( kwiver_algo_vtk
   PUBLIC               vital
+                       vital_algo
                        ${VTK_public_targets}
-  PRIVATE              vital_algo
-                       ${VTK_private_targets}
+  PRIVATE              ${VTK_private_targets}
   )
 
 kwiver_add_plugin( kwiver_algo_vtk_plugin

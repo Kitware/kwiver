@@ -5,9 +5,9 @@ set(CMAKE_FOLDER "Arrows/VTK/Tests")
 include(kwiver-test-setup)
 
 if(VTK_VERSION VERSION_LESS 9.0)
-  set(test_libraries kwiver_algo_vtk vtkIOXML)
+  set(test_libraries kwiver_algo_vtk vtkIOXML vtkFiltersSources)
 else()
-  set(test_libraries kwiver_algo_vtk VTK::IOXML)
+  set(test_libraries kwiver_algo_vtk VTK::IOXML VTK::FiltersSources)
 endif()
 
 ##############################
