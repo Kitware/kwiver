@@ -604,13 +604,10 @@ config->get_value< type >( bc + #name, K_def.name() )
   std::string
   get_filename( kv::frame_id_t frame_id )
   {
-    if( !camID2FN.empty() )
+    if( auto it = camID2FN.find( static_cast< size_t >( frame_id ) );
+        it != camID2FN.end() )
     {
-      auto it = camID2FN.find( static_cast< size_t >( frame_id ) );
-      if( it != camID2FN.end() )
-      {
-        return it->second;
-      }
+      return it->second;
     }
     if( sfm_constraint_ptr && sfm_constraint_ptr->get_metadata() )
     {
