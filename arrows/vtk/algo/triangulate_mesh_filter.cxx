@@ -26,8 +26,8 @@ triangulate_mesh_filter
 }
 
 // ----------------------------------------------------------------------------
-triangulate_mesh_filter::
-~triangulate_mesh_filter()
+triangulate_mesh_filter
+::~triangulate_mesh_filter()
 {}
 
 // ----------------------------------------------------------------------------

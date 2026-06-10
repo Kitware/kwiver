@@ -27,8 +27,8 @@ decimate_mesh_filter
 }
 
 // ----------------------------------------------------------------------------
-decimate_mesh_filter::
-~decimate_mesh_filter()
+decimate_mesh_filter
+::~decimate_mesh_filter()
 {}
 
 // ----------------------------------------------------------------------------
