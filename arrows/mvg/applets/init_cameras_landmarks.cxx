@@ -136,9 +136,7 @@ public:
   kv::path_t local_space_file = "results/local_space.txt";
   bool ignore_metadata = false;
 
-  using mapID2FN = std::unordered_map< size_t, kv::path_t >;
-
-  mapID2FN camID2FN;
+  std::unordered_map< size_t, kv::path_t > cam_id_to_name;
 
   enum commandline_mode { SUCCESS, HELP, WRITE, FAIL, };
 
@@ -478,21 +476,21 @@ config->get_value< type >( bc + #name, K_def.name() )
       LOG_ERROR( main_logger, "Failed to open camera list file: " << cam_in );
       return;
     }
-    std::string FN;
+    std::string file_name;
     kv::camera_map::map_camera_t cameras;
-    for( size_t id = 1; std::getline( f, FN ); ++id )
+    for( size_t id = 1; std::getline( f, file_name ); ++id )
     {
       try
       {
-        cameras[ id ] = kv::read_krtd_file( FN );
-        camID2FN[ id ] =
-          kwiversys::SystemTools::GetFilenameWithoutLastExtension( FN );
+        cameras[ id ] = kv::read_krtd_file( file_name );
+        cam_id_to_name[ id ] =
+          kwiversys::SystemTools::GetFilenameWithoutLastExtension( file_name );
       }
       catch( std::exception const& e )
       {
         LOG_WARN(
           main_logger,
-          "Failed to load camera from " << FN << ": " << e.what() );
+          "Failed to load camera from " << file_name << ": " << e.what() );
       }
     }
     if( !cameras.empty() )
@@ -604,8 +602,8 @@ config->get_value< type >( bc + #name, K_def.name() )
   std::string
   get_filename( kv::frame_id_t frame_id )
   {
-    if( auto it = camID2FN.find( static_cast< size_t >( frame_id ) );
-        it != camID2FN.end() )
+    if( auto it = cam_id_to_name.find( static_cast< size_t >( frame_id ) );
+        it != cam_id_to_name.end() )
     {
       return it->second;
     }
