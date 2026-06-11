@@ -27,6 +27,8 @@ Arrows: Core
   core/algo/uv_unwrap_mesh, with legacy behavior available using
   sort_descending=true and compact=false.
 
+* Corrected match_features_fundamental_matrix logger name.
+
 Arrows: FFmpeg
 
 * Add compatibility for FFmpeg v8.0 API.
