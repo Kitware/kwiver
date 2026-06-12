@@ -11,7 +11,10 @@ Arrows: OCV
 
 Arrows: VTK
 
-* Add VTK mesh_container implementation.
+* Added the following implementations of the mesh_filter algo:
+  smooth_mesh_filter, decimate_mesh_filter, triangulate_mesh_filter.
+
+* Added VTK mesh_container implementation.
 
 Arrows: Ceres
 
@@ -56,6 +59,8 @@ Track Oracle
 * Removed track_oracle.
 
 Vital: Algo
+
+* Added mesh_filter algorithm interface.
 
 * Added texture_mesh algorithm interface.
 
