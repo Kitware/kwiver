@@ -38,6 +38,9 @@ Arrows: MVG
 * The bundle-adjust-tool applet now accepts --focal-length to override the focal
   length of all input cameras before optimization.
 
+* The init-cameras-landmarks applet now accepts --cam-in, a list file of
+  KRTD camera paths, as an alternative to initializing cameras from metadata.
+
 * The bundle-adjust-tool applet now reports reprojection RMSE over all tracks
   (in addition to trusted tracks only) before and after bundle adjustment.
 
