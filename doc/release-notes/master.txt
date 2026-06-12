@@ -35,6 +35,9 @@ Arrows: FFmpeg
 
 Arrows: MVG
 
+* The bundle-adjust-tool applet now accepts --focal-length to override the focal
+  length of all input cameras before optimization.
+
 * The init-cameras-landmarks applet now accepts --cam-in, a list file of
   KRTD camera paths, as an alternative to initializing cameras from metadata.
 

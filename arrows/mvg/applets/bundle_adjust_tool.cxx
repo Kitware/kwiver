@@ -496,6 +496,7 @@ struct bundle_adjust_tool::priv
   kv::path_t local_space_file = "results/local_space.txt";
   kv::path_t GCPFN = "gcps.json";
   bool ignore_metadata = false;
+  double focal_length = 0.0;
 
   using mapID2FN = std::unordered_map< size_t, kv::path_t >;
 
@@ -572,6 +573,12 @@ struct bundle_adjust_tool::priv
       GCPFN = cmd_args[ "GCP" ].as< std::string >();
       config->set_value( "GCP_filename", GCPFN );
     }
+    if( cmd_args.count( "focal-length" ) > 0 )
+    {
+      focal_length = cmd_args[ "focal-length" ].as< double >();
+      config->set_value( "focal_length", focal_length );
+      LOG_INFO( logger, "overriding focal length to " << focal_length );
+    }
 
     bool valid_config = check_config( config );
 
@@ -628,6 +635,11 @@ struct bundle_adjust_tool::priv
     config->set_value(
       "input_cameras", cam_in,
       "Path to a file to read camera models from." );
+
+    config->set_value(
+      "focal_length", focal_length,
+      "(optional) Override the focal length of all input cameras. "
+      "A value of 0 leaves focal lengths unchanged." );
 
     config->set_value(
       "output_cameras_directory", cam_out_dir,
@@ -799,7 +811,26 @@ bundle_adjust_tool::priv
     LOG_INFO( logger, FN );
     try
     {
-      cameras[ id ] = kv::read_krtd_file( FN );
+      auto cam = kv::read_krtd_file( FN );
+      if( focal_length > 0.0 )
+      {
+        auto cam_scp =
+          std::dynamic_pointer_cast< kv::simple_camera_perspective >( cam );
+        if( !cam_scp )
+        {
+          cam_scp = std::make_shared< kv::simple_camera_perspective >( *cam );
+          cam = cam_scp;
+        }
+
+        auto intr = std::dynamic_pointer_cast< kv::simple_camera_intrinsics >(
+          cam_scp->intrinsics() );
+        if( intr )
+        {
+          intr->set_focal_length( focal_length );
+          cam_scp->set_intrinsics( intr );
+        }
+      }
+      cameras[ id ] = cam;
       camID2FN[ id ] =
         kwiversys::SystemTools::GetFilenameWithoutLastExtension( FN );
     }
@@ -1320,6 +1351,8 @@ bundle_adjust_tool
   ( "t,tracks", "input tracks.txt", cxxopts::value< std::string > () )
   ( "i,cam_in", "input camera models.txt list",
     cxxopts::value< std::string > () )
+  ( "f,focal-length", "override focal length of all input cameras",
+    cxxopts::value< double > () )
   ( "k,cam_out", "output directory for camera models",
     cxxopts::value< std::string > () )
   ( "l,landmarks", "output landmarks.ply file",
