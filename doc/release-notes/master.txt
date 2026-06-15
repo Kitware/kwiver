@@ -121,3 +121,5 @@ Bug Fixes
 ---------
 
 * The rotation_ equality operator now operates more correctly.
+
+* Fix failure to find Ceres v2 headers.
