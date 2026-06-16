@@ -14,8 +14,7 @@ venerable `OpenCV <https://opencv.org>`_, but also including `VXL <http://vxl.so
 `scikit-image <https://scikit-image.org>`_ and a wide range of
 others.  The current Deep Learning revolution has additionally spawned  a number
 of software frameworks for doing deep learning based computer vision including
-`Caffe <http://caffe.berkeleyvision.org>`_, `PyTorch <https://pytorch.org>`_,
-`Tensorflow <https://www.tensorflow.org>`_ and others.
+`PyTorch <https://pytorch.org>`_, `Tensorflow <https://www.tensorflow.org>`_ and others.
 
 Each of these frameworks has their own unique set of capabilities, target user
 community, dependencies and levels of difficulty and complexity.  When
@@ -41,6 +40,17 @@ wide variety of stream processing and multi-processing topologies.  KWIVER
 based systems have scaled from small embedded computing platforms such as the
 NVIDIA TX2 to large cloud based infrastructure and a wide variety of platforms
 in between.
+
+KWIVER achieves this by providing a unified API to expose common computer vision
+algorithms such as feature detection, camera optimization, and computing depth
+maps. Implementations for these algorithms are provided for many of the established
+computer vision libraries and frameworks. Common data structures or types,
+such as images, are wrapped in a common
+interface allowing them to be passed between the different algorithms while
+maintaining efficiency by directly accessing the underlying memory structures
+from the source software framework when practical. Via KWIVER's dynamic plugin
+infrastructure algorithm implementations can be created in python giving KWIVER
+access to the Python machine learning ecosystem.
 
 KWIVER is a collection of C++ libraries with C and Python bindings
 and uses an permissive `BSD License <LICENSE>`_.
