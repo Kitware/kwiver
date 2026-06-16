@@ -64,7 +64,7 @@ kwiver_add_library( kwiver_algo_ffmpeg
   ${plugin_ffmpeg_sources}
   )
 
-if(fletch_ENABLED_ZLib)
+if(KWIVER_ENABLE_ZLIB)
   if(KWIVER_BUILD_SHARED)
     find_package(ZLIB MODULE REQUIRED)
   else()

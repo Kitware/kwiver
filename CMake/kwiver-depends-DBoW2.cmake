@@ -2,7 +2,7 @@
 
 option( KWIVER_ENABLE_DBOW2
   "Enable DBoW2 dependent code and plugins"
-  ${fletch_ENABLED_OpenCV}
+  OFF
   )
 
 if( KWIVER_ENABLE_DBOW2 )

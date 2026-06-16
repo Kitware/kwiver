@@ -1,9 +1,15 @@
 # Optionally find and configure GDAL dependency
 
+if(DEFINED fletch_ENABLED_GDAL)
+  set(_default ${fletch_ENABLED_GDAL})
+else()
+  set(_default OFF)
+endif()
 option( KWIVER_ENABLE_GDAL
   "Enable GDAL dependent code and plugins (Arrows)"
-  ${fletch_ENABLED_GDAL}
+  ${_default}
   )
+unset(_default)
 
 if( KWIVER_ENABLE_GDAL )
   find_package( GDAL REQUIRED )

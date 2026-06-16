@@ -1,9 +1,15 @@
 # Optionally find and configure PDAL dependency
 
+if(DEFINED fletch_ENABLED_PDAL)
+  set(_default ${fletch_ENABLED_PDAL})
+else()
+  set(_default OFF)
+endif()
 option( KWIVER_ENABLE_PDAL
   "Enable PDAL dependent code and plugins (Arrows)"
-  ${fletch_ENABLED_PDAL}
+  ${_default}
   )
+unset(_default)
 
 if( KWIVER_ENABLE_PDAL )
   find_package( PDAL 1.0.0 REQUIRED )

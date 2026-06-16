@@ -1,9 +1,15 @@
 # Optional find and confgure VTK dependency
 
+if(DEFINED fletch_ENABLED_VTK)
+  set(_default ${fletch_ENABLED_VTK})
+else()
+  set(_default OFF)
+endif()
 option( KWIVER_ENABLE_VTK
   "Enable VTK dependent code and plugins (Arrows)"
-  ${fletch_ENABLED_VTK}
+  ${_default}
   )
+unset(_default)
 
 if( KWIVER_ENABLE_VTK )
   find_package(VTK)

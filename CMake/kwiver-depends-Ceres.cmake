@@ -1,9 +1,15 @@
 # Optionally find and configure Ceres dependency
 
+if(DEFINED fletch_ENABLED_Ceres)
+  set(_default ${fletch_ENABLED_Ceres})
+else()
+  set(_default OFF)
+endif()
 option( KWIVER_ENABLE_CERES
   "Enable Ceres dependent code and plugins (Arrows)"
-  ${fletch_ENABLED_Ceres}
+  ${_default}
   )
+unset(_default)
 
 if( KWIVER_ENABLE_CERES )
   find_package( Ceres REQUIRED )

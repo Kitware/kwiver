@@ -1,9 +1,15 @@
 # Optionally find and configure OpenCV dependency
 
+if(DEFINED fletch_ENABLED_OpenCV)
+  set(_default ${fletch_ENABLED_OpenCV})
+else()
+  set(_default OFF)
+endif()
 option( KWIVER_ENABLE_OPENCV
   "Enable OpenCV dependent code and plugins (Arrows)"
-  ${fletch_ENABLED_OpenCV}
+  ${_default}
   )
+unset(_default)
 
 set( USE_OPENCV False )
 if( KWIVER_ENABLE_OPENCV )

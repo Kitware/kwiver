@@ -1,9 +1,15 @@
 # Optional find and confgure VXL dependency
 
+if(DEFINED fletch_ENABLED_VXL)
+  set(_default ${fletch_ENABLED_VXL})
+else()
+  set(_default OFF)
+endif()
 option( KWIVER_ENABLE_VXL
   "Enable VXL dependent code and plugins (Arrows)"
-  ${fletch_ENABLED_VXL}
+  ${_default}
   )
+unset(_default)
 
 if( KWIVER_ENABLE_VXL )
   find_package( VXL REQUIRED )
