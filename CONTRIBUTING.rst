@@ -153,3 +153,7 @@ To release a new version:
      echo "2.3.2" > VERSION.txt
      git commit -am "Bump version to 2.3.2 for development"
      git push
+
+4. Add the tag to the active versions on readthedocs.org_.
+
+.. _readthedocs.org: https://app.readthedocs.org/projects/kwiver/
