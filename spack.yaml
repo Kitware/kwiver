@@ -1,0 +1,62 @@
+# This is a Spack Environment file.
+#
+# It describes a set of packages to be installed, along with
+# configuration settings.
+spack:
+  # add package specs to the  list
+  specs:
+  - fletch.bzip2
+  - fletch.proj@9.6
+  - fletch.libgeotiff
+  - googletest@1.8.1
+  - eigen@3.3.9 build_type=Release
+  - log4cplus@2.1.1
+  - fmt
+  - boost@1.89.0+chrono+date_time+iostreams+filesystem+program_options+regex+system+thread
+  - protobuf@3.4.1
+  - zlib
+  - gdal@3.12.2
+  - fletch.vtk@9.5
+  - fletch.opencv@4.12+ffmpeg
+  - ffmpeg@8
+  - yaml-cpp@0.7.0
+  - fletch.ceres-solver@2.2.0+suitesparse
+  - fletch.vxl+ffmpeg+rpl~brl~mul~prip+shared
+  - py-sphinx
+  - fletch.doxygen
+  - cppzmq
+  - libpng@1.6.53
+  - libjpeg-turbo@3.1.1
+  - sqlite@3.35.2
+  - qt+ssl+tools
+  view: false # needed to add to path - no modules
+  concretizer:
+    unify: true
+    reuse: true
+    targets:
+      granularity: generic
+      host_compatible: false
+  packages:
+    all:
+      prefer: [build_system=cmake]
+      variants:
+      - ~fortran
+      require:
+      - target=x86_64
+  config:
+    installer: old
+
+  repos:
+    fletch:
+      git: https://gitlab.kitware.com/kwiver/fletch-package-repo
+
+  mirrors:
+    fletch-buildcache:
+      url: oci://gitlab.kitware.com:4567/kwiver/kwiver/kwiver-spack-buildcache
+      binary: true
+      signed: false
+      access_pair:
+        id_variable: REG_USER
+        secret_variable: REG_TOKEN
+    v2026.03.0: https://binaries.spack.io/v2026.03.0
+    develop: https://binaries.spack.io/develop
