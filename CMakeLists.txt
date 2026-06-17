@@ -350,16 +350,11 @@ string(REPLACE ";" " " kwiver_libs "${kwiver_libs}")
 set( KWIVER_INCLUDE_DIRS "")
 set( KWIVER_LIBRARY_DIRS "")
 
-# TODO: use global property to capture found, external-to-fletch eigen dep
 list(APPEND KWIVER_INCLUDE_DIRS "${EIGEN3_INCLUDE_DIR}")
 
-# TODO: use global property to capture found, external-to-fletch boost dep
-if ( NOT fletch_ENABLED_Boost)
-  # define which boost we are using
-  if (DEFINED BOOST_ROOT_ARG)
-    list( APPEND KWIVER_INCLUDE_DIRS "${BOOST_ROOT_ARG}/include")
-    list( APPEND KWIVER_LIBRARY_DIRS "${BOOST_ROOT_ARG}/lib")
-  endif()
+if (DEFINED BOOST_ROOT_ARG)
+  list( APPEND KWIVER_INCLUDE_DIRS "${BOOST_ROOT_ARG}/include")
+  list( APPEND KWIVER_LIBRARY_DIRS "${BOOST_ROOT_ARG}/lib")
 endif()
 
 if (fletch_FOUND)

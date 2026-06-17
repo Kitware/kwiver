@@ -1,10 +1,9 @@
 # Optionally find and configure PROJ dependency
 
-option( KWIVER_ENABLE_PROJ
-  "Enable PROJ dependent code and plugins (Arrows)"
-  ${fletch_ENABLED_PROJ}
-  )
+kwiver_package_option(PROJ
+  DESCRIPTION "Enable PROJ dependent code and plugins (Arrows)"
+)
 
-if( KWIVER_ENABLE_PROJ )
+if( kwiver_enabled_proj )
   find_package( PROJ REQUIRED )
-endif( KWIVER_ENABLE_PROJ )
+endif()

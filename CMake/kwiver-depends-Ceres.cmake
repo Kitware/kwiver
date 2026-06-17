@@ -1,11 +1,11 @@
 # Optionally find and configure Ceres dependency
 
-option( KWIVER_ENABLE_CERES
-  "Enable Ceres dependent code and plugins (Arrows)"
-  ${fletch_ENABLED_Ceres}
-  )
+kwiver_package_option(CERES
+  DESCRIPTION "Enable Ceres dependent code and plugins (Arrows)"
+  FLETCH_NAME Ceres
+)
 
-if( KWIVER_ENABLE_CERES )
+if( kwiver_enabled_ceres )
   find_package( Ceres REQUIRED )
   if(NOT CERES_INCLUDE_DIRS)
     # Ceres v2 doesn't define CERES_INCLUDE_DIRS, but the ceres algo plugin still relies on it

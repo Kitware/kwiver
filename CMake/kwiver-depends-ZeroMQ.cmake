@@ -12,14 +12,14 @@ if( KWIVER_ENABLE_ZeroMQ )
   else()
     # Zeromq builds both shared static and shared library
     # This allows static library to be found in a static build
-    find_library( ZeroMQ_LIBRARY libzmq.a libzmq
+    find_library( ZeroMQ_LIBRARY NAMES libzmq.a libzmq
                   PATHS ${fletch_ROOT}
                   PATH_SUFFIXES lib
                 )
-    # Without the use of the `find_package` above, the `ZeroMQ_INCLUDE_DIR`
-    # variable does not get set. Setting it here to the known location for ZMQ
-    # headers (also covers cppzmq).
-    set(ZeroMQ_INCLUDE_DIR "${fletch_ROOT}/include")
+    find_path( ZeroMQ_INCLUDE_DIR zmq.h
+               PATHS ${fletch_ROOT}
+               PATH_SUFFIXES include
+             )
   endif()
   include_directories(SYSTEM ${ZeroMQ_INCLUDE_DIR})
 endif( KWIVER_ENABLE_ZeroMQ )

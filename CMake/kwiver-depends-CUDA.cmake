@@ -5,6 +5,17 @@ option( KWIVER_ENABLE_CUDA
   OFF
   )
 
+if(DEFINED fletch_BUILT_WITH_CUDNN)
+  set(_default ${fletch_BUILT_WITH_CUDNN})
+else()
+  set(_default OFF)
+endif()
+option( KWIVER_ENABLE_CUDNN
+  "Enable CUDNN support (requires KWIVER_ENABLE_CUDA)"
+  ${_default}
+  )
+unset(_default)
+
 if( KWIVER_ENABLE_CUDA )
   enable_language(CUDA)
 

@@ -14,10 +14,16 @@ option( KWIVER_ENABLE_QT
 if( KWIVER_ENABLE_QT )
   set(Qt_components Core Gui)
 
+  if(DEFINED fletch_ENABLED_qtExtensions)
+    set(_default ${fletch_ENABLED_qtExtensions})
+  else()
+    set(_default OFF)
+  endif()
   option( KWIVER_ENABLE_QT_EXT
     "Enable Qt Extensions dependent code"
-    ${fletch_ENABLED_qtExtensions}
+    ${_default}
     )
+  unset(_default)
 
   if( KWIVER_ENABLE_QT_EXT )
     list(APPEND Qt_components Widgets Xml)

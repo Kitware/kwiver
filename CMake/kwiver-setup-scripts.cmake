@@ -33,10 +33,10 @@ file(TO_NATIVE_PATH "${kwiver_plugin_module_subdir}" kwiver_plugin_module_subdir
 file(TO_NATIVE_PATH "${kwiver_plugin_process_subdir}" kwiver_plugin_process_subdir_win)
 file(TO_NATIVE_PATH "${kwiver_plugin_algorithms_subdir}" kwiver_plugin_algorithms_subdir_win)
 
-if(fletch_BUILT_WITH_CUDA)
+if(KWIVER_ENABLE_CUDA)
   list(APPEND EXTRA_WIN32_PATH "${CUDA_TOOLKIT_ROOT_DIR}/bin")
 endif()
-if(fletch_BUILT_WITH_CUDNN)
+if(KWIVER_ENABLE_CUDNN)
   list(APPEND EXTRA_WIN32_PATH "${CUDNN_TOOLKIT_ROOT_DIR}/bin")
 endif()
 configure_file(
@@ -85,6 +85,7 @@ if(KWIVER_ENABLE_PROJ)
 endif()
 
 
+
 if ( fletch_FOUND )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=${fletch_ROOT}/bin;%PATH%;\n" )
   file( APPEND "${KWIVER_SETUP_BATCH_FILE}" "set PATH=${fletch_ROOT}/x64/${_vcVersion}/bin;%PATH%;\n" )
@@ -95,9 +96,9 @@ if ( fletch_FOUND )
   # Could be handled by rpaths, but still needed if Fletch is not packaged with KWIVER
   file( APPEND "${KWIVER_SETUP_SCRIPT_FILE}" "export ${LIBRARY_PATH_VAR}=${fletch_ROOT}/lib:$${LIBRARY_PATH_VAR}\n" )
 else()
-if(WIN32)
-  message(WARNING "set fletch_DIR, otherwise paths to external libraries will not be set")
-endif()
+  if(WIN32)
+    message(WARNING "set fletch_DIR or use spack, otherwise paths to external libraries will not be set")
+  endif()
 endif()
 
 ###

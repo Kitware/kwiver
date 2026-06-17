@@ -1,10 +1,10 @@
 # Optional find and configure ZLib dependency
 
-option( KWIVER_ENABLE_ZLIB
-  "Enable zlib dependent code and plugins (Arrows)"
-  ${fletch_ENABLED_ZLib}
-  )
+kwiver_package_option(ZLIB
+  DESCRIPTION "Enable zlib dependent code and plugins (Arrows)"
+  FLETCH_NAME ZLib
+)
 
-if( KWIVER_ENABLE_ZLIB )
+if( kwiver_enabled_zlib )
   find_package( ZLIB MODULE REQUIRED )
 endif()

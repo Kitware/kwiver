@@ -1,11 +1,11 @@
 # external dependency for kpf i/o
 
-option( KWIVER_ENABLE_KPF
-  "Enable kpf i/o for vital types"
-  ${fletch_ENABLED_YAMLCPP}
+kwiver_package_option(KPF
+  DESCRIPTION "Enable kpf i/o for vital types"
+  FLETCH_NAME YAMLCPP
 )
-# Mark this as advanced
 mark_as_advanced( KWIVER_ENABLE_KPF )
-if (KWIVER_ENABLE_KPF )
+
+if( kwiver_enabled_kpf )
   add_definitions( -DKWIVER_ENABLE_KPF )
 endif()
