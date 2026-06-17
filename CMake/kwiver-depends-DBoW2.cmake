@@ -1,10 +1,10 @@
 # Optional confgure DBoW2 dependency
 
-option( KWIVER_ENABLE_DBOW2
-  "Enable DBoW2 dependent code and plugins"
-  OFF
-  )
+kwiver_package_option(DBOW2
+  DESCRIPTION "Enable DBoW2 dependent code and plugins"
+  DEFAULT ${kwiver_enabled_opencv}
+)
 
-if( KWIVER_ENABLE_DBOW2 )
+if( kwiver_enabled_dbow2 )
   find_package( OpenCV REQUIRED )
-endif( KWIVER_ENABLE_DBOW2 )
+endif()

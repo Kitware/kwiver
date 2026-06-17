@@ -1,16 +1,10 @@
 # Optional find and configure FFmpeg dependency
 
-if(DEFINED fletch_ENABLED_FFmpeg)
-  set(_default ${fletch_ENABLED_FFmpeg})
-else()
-  set(_default OFF)
-endif()
-option( KWIVER_ENABLE_FFMPEG
-  "Enable FFmpeg dependent code and plugins (Arrows)"
-  ${_default}
-  )
-unset(_default)
+kwiver_package_option(FFMPEG
+  DESCRIPTION "Enable FFmpeg dependent code and plugins (Arrows)"
+  FLETCH_NAME FFmpeg
+)
 
-if( KWIVER_ENABLE_FFMPEG )
+if( kwiver_enabled_ffmpeg )
   find_package( FFMPEG 3.0  REQUIRED )
-endif( KWIVER_ENABLE_FFMPEG )
+endif()

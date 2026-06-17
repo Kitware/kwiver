@@ -1,17 +1,10 @@
 # Optionally find and configure PDAL dependency
 
-if(DEFINED fletch_ENABLED_PDAL)
-  set(_default ${fletch_ENABLED_PDAL})
-else()
-  set(_default OFF)
-endif()
-option( KWIVER_ENABLE_PDAL
-  "Enable PDAL dependent code and plugins (Arrows)"
-  ${_default}
-  )
-unset(_default)
+kwiver_package_option(PDAL
+  DESCRIPTION "Enable PDAL dependent code and plugins (Arrows)"
+)
 
-if( KWIVER_ENABLE_PDAL )
+if( kwiver_enabled_pdal )
   find_package( PDAL 1.0.0 REQUIRED )
 
   # PDAL library names are improperly exported in PDAL 1.7.2 for Linux

@@ -1,18 +1,12 @@
 # Optionally find and configure OpenCV dependency
 
-if(DEFINED fletch_ENABLED_OpenCV)
-  set(_default ${fletch_ENABLED_OpenCV})
-else()
-  set(_default OFF)
-endif()
-option( KWIVER_ENABLE_OPENCV
-  "Enable OpenCV dependent code and plugins (Arrows)"
-  ${_default}
-  )
-unset(_default)
+kwiver_package_option(OPENCV
+  DESCRIPTION "Enable OpenCV dependent code and plugins (Arrows)"
+  FLETCH_NAME OpenCV
+)
 
 set( USE_OPENCV False )
-if( KWIVER_ENABLE_OPENCV )
+if( kwiver_enabled_opencv )
   find_package( OpenCV REQUIRED )
   include_directories(SYSTEM ${OpenCV_INCLUDE_DIRS})
 
@@ -29,6 +23,6 @@ if( KWIVER_ENABLE_OPENCV )
   else()
     message( FATAL_ERROR "OpenCV version must be at least 3.0" )
   endif()
-endif( KWIVER_ENABLE_OPENCV )
+endif()
 
   ##
