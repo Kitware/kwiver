@@ -117,6 +117,10 @@ Vital: Types
 
 * Metadata now holds absolute instead of relative sensor orientation.
 
+Building:
+
+* Kwiver now supports using Spack to manage third party dependences.
+
 Bug Fixes
 ---------
 
