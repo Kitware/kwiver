@@ -32,6 +32,7 @@ set( plugin_core_classes
   algo/filter_features_scale
   algo/filter_tracks
   algo/handle_descriptor_request_core
+  algo/image_filter_bypass
   algo/image_io_tiled_multifile
   algo/initialize_object_tracks_threshold
   algo/interpolate_track_spline
