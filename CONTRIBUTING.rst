@@ -142,16 +142,16 @@ To release a new version:
 
 1. Tag the release commit and push::
 
-     git tag v2.3.1
-     git push origin v2.3.1
+     git tag v2.4.1
+     git push origin v2.4.1
 
 2. CI automatically builds and uploads wheels to the GitLab package registry
 
 3. Bump ``VERSION.txt`` to next patch version for development (required for
    correct dev versioning on subsequent builds)::
 
-     echo "2.3.2" > VERSION.txt
-     git commit -am "Bump version to 2.3.2 for development"
+     echo "2.4.2" > VERSION.txt
+     git commit -am "Bump version to 2.4.2 for development"
      git push
 
 4. Add the tag to the active versions on readthedocs.org_.
