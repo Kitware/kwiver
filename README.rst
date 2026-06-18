@@ -91,6 +91,14 @@ for use with KWIVER.  Fletch is a |cmake_link|_ based
 
 For building Fletch_, refer to the README file in that repository.
 
+Spack
+-----
+
+As an alternative to Fletch Kwiver's third party dependencies can also be
+managed using Spack_. Spack is a package manager originally developed to
+support supercomputers but can now support package management on Linux, macOS,
+and Windows. Details on using Spack with Kwiver can be found in Spack.md_
+
 
 Running CMake
 -------------
@@ -316,6 +324,8 @@ NOAA Fisheries Strategic Initiative on Automated Image Analysis.
 .. _TeleSculptor: https://github.com/Kitware/TeleSculptor
 .. _OpenCV: http://opencv.org/
 .. _PROJ: http://proj.org/
+.. _Spack: https://spack.io/
+.. _Spack.md: ./environment/Spack.md
 .. _Travis CI: https://travis-ci.org/
 .. _VIAME: https://github.com/Kitware/VIAME
 .. _Vibrant: https://github.com/Kitware/vibrant
