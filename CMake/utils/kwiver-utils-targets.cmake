@@ -227,7 +227,23 @@ function(kwiver_add_library     name)
   string(TOUPPER "${name}" upper_name)
   message(STATUS "Making library \"${name}\"")
 
-  add_library("${name}" ${ARGN})
+  # VS 2026 / CMake 4.x quirk: BUILD_SHARED_LIBS comes through as OFF inside
+  # this function scope even when the project requests shared. Fall back to
+  # KWIVER_BUILD_SHARED to decide. Force SHARED when no explicit type keyword
+  # is present, otherwise the default add_library() picks STATIC and breaks
+  # transitive PRIVATE-dep propagation in downstream projects (kwant/vivia).
+  set(_kal_has_type FALSE)
+  foreach(_kal_arg IN LISTS ARGN)
+    if(_kal_arg STREQUAL "STATIC" OR _kal_arg STREQUAL "SHARED" OR _kal_arg STREQUAL "MODULE" OR _kal_arg STREQUAL "OBJECT" OR _kal_arg STREQUAL "INTERFACE")
+      set(_kal_has_type TRUE)
+      break()
+    endif()
+  endforeach()
+  if(NOT _kal_has_type AND (BUILD_SHARED_LIBS OR KWIVER_BUILD_SHARED))
+    add_library("${name}" SHARED ${ARGN})
+  else()
+    add_library("${name}" ${ARGN})
+  endif()
 
   _kwiver_check_and_set_library_dir()
   _kwiver_validate_path_value(library_dir "${library_dir}")
