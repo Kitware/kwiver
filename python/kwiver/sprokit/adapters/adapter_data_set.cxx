@@ -249,6 +249,11 @@ add_nullptr(
       port, nullptr );
     return;
   }
+  if( type_name == "track_descriptor_set" )
+  {
+    self.add_value< kwiver::vital::track_descriptor_set_sptr >( port, nullptr );
+    return;
+  }
   throw py::value_error( "add_nullptr: unsupported type name: " + type_name );
 }
 
@@ -376,7 +381,8 @@ PYBIND11_MODULE( adapter_data_set, m )
       "add_nullptr", &kwiver::sprokit::python::add_nullptr,
       py::arg( "port" ), py::arg( "type_name" ),
       "Place a typed null shared_ptr on a port. Supported type names: "
-      "descriptor_request, database_query, iqr_feedback, uchar_vector." )
+      "descriptor_request, database_query, iqr_feedback, uchar_vector, "
+      "track_descriptor_set." )
     // Next shared ptrs to native C++ types
     .def(
       "_add_double_vector",
