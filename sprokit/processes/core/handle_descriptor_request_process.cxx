@@ -19,6 +19,7 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include <algorithm>
 #include <memory>
 #include <fstream>
 #include <chrono>
@@ -157,11 +158,27 @@ handle_descriptor_request_process
 
   if( d->image_pipeline )
   {
-    // Set request on pipeline inputs
+    // Set request on pipeline inputs. Only populate ports the pipeline
+    // actually exposes; the input adapter rejects data packets containing
+    // entries for unconnected ports (e.g. pipelines with no stream_id
+    // consumer).
     auto ids = adapter::adapter_data_set::create();
 
-    ids->add_value( "filename", filename );
-    ids->add_value( "stream_id", stream_id );
+    auto const& input_ports = d->image_pipeline->input_port_names();
+    auto const has_port = [&input_ports]( std::string const& name )
+    {
+      return std::find( input_ports.begin(), input_ports.end(), name )
+             != input_ports.end();
+    };
+
+    if( has_port( "filename" ) )
+    {
+      ids->add_value( "filename", filename );
+    }
+    if( has_port( "stream_id" ) )
+    {
+      ids->add_value( "stream_id", stream_id );
+    }
 
     // Extract spatial regions (bounding boxes) from the request and convert
     // to a detected_object_set for descriptor computation. Always send this
@@ -189,7 +206,10 @@ handle_descriptor_request_process
       dos->add( det );
     }
 
-    ids->add_value( "detected_object_set", dos );
+    if( has_port( "detected_object_set" ) )
+    {
+      ids->add_value( "detected_object_set", dos );
+    }
 
     // Send the request through the pipeline and wait for a result
     d->image_pipeline->send( ids );
