@@ -235,6 +235,66 @@ def test_add_get_vital_types_by_ptr():
     )
 
 
+# Next the database query / IQR types used by query pipelines
+def test_add_get_query_types_by_ptr():
+    from kwiver.sprokit.adapters import adapter_data_set
+    from kwiver.vital import types as kvt
+
+    ads = adapter_data_set.AdapterDataSet.create()
+    add_get_helper(
+        ads,
+        ads._add_descriptor_request,
+        ads._get_port_data_descriptor_request,
+        kvt.DescriptorRequest(),
+        "descriptor_request",
+    )
+    add_get_helper(
+        ads,
+        ads._add_database_query,
+        ads._get_port_data_database_query,
+        kvt.DatabaseQuery(),
+        "database_query",
+    )
+    add_get_helper(
+        ads,
+        ads._add_iqr_feedback,
+        ads._get_port_data_iqr_feedback,
+        kvt.IQRFeedback(),
+        "iqr_feedback",
+    )
+
+
+# Typed null shared_ptrs (used to populate unused query pipeline input ports)
+def test_add_nullptr():
+    from kwiver.sprokit.adapters import adapter_data_set
+
+    # Retrieving a typed null requires the element types to be registered
+    # with pybind, which happens when their python modules are imported.
+    from kwiver.vital import types as kvt  # noqa: F401
+
+    ads = adapter_data_set.AdapterDataSet.create()
+    for type_name in (
+        "descriptor_request",
+        "database_query",
+        "iqr_feedback",
+        "uchar_vector",
+    ):
+        portname = "null_{}_port".format(type_name)
+        ads.add_nullptr(portname, type_name)
+        if ads.get_port_data(portname) is not None:
+            test_error(
+                "Expected None when retrieving null {} port".format(type_name)
+            )
+
+    expect_exception(
+        "attempting add_nullptr with an unsupported type name",
+        ValueError,
+        ads.add_nullptr,
+        "bad_port",
+        "not_a_type",
+    )
+
+
 # Next some bound native C++ types
 def test_add_get_cpp_types():
     from kwiver.sprokit.adapters import adapter_data_set
