@@ -19,6 +19,11 @@
 #include <vital/types/object_track_set.h>
 #include <vital/types/timestamp.h>
 #include <vital/types/track_set.h>
+#include <vital/types/database_query.h>
+#include <vital/types/descriptor_request.h>
+#include <vital/types/iqr_feedback.h>
+#include <vital/types/query_result_set.h>
+#include <vital/types/track_descriptor_set.h>
 
 #include <memory>
 
@@ -87,6 +92,15 @@ if( py::isinstance< PYTYPE >( obj ) )         \
     kwiver::vital::object_track_set,
     std::shared_ptr< kwiver::vital::object_track_set > )
   ADS_ADD_OBJECT(
+    kwiver::vital::descriptor_request,
+    std::shared_ptr< kwiver::vital::descriptor_request > )
+  ADS_ADD_OBJECT(
+    kwiver::vital::database_query,
+    std::shared_ptr< kwiver::vital::database_query > )
+  ADS_ADD_OBJECT(
+    kwiver::vital::iqr_feedback,
+    std::shared_ptr< kwiver::vital::iqr_feedback > )
+  ADS_ADD_OBJECT(
     std::vector< double >,
     std::shared_ptr< std::vector< double > > )
   ADS_ADD_OBJECT(
@@ -148,6 +162,9 @@ if( any.type() == typeid( TYPE ) )                           \
   ADS_GET_OBJECT( std::shared_ptr< kwiver::vital::track_set > )
   ADS_GET_OBJECT( std::shared_ptr< kwiver::vital::feature_track_set > )
   ADS_GET_OBJECT( std::shared_ptr< kwiver::vital::object_track_set > )
+  ADS_GET_OBJECT( std::shared_ptr< kwiver::vital::descriptor_request > )
+  ADS_GET_OBJECT( std::shared_ptr< kwiver::vital::database_query > )
+  ADS_GET_OBJECT( std::shared_ptr< kwiver::vital::iqr_feedback > )
   ADS_GET_OBJECT( std::shared_ptr< std::vector< double > > )
   ADS_GET_OBJECT( std::shared_ptr< std::vector< std::string > > )
   ADS_GET_OBJECT( std::shared_ptr< std::vector< unsigned char > > )
@@ -158,12 +175,81 @@ if( any.type() == typeid( TYPE ) )                           \
 
 #undef ADS_GET_OBJECT
 
+  // Sets of query results / track descriptors are typedef'd vectors of
+  // shared_ptrs (not distinct bound classes), so convert them to python
+  // lists of the already-bound element types.
+  if( any.is_type< kwiver::vital::query_result_set_sptr >() )
+  {
+    auto const set_sptr =
+      kwiver::vital::any_cast< kwiver::vital::query_result_set_sptr >( any );
+    py::list result;
+    if( set_sptr )
+    {
+      for( auto const& item : *set_sptr )
+      {
+        result.append( py::cast( item ) );
+      }
+    }
+    return result;
+  }
+  if( any.is_type< kwiver::vital::track_descriptor_set_sptr >() )
+  {
+    auto const set_sptr =
+      kwiver::vital::any_cast< kwiver::vital::track_descriptor_set_sptr >( any );
+    py::list result;
+    if( set_sptr )
+    {
+      for( auto const& item : *set_sptr )
+      {
+        result.append( py::cast( item ) );
+      }
+    }
+    return result;
+  }
+
   std::string msg(
     "Unable to convert object found at adapter data set port: " );
   msg += port;
   msg += ". Data is of type: ";
   msg += any.type().name();
   throw py::type_error( msg );
+}
+
+// Place a typed null shared_ptr on a port. Pipelines built around
+// input/output adapters (e.g. the VIAME query/IQR pipeline) expect every
+// input port to be populated each step, with unused ports carrying empty
+// sptrs of the correct static type; add_value_correct_type cannot express
+// that since None carries no type information.
+void
+add_nullptr(
+  ka::adapter_data_set& self, ::sprokit::process::port_t const& port,
+  std::string const& type_name )
+{
+  if( type_name == "descriptor_request" )
+  {
+    self.add_value< std::shared_ptr< kwiver::vital::descriptor_request > >(
+      port, nullptr );
+    return;
+  }
+  if( type_name == "database_query" )
+  {
+    self.add_value< std::shared_ptr< kwiver::vital::database_query > >(
+      port, nullptr );
+    return;
+  }
+  if( type_name == "iqr_feedback" )
+  {
+    self.add_value< std::shared_ptr< kwiver::vital::iqr_feedback > >(
+      port, nullptr );
+    return;
+  }
+  if( type_name == "uchar_vector" )
+  {
+    self.add_value< std::shared_ptr< std::vector< unsigned char > > >(
+      port, nullptr );
+    return;
+  }
+  throw py::value_error( "add_nullptr: unsupported type name: " + type_name );
 }
 
 } // namespace python
@@ -271,6 +357,26 @@ PYBIND11_MODULE( adapter_data_set, m )
       &ka::adapter_data_set::add_value< std::shared_ptr< kwiver::vital::
         object_track_set > >,
       py::arg( "port" ), py::arg( "val" ).none( false ) )
+    .def(
+      "_add_descriptor_request",
+      &ka::adapter_data_set::add_value< std::shared_ptr< kwiver::vital::
+        descriptor_request > >,
+      py::arg( "port" ), py::arg( "val" ).none( false ) )
+    .def(
+      "_add_database_query",
+      &ka::adapter_data_set::add_value< std::shared_ptr< kwiver::vital::
+        database_query > >,
+      py::arg( "port" ), py::arg( "val" ).none( false ) )
+    .def(
+      "_add_iqr_feedback",
+      &ka::adapter_data_set::add_value< std::shared_ptr< kwiver::vital::
+        iqr_feedback > >,
+      py::arg( "port" ), py::arg( "val" ).none( false ) )
+    .def(
+      "add_nullptr", &kwiver::sprokit::python::add_nullptr,
+      py::arg( "port" ), py::arg( "type_name" ),
+      "Place a typed null shared_ptr on a port. Supported type names: "
+      "descriptor_request, database_query, iqr_feedback, uchar_vector." )
     // Next shared ptrs to native C++ types
     .def(
       "_add_double_vector",
@@ -335,6 +441,18 @@ PYBIND11_MODULE( adapter_data_set, m )
       "_get_port_data_object_track_set",
       &ka::adapter_data_set::get_port_data< std::shared_ptr< kwiver::vital::
         object_track_set > > )
+    .def(
+      "_get_port_data_descriptor_request",
+      &ka::adapter_data_set::get_port_data< std::shared_ptr< kwiver::vital::
+        descriptor_request > > )
+    .def(
+      "_get_port_data_database_query",
+      &ka::adapter_data_set::get_port_data< std::shared_ptr< kwiver::vital::
+        database_query > > )
+    .def(
+      "_get_port_data_iqr_feedback",
+      &ka::adapter_data_set::get_port_data< std::shared_ptr< kwiver::vital::
+        iqr_feedback > > )
     // Next shared ptrs to native C++ types
     .def(
       "_get_port_data_double_vector",
