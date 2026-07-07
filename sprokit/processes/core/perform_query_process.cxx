@@ -423,8 +423,16 @@ perform_query_process
     model = grab_from_port_using_trait( iqr_model );
   }
 
-  query_descs = grab_from_port_using_trait( track_descriptor_set );
-  query_images = grab_from_port_using_trait( image_set );
+  // These ports are declared optional; only grab them when connected
+  // (e.g. reduced query pipelines have no descriptor formulation path)
+  if( has_input_port_edge_using_trait( track_descriptor_set ) )
+  {
+    query_descs = grab_from_port_using_trait( track_descriptor_set );
+  }
+  if( has_input_port_edge_using_trait( image_set ) )
+  {
+    query_images = grab_from_port_using_trait( image_set );
+  }
 
   if( query_descs )
   {
