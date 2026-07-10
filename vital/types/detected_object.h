@@ -89,6 +89,16 @@ public:
 
   virtual ~detected_object() = default;
 
+  /// @brief Copy constructor.
+  ///
+  /// The attribute mutex is not copyable, so copy operations are defined
+  /// explicitly.  Each object retains its own mutex while the remaining
+  /// members are copied.
+  detected_object( detected_object const& other );
+
+  /// @brief Copy assignment operator.
+  detected_object& operator=( detected_object const& other );
+
   /// @brief Create a deep copy of this object.
   ///
   /// @return Managed copy of this object.

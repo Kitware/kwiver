@@ -43,6 +43,55 @@ detected_object
 {}
 
 // ----------------------------------------------------------------------------
+detected_object
+::detected_object( detected_object const& other )
+  : m_geo_point{ other.m_geo_point },
+    m_bounding_box{ other.m_bounding_box },
+    m_confidence{ other.m_confidence },
+    m_mask_image{ other.m_mask_image },
+    m_descriptor{ other.m_descriptor },
+    m_type{ other.m_type },
+    m_index{ other.m_index },
+    m_detector_name{ other.m_detector_name },
+    m_notes{ other.m_notes },
+    m_keypoints{ other.m_keypoints },
+    m_polygon{ other.m_polygon }
+{
+  std::lock_guard< std::mutex > lock( other.m_attrs_mutex );
+  m_attrs = other.m_attrs;
+}
+
+// ----------------------------------------------------------------------------
+detected_object&
+detected_object
+::operator=( detected_object const& other )
+{
+  if( this != &other )
+  {
+    m_geo_point = other.m_geo_point;
+    m_bounding_box = other.m_bounding_box;
+    m_confidence = other.m_confidence;
+    m_mask_image = other.m_mask_image;
+    m_descriptor = other.m_descriptor;
+    m_type = other.m_type;
+    m_index = other.m_index;
+    m_detector_name = other.m_detector_name;
+    m_notes = other.m_notes;
+    m_keypoints = other.m_keypoints;
+    m_polygon = other.m_polygon;
+
+    // Lock both mutexes without risking deadlock, then copy attributes.
+    std::lock( m_attrs_mutex, other.m_attrs_mutex );
+
+    std::lock_guard< std::mutex > this_lock( m_attrs_mutex, std::adopt_lock );
+    std::lock_guard< std::mutex > other_lock(
+      other.m_attrs_mutex, std::adopt_lock );
+    m_attrs = other.m_attrs;
+  }
+  return *this;
+}
+
+// ----------------------------------------------------------------------------
 detected_object_sptr
 detected_object
 ::clone() const
