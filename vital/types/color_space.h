@@ -37,7 +37,7 @@
 #ifndef VITAL_COLOR_SPACE_H_
 #define VITAL_COLOR_SPACE_H_
 
-#include <vital/vital_export.h>
+#include <vital/types/vital_types_export.h>
 
 #include <string>
 
@@ -62,10 +62,10 @@ enum color_space
 };
 
 /// \brief Converts a string to a known color space if possible.
-VITAL_EXPORT color_space string_to_color_space( const std::string& str );
+VITAL_TYPES_EXPORT color_space string_to_color_space( const std::string& str );
 
 /// \brief Converts a string to a known color space if possible.
-VITAL_EXPORT std::string color_space_to_string( const color_space cs );
+VITAL_TYPES_EXPORT std::string color_space_to_string( const color_space cs );
 
 } // end namespace vital
 
