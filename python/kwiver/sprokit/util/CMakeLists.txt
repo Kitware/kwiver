@@ -14,6 +14,7 @@ kwiver_add_library(sprokit_python_util
 
 target_link_libraries(sprokit_python_util
   LINK_PUBLIC     ${Python_LIBRARIES}
+                  pybind11::module
   LINK_PRIVATE    ${Boost_IOSTREAMS_LIBRARY}
                   ${Boost_SYSTEM_LIBRARY}
                   vital_python_util)
