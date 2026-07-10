@@ -7,6 +7,8 @@
 
 #include <vital/algo/track_objects.h>
 
+#include <vital/vital_config.h>
+
 namespace kwiver {
 
 namespace vital {
@@ -26,7 +28,7 @@ track_objects
   kwiver::vital::timestamp ts,
   kwiver::vital::image_container_sptr image,
   kwiver::vital::detected_object_set_sptr detections,
-  kwiver::vital::f2f_homography_sptr src_to_ref ) const
+  VITAL_UNUSED kwiver::vital::f2f_homography_sptr src_to_ref ) const
 {
   // Default implementation ignores homography and calls base track method.
   // Implementations that support homography should override this.
@@ -40,7 +42,7 @@ track_objects
   kwiver::vital::timestamp ts,
   kwiver::vital::image_container_sptr image,
   kwiver::vital::detected_object_set_sptr detections,
-  kwiver::vital::object_track_set_sptr existing_tracks ) const
+  VITAL_UNUSED kwiver::vital::object_track_set_sptr existing_tracks ) const
 {
   // Default implementation ignores existing tracks and calls base track method.
   // Implementations that support track continuation should override this.
@@ -51,9 +53,9 @@ track_objects
 kwiver::vital::object_track_set_sptr
 track_objects
 ::initialize(
-  kwiver::vital::timestamp ts,
-  kwiver::vital::image_container_sptr image,
-  kwiver::vital::detected_object_set_sptr seed_detections ) const
+  VITAL_UNUSED kwiver::vital::timestamp ts,
+  VITAL_UNUSED kwiver::vital::image_container_sptr image,
+  VITAL_UNUSED kwiver::vital::detected_object_set_sptr seed_detections ) const
 {
   // Default implementation does nothing.
   // Not all trackers initialize from seeds, most do internal initialization.

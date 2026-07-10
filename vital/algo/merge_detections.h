@@ -26,7 +26,17 @@ public:
   merge_detections();
   PLUGGABLE_INTERFACE( merge_detections );
 
-  /// Merge detections
+  /// Merge several detection sets into one
+  ///
+  /// Combines the supplied detection sets into a single set. Implementations
+  /// decide how overlapping detections are resolved, for example by
+  /// non-maximum suppression or by fusing their type scores.
+  ///
+  /// \param sets Detection sets to merge. All sets are expected to describe
+  ///             the same frame.
+  ///
+  /// \returns The merged detection set. Empty if \p sets is empty or contains
+  ///          no detections.
   virtual kwiver::vital::detected_object_set_sptr
   merge(
     std::vector< kwiver::vital::detected_object_set_sptr > const& sets ) const =
