@@ -11,7 +11,7 @@ set( core_python_headers
 
 kwiver_add_python_library( core
    arrows/core
-   ${core_python_headers}
+   SOURCES ${core_python_headers}
    ${core_python_sources}
 )
 

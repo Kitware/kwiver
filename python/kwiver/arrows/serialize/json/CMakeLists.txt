@@ -34,7 +34,7 @@ set( json_python_sources
 
 kwiver_add_python_library( json
    arrows/serialize/json
-   ${json_python_headers}
+   SOURCES ${json_python_headers}
    ${json_python_sources}
 )
 
