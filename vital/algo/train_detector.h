@@ -14,6 +14,9 @@
 #include <vital/types/image_container.h>
 #include <vital/vital_config.h>
 
+#include <map>
+#include <string>
+
 namespace kwiver {
 
 namespace vital {
@@ -73,7 +76,10 @@ public:
   /// depending on the implementation.
   ///
   /// \throws runtime_exception if not defined or there's a data issue.
-  virtual void update_model() = 0;
+  ///
+  /// \returns Map containing locations of final model files or other
+  ///          general configuration parameters for model inference.
+  virtual std::map< std::string, std::string > update_model() = 0;
 };
 
 /// Shared pointer for train_detector algorithm definition class
