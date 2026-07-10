@@ -376,6 +376,14 @@ public:
   /// \return Frame rate.
   virtual double frame_rate();
 
+  /// Get filename for the current video or video frame.
+  ///
+  /// If filename is not supported by the implementation, returns an empty
+  /// string.
+  ///
+  /// \return Current filename.
+  virtual kwiver::vital::path_t filename() const;
+
   /// Extract implementation-specific video encoding settings.
   ///
   /// The returned structure is intended to be passed to a video encoder of
