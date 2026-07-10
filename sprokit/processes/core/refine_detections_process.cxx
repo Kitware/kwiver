@@ -72,7 +72,16 @@ void
 refine_detections_process::
 _step()
 {
-  vital::image_container_sptr image = grab_from_port_using_trait( image );
+  // The image port is optional: several refiners (nms, add_fixed, ...) work on
+  // the detections alone. Only grab it when something is connected, otherwise
+  // the grab throws on an unconnected port.
+  vital::image_container_sptr image;
+
+  if( has_input_port_edge_using_trait( image ) )
+  {
+    image = grab_from_port_using_trait( image );
+  }
+
   vital::detected_object_set_sptr dets = grab_from_port_using_trait( detected_object_set );
 
   vital::detected_object_set_sptr results;
