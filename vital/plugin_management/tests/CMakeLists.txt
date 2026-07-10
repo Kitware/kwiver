@@ -11,3 +11,4 @@ set( test_libraries vital vital_vpm )
 ##############################
 
 kwiver_discover_gtests(vital plugin_manager LIBRARIES ${test_libraries})
+kwiver_discover_gtests(vital pluggable_macros LIBRARIES ${test_libraries})
