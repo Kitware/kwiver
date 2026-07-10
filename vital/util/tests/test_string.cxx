@@ -73,3 +73,22 @@ TEST ( string, join )
     EXPECT_EQ( "one, three, two", join( input_set, ", " ) );
   }
 }
+
+// ----------------------------------------------------------------------------
+TEST ( string, time_str_to_seconds )
+{
+  // HH:MM:SS and MM:SS forms
+  EXPECT_DOUBLE_EQ( 3723.0, time_str_to_seconds( "01:02:03" ) );
+  EXPECT_DOUBLE_EQ( 123.0, time_str_to_seconds( "02:03" ) );
+  EXPECT_DOUBLE_EQ( 0.0, time_str_to_seconds( "00:00:00" ) );
+
+  // Fractional seconds
+  EXPECT_DOUBLE_EQ( 1.5, time_str_to_seconds( "00:00:01.5" ) );
+  EXPECT_DOUBLE_EQ( 90.25, time_str_to_seconds( "01:30.25" ) );
+}
+
+// ----------------------------------------------------------------------------
+TEST ( string, time_str_to_seconds_invalid )
+{
+  EXPECT_THROW( time_str_to_seconds( "not-a-time" ), std::runtime_error );
+}
