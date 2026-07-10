@@ -9,6 +9,11 @@ if(UNIX)
   add_definitions( -DVITAL_LOAD_PYLIB_SYM )
 endif()
 
+set(libraries_to_link pybind11::embed pybind11::pybind11)
+if((NOT SKBUILD) OR MSVC)
+  set(libraries_to_link "${libraries_to_link}" Python::Python)
+endif()
+
 if (KWIVER_ENABLE_TOOLS)
   kwiver_add_plugin( modules_python
     SUBDIR           ${kwiver_plugin_module_subdir}
@@ -17,8 +22,7 @@ if (KWIVER_ENABLE_TOOLS)
                      kwiversys
                      vital_logger
                      vital_vpm
-                     ${${pybind11_library}}
-                     ${Python_LIBRARIES}
+                     ${libraries_to_link}
                    )
 endif()
 

@@ -92,8 +92,17 @@ endfunction()
 # Private helper function to check if a python package is installed
 #
 function( _ensure_pypackage_exists package )
+  # kwiver_python_install_path may point to site-packages under
+  # CMAKE_INSTALL_PREFIX (e.g. when built as part of a larger super-build with
+  # packages installed via pip --user / PYTHONUSERBASE).  Add it to
+  # sys.path so the import check can find those packages.
+  if( kwiver_python_install_path )
+    set( _import_cmd "import sys; sys.path.insert(0, '${kwiver_python_install_path}'); import ${package}" )
+  else()
+    set( _import_cmd "import ${package}" )
+  endif()
   execute_process(
-    COMMAND "${Python_EXECUTABLE}" -c "import ${package}"
+    COMMAND "${Python_EXECUTABLE}" -c "${_import_cmd}"
     RESULT_VARIABLE _exitcode
     OUTPUT_VARIABLE _output
     )
@@ -133,10 +142,14 @@ mark_as_advanced( KWIVER_PYTHON_VERSION )
 _pycmd( python_site_packages [==[
 import sysconfig, os
 base_path = sysconfig.get_config_var("base")
-print(os.path.relpath(
-  sysconfig.get_path("purelib", vars={"base": base_path}),
-  base_path,
-))
+purelib_path = sysconfig.get_path("purelib", vars={"base": base_path})
+# Force site-packages instead of dist-packages
+purelib_path = purelib_path.replace("dist-packages", "site-packages")
+rel_path = os.path.relpath(purelib_path, base_path)
+# Remove local/ prefix if present
+if rel_path.startswith("local/"):
+    rel_path = rel_path[6:]  # Remove "local/"
+print(rel_path)
 ]==] )
 
 # Current usage determines most of the path in alternate ways.

@@ -8,7 +8,11 @@ import subprocess
 from pathlib import Path
 from setuptools import find_packages
 
-from skbuild import setup
+try:
+    from skbuild import setup
+except ImportError:
+    # skbuild is only needed for wheel builds, not for egg_info
+    from setuptools import setup
 
 SCRIPT_DIR = Path(__file__).parent
 PACKAGE_SRC = "python"

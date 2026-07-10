@@ -63,17 +63,23 @@ set( classes
   keyframe_selection
   match_descriptor_sets
   match_features
+  merge_detections
   merge_images
   metadata_filter
   metadata_map_io
   optimize_cameras
+  perform_text_query
   read_object_track_set
   read_track_descriptor_set
   refine_detections
+  refine_tracks
   resection_camera
+  segment_via_points
   split_image
   track_features
+  track_objects
   train_detector
+  train_tracker
   transform_2d_io
   triangulate_landmarks
   uuid_factory
@@ -109,7 +115,10 @@ kwiver_generate_dependencies("${classes}" vital_algo_dependencies)
 # we generate all wrappings at once instead of per file since the startup cost
 # of the C++ parser is high
 add_custom_command(OUTPUT ${algo_sources}
-  COMMAND ${Python_EXECUTABLE}
+  COMMAND  ${CMAKE_COMMAND} -E env
+          "PYTHONPATH=${kwiver_python_install_path}"
+          "PATH=${CMAKE_INSTALL_PREFIX}/bin:$ENV{PATH}"
+          ${Python_EXECUTABLE}
           "${KWIVER_SOURCE_DIR}/scripts/cpp_to_pybind11.py"
           -c "${CMAKE_CURRENT_BINARY_DIR}/config.ini"
   DEPENDS ${vital_algo_dependencies}
