@@ -32,7 +32,7 @@ kwiver_add_plugin( sprokit_applets
                vital_vpm
                vital_logger
                kwiversys
-               kwiver_tools_applet
+               vital_applets
                sprokit_pipeline
                sprokit_pipeline_util
 )
