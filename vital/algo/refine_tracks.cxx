@@ -5,7 +5,6 @@
 /// \file
 /// \brief Implementation of refine_tracks algorithm
 
-#include <vital/algo/algorithm.txx>
 #include <vital/algo/refine_tracks.h>
 
 namespace kwiver {
@@ -25,7 +24,3 @@ refine_tracks
 } // namespace vital
 
 } // namespace kwiver
-
-/// \cond DoxygenSuppress
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::refine_tracks );
-/// \endcond

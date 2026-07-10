@@ -5,7 +5,6 @@
 /// \file
 /// \brief track_objects algorithm implementation
 
-#include <vital/algo/algorithm.txx>
 #include <vital/algo/track_objects.h>
 
 namespace kwiver {
@@ -85,5 +84,3 @@ track_objects
 } // namespace vital
 
 } // namespace kwiver
-
-INSTANTIATE_ALGORITHM_DEF( kwiver::vital::algo::track_objects );

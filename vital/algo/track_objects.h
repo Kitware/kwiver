@@ -41,11 +41,11 @@ namespace algo {
 /// frame-by-frame processing. Optional methods support initialization,
 /// finalization, and state management.
 class VITAL_ALGO_EXPORT track_objects
-  : public kwiver::vital::algorithm_def< track_objects >
+  : public kwiver::vital::algorithm
 {
 public:
-  /// Return the name of this algorithm
-  static std::string static_type_name() { return "track_objects"; }
+  track_objects();
+  PLUGGABLE_INTERFACE( track_objects );
 
   /// Track objects in a new frame.
   ///
@@ -133,9 +133,6 @@ public:
   /// Clears all internal state, active tracks, and cached data.
   /// After reset, the tracker is ready to begin a new sequence.
   virtual void reset() const;
-
-protected:
-  track_objects();
 };
 
 /// Shared pointer for track_objects algorithm definition class
