@@ -21,6 +21,7 @@ kwiver_discover_gtests(vital camera_io                      LIBRARIES ${test_lib
 kwiver_discover_gtests(vital camera_perspective             LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital camera_rpc                     LIBRARIES ${test_libraries} ARGUMENTS "${kwiver_test_data_directory}")
 kwiver_discover_gtests(vital camera_rig                     LIBRARIES ${test_libraries})
+kwiver_discover_gtests(vital color_space                    LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital config                         LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital const_iterator                 LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vital cxxopts                        LIBRARIES ${test_libraries})
