@@ -21,13 +21,24 @@ public:
   explicit python_plugin_factory( py::object const& python_type )
     : m_python_type( python_type )
   {
+    // Get the plugin name - prefer plugin_name() if available, fall back to
+    // __name__
+    std::string plugin_name;
+    if( py::hasattr( python_type, "plugin_name" ) )
+    {
+      plugin_name = python_type.attr( "plugin_name" )().cast< std::string > ();
+    }
+    else
+    {
+      plugin_name = python_type.attr( "__name__" ).cast< std::string >();
+    }
+
     this->add_attribute( plugin_factory::INTERFACE_TYPE,
       python_type.attr( "interface_name" )()
         .cast< std::string > () )
       .add_attribute( plugin_factory::CONCRETE_TYPE,
                       python_type.attr( "__name__" ).cast< std::string > () )
-        .add_attribute( plugin_factory::PLUGIN_NAME,
-                        python_type.attr( "__name__" ).cast< std::string > () );
+        .add_attribute( plugin_factory::PLUGIN_NAME, plugin_name );
   }
 
   ~python_plugin_factory() override = default;
@@ -35,6 +46,7 @@ public:
   pluggable_sptr
   from_config( const config_block_sptr cb ) const override
   {
+    py::gil_scoped_acquire gil;
     py::object instance = m_python_type.attr( "from_config" )( cb );
     return instance.cast< pluggable_sptr >();
   }
@@ -42,6 +54,7 @@ public:
   void
   get_default_config( config_block& cb ) const override
   {
+    py::gil_scoped_acquire gil;
     m_python_type.attr( "get_default_config" )( cb );
   }
 

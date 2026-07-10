@@ -43,9 +43,7 @@ def _load_python_module(mod):
     logger.debug('Loading python module: "{}"'.format(mod))
     for registrar in MAGIC_REGISTRARS:
         if hasattr(mod, registrar):
-            import collections
-
-            if isinstance(getattr(mod, registrar), collections.Callable):
+            if callable(getattr(mod, registrar)):
                 getattr(mod, registrar)()
                 return
             else:
@@ -73,7 +71,7 @@ def load_python_modules():
     logger.info("Loading python modules")
 
     # default plugins that are always loaded
-    packages = ["sprokit.processes", "sprokit.schedulers"]
+    packages = ["kwiver.sprokit.processes", "kwiver.sprokit.schedulers"]
 
     envvar = "SPROKIT_PYTHON_MODULES"
 

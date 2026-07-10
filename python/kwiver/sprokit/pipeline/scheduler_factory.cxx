@@ -40,7 +40,8 @@ static std::string get_default_type();
 
 // ============================================================================
 typedef std::function< pybind11::object ( ::sprokit::pipeline_t const& pipe,
-                                          kwiver::vital::config_block_sptr const& config ) > py_scheduler_factory_func_t;
+                                          kwiver::vital::config_block_sptr const& config ) >
+  py_scheduler_factory_func_t;
 
 class python_scheduler_factory
   : public ::sprokit::scheduler_factory
@@ -72,7 +73,9 @@ python_scheduler_factory
 {
   this->add_attribute( CONCRETE_TYPE, type )
     .add_attribute( PLUGIN_FACTORY_TYPE, typeid( *this ).name() )
-    .add_attribute( PLUGIN_CATEGORY, "scheduler" );
+    .add_attribute( PLUGIN_CATEGORY, "scheduler" )
+    .add_attribute( PLUGIN_NAME, type )
+    .add_attribute( PLUGIN_MODULE_NAME, "python-runtime" );
 }
 
 // ----------------------------------------------------------------------------
@@ -184,14 +187,12 @@ register_scheduler(
   auto fact = vpm.add_factory(
     new python_scheduler_factory(
       type,
-      typeid( ::sprokit::scheduler ).name(),
+      ::sprokit::scheduler::interface_name(),
       wrap ) );
 
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, type )
-    .add_attribute(
-    kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME,
-    "python-runtime" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, desc );
+  fact->add_attribute(
+    kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+    desc );
 }
 
 // ------------------------------------------------------------------
@@ -218,26 +219,16 @@ get_description( const std::string& type )
 {
   kwiver::vital::plugin_factory_handle_t a_fact;
 
-  try
-  {
-    typedef kwiver::vital::implementation_factory_by_name< ::sprokit::scheduler > proc_factory;
+  // Python schedulers are registered with sprokit::scheduler interface type,
+  // so we only need to look up using that type.
+  typedef kwiver::vital::implementation_factory_by_name< ::sprokit::scheduler >
+    proc_factory;
 
-    proc_factory ifact;
+  proc_factory ifact;
 
-    VITAL_PYTHON_TRANSLATE_EXCEPTION(
-      a_fact = ifact.find_factory( type );
-    )
-  }
-  catch( const std::exception& e )
-  {
-    typedef kwiver::vital::implementation_factory_by_name< object > proc_factory;
-
-    proc_factory ifact;
-
-    VITAL_PYTHON_TRANSLATE_EXCEPTION(
-      a_fact = ifact.find_factory( type );
-    )
-  }
+  VITAL_PYTHON_TRANSLATE_EXCEPTION(
+    a_fact = ifact.find_factory( type );
+  )
 
   std::string buf = "-- Not Set --";
   a_fact->get_attribute(

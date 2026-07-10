@@ -255,4 +255,17 @@ def _get_concrete_pluggable_types() -> List[Type[Pluggable]]:
     import_via_entrypoint_extensions(PLUGIN_NAMESPACE)
     import_via_env_var(PLUGIN_ENV_VAR)
     p_type_set = traverse_subclasses(Pluggable)
-    return [p_t for p_t in p_type_set if (is_concrete_pluggable(p_t))]
+    concrete_types = [p_t for p_t in p_type_set if (is_concrete_pluggable(p_t))]
+
+    # Also include legacy algorithms registered through algorithm_factory
+    try:
+        from kwiver.vital.algo.algorithm_factory import get_registered_algorithms
+
+        legacy_algos = get_registered_algorithms()
+        for algo_cls in legacy_algos:
+            if algo_cls not in concrete_types:
+                concrete_types.append(algo_cls)
+    except Exception:
+        pass  # If legacy import fails, continue with discovered types
+
+    return concrete_types

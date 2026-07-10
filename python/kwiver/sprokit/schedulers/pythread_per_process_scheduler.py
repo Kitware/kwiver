@@ -28,7 +28,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from kwiver.vital.config import config
+from kwiver.vital.config import empty_config
 from kwiver.sprokit.pipeline import datum
 from kwiver.sprokit.pipeline import edge
 from kwiver.sprokit.pipeline import pipeline
@@ -160,7 +160,7 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
             self._event.set()
 
     def _make_monitor_edge_config(self):
-        self._edge_conf = config.empty_config()
+        self._edge_conf = empty_config()
 
 
 def __sprokit_register__():
