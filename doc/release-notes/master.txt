@@ -9,5 +9,13 @@ Vital: Algo
 * Added new abstract algorithm interfaces: merge_detections, refine_tracks,
   track_objects, train_tracker and query_track_descriptor_set.
 
+Vital: Types
+
+* Added camera_rig, a container for a set of named, co-registered cameras,
+  along with a stereo convenience accessor.
+
+* Added color_space, describing the colour space of an image together with
+  conversions between the supported spaces.
+
 Bug Fixes
 ---------
