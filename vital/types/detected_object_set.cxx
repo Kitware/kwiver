@@ -215,6 +215,17 @@ detected_object_set
     auto bbox = detection->bounding_box();
     bbox = kwiver::vital::scale( bbox, scale_factor );
     detection->set_bounding_box( bbox );
+
+    // Scale the segmentation polygon too, so it stays aligned with the bbox.
+    auto poly = detection->get_flattened_polygon();
+    if( !poly.empty() )
+    {
+      for( auto& v : poly )
+      {
+        v *= scale_factor;
+      }
+      detection->set_flattened_polygon( poly );
+    }
   }
 }
 
@@ -235,6 +246,18 @@ detected_object_set
       bbox,
       bounding_box_d::vector_type( col_shift, row_shift ) );
     detection->set_bounding_box( bbox );
+
+    // Shift the segmentation polygon too, so it stays aligned with the bbox.
+    auto poly = detection->get_flattened_polygon();
+    if( !poly.empty() )
+    {
+      for( size_t i = 0; i + 1 < poly.size(); i += 2 )
+      {
+        poly[ i ] += col_shift;
+        poly[ i + 1 ] += row_shift;
+      }
+      detection->set_flattened_polygon( poly );
+    }
   }
 }
 
