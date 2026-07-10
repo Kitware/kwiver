@@ -56,6 +56,17 @@ public:
     timestamp ts,
     image_container_sptr image_data,
     object_track_set_sptr tracks ) const = 0;
+
+  /// Finalize the refiner after all frames have been processed.
+  ///
+  /// Called when the pipeline signals completion.  Implementations may
+  /// override this to run deferred processing (e.g. video propagation
+  /// over the full accumulated buffer).
+  ///
+  /// \returns Final refined object track set, or nullptr if no final
+  ///          output is needed.
+  virtual object_track_set_sptr
+  finalize() const { return nullptr; }
 };
 
 /// Shared pointer for generic refine_tracks definition type.
