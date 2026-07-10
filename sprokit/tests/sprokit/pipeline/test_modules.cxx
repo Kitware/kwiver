@@ -64,12 +64,12 @@ TEST_PROPERTY(ENVIRONMENT, KWIVER_PLUGIN_PATH=@CMAKE_CURRENT_BINARY_DIR@/not_a_p
 IMPLEMENT_TEST(not_a_plugin)
 {
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
-  vpm.reload_plugins();
+  vpm.reload_all_plugins();
 }
 
 TEST_PROPERTY(ENVIRONMENT, KWIVER_PLUGIN_PATH=@CMAKE_CURRENT_BINARY_DIR@)
 IMPLEMENT_TEST(has_directory)
 {
   kwiver::vital::plugin_manager& vpm = kwiver::vital::plugin_manager::instance();
-  vpm.reload_plugins();
+  vpm.reload_all_plugins();
 }
