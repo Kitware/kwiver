@@ -42,7 +42,7 @@ namespace py = pybind11;
  *
  * This function is idempotent.
  */
-static void check_and_initialize_python_interpreter();
+static bool check_and_initialize_python_interpreter();
 
 // ----------------------------------------------------------------------------
 // Registration Function
@@ -62,8 +62,16 @@ register_factories( ::kv::plugin_loader& vpl )
   //       Was previously "SPROKIT_NO_PYTHON_MODULES", should be something more
   //       applicable (this isn't sprokit specific).
 
-  // Make sure there is an interpreter running.
-  check_and_initialize_python_interpreter();
+  // Make sure there is an interpreter running.  If none can be initialized
+  // (for example a C++ host with no Python environment configured), skip
+  // Python plugin discovery rather than importing on a dead interpreter.
+  if( !check_and_initialize_python_interpreter() )
+  {
+    LOG_WARN(
+      log,
+      "No Python interpreter available; skipping Python plugin discovery" );
+    return;
+  }
 
   // In upstream, in this slot there was logic to dynamically load the
   // `libpython*.so` library here.
@@ -171,7 +179,7 @@ static std::wstring pythonHome;
 
 // ----------------------------------------------------------------------------
 // Helper function implementations
-void
+bool
 check_and_initialize_python_interpreter()
 {
   ::kv::logger_handle_t log = ::kv::get_logger(
@@ -202,7 +210,7 @@ check_and_initialize_python_interpreter()
     {
       PyConfig_Clear( &config );
       LOG_ERROR( log, "Error setting the configuration of Py_Initialize" );
-      return;
+      return false;
     }
 
     status = Py_InitializeFromConfig( &config );
@@ -210,11 +218,10 @@ check_and_initialize_python_interpreter()
     {
       PyConfig_Clear( &config );
       LOG_ERROR( log, "Error calling Py_Initialize" );
-      return;
+      return false;
     }
     PyConfig_Clear( &config );
 
-    Py_Initialize();
     LOG_DEBUG( log, "Python interpreter initialized" );
   }
 
@@ -232,7 +239,7 @@ check_and_initialize_python_interpreter()
     if( !sys_path )
     {
       LOG_ERROR( log, "Error getting sys.path" );
-      return;
+      return true;
     }
 
     PyObject* item =
@@ -242,12 +249,12 @@ check_and_initialize_python_interpreter()
     if( PyList_Insert( sys_path, 0, item ) )
     {
       LOG_ERROR( log, "Error appending item to sys.path" );
-      return;
+      return true;
     }
     if( PySys_SetObject( "path", sys_path ) )
     {
       LOG_ERROR( log, "Error setting sys.path" );
-      return;
+      return true;
     }
     Py_DECREF( item );
   }
@@ -265,4 +272,5 @@ check_and_initialize_python_interpreter()
     // Release the GIL
     PyEval_SaveThread();
   }
+  return true;
 }

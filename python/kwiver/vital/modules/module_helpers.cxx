@@ -28,7 +28,7 @@ namespace py = pybind11;
  * interpretor
  * does not exist
  */
-void
+bool
 check_and_initialize_python_interpretor()
 {
   static bool initialized = false;
@@ -37,8 +37,30 @@ check_and_initialize_python_interpretor()
   // (e.g. if sprokit is initialized from python)
   if( !Py_IsInitialized() )
   {
+#if PY_VERSION_HEX >= 0x03080000
+    // Initialize via the configuration API so that a failure to locate the
+    // interpreter's standard library (for example when the host executable
+    // has no Python environment set up, as happens for a pure C++ test on
+    // Windows) is reported as an error status instead of aborting the whole
+    // process through Py_FatalError().
+    PyConfig config;
+    PyConfig_InitPythonConfig( &config );
+
+    PyStatus const status = Py_InitializeFromConfig( &config );
+    PyConfig_Clear( &config );
+    if( PyStatus_Exception( status ) )
+    {
+      auto logger = kwiver::vital::get_logger( "vital.python_modules" );
+      LOG_WARN(
+        logger,
+        "Unable to initialize an embedded Python interpreter; "
+        "Python plugins will not be loaded" );
+      return false;
+    }
+#else
     // Embed a python interpretter if one does not exist
     Py_Initialize();
+#endif
 
     // Set Python interpeter attribute: sys.argv = []
     // parameters are: (argc, argv, updatepath)
@@ -59,6 +81,7 @@ check_and_initialize_python_interpretor()
       PyEval_SaveThread();
     }
   }
+  return true;
 }
 
 /*
