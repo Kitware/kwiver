@@ -51,18 +51,23 @@ set( public_headers
   metadata_map_io.h
   match_descriptor_sets.h
   match_features.h
+  merge_detections.h
   merge_images.h
   mesh_filter.h
   optimize_cameras.h
   pointcloud_io.h
+  query_track_descriptor_set.h
   read_object_track_set.h
   read_track_descriptor_set.h
   refine_detections.h
+  refine_tracks.h
   resection_camera.h
   split_image.h
   texture_mesh.h
   track_features.h
+  track_objects.h
   train_detector.h
+  train_tracker.h
   transform_2d_io.h
   triangulate_landmarks.h
   uuid_factory.h
@@ -121,18 +126,23 @@ set( sources
   metadata_map_io.cxx
   match_descriptor_sets.cxx
   match_features.cxx
+  merge_detections.cxx
   merge_images.cxx
   mesh_filter.cxx
   optimize_cameras.cxx
   pointcloud_io.cxx
+  query_track_descriptor_set.cxx
   read_object_track_set.cxx
   read_track_descriptor_set.cxx
   refine_detections.cxx
+  refine_tracks.cxx
   resection_camera.cxx
   split_image.cxx
   texture_mesh.cxx
   track_features.cxx
+  track_objects.cxx
   train_detector.cxx
+  train_tracker.cxx
   transform_2d_io.cxx
   triangulate_landmarks.cxx
   uuid_factory.cxx
