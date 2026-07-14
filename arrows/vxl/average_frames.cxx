@@ -481,7 +481,7 @@ public:
     std::unique_ptr< online_frame_averager< double > >;
 
   averager_mode type{ AVERAGER_window };
-  unsigned window_size{ 10 };
+  unsigned window_size{ 20 };
   double exp_weight{ 0.3 };
   bool round{ false };
   bool output_variance{ false };
@@ -504,7 +504,8 @@ public:
       {
         case AVERAGER_window:
         {
-          averager.reset( new windowed_frame_averager< PixType >{} );
+          averager.reset(
+            new windowed_frame_averager< PixType >{ round, window_size } );
           break;
         }
         case AVERAGER_cumulative:
@@ -632,6 +633,13 @@ average_frames
   {
     double exp_weight = config->get_value< double >( "exp_weight" );
     if( exp_weight <= 0 || exp_weight > 1 )
+    {
+      return false;
+    }
+  }
+  else if( type == AVERAGER_window )
+  {
+    if( config->get_value< unsigned >( "window_size" ) < 1 )
     {
       return false;
     }
