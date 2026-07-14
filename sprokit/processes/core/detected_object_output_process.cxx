@@ -34,10 +34,11 @@ create_config_trait( file_name, std::string, "",
 create_config_trait( frame_list_output, std::string, "",
   "Optional frame list output to also write." );
 create_config_trait( write_time_as_uid, bool, "false",
-  "Write the frame time (HH:MM:SS.ssssss) instead of the image file name as "
-  "the identifier passed to the writer. Requires the timestamp port to be "
-  "connected, and is typically used when the source is a video, which has no "
-  "per-frame file names." );
+  "Always write the frame time (HH:MM:SS.ssssss) as the identifier passed to "
+  "the writer, even when an image file name is available. Regardless of this "
+  "setting, the frame time is used whenever there is no image file name, which "
+  "is the case for video, so that the identifier is a time for video and a "
+  "file name for image lists. Requires the timestamp port to be connected." );
 
 create_algorithm_name_config_trait( writer );
 
@@ -217,7 +218,10 @@ void detected_object_output_process
   {
     auto const ts = grab_from_port_using_trait( timestamp );
 
-    if ( d->m_write_time_as_uid && ts.has_valid_time() )
+    // A video has no per-frame file name, so fall back to the frame time and
+    // leave image lists writing their file names
+    if ( ( d->m_write_time_as_uid || identifier.empty() ) &&
+         ts.has_valid_time() )
     {
       identifier = d->format_time( ts );
     }
