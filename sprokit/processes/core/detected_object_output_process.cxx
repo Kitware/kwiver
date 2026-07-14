@@ -11,6 +11,7 @@
 
 #include <vital/vital_types.h>
 #include <vital/exceptions.h>
+#include <vital/types/timestamp.h>
 #include <vital/util/string.h>
 #include <vital/algo/detected_object_set_output.h>
 
@@ -32,6 +33,11 @@ create_config_trait( file_name, std::string, "",
   "Name of the detection set file to write." );
 create_config_trait( frame_list_output, std::string, "",
   "Optional frame list output to also write." );
+create_config_trait( write_time_as_uid, bool, "false",
+  "Write the frame time (HH:MM:SS.ssssss) instead of the image file name as "
+  "the identifier passed to the writer. Requires the timestamp port to be "
+  "connected, and is typically used when the source is a video, which has no "
+  "per-frame file names." );
 
 create_algorithm_name_config_trait( writer );
 
@@ -49,12 +55,18 @@ create_algorithm_name_config_trait( writer );
  * \iport{image_file_name} Optional name of an image file to associate
  * with the set of detections.
  *
+ * \iport{timestamp} Optional timestamp for the current frame, used as the
+ * identifier for the set of detections when write_time_as_uid is set.
+ *
  * \iport{detected_object_set} Set ob objects to pass to writer
  * algorithm.
  *
  * \configs
  *
  * \config{file_name} Name of the file that the detections are written.
+ *
+ * \config{write_time_as_uid} Pass the frame time instead of the image file
+ * name to the writer.
  *
  * \config{writer} Name of the configuration subblock that selects
  * and configures the writing algorithm
@@ -71,9 +83,12 @@ public:
   // Configuration values
   std::string m_file_name;
   std::string m_frame_list_output;
+  bool m_write_time_as_uid;
 
   algo::detected_object_set_output_sptr m_writer;
   std::unique_ptr< std::ofstream > m_frame_list_writer;
+
+  std::string format_time( kwiver::vital::timestamp const& ts ) const;
 }; // end priv class
 
 
@@ -105,6 +120,7 @@ void detected_object_output_process
   // Get process config entries
   d->m_file_name = config_value_using_trait( file_name );
   d->m_frame_list_output = config_value_using_trait( frame_list_output );
+  d->m_write_time_as_uid = config_value_using_trait( write_time_as_uid );
 
   if( d->m_file_name.empty() )
   {
@@ -187,11 +203,24 @@ void detected_object_output_process
   }
 
   std::string file_name;
+  std::string identifier;
 
   // image name is optional
   if ( has_input_port_edge_using_trait( image_file_name ) )
   {
     file_name = grab_from_port_using_trait( image_file_name );
+    identifier = file_name;
+  }
+
+  // timestamp is optional, but must always be consumed when connected
+  if ( has_input_port_edge_using_trait( timestamp ) )
+  {
+    auto const ts = grab_from_port_using_trait( timestamp );
+
+    if ( d->m_write_time_as_uid && ts.has_valid_time() )
+    {
+      identifier = d->format_time( ts );
+    }
   }
 
   if ( d->m_frame_list_writer )
@@ -205,7 +234,7 @@ void detected_object_output_process
   {
     scoped_step_instrumentation();
 
-    d->m_writer->write_set( input, file_name );
+    d->m_writer->write_set( input, identifier );
   }
 }
 
@@ -228,6 +257,7 @@ void detected_object_output_process
   required.insert( flag_required );
 
   declare_input_port_using_trait( image_file_name, optional );
+  declare_input_port_using_trait( timestamp, optional );
   declare_input_port_using_trait( detected_object_set, required );
 }
 
@@ -238,13 +268,44 @@ void detected_object_output_process
 {
   declare_config_using_trait( file_name );
   declare_config_using_trait( frame_list_output );
+  declare_config_using_trait( write_time_as_uid );
   declare_config_using_trait( writer );
+}
+
+
+// -----------------------------------------------------------------------------
+std::string
+detected_object_output_process::priv
+::format_time( kwiver::vital::timestamp const& ts ) const
+{
+  const kwiver::vital::time_usec_t usec( 1000000 );
+  const std::time_t time_s =
+    static_cast< std::time_t >( ts.get_time_usec() / usec );
+  const unsigned time_us =
+    static_cast< unsigned >( ts.get_time_usec() % usec );
+
+  char buffer[10];
+  struct tm* tmp = gmtime( &time_s );
+
+  if( !tmp || !strftime( buffer, sizeof( buffer ), "%H:%M:%S", tmp ) )
+  {
+    return std::string();
+  }
+
+  std::string time_us_str = std::to_string( time_us );
+  while( time_us_str.size() < 6 )
+  {
+    time_us_str = "0" + time_us_str;
+  }
+
+  return std::string( buffer ) + "." + time_us_str;
 }
 
 
 // =============================================================================
 detected_object_output_process::priv
 ::priv()
+  : m_write_time_as_uid( false )
 {
 }
 
