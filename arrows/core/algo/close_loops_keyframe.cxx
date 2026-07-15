@@ -242,9 +242,14 @@ close_loops_keyframe
                                   << " has " << num_matched << " matches and "
                                   << num_linked << " joined tracks" );
   }
+
   // divide by number of matched frames to get the average
-  d_->frame_matches[ frame_number ] /=
+  auto const num_neighborhood =
     static_cast< size_t >( last_frame_itr - frames.rbegin() - 2 );
+  if( num_neighborhood > 0 )
+  {
+    d_->frame_matches[ frame_number ] /= num_neighborhood;
+  }
 
   // stitch with all previous keyframes
   for( auto k_itr = keyframes.rbegin(); k_itr != keyframes.rend(); ++k_itr )
@@ -331,7 +336,9 @@ close_loops_keyframe
       d_->keyframe_misses.clear();
 
       auto fd = input->frame_data( max_id );
-      auto ffd = std::dynamic_pointer_cast< vital::feature_track_set_frame_data >( fd );
+      auto ffd =
+        std::dynamic_pointer_cast< vital::feature_track_set_frame_data >(
+          fd );
       if( !ffd )
       {
         ffd = std::make_shared< vital::feature_track_set_frame_data >();
