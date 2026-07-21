@@ -64,18 +64,15 @@ kwiver_add_library( kwiver_algo_ffmpeg
   ${plugin_ffmpeg_sources}
   )
 
-if(KWIVER_ENABLE_ZLIB)
-  if(KWIVER_BUILD_SHARED)
-    find_package(ZLIB MODULE REQUIRED)
-  else()
-    # Zlib produces both static and dynamic libraries
-    # This allows static libraries to be picked instead of shared libraries
-    # Thereby not creating a zlib dependency in he library
-    find_library(ZLIB_LIBRARIES NAMES libz.a libz libzlib
-                 PATHS ${fletch_ROOT}
-                 PATH_SUFFIXES lib
-                 )
+if(KWIVER_ENABLED_ZLib)
+  if(NOT KWIVER_BUILD_SHARED)
+    if(WIN32)
+      set(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a)
+    else()
+      set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+    endif()
   endif()
+  find_package(ZLIB MODULE REQUIRED)
 endif()
 
 target_link_libraries( kwiver_algo_ffmpeg
@@ -83,7 +80,7 @@ target_link_libraries( kwiver_algo_ffmpeg
   PRIVATE              kwiver_algo_klv kwiversys
                        ${FFMPEG_CUDA_LIBRARIES}
                        ${FFMPEG_LIBRARIES}
-                       ${ZLIB_LIBRARIES}
+                       ZLIB::ZLIB
   )
 
 if (KWIVER_ENABLE_FFMPEG_CUDA)
