@@ -19,6 +19,7 @@
 #include <vital/logger/logger.h>
 #include <vital/plugin_management/pluggable.h>
 #include <vital/plugin_management/pluggable_macro_magic.h>
+#include <vital/plugin_management/plugin_info.h>
 
 #include <vital/config/config_helpers.txx>
 

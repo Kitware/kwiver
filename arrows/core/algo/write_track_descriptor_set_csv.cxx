@@ -66,7 +66,9 @@ write_track_descriptor_set_csv
 // ----------------------------------------------------------------------------
 void
 write_track_descriptor_set_csv
-::write_set( const kwiver::vital::track_descriptor_set_sptr set )
+::write_set(
+  const kwiver::vital::track_descriptor_set_sptr set,
+  VITAL_UNUSED const std::string& source_id )
 {
   if( d->m_first )
   {

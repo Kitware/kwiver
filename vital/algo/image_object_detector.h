@@ -39,6 +39,27 @@ public:
   /// \returns vector of image objects found
   virtual detected_object_set_sptr
   detect( image_container_sptr image_data ) const = 0;
+
+  /// Detect objects in a batch of images
+  ///
+  /// This method processes multiple images at once, which can be more
+  /// efficient for some detectors (e.g., those using batch processing on GPU).
+  ///
+  /// The default implementation simply calls detect() on each image.
+  ///
+  /// \param images Vector of images to process
+  /// \returns Vector of detection sets, one per input image
+  virtual std::vector< detected_object_set_sptr >
+  batch_detect( std::vector< image_container_sptr > const& images ) const
+  {
+    std::vector< detected_object_set_sptr > results;
+    results.reserve( images.size() );
+    for( const auto& img : images )
+    {
+      results.push_back( detect( img ) );
+    }
+    return results;
+  }
 };
 
 /// Shared pointer for generic image_object_detector definition type.
