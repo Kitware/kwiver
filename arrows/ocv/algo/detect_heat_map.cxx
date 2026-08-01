@@ -241,7 +241,10 @@ public:
   }
 
   // ----
-  bool m_force_bbox_size;
+  // Only ever assigned true, in check_configuration(). Left uninitialised, a
+  // detector configured for connected components (force_bbox_* = -1) can take
+  // the fixed-size branch and build a box filter from those -1 dimensions.
+  bool m_force_bbox_size = false;
   kwiver::vital::logger_handle_t m_logger;
   kwiver::vital::wall_timer m_timer;
 
