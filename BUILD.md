@@ -44,12 +44,18 @@ pip install -r python/requirements_dev.txt
 ```
 
 ## Build kwiver
+
 Use the CI's common configuration to build using the defaults.
+
+If using Spack, ensure you're building in the same shell the environment was activated within.
+
 ```
 mkdir build
 cmake -GNinja -Dfletch_DIR=<fletch build directory> -C ../kwiver/.gitlab/ci/configure_common.cmake ../kwiver
 cmake --build .
 ```
+
+Note: If using Spack to obtain dependencies, `fletch_DIR` can be omitted above.
 
 ## Run Tests
 From the build directory:
