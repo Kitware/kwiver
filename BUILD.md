@@ -2,7 +2,7 @@
 These instructions are subject to change as we enable more features in kwiver-v2.
 
 ## Prerequisites
-### Fletch
+### Fletch (deprecated)
 Build fletch using the main branch and enable the features we use in this project.
 Change directory names if desired.
 
@@ -23,6 +23,17 @@ cmake \
 
 cmake --build .
 ```
+
+### Spack (replacement for fletch)
+Kwiver uses the spack package manager to build & obtain dependencies.
+To obtian and use kwiver's dependencies via the Spack package manager:
+
+```
+spack env activate <path to kwiver source tree root>
+spack install
+```
+
+for more details on spack itself, including how to install Spack and links to the spack docs, see `environment/Spack.md`
 
 ### Python
 Setup a python environment:
