@@ -63,11 +63,12 @@ target_link_libraries( kpf_yaml_copy
   kpf_yaml
   ${YAML_CPP_LIBRARIES} )
 
-if(WIN32)
-  target_compile_definitions(kpf_example_simple PRIVATE YAML_CPP_DLL)
-  target_compile_definitions(kpf_example_complex PRIVATE YAML_CPP_DLL)
-  target_compile_definitions(kpf_example_activity PRIVATE YAML_CPP_DLL)
-  target_compile_definitions(kpf_yaml_reader PRIVATE YAML_CPP_DLL)
-  target_compile_definitions(kpf_yaml_copy PRIVATE YAML_CPP_DLL)
-  target_compile_definitions(yaml_parser PRIVATE YAML_CPP_DLL)
-endif()
+# yaml-cpp static in fletch - see kpf/yaml/CMakeLists.txt.
+# if(WIN32)
+#   target_compile_definitions(kpf_example_simple PRIVATE YAML_CPP_DLL)
+#   target_compile_definitions(kpf_example_complex PRIVATE YAML_CPP_DLL)
+#   target_compile_definitions(kpf_example_activity PRIVATE YAML_CPP_DLL)
+#   target_compile_definitions(kpf_yaml_reader PRIVATE YAML_CPP_DLL)
+#   target_compile_definitions(kpf_yaml_copy PRIVATE YAML_CPP_DLL)
+#   target_compile_definitions(yaml_parser PRIVATE YAML_CPP_DLL)
+# endif()

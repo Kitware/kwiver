@@ -48,9 +48,11 @@ kwiver_add_library( kpf_yaml
 
 target_include_directories(kpf_yaml PRIVATE ${YAML_CPP_INCLUDE_DIR})
 
-if(WIN32)
-  target_compile_definitions(kpf_yaml PRIVATE YAML_CPP_DLL)
-endif()
+# yaml-cpp is static in fletch (see External_YAMLcpp.cmake); YAML_CPP_DLL must
+# not be defined or yaml-cpp/dll.h marks symbols __declspec(dllimport).
+# if(WIN32)
+#   target_compile_definitions(kpf_yaml PRIVATE YAML_CPP_DLL)
+# endif()
 
 target_link_libraries( kpf_yaml
   PRIVATE        vital

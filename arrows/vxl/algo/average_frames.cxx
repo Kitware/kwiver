@@ -514,7 +514,14 @@ public:
       {
         case AVERAGER_window:
         {
-          averager.reset( new windowed_frame_averager< PixType >{} );
+          // The windowed averager's default constructor picks its own buffer
+          // length, so leaving these off silently discarded window_size: every
+          // windowed average ran at that internal default no matter what the
+          // config asked for. A pipeline stacking two window sizes got two
+          // identical channels.
+          averager.reset(
+            new windowed_frame_averager< PixType >{
+                  c_round(), c_window_size() } );
           break;
         }
         case AVERAGER_cumulative:
@@ -591,6 +598,13 @@ average_frames
   {
     double exp_weight = config->get_value< double >( "exp_weight" );
     if( exp_weight <= 0 || exp_weight > 1 )
+    {
+      return false;
+    }
+  }
+  else if( c_type == AVERAGER_window )
+  {
+    if( config->get_value< unsigned >( "window_size" ) < 1 )
     {
       return false;
     }
