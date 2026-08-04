@@ -47,6 +47,8 @@ public:
   using container_iterator = typename container_t::iterator;
   using container_const_iterator = typename container_t::const_iterator;
 
+  class const_iterator;
+
   class iterator
   {
   public:
