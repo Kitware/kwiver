@@ -10,6 +10,7 @@
 
 #include <vital/types/vital_types_export.h>
 
+#include <cassert>
 #include <iostream>
 
 #include <vital/types/matrix.h>

@@ -11,6 +11,7 @@
 #ifndef VITAL_MESH_H_
 #define VITAL_MESH_H_
 
+#include <cassert>
 #include <memory>
 #include <set>
 #include <vector>
