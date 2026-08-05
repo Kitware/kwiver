@@ -105,30 +105,32 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
             thread.start()
 
     def _wait(self):
-        # If an error occurred, use timeout-based joins to avoid hanging forever
-        # on threads that are blocked waiting on edges
-        if self._process_exception is not None:
-            # Give threads a short time to clean up gracefully
+        # A thread whose process raised exits promptly, but sibling threads
+        # can stay blocked forever inside proc.step() -- a C++ edge push/pop
+        # whose peer process died with the error and will never drain the
+        # edge. An indefinite join on such a thread therefore deadlocks the
+        # entire pipeline, so poll the joins and bail out as soon as a
+        # process error has been recorded.
+        while True:
+            alive = False
             for thread in self._threads:
-                thread.join(timeout=2.0)
-        else:
-            # Normal case: wait indefinitely for all threads
-            for thread in self._threads:
-                thread.join()
-                # Check if an error occurred while waiting
-                if self._process_exception is not None:
-                    # Switch to timeout-based joins for remaining threads
-                    break
+                thread.join(timeout=0.1)
+                if thread.is_alive():
+                    alive = True
 
-            # If we broke out early due to error, join remaining threads with timeout
             if self._process_exception is not None:
+                # Grace period for threads that can still unwind on their own
                 for thread in self._threads:
                     if thread.is_alive():
-                        thread.join(timeout=2.0)
+                        thread.join(timeout=0.5)
 
-        # Re-raise any exception that occurred in a process thread
-        if self._process_exception is not None:
-            raise self._process_exception
+                # Threads still blocked on dead edges are daemonic and cannot
+                # be unblocked from here; abandon them. The raised error
+                # reaches the C++ wait() caller, which terminates the tool.
+                raise self._process_exception
+
+            if not alive:
+                return
 
     def _pause(self):
         self._pause_event.set()
