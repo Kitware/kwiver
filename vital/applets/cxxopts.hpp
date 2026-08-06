@@ -40,6 +40,7 @@ namespace re = std;
 #endif
 // end centos workaround
 
+#include <cstdint>
 #include <cstring>
 #include <cctype>
 #include <exception>
