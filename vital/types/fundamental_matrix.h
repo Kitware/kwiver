@@ -71,19 +71,19 @@ public:
   /// Decompose and find closest fundamental matrix to the input \p mat.
   /// \param mat The 3x3 matrix to use.
   explicit
-  fundamental_matrix_< T >( matrix_t const& mat );
+  fundamental_matrix_( matrix_t const& mat );
 
   /// Conversion Copy constructor
   ///
   /// \param other The other fundamental_matrix to be copied.
   template < typename U > explicit
-  fundamental_matrix_< T >( fundamental_matrix_< U > const& other )
+  fundamental_matrix_( fundamental_matrix_< U > const& other )
     : mat_( other.mat_.template cast< T >() )
   {}
 
   /// Construct from a generic fundamental_matrix
   explicit
-  fundamental_matrix_< T >( fundamental_matrix const& base );
+  fundamental_matrix_( fundamental_matrix const& base );
 
   // Abstract method definitions ---------------------------------------------
 

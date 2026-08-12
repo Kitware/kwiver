@@ -29,14 +29,14 @@ class VITAL_TYPES_EXPORT rotation_
 {
 public:
   /// Default Constructor
-  rotation_< T >() : q_( 1, 0, 0, 0 ) {}
+  rotation_() : q_( 1, 0, 0, 0 ) {}
 
   /// Constructor - from an Eigen Quaternion
-  rotation_< T >( const Eigen::Quaternion< T >& quaternion )
+  rotation_( const Eigen::Quaternion< T >& quaternion )
     : q_( quaternion ) {}
 
   /// Copy Constructor from another type
-  template < typename U > explicit rotation_< T >( const rotation_< U >& other )
+  template < typename U > explicit rotation_( const rotation_< U >& other )
     : q_( static_cast< Eigen::Quaternion< T > >( other.quaternion() ) ) {}
 
   /// Constructor - from a 4D quaternion vector (x,y,z,w)
@@ -51,7 +51,7 @@ public:
   // It will remain so. This can cause problems when converting to other types.
   // Might want to consider using the actual Eigen::Quaternion constructor. This
   // will also resolve the strange order of the coefficients.
-  explicit rotation_< T >( const Eigen::Matrix< T, 4, 1 >& quaternion )
+  explicit rotation_( const Eigen::Matrix< T, 4, 1 >& quaternion )
     : q_( quaternion ) {}
 
   /// Constructor - from a Rodrigues vector
@@ -62,10 +62,10 @@ public:
   /// This representation is closely related to the tangent space on
   /// the manifold of the group of rotations.
   /// \param rvec Rodrigues vector to construct from.
-  explicit rotation_< T >( const Eigen::Matrix< T, 3, 1 >& rvec );
+  explicit rotation_( const Eigen::Matrix< T, 3, 1 >& rvec );
 
   /// Constructor - from rotation angle and axis
-  rotation_< T >( T angle, const Eigen::Matrix< T, 3, 1 >& axis );
+  rotation_( T angle, const Eigen::Matrix< T, 3, 1 >& axis );
 
   /// Constructor - from yaw, pitch, and roll (radians)
   ///
@@ -77,13 +77,13 @@ public:
   /// North-East-Down coordinate system to one in which x, y, and z are facing
   /// east, north, and up, respectively, call the \link ned_to_enu() \endlink
   /// utility function on the constructed object.
-  rotation_< T >( const T& yaw, const T& pitch, const T& roll );
+  rotation_( const T& yaw, const T& pitch, const T& roll );
 
   /// Constructor - from a matrix
   ///
   /// requires orthonormal matrix with +1 determinant
   /// \param rot orthonormal matrix to construct from
-  explicit rotation_< T >( const Eigen::Matrix< T, 3, 3 >& rot );
+  explicit rotation_( const Eigen::Matrix< T, 3, 3 >& rot );
 
   /// Convert to a 3x3 matrix
   Eigen::Matrix< T, 3, 3 > matrix() const;

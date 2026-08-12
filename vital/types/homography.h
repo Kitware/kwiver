@@ -79,25 +79,25 @@ public:
   typedef Eigen::Matrix< T, 3, 3 > matrix_t;
 
   /// Construct an identity homography
-  homography_< T >();
+  homography_();
 
   /// Construct from a provided transformation matrix
   ///
   /// \param mat The 3x3 transformation matrix to use.
   explicit
-  homography_< T >( matrix_t const& mat );
+  homography_( matrix_t const& mat );
 
   /// Conversion Copy constructor
   ///
   /// \param other The other homography whose transformation should be copied.
   template < typename U > explicit
-  homography_< T >( homography_< U > const& other )
+  homography_( homography_< U > const& other )
     : h_( other.h_.template cast< T >() )
   {}
 
   /// Construct from a generic homography
   explicit
-  homography_< T >( homography const& base );
+  homography_( homography const& base );
 
   // --------------------------------------------------------------------------
   // ---- Abstract method definitions ----

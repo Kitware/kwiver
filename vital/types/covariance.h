@@ -30,7 +30,7 @@ public:
   using matrix_type = Eigen::Matrix< T, N, N >;
 
   /// Default Constructor - Initialize to identity
-  covariance_< N, T >()
+  covariance_()
   {
     // Setting identity matrix values
     size_t n = 0;
@@ -45,14 +45,14 @@ public:
   }
 
   /// Copy constructor
-  covariance_< N, T >( const covariance_< N, T >& other )
+  covariance_( const covariance_< N, T >& other )
   {
     memcpy( data_, other.data_, sizeof( data_ ) );
   }
 
   /// Copy Constructor from another type
-  template < typename U > explicit covariance_< N,
-    T >( const covariance_< N, U >& other )
+  template < typename U > explicit covariance_(
+    const covariance_< N, U >& other )
   {
     const U* in = other.data();
     T* out = this->data_;
@@ -63,7 +63,7 @@ public:
   }
 
   /// Constructor - initialize to identity matrix times a scalar
-  explicit covariance_< N, T >( const T& value )
+  explicit covariance_( const T& value )
   {
     size_t n = 0;
     for( size_t j = 0; j < N; ++j )
@@ -80,7 +80,7 @@ public:
   ///
   /// Averages off diagonal elements to enforce symmetry
   /// \param mat matrix to construct from.
-  explicit covariance_< N, T >( const matrix_type& mat )
+  explicit covariance_( const matrix_type& mat )
   {
     size_t n = 0;
     for( size_t j = 0; j < N; ++j )

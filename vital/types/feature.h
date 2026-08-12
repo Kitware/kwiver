@@ -108,16 +108,16 @@ class VITAL_TYPES_EXPORT feature_
 {
 public:
   /// Default Constructor
-  feature_< T >();
+  feature_();
 
   /// Constructor for a feature
-  feature_< T >(
+  feature_(
     Eigen::Matrix< T, 2, 1 > const& loc, T mag = 0.0,
     T scale = 1.0, T angle = 0.0,
     rgb_color const& color = rgb_color() );
 
   /// Constructor for a feature_ from a base class feature
-  explicit feature_< T >( feature const& f );
+  explicit feature_( feature const& f );
 
   /// Access statically available type of underlying data (double or float)
   static std::type_info const& static_data_type() { return typeid( T ); }

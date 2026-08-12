@@ -83,10 +83,10 @@ public:
   /// Decompose and find closest essential matrix to the input \p mat.
   /// \param mat The 3x3 transformation matrix to use.
   explicit
-  essential_matrix_< T >( matrix_t const& mat );
+  essential_matrix_( matrix_t const& mat );
 
   /// Construct from a rotation and translation
-  essential_matrix_< T >(
+  essential_matrix_(
     rotation_< T > const& rot,
     vector_t const& trans );
 
@@ -94,14 +94,14 @@ public:
   ///
   /// \param other The other essential_matrix to be copied.
   template < typename U > explicit
-  essential_matrix_< T >( essential_matrix_< U > const& other )
+  essential_matrix_( essential_matrix_< U > const& other )
     : rot_( static_cast< rotation_< T > >( other.rotation() ) ),
       trans_( other.translation().template cast< T >() )
   {}
 
   /// Construct from a generic essential_matrix
   explicit
-  essential_matrix_< T >( essential_matrix const& base );
+  essential_matrix_( essential_matrix const& base );
 
   // Abstract method definitions ---------------------------------------------
 
