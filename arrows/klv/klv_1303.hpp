@@ -889,7 +889,7 @@ klv_1303_mdap_format< Format >
       {
         throw_apa_type_mismatch( value.apa, typeid( element_t ) );
       }
-    // Fallthrough is intentional here
+      [[fallthrough]];
     case KLV_1303_APA_NATURAL:
       length_of_array = value.elements.size() * value.element_size;
       break;

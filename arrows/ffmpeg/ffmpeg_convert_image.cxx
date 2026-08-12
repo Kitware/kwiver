@@ -437,6 +437,7 @@ vital_to_frame_pix_fmt(
       {
         return AV_PIX_FMT_MONOBLACK;
       }
+      [[fallthrough]];
     case vital::image_pixel_traits::FLOAT:
     case vital::image_pixel_traits::SIGNED:
     case vital::image_pixel_traits::UNKNOWN:
