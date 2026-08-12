@@ -2420,7 +2420,7 @@ ffmpeg_video_input::priv::open_video_state
     }
   }
 
-  return std::move( result );
+  return result;
 }
 
 // ----------------------------------------------------------------------------
