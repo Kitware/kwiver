@@ -133,8 +133,8 @@ projection( int crs_from, int crs_to )
     {
       auto const msg =
         "Failed to construct PROJ projection"
-        " from EPSG:" + std::to_string( crs_from );
-      " to EPSG:" + std::to_string( crs_to );
+        " from EPSG:" + std::to_string( crs_from ) +
+        " to EPSG:" + std::to_string( crs_to );
       throw std::runtime_error( msg );
     }
 
@@ -148,8 +148,8 @@ projection( int crs_from, int crs_to )
     {
       auto const msg =
         "Failed to construct normalized PROJ projection"
-        " from EPSG:" + std::to_string( crs_from );
-      " to EPSG:" + std::to_string( crs_to );
+        " from EPSG:" + std::to_string( crs_from ) +
+        " to EPSG:" + std::to_string( crs_to );
       throw std::runtime_error( msg );
     }
 
