@@ -90,8 +90,8 @@ matrix_values(
   {
     for( int k = 0; k < matrix.cols(); ++k )
     {
-      auto const value = matrix.coeff( i, k );
-      if( value < 0 || value > max_tracks )
+      size_t const value = matrix.coeff( i, k );
+      if( value > max_tracks )
       {
         return false;
       }
