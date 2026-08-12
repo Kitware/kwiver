@@ -351,7 +351,7 @@ size_t
 byte_width_from_pix_fmt( AVPixelFormat pix_fmt )
 {
   auto const descriptor = av_pix_fmt_desc_get( pix_fmt );
-  if( !descriptor || !descriptor->comp )
+  if( !descriptor )
   {
     throw_error( "byte_width_from_pix_fmt() given invalid pix_fmt" );
   }
