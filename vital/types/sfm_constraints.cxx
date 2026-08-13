@@ -28,23 +28,18 @@ public:
 
   struct im_data
   {
-    int width;
-    int height;
+    int width = -1;
+    int height = -1;
 
-    im_data()
-      : width( -1 ),
-        height( -1 )
-    {}
+    im_data() = default;
 
     im_data( int w_, int h_ )
       : width( w_ ),
         height( h_ )
     {}
 
-    im_data( const im_data& other )
-      : width( other.width ),
-        height( other.height )
-    {}
+    im_data( im_data const& other ) = default;
+    im_data& operator=( im_data const& other ) = default;
   };
 
   metadata_map_sptr m_md;
