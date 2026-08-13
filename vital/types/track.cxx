@@ -42,7 +42,8 @@ track
 // ----------------------------------------------------------------------------
 track
 ::track( const track& other )
-  : history_(),
+  : std::enable_shared_from_this< track >(),
+    history_(),
     id_( other.id_ ),
     data_( other.data_ )
 {}
