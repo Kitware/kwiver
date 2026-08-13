@@ -37,7 +37,7 @@ class VITAL_TYPES_EXPORT query_result
 public:
   query_result();
 
-  ~query_result() VITAL_DEFAULT_DTOR
+  ~query_result() = default;
 
   uid query_id() const;
   std::string stream_id() const;

@@ -16,33 +16,6 @@
 #ifndef VITAL_VITAL_CONFIG_H
 #define VITAL_VITAL_CONFIG_H
 
-// Support macros.
-#if defined(_WIN32) || defined(_WIN64)
-
-// TODO use C++17 attributes if available
-
-# define VITAL_MUST_USE_RESULT  /* unsupported */
-# define VITAL_UNUSED           /* unsupported */
-# define VITAL_SYSTEM_WIN_API (1)
-
-#elif defined(__GNUC__)
-
-# define VITAL_MUST_USE_RESULT __attribute__((__warn_unused_result__))
-# define VITAL_UNUSED __attribute__((__unused__))
-# define VITAL_SYSTEM_WIN_API (0)
-
-#else
-
-// TODO use C++17 attributes if available
-
-# define VITAL_MUST_USE_RESULT  /* unsupported */
-# define VITAL_UNUSED           /* unsupported */
-# define VITAL_SYSTEM_WIN_API (0)
-
-#endif
-
-#define VITAL_NO_RETURN [[noreturn]]
-
 #cmakedefine01  VITAL_USE_ABI_DEMANGLE
 #cmakedefine  VITAL_STD_MAP_UNIQUE_PTR_ALLOWED
 
@@ -50,11 +23,5 @@
 // kwiver-v2 targets C++17 let's used the available attributes and keywords
 // keeping them as defines so we can have custom definitions in kwiver-v1/v2
 // we can remove them once the transition is complete
-#define VITAL_FINAL final
-#ifndef VITAL_UNUSED
 #define VITAL_UNUSED [[maybe_unused]]
-#endif
-#define VITAL_DEFAULT_DTOR = default;
-#define VITAL_DEFAULT_CTOR = default;
-#define VITAL_DELETE_DECL = delete
 #endif // VITAL_VITAL_CONFIG_H

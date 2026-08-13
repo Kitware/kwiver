@@ -31,7 +31,7 @@ class VITAL_TYPES_EXPORT iqr_feedback
 public:
   iqr_feedback();
 
-  ~iqr_feedback() VITAL_DEFAULT_DTOR
+  ~iqr_feedback() = default;
 
   vital::uid query_id() const;
 

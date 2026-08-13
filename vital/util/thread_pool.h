@@ -88,7 +88,7 @@ public:
   {
   public:
     /// Constructor
-    backend()  VITAL_DEFAULT_CTOR
+    backend() = default;
 
     /// Destructor
     virtual ~backend() = default;

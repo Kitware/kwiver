@@ -82,7 +82,7 @@ struct converter< bool, std::string >
   }
 
   // --------------------------------------------------------------------------
-  virtual ~converter() VITAL_DEFAULT_DTOR
+  virtual ~converter() = default;
 
   //
   // --------------------------------------------------------------------------
