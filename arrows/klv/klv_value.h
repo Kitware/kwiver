@@ -5,15 +5,16 @@
 /// \file
 /// This file contains the interface for the \c klv_value class.
 
+#ifndef KWIVER_ARROWS_KLV_KLV_VALUE_H
+#define KWIVER_ARROWS_KLV_KLV_VALUE_H
+
 #include <arrows/klv/klv_blob.h>
 #include <arrows/klv/kwiver_algo_klv_export.h>
 
 #include <vital/any.h>
 
+#include <memory>
 #include <sstream>
-
-#ifndef KWIVER_ARROWS_KLV_KLV_VALUE_H_
-#define KWIVER_ARROWS_KLV_KLV_VALUE_H_
 
 namespace kwiver {
 
