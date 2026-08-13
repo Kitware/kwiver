@@ -59,6 +59,7 @@ sdcc_flp_sigma_imap( klv_lds_key key, size_t length )
     case KLV_1107_EFFECTIVE_FOCAL_LENGTH:
     case KLV_1107_EFFECTIVE_FOCAL_LENGTH_EXTENDED:
       bounds = { 0.0, 350.0 };
+      break;
 
     case KLV_1107_SENSOR_ECEF_POSITION_X:
     case KLV_1107_SENSOR_ECEF_POSITION_Y:
