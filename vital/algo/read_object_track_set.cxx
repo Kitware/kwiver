@@ -22,7 +22,7 @@ namespace algo {
 
 read_object_track_set
 ::read_object_track_set()
-  : m_stream( 0 ),
+  : m_stream( nullptr ),
     m_stream_owned( false )
 {
   attach_logger( "algo.read_object_track_set" );
@@ -36,7 +36,7 @@ read_object_track_set
     delete m_stream;
   }
 
-  m_stream = 0;
+  m_stream = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ read_object_track_set
     delete m_stream;
   }
 
-  m_stream = 0;
+  m_stream = nullptr;
 
   // Make sure that the given file path exists and is a file.
   if( !kwiversys::SystemTools::FileExists( filename ) )
@@ -97,7 +97,7 @@ read_object_track_set
     delete m_stream;
   }
 
-  m_stream = 0;
+  m_stream = nullptr;
 }
 
 // ----------------------------------------------------------------------------

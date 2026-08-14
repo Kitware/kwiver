@@ -16,7 +16,7 @@ namespace sprokit {
 
 process_instrumentation::
 process_instrumentation()
-  : m_process( 0 )
+  : m_process( nullptr )
 { }
 
 void

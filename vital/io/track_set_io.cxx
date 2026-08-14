@@ -296,7 +296,7 @@ write_feature_track_file(
           "Provided track doest not contain a valid feature" );
       }
 
-      bool has_desc = ftsd->descriptor.get() != NULL;
+      bool has_desc = ftsd->descriptor.get() != nullptr;
       ofile << t->id() << " " << s->frame() << " " << *ftsd->feature << " " <<
         has_desc << "\n";
     }

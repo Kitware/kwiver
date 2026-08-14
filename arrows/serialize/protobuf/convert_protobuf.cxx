@@ -230,7 +230,7 @@ convert_protobuf(
   // ground
   // though somewhat ugly
   if( const_cast< ::kwiver::vital::detected_object& >( det_object ).type() !=
-      NULL )
+      nullptr )
   {
     auto* proto_dot = proto_det_object.mutable_classifications();
     convert_protobuf(

@@ -29,7 +29,7 @@ token_type_env
 
   const char* v = name.c_str();
   const char* env_expansion = kwiversys::SystemTools::GetEnv( v );
-  if( env_expansion != NULL )
+  if( env_expansion != nullptr )
   {
     result = env_expansion;
   }

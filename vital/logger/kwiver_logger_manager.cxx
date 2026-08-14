@@ -35,7 +35,7 @@ class kwiver_logger_factory;
 //
 // Pointer to our single instance.
 //
-kwiver_logger_manager* kwiver_logger_manager::s_instance = 0;
+kwiver_logger_manager* kwiver_logger_manager::s_instance = nullptr;
 
 #define PLUGIN_ENV_VAR "VITAL_LOGGER_FACTORY"
 
@@ -68,7 +68,7 @@ kwiver_logger_manager
   bool try_default( false );
   std::string factory_name;
   char const* factory = std::getenv( PLUGIN_ENV_VAR );
-  if( factory == 0 )
+  if( !factory )
   {
     // If no special factory is specified, try default name
     try_default = true;
@@ -126,13 +126,13 @@ kwiver_logger_manager
 {
   static std::mutex local_lock;          // synchronization lock
 
-  if( 0 != s_instance )
+  if( s_instance )
   {
     return s_instance;
   }
 
   std::lock_guard< std::mutex > lock( local_lock );
-  if( 0 == s_instance )
+  if( !s_instance )
   {
     // create new object
     s_instance = new kwiver_logger_manager();
