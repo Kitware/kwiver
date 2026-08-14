@@ -45,7 +45,7 @@ extract_descriptors_LATCH
 
 void
 extract_descriptors_LATCH
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   config_block_sptr c = get_configuration();
   c->merge_config( config );

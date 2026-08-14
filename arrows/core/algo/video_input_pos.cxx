@@ -125,7 +125,7 @@ video_input_pos
 // ----------------------------------------------------------------------------
 bool
 video_input_pos
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -214,7 +214,7 @@ video_input_pos
 // ----------------------------------------------------------------------------
 bool
 video_input_pos
-::next_frame( VITAL_UNUSED vital::time_usec_t timeout )   // not supported
+::next_frame( [[maybe_unused]] vital::time_usec_t timeout )   // not supported
 {
   // reset current metadata packet and timestamp
   d->d_metadata = nullptr;
@@ -260,7 +260,7 @@ bool
 video_input_pos
 ::seek_frame(
   vital::timestamp::frame_t frame_number,
-  VITAL_UNUSED vital::time_usec_t timeout )
+  [[maybe_unused]] vital::time_usec_t timeout )
 {
   // reset current metadata packet and timestamp
   d->d_metadata = nullptr;
@@ -305,8 +305,8 @@ video_input_pos
 bool
 video_input_pos
 ::seek_time(
-  VITAL_UNUSED vital::timestamp::time_t time_usec,
-  VITAL_UNUSED vital::time_usec_t timeout )
+  [[maybe_unused]] vital::timestamp::time_t time_usec,
+  [[maybe_unused]] vital::time_usec_t timeout )
 {
   // TODO: Unimplemented
   return false;

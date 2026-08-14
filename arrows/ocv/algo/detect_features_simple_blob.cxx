@@ -86,7 +86,7 @@ detect_features_simple_blob
 
 void
 detect_features_simple_blob
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   this->update_detector_parameters();
 }
@@ -101,7 +101,7 @@ detect_features_simple_blob
 
 bool
 detect_features_simple_blob
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

@@ -217,7 +217,7 @@ geo_conversion
 // ----------------------------------------------------------------------------
 vital::geo_crs_description_t
 geo_conversion
-::describe( VITAL_UNUSED int crs )
+::describe( [[maybe_unused]] int crs )
 {
   throw std::runtime_error( "Not implemented" );
 }

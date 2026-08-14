@@ -24,12 +24,12 @@ train_detector
 void
 train_detector
 ::add_data_from_disk(
-  VITAL_UNUSED vital::category_hierarchy_sptr object_labels,
-  VITAL_UNUSED std::vector< std::string > train_image_names,
-  VITAL_UNUSED std::vector< kwiver::vital::detected_object_set_sptr >
+  [[maybe_unused]] vital::category_hierarchy_sptr object_labels,
+  [[maybe_unused]] std::vector< std::string > train_image_names,
+  [[maybe_unused]] std::vector< kwiver::vital::detected_object_set_sptr >
   train_groundtruth,
-  VITAL_UNUSED std::vector< std::string > test_image_names,
-  VITAL_UNUSED std::vector< kwiver::vital::detected_object_set_sptr >
+  [[maybe_unused]] std::vector< std::string > test_image_names,
+  [[maybe_unused]] std::vector< kwiver::vital::detected_object_set_sptr >
   test_groundtruth )
 {
   throw std::runtime_error( "Method not implemented" );
@@ -38,12 +38,14 @@ train_detector
 void
 train_detector
 ::add_data_from_memory(
-  VITAL_UNUSED vital::category_hierarchy_sptr object_labels,
-  VITAL_UNUSED std::vector< kwiver::vital::image_container_sptr > train_images,
-  VITAL_UNUSED std::vector< kwiver::vital::detected_object_set_sptr >
+  [[maybe_unused]] vital::category_hierarchy_sptr object_labels,
+  [[maybe_unused]] std::vector< kwiver::vital::image_container_sptr >
+  train_images,
+  [[maybe_unused]] std::vector< kwiver::vital::detected_object_set_sptr >
   train_groundtruth,
-  VITAL_UNUSED std::vector< kwiver::vital::image_container_sptr > test_images,
-  VITAL_UNUSED std::vector< kwiver::vital::detected_object_set_sptr >
+  [[maybe_unused]] std::vector< kwiver::vital::image_container_sptr >
+  test_images,
+  [[maybe_unused]] std::vector< kwiver::vital::detected_object_set_sptr >
   test_groundtruth )
 {
   throw std::runtime_error( "Method not implemented" );

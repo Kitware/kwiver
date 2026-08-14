@@ -2532,7 +2532,7 @@ ffmpeg_video_input
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_input
-::check_configuration( VITAL_UNUSED kv::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] kv::config_block_sptr config ) const
 {
   return true;
 }
@@ -2656,8 +2656,8 @@ ffmpeg_video_input
 bool
 ffmpeg_video_input
 ::seek_time(
-  VITAL_UNUSED vital::timestamp::time_t time_usec,
-  VITAL_UNUSED vital::time_usec_t timeout )
+  [[maybe_unused]] vital::timestamp::time_t time_usec,
+  [[maybe_unused]] vital::time_usec_t timeout )
 {
   // TODO: Unimplemented
   return false;

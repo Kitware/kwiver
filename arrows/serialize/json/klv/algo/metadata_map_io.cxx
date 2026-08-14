@@ -72,7 +72,7 @@ metadata_map_io_klv
 // ----------------------------------------------------------------------------
 vital::metadata_map_sptr
 metadata_map_io_klv
-::load_( std::istream& fin, VITAL_UNUSED std::string const& filename ) const
+::load_( std::istream& fin, [[maybe_unused]] std::string const& filename ) const
 {
   // Load KLV from JSON
   std::vector< klv::klv_timed_packet > packets;
@@ -145,7 +145,7 @@ metadata_map_io_klv
 // ----------------------------------------------------------------------------
 std::ios_base::openmode
 metadata_map_io_klv
-::load_open_mode( VITAL_UNUSED std::string const& filename ) const
+::load_open_mode( [[maybe_unused]] std::string const& filename ) const
 {
   return d->compress()
          ? ( std::ios_base::in | std::ios_base::binary )
@@ -157,7 +157,7 @@ void
 metadata_map_io_klv
 ::save_(
   std::ostream& fout, vital::metadata_map_sptr data,
-  VITAL_UNUSED std::string const& filename ) const
+  [[maybe_unused]] std::string const& filename ) const
 {
   // Extract KLV from vital::metadata structures
   std::vector< klv::klv_timed_packet > packets;
@@ -216,7 +216,7 @@ metadata_map_io_klv
 // ----------------------------------------------------------------------------
 std::ios_base::openmode
 metadata_map_io_klv
-::save_open_mode( VITAL_UNUSED std::string const& filename ) const
+::save_open_mode( [[maybe_unused]] std::string const& filename ) const
 {
   return d->compress()
          ? ( std::ios_base::out | std::ios_base::binary )

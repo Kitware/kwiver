@@ -49,12 +49,12 @@ public:
   virtual ~dummy_est() = default;
 
   void
-  set_configuration( VITAL_UNUSED kwiver::vital::config_block_sptr config )
+  set_configuration( [[maybe_unused]] kwiver::vital::config_block_sptr config )
   {}
 
   bool
   check_configuration(
-    VITAL_UNUSED kwiver::vital::config_block_sptr config ) const
+    [[maybe_unused]] kwiver::vital::config_block_sptr config ) const
   {
     return true;
   }

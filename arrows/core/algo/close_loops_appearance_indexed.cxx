@@ -661,8 +661,8 @@ close_loops_appearance_indexed
 ::stitch(
   kwiver::vital::frame_id_t frame_number,
   kwiver::vital::feature_track_set_sptr input,
-  VITAL_UNUSED kwiver::vital::image_container_sptr image,
-  VITAL_UNUSED kwiver::vital::image_container_sptr mask ) const
+  [[maybe_unused]] kwiver::vital::image_container_sptr image,
+  [[maybe_unused]] kwiver::vital::image_container_sptr mask ) const
 {
   return d_->detect( input, frame_number );
 }

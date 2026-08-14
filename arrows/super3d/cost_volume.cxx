@@ -162,7 +162,7 @@ compute_g(
   const vil_image_view< double >& ref_img,
   vil_image_view< double >& g,
   double alpha,
-  VITAL_UNUSED double beta,
+  [[maybe_unused]] double beta,
   vil_image_view< bool >* mask )
 {
   g.set_size( ref_img.ni(), ref_img.nj(), 1 );

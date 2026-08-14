@@ -378,7 +378,7 @@ draw_detected_object_set
 // ----------------------------------------------------------------------------
 bool
 draw_detected_object_set
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   // This can be called before the config is "set". A more robust way
   // of determining validity should be used.

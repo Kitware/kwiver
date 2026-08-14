@@ -38,7 +38,7 @@ pre_setup( context& ctxt )
 // ----------------------------------------------------------------------------
 void
 epx_test::
-end_of_output( VITAL_UNUSED context& ctxt )
+end_of_output( [[maybe_unused]] context& ctxt )
 {
   std::cout << "exp_test End_Of_Output called\n";
 }

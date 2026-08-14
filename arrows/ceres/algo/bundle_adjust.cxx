@@ -124,7 +124,7 @@ bundle_adjust
 // Check that the algorithm's currently configuration is valid
 bool
 bundle_adjust
-::check_configuration( VITAL_UNUSED config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] config_block_sptr config ) const
 {
   std::string msg;
   if( c_solver_options->options.IsValid( &msg ) )

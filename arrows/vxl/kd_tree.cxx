@@ -53,7 +53,7 @@ kd_tree
 // ------------------------------------------------------------------
 bool
 kd_tree
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

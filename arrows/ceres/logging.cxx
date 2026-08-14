@@ -31,10 +31,10 @@ public:
   void
   send(
     ::google::LogSeverity severity,
-    VITAL_UNUSED char const* full_filename,
-    VITAL_UNUSED char const* base_filename,
-    VITAL_UNUSED int line,
-    VITAL_UNUSED tm const* tm_time,
+    [[maybe_unused]] char const* full_filename,
+    [[maybe_unused]] char const* base_filename,
+    [[maybe_unused]] int line,
+    [[maybe_unused]] tm const* tm_time,
     char const* message,
     size_t message_len ) override
   {

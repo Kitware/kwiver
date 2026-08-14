@@ -129,8 +129,8 @@ token_expander
 bool
 token_expander
 ::handle_missing_entry(
-  VITAL_UNUSED std::string const& provider,
-  VITAL_UNUSED std::string const& entry )
+  [[maybe_unused]] std::string const& provider,
+  [[maybe_unused]] std::string const& entry )
 {
   // default is to insert unresolved text
   return true;
@@ -140,8 +140,8 @@ token_expander
 bool
 token_expander
 ::handle_missing_provider(
-  VITAL_UNUSED std::string const& provider,
-  VITAL_UNUSED std::string const& entry )
+  [[maybe_unused]] std::string const& provider,
+  [[maybe_unused]] std::string const& entry )
 {
   // default is to insert unresolved text
   return true;

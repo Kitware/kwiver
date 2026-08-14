@@ -88,7 +88,7 @@ image
 image_container
 ::ocv_to_vital(
   const cv::Mat& img,
-  VITAL_UNUSED ColorMode cm )
+  [[maybe_unused]] ColorMode cm )
 {
   // if the cv::Mat has reference counted memory then wrap it to keep a
   // counted reference too it.  If it doesn't own its memory, then the

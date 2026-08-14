@@ -29,7 +29,7 @@ image_io_tiled_multifile
 // ----------------------------------------------------------------------------
 bool
 image_io_tiled_multifile
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

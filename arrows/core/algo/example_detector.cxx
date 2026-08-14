@@ -56,7 +56,7 @@ example_detector::
 // ----------------------------------------------------------------------------
 bool
 example_detector
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -64,7 +64,7 @@ example_detector
 // ----------------------------------------------------------------------------
 kwiver::vital::detected_object_set_sptr
 example_detector
-::detect( VITAL_UNUSED vital::image_container_sptr image_data ) const
+::detect( [[maybe_unused]] vital::image_container_sptr image_data ) const
 {
   auto detected_set = std::make_shared< kwiver::vital::detected_object_set >();
   const double ct = static_cast< double >( d->m_frame_ct );

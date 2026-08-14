@@ -57,8 +57,8 @@ public:
   /// not be loaded
   virtual bool
   load_plugin(
-    VITAL_UNUSED path_t const& path,
-    VITAL_UNUSED DL::LibraryHandle lib_handle ) const
+    [[maybe_unused]] path_t const& path,
+    [[maybe_unused]] DL::LibraryHandle lib_handle ) const
   { return true; }
 
   /// @brief Test if factory should be registered.
@@ -81,7 +81,7 @@ public:
   ///
   /// @return \b true if the plugin should be registered, \b false otherwise.
   virtual bool
-  add_factory( VITAL_UNUSED plugin_factory_handle_t fact ) const
+  add_factory( [[maybe_unused]] plugin_factory_handle_t fact ) const
   { return true; }
 
   // reference to the owning loader.

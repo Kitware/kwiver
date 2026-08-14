@@ -65,7 +65,8 @@ match_features_bruteforce
 
 void
 match_features_bruteforce
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr in_config )
+::set_configuration_internal(
+  [[maybe_unused]] vital::config_block_sptr in_config )
 {
   // Create new instance with the updated parameters
   matcher = create( this->get_norm_type(), this->get_cross_check() );

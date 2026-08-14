@@ -62,7 +62,7 @@ detect_features_MSER
 // create a new cv::MSER instance on parameter update.
 void
 detect_features_MSER
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   this->update_detector_parameters();
 }

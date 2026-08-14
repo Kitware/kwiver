@@ -14,7 +14,7 @@ embedded_pipeline_extension()
 // ----------------------------------------------------------------------------
 void
 embedded_pipeline_extension::
-configure( VITAL_UNUSED kwiver::vital::config_block_sptr const conf )
+configure( [[maybe_unused]] kwiver::vital::config_block_sptr const conf )
 { }
 
 // ----------------------------------------------------------------------------

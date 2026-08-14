@@ -65,7 +65,7 @@ detected_object_set_input_simulator::
 // ----------------------------------------------------------------------------
 bool
 detected_object_set_input_simulator
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -73,7 +73,7 @@ detected_object_set_input_simulator
 // ----------------------------------------------------------------------------
 void
 detected_object_set_input_simulator
-::open( VITAL_UNUSED std::string const& filename )
+::open( [[maybe_unused]] std::string const& filename )
 {}
 
 // ----------------------------------------------------------------------------

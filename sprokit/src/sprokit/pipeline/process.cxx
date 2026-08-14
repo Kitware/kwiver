@@ -769,7 +769,7 @@ process
 // ------------------------------------------------------------------
 void
 process
-::input_port_undefined( VITAL_UNUSED port_t const& port )
+::input_port_undefined( [[maybe_unused]] port_t const& port )
 {
 }
 
@@ -802,7 +802,7 @@ process
 // ------------------------------------------------------------------
 void
 process
-::output_port_undefined( VITAL_UNUSED port_t const& port )
+::output_port_undefined( [[maybe_unused]] port_t const& port )
 {
 }
 

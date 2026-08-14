@@ -383,8 +383,9 @@ warp_image(
 }
 
 template <>
+[[maybe_unused]]
+
 bool
-VITAL_UNUSED
 safe_cast< bool, float >( float const& value )
 {
   return fuzzy_cmp( value, float( 0 ) );

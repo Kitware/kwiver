@@ -71,7 +71,7 @@ detect_features_SURF
 
 void
 detect_features_SURF
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   this->update_detector_parameters();
 }
@@ -98,7 +98,7 @@ detect_features_SURF
 
 bool
 detect_features_SURF
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -120,7 +120,7 @@ extract_descriptors_SURF
 
 void
 extract_descriptors_SURF
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   this->update_extractor_parameters();
 }
@@ -147,7 +147,7 @@ extract_descriptors_SURF
 
 bool
 extract_descriptors_SURF
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

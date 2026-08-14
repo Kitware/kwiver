@@ -96,7 +96,10 @@ public:
   /// invalid results.  This function tests if the point lies in the valid
   /// domain
   virtual bool
-  is_map_valid( VITAL_UNUSED const vector_2d& norm_pt ) const { return true; }
+  is_map_valid( [[maybe_unused]] const vector_2d& norm_pt ) const
+  {
+    return true;
+  }
 
   /// Check if a 3D point in camera coordinates can map into image coordinates
   ///

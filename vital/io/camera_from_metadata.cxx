@@ -290,7 +290,7 @@ update_camera_from_metadata(
   metadata const& md,
   local_tangent_space const& local_space,
   simple_camera_perspective& cam,
-  VITAL_UNUSED rotation_d const& rot_offset )
+  [[maybe_unused]] rotation_d const& rot_offset )
 {
   if( auto& mdi = md.find( VITAL_META_SENSOR_LOCATION ) )
   {

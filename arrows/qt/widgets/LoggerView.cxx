@@ -56,7 +56,7 @@ LoggerView
   kv::kwiver_logger::log_level_t level,
   std::string const& name,
   std::string const& msg,
-  VITAL_UNUSED kv::logger_ns::location_info const& loc )
+  [[maybe_unused]] kv::logger_ns::location_info const& loc )
 {
   std::string levelStr = kv::kwiver_logger::get_level_string( level );
   auto html = qtString(

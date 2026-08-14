@@ -239,7 +239,7 @@ ffmpeg_video_input_rewire
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_input_rewire
-::open( VITAL_UNUSED std::string video_name )
+::open( [[maybe_unused]] std::string video_name )
 {
   for( auto& [ index, source ] : d->video_sources )
   {
@@ -315,8 +315,8 @@ ffmpeg_video_input_rewire
 bool
 ffmpeg_video_input_rewire
 ::seek_frame(
-  VITAL_UNUSED vital::timestamp::frame_t frame_number,
-  VITAL_UNUSED vital::time_usec_t timeout )
+  [[maybe_unused]] vital::timestamp::frame_t frame_number,
+  [[maybe_unused]] vital::time_usec_t timeout )
 {
   return false;
 }

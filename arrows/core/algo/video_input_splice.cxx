@@ -330,7 +330,7 @@ bool
 video_input_splice
 ::seek_frame(
   kwiver::vital::timestamp::frame_t frame_number,
-  VITAL_UNUSED vital::time_usec_t timeout )
+  [[maybe_unused]] vital::time_usec_t timeout )
 {
   using frame_t = kwiver::vital::timestamp::frame_t;
 
@@ -370,8 +370,8 @@ video_input_splice
 bool
 video_input_splice
 ::seek_time(
-  VITAL_UNUSED vital::timestamp::time_t time_usec,
-  VITAL_UNUSED vital::time_usec_t timeout )
+  [[maybe_unused]] vital::timestamp::time_t time_usec,
+  [[maybe_unused]] vital::time_usec_t timeout )
 {
   // TODO: Unimplemented
   return false;

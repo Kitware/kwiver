@@ -183,7 +183,7 @@ estimate_canonical_transform
 // Check that the algorithm's configuration vital::config_block is valid
 bool
 estimate_canonical_transform
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

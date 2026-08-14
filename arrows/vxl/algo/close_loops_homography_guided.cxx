@@ -157,7 +157,7 @@ close_loops_homography_guided
   frame_id_t frame_number,
   feature_track_set_sptr input,
   image_container_sptr image,
-  VITAL_UNUSED image_container_sptr mask ) const
+  [[maybe_unused]] image_container_sptr mask ) const
 {
   if( !d->c_enabled() || !image )
   {

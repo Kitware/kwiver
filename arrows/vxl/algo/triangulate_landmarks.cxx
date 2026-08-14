@@ -35,7 +35,7 @@ triangulate_landmarks
 // Check that the algorithm's currently configuration is valid
 bool
 triangulate_landmarks
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

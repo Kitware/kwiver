@@ -281,8 +281,8 @@ video_input_filter
 bool
 video_input_filter
 ::seek_time(
-  VITAL_UNUSED vital::timestamp::time_t time_usec,
-  VITAL_UNUSED vital::time_usec_t timeout )
+  [[maybe_unused]] vital::timestamp::time_t time_usec,
+  [[maybe_unused]] vital::time_usec_t timeout )
 {
   // TODO: Unimplemented
   return false;

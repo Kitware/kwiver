@@ -201,8 +201,8 @@ video_input_metadata_filter
 bool
 video_input_metadata_filter
 ::seek_time(
-  VITAL_UNUSED kv::timestamp::time_t time_usec,
-  VITAL_UNUSED kv::time_usec_t timeout )
+  [[maybe_unused]] kv::timestamp::time_t time_usec,
+  [[maybe_unused]] kv::time_usec_t timeout )
 {
   // TODO: Unimplemented
   return false;

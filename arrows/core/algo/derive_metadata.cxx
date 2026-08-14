@@ -335,7 +335,8 @@ compute_vniirs( double gsd, double rer, double snr )
 
 // ----------------------------------------------------------------------------
 double
-compute_rer( VITAL_UNUSED kwiver::vital::image_container_scptr const& image )
+compute_rer(
+  [[maybe_unused]] kwiver::vital::image_container_scptr const& image )
 {
   if( image )
   {
@@ -347,7 +348,8 @@ compute_rer( VITAL_UNUSED kwiver::vital::image_container_scptr const& image )
 
 // ----------------------------------------------------------------------------
 double
-compute_snr( VITAL_UNUSED kwiver::vital::image_container_scptr const& image )
+compute_snr(
+  [[maybe_unused]] kwiver::vital::image_container_scptr const& image )
 {
   if( image )
   {
