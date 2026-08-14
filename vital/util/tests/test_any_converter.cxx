@@ -106,9 +106,7 @@ struct converter< bool, std::string >
     {
       return it->second;
     }
-    throw kwiver::vital::bad_any_cast(
-      typeid( bool ).name(),
-      typeid( std::string ).name() );
+    throw kwiver::vital::bad_any_cast{};
   }
 
 private:

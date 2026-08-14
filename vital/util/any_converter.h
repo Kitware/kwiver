@@ -247,7 +247,7 @@ public:
     } // end for
 
     // Throw exception
-    throw kwiver::vital::bad_any_cast( data.type().name(), typeid( T ).name() );
+    throw kwiver::vital::bad_any_cast{};
   }
 
   /// Test to see if conversion can be done.

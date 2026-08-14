@@ -21,14 +21,14 @@ main( int argc, char** argv )
 TEST ( any, api )
 {
   kwiver::vital::any any_one;
-  EXPECT_TRUE( any_one.empty() );
+  EXPECT_FALSE( any_one.has_value() );
 
   kwiver::vital::any any_string( std::string( "this is a string" ) );
-  EXPECT_FALSE( any_string.empty() );
+  EXPECT_TRUE( any_string.has_value() );
 
   // Clear any and test it
-  any_string.clear();
-  EXPECT_TRUE( any_string.empty() );
+  any_string.reset();
+  EXPECT_FALSE( any_string.has_value() );
   EXPECT_EQ( any_one.type(), any_string.type() );
 
   kwiver::vital::any any_double( 3.14159 );
