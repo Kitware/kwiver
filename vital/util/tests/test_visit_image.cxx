@@ -298,9 +298,9 @@ TEST_F ( visit_image, pixels )
 {
   size_t sum;
   auto const visitor =
-    [ &sum ]( sized_tuple< uint8_t const&, 3 > rgb ){
+    [ &sum ]( auto rgb ){
       auto& [ r, g, b ] = rgb;
-      sum += std::min( r, b );
+      sum += static_cast< size_t >( std::min( r, b ) );
     };
 
   for( auto const& img : { img_packed, img_planar, img_neg } )
