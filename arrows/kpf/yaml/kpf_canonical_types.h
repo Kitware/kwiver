@@ -14,6 +14,7 @@
 
 #include <arrows/kpf/yaml/kpf_packet_header.h>
 
+#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
