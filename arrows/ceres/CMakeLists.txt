@@ -44,8 +44,8 @@ kwiver_add_library( kwiver_algo_ceres
   )
 target_link_libraries( kwiver_algo_ceres
   PUBLIC               vital_algo
-  PRIVATE              ceres
-                       kwiver_algo_mvg
+                       ceres
+  PRIVATE              kwiver_algo_mvg
   )
 
 algorithms_create_plugin( kwiver_algo_ceres
