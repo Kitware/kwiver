@@ -47,14 +47,14 @@ extract_descriptors_LUCID
 
 void
 extract_descriptors_LUCID
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   this->update_extractor_parameters();
 }
 
 bool
 extract_descriptors_LUCID
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

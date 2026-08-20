@@ -97,7 +97,7 @@ detect_motion_mog2
 /// Set this algo's properties via a config block
 void
 detect_motion_mog2
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   if( d_->m_max_foreground_fract() < 0 || d_->m_max_foreground_fract() > 1 )
   {
@@ -132,7 +132,7 @@ detect_motion_mog2
 
 bool
 detect_motion_mog2
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -141,7 +141,7 @@ detect_motion_mog2
 image_container_sptr
 detect_motion_mog2
 ::process_image(
-  VITAL_UNUSED const timestamp& ts,
+  [[maybe_unused]] const timestamp& ts,
   const image_container_sptr image,
   bool reset_model )
 {

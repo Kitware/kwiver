@@ -87,14 +87,13 @@ visit_metadata_types_return(
 namespace metadata_detail {
 
 // ----------------------------------------------------------------------------
-template < class T >
-metadata_value
-convert_data( VITAL_UNUSED vital_metadata_tag tag, T const& data );
+template < class T > metadata_value
+  convert_data( [[maybe_unused]] vital_metadata_tag tag, T const& data );
 
 // ----------------------------------------------------------------------------
 template < class T >
 metadata_value
-convert_data( VITAL_UNUSED vital_metadata_tag tag, T const& data )
+convert_data( [[maybe_unused]] vital_metadata_tag tag, T const& data )
 {
   return data;
 }

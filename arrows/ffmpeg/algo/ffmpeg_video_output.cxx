@@ -305,7 +305,7 @@ ffmpeg_video_output::~ffmpeg_video_output()
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
-::set_configuration_internal( VITAL_UNUSED kv::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] kv::config_block_sptr config )
 {
   if( !this->c_cuda_enabled && d->hardware_device() &&
       d->hardware_device()->type == AV_HWDEVICE_TYPE_CUDA )
@@ -318,7 +318,7 @@ ffmpeg_video_output
 // ----------------------------------------------------------------------------
 bool
 ffmpeg_video_output
-::check_configuration( VITAL_UNUSED kv::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] kv::config_block_sptr config ) const
 {
   return true;
 }
@@ -394,7 +394,7 @@ ffmpeg_video_output
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
-::add_metadata( VITAL_UNUSED kwiver::vital::metadata const& md )
+::add_metadata( [[maybe_unused]] kwiver::vital::metadata const& md )
 {
   // TODO
 }
@@ -402,7 +402,7 @@ ffmpeg_video_output
 // ----------------------------------------------------------------------------
 void
 ffmpeg_video_output
-::add_metadata( VITAL_UNUSED vital::video_raw_metadata const& md )
+::add_metadata( [[maybe_unused]] vital::video_raw_metadata const& md )
 {
   // TODO
 }
@@ -774,7 +774,7 @@ void
 ffmpeg_video_output::impl::open_video_state
 ::add_image(
   kv::image_container_sptr const& image,
-  VITAL_UNUSED kv::timestamp const& ts )
+  [[maybe_unused]] kv::timestamp const& ts )
 {
   auto const converted_frame =
     vital_image_to_frame(

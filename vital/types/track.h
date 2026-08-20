@@ -34,8 +34,8 @@ class VITAL_TYPES_EXPORT track_ref : public std::weak_ptr< track >
 {
 public:
   track_ref() = default;
-  track_ref( VITAL_UNUSED track_ref const& other ) {}
-  track_ref( VITAL_UNUSED track_ref&& other ) {}
+  track_ref( [[maybe_unused]] track_ref const& other ) {}
+  track_ref( [[maybe_unused]] track_ref&& other ) {}
 
   track_ref& operator=( track_ref const& rhs ) = delete;
   track_ref& operator=( track_ref&& rhs ) = delete;

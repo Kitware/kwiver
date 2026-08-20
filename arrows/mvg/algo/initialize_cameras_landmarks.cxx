@@ -1954,8 +1954,8 @@ initialize_cameras_landmarks::priv
   simple_camera_perspective_map_sptr cams,
   landmark_map_sptr& landmarks,
   feature_track_set_sptr tracks,
-  VITAL_UNUSED sfm_constraints_sptr constraints,
-  VITAL_UNUSED frame_id_t target_frame )
+  [[maybe_unused]] sfm_constraints_sptr constraints,
+  [[maybe_unused]] frame_id_t target_frame )
 {
   if( m_track_map.empty() )
   {
@@ -2167,8 +2167,8 @@ initialize_cameras_landmarks::priv
 feature_track_set_changes_sptr
 initialize_cameras_landmarks::priv
 ::get_feature_track_changes(
-  VITAL_UNUSED feature_track_set_sptr tracks,
-  VITAL_UNUSED const simple_camera_perspective_map& cams ) const
+  [[maybe_unused]] feature_track_set_sptr tracks,
+  [[maybe_unused]] const simple_camera_perspective_map& cams ) const
 {
   auto chgs = std::make_shared< feature_track_set_changes >();
 
@@ -3089,7 +3089,7 @@ initialize_cameras_landmarks::priv
 std::set< landmark_id_t >
 initialize_cameras_landmarks::priv
 ::find_visible_landmarks_in_frames(
-  VITAL_UNUSED const map_landmark_t& lmks,
+  [[maybe_unused]] const map_landmark_t& lmks,
   feature_track_set_sptr tracks,
   const std::set< frame_id_t >& frames )
 {

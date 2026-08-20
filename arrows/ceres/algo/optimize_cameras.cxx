@@ -54,7 +54,7 @@ optimize_cameras
 // Check that the algorithm's currently configuration is valid
 bool
 optimize_cameras
-::check_configuration( VITAL_UNUSED config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] config_block_sptr config ) const
 {
   std::string msg;
   if( !c_solver_options->options.IsValid( &msg ) )
@@ -265,7 +265,7 @@ optimize_cameras
   vital::camera_perspective_sptr& camera,
   const std::vector< vital::feature_sptr >& features,
   const std::vector< vital::landmark_sptr >& landmarks,
-  VITAL_UNUSED kwiver::vital::sfm_constraints_sptr constraints ) const
+  [[maybe_unused]] kwiver::vital::sfm_constraints_sptr constraints ) const
 {
   // extract camera parameters to optimize
   auto const ndp =

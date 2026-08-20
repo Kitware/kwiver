@@ -60,7 +60,7 @@ static
 bool
 set_config(
   kwiver::vital::config_block_sptr config,
-  VITAL_UNUSED std::string const& data_dir )
+  [[maybe_unused]] std::string const& data_dir )
 {
   for( int n = 1; n < 4; ++n )
   {

@@ -88,7 +88,7 @@ struct val_zero_op
 struct val_incr_op
 {
   byte
-  operator()( VITAL_UNUSED byte const& b )
+  operator()( [[maybe_unused]] byte const& b )
   {
     return val_incr_op_i++;
   }

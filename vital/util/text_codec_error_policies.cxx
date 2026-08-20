@@ -17,8 +17,8 @@ namespace vital {
 std::tuple< text_codec::result_code, char* >
 text_codec_encode_error_policy_skip
 ::handle(
-  VITAL_UNUSED text_codec const& codec, VITAL_UNUSED char32_t c,
-  char* begin, VITAL_UNUSED char* end ) const
+  [[maybe_unused]] text_codec const& codec, [[maybe_unused]] char32_t c,
+  char* begin, [[maybe_unused]] char* end ) const
 {
   // Write nothing and continue
   return { result_code::DONE, begin };
@@ -28,8 +28,8 @@ text_codec_encode_error_policy_skip
 std::tuple< text_codec::result_code, char* >
 text_codec_encode_error_policy_abort
 ::handle(
-  VITAL_UNUSED text_codec const& codec, VITAL_UNUSED char32_t c,
-  char* begin, VITAL_UNUSED char* end ) const
+  [[maybe_unused]] text_codec const& codec, [[maybe_unused]] char32_t c,
+  char* begin, [[maybe_unused]] char* end ) const
 {
   // Write nothing and send abort signal
   return { result_code::ABORT, begin };
@@ -39,7 +39,7 @@ text_codec_encode_error_policy_abort
 std::tuple< text_codec::result_code, char* >
 text_codec_encode_error_policy_substitute
 ::handle(
-  text_codec const& codec, VITAL_UNUSED char32_t c,
+  text_codec const& codec, [[maybe_unused]] char32_t c,
   char* begin, char* end ) const
 {
   // Check that substitute character is encodable to avoid recursive errors
@@ -126,8 +126,8 @@ text_codec_encode_error_policy_unicode_escape
 std::tuple< text_codec::result_code, char32_t* >
 text_codec_decode_error_policy_skip
 ::handle(
-  VITAL_UNUSED text_codec const& codec,
-  char32_t* begin, VITAL_UNUSED char32_t* end ) const
+  [[maybe_unused]] text_codec const& codec,
+  char32_t* begin, [[maybe_unused]] char32_t* end ) const
 {
   // Write nothing and continue
   return { result_code::DONE, begin };
@@ -137,8 +137,8 @@ text_codec_decode_error_policy_skip
 std::tuple< text_codec::result_code, char32_t* >
 text_codec_decode_error_policy_abort
 ::handle(
-  VITAL_UNUSED text_codec const& codec,
-  char32_t* begin, VITAL_UNUSED char32_t* end ) const
+  [[maybe_unused]] text_codec const& codec,
+  char32_t* begin, [[maybe_unused]] char32_t* end ) const
 {
   // Write nothing and send abort signal
   return { result_code::ABORT, begin };

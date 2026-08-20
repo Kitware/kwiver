@@ -58,14 +58,14 @@ detect_features_MSD
 
 void
 detect_features_MSD
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   this->update_detector_parameters();
 }
 
 bool
 detect_features_MSD
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

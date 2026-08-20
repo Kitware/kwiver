@@ -124,7 +124,7 @@ write_object_track_set_kw18
 // ----------------------------------------------------------------------------
 bool
 write_object_track_set_kw18
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

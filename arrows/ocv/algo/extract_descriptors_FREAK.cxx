@@ -62,7 +62,7 @@ extract_descriptors_FREAK
 
 void
 extract_descriptors_FREAK
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   this->update_extractor_parameters();
 }
@@ -84,7 +84,8 @@ extract_descriptors_FREAK
 
 bool
 extract_descriptors_FREAK
-::check_configuration( VITAL_UNUSED vital::config_block_sptr in_config ) const
+::check_configuration(
+  [[maybe_unused]] vital::config_block_sptr in_config ) const
 {
   return true;
 }

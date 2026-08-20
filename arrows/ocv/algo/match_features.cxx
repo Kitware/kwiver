@@ -26,9 +26,9 @@ namespace ocv {
 vital::match_set_sptr
 match_features
 ::match(
-  VITAL_UNUSED vital::feature_set_sptr feat1,
+  [[maybe_unused]] vital::feature_set_sptr feat1,
   vital::descriptor_set_sptr desc1,
-  VITAL_UNUSED vital::feature_set_sptr feat2,
+  [[maybe_unused]] vital::feature_set_sptr feat2,
   vital::descriptor_set_sptr desc2 ) const
 {
   // Return empty match set pointer if either of the input sets were empty

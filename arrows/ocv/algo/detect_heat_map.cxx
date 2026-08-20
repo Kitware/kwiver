@@ -698,7 +698,8 @@ detect_heat_map
 /// Set this algo's properties via a config block
 void
 detect_heat_map
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr in_config )
+::set_configuration_internal(
+  [[maybe_unused]] vital::config_block_sptr in_config )
 {
   vital::config_block_sptr config = this->get_configuration();
 

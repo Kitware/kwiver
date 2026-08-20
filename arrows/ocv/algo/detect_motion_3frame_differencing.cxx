@@ -303,7 +303,7 @@ detect_motion_3frame_differencing
 /// Set this algo's properties via a config block
 void
 detect_motion_3frame_differencing
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   if( this->get_frame_separation() < 0 )
   {
@@ -363,7 +363,7 @@ detect_motion_3frame_differencing
 
 bool
 detect_motion_3frame_differencing
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -372,7 +372,7 @@ detect_motion_3frame_differencing
 image_container_sptr
 detect_motion_3frame_differencing
 ::process_image(
-  VITAL_UNUSED const timestamp& ts,
+  [[maybe_unused]] const timestamp& ts,
   const image_container_sptr image,
   bool reset_model )
 {

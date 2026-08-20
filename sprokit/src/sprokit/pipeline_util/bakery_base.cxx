@@ -45,7 +45,7 @@ protected:
   }
 
   virtual bool handle_missing_provider( const std::string& provider,
-                                        VITAL_UNUSED const std::string& entry )
+                                        [[maybe_unused]] const std::string& entry )
   {
     std::stringstream str;
     str << "Provider \"" << provider << "\" is not available";

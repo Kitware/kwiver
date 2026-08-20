@@ -117,7 +117,7 @@ image_io
 // ----------------------------------------------------------------------------
 metadata_sptr
 image_io
-::load_metadata_( VITAL_UNUSED std::string const& filename ) const
+::load_metadata_( [[maybe_unused]] std::string const& filename ) const
 {
   // No metadata-only loading by default.
   return nullptr;

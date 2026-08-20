@@ -41,7 +41,7 @@ void
 convert_image_helper(
   const vil_image_view< inP >& src,
   vil_image_view< outP >& dest,
-  VITAL_UNUSED bool force_byte, bool auto_stretch,
+  [[maybe_unused]] bool force_byte, bool auto_stretch,
   bool manual_stretch, const array2 intensity_range )
 {
   vil_image_view< double > temp;
@@ -87,7 +87,7 @@ void
 convert_image_helper(
   const vil_image_view< inP >& src,
   vil_image_view< vxl_byte >& dest,
-  VITAL_UNUSED bool force_byte, bool auto_stretch,
+  [[maybe_unused]] bool force_byte, bool auto_stretch,
   bool manual_stretch, const array2 intensity_range )
 {
   if( auto_stretch )
@@ -113,9 +113,9 @@ void
 convert_image_helper(
   const vil_image_view< bool >& src,
   vil_image_view< outP >& dest,
-  VITAL_UNUSED bool force_byte, bool auto_stretch,
+  [[maybe_unused]] bool force_byte, bool auto_stretch,
   bool manual_stretch,
-  VITAL_UNUSED const array2 intensity_range )
+  [[maybe_unused]] const array2 intensity_range )
 {
   // special case for bool because manual stretching limits do not
   // make sense and trigger compiler warnings on some platforms.
@@ -150,10 +150,10 @@ void
 convert_image_helper(
   const vil_image_view< bool >& src,
   vil_image_view< bool >& dest,
-  VITAL_UNUSED bool force_byte,
-  VITAL_UNUSED bool auto_stretch,
-  VITAL_UNUSED bool manual_stretch,
-  VITAL_UNUSED const array2 intensity_range )
+  [[maybe_unused]] bool force_byte,
+  [[maybe_unused]] bool auto_stretch,
+  [[maybe_unused]] bool manual_stretch,
+  [[maybe_unused]] const array2 intensity_range )
 {
   // special case for bool because stretch does not make sense for bool to bool
   // conversion

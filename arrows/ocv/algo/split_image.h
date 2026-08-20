@@ -34,7 +34,7 @@ public:
 
   bool
   check_configuration(
-    VITAL_UNUSED kwiver::vital::config_block_sptr config ) const override
+    [[maybe_unused]] kwiver::vital::config_block_sptr config ) const override
   {
     return true;
   }

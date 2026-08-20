@@ -112,7 +112,8 @@ match_features_flannbased
 
 void
 match_features_flannbased
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr in_config )
+::set_configuration_internal(
+  [[maybe_unused]] vital::config_block_sptr in_config )
 {
   p_->create();
 }

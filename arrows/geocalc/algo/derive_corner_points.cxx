@@ -171,7 +171,7 @@ vital::metadata_vector
 derive_corner_points
 ::filter(
   vital::metadata_vector const& input_metadata,
-  VITAL_UNUSED vital::image_container_scptr const& input_image )
+  [[maybe_unused]] vital::image_container_scptr const& input_image )
 {
   vital::metadata_vector updated_values;
   for( auto const& metadata : input_metadata )
@@ -201,7 +201,7 @@ derive_corner_points
 // ----------------------------------------------------------------------------
 bool
 derive_corner_points
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

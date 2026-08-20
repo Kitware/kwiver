@@ -101,14 +101,14 @@ detect_features_SIFT
 
 void
 detect_features_SIFT
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   this->update_detector_parameters();
 }
 
 bool
 detect_features_SIFT
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -155,14 +155,14 @@ extract_descriptors_SIFT
 
 void
 extract_descriptors_SIFT
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr config )
+::set_configuration_internal( [[maybe_unused]] vital::config_block_sptr config )
 {
   this->update_extractor_parameters();
 }
 
 bool
 extract_descriptors_SIFT
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

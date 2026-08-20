@@ -37,7 +37,7 @@ std::vector< vpgl_perspective_camera< double > >
 world_space
 ::warp_cams(
   const std::vector< vpgl_perspective_camera< double > >& cameras,
-  VITAL_UNUSED int ref_frame ) const
+  [[maybe_unused]] int ref_frame ) const
 {
   return cameras;
 }
@@ -54,7 +54,7 @@ world_space
   vil_image_view< PixT >& out,
   const vpgl_perspective_camera< double >& cam,
   double depth_slice,
-  VITAL_UNUSED int f,
+  [[maybe_unused]] int f,
   PixT fill )
 {
   wip.set_unmapped_value( fill );

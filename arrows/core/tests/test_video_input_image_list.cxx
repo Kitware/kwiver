@@ -60,7 +60,7 @@ static
 bool
 set_config(
   kwiver::vital::config_block_sptr config,
-  VITAL_UNUSED std::string const& data_dir )
+  [[maybe_unused]] std::string const& data_dir )
 {
   if( kwiver::vital::has_algorithm_impl_name< algo::image_io >( "ocv" ) )
   {

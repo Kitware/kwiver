@@ -65,7 +65,7 @@ text_codec_ascii
 ::decode(
   char const* encoded_begin, char const* encoded_end,
   char32_t* decoded_begin, char32_t* decoded_end,
-  VITAL_UNUSED bool has_true_end ) const
+  [[maybe_unused]] bool has_true_end ) const
 {
   // Loop over input
   while( encoded_begin < encoded_end )

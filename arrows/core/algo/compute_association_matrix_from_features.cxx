@@ -72,8 +72,8 @@ compute_association_matrix_from_features
 bool
 compute_association_matrix_from_features
 ::compute(
-  VITAL_UNUSED kwiver::vital::timestamp ts,
-  VITAL_UNUSED kwiver::vital::image_container_sptr image,
+  [[maybe_unused]] kwiver::vital::timestamp ts,
+  [[maybe_unused]] kwiver::vital::image_container_sptr image,
   kwiver::vital::object_track_set_sptr tracks,
   kwiver::vital::detected_object_set_sptr detections,
   kwiver::vital::matrix_d& matrix,

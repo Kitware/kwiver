@@ -55,7 +55,7 @@ estimate_fundamental_matrix
 /// Check that the algorithm's current configuration is valid
 bool
 estimate_fundamental_matrix
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }

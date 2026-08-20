@@ -176,8 +176,8 @@ IMPLEMENT_TEST(unknown_types)
 
 // ------------------------------------------------------------------
 sprokit::scheduler_t
-null_scheduler_ptr( VITAL_UNUSED sprokit::pipeline_t const& pipeline,
-                    VITAL_UNUSED kwiver::vital::config_block_sptr const& config )
+null_scheduler_ptr( [[maybe_unused]] sprokit::pipeline_t const& pipeline,
+                    [[maybe_unused]] kwiver::vital::config_block_sptr const& config )
 {
   return sprokit::scheduler_t();
 }

@@ -28,7 +28,7 @@ set_process( sprokit::process const& proc )
 
 void
 process_instrumentation::
-configure( VITAL_UNUSED kwiver::vital::config_block_sptr const config )
+configure( [[maybe_unused]] kwiver::vital::config_block_sptr const config )
 { }
 
 kwiver::vital::config_block_sptr

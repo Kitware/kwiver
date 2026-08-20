@@ -133,7 +133,8 @@ detect_features_FAST
 
 void
 detect_features_FAST
-::set_configuration_internal( VITAL_UNUSED vital::config_block_sptr in_config )
+::set_configuration_internal(
+  [[maybe_unused]] vital::config_block_sptr in_config )
 {
   this->update_detector_parameters();
 }

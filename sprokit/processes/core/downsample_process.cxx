@@ -25,7 +25,7 @@ public:
   explicit priv( downsample_process* p );
   ~priv();
 
-  bool skip_frame( VITAL_UNUSED vital::timestamp const& ts, double frame_rate );
+  bool skip_frame( [[maybe_unused]] vital::timestamp const& ts, double frame_rate );
 
   downsample_process* parent;
 
@@ -175,7 +175,7 @@ int downsample_process::priv
 }
 
 bool downsample_process::priv
-::skip_frame( VITAL_UNUSED vital::timestamp const& ts,
+::skip_frame( [[maybe_unused]] vital::timestamp const& ts,
               double frame_rate )
 {
   ds_frame_time_ = ts.has_valid_time() ?

@@ -86,7 +86,7 @@ detected_object_set_input_kw18
 // ----------------------------------------------------------------------------
 bool
 detected_object_set_input_kw18
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   return true;
 }
@@ -96,7 +96,7 @@ bool
 detected_object_set_input_kw18
 ::read_set(
   kwiver::vital::detected_object_set_sptr& set,
-  VITAL_UNUSED std::string& image_name )
+  [[maybe_unused]] std::string& image_name )
 {
   if( d->m_first )
   {

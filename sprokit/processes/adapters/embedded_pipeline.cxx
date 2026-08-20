@@ -471,7 +471,7 @@ embedded_pipeline
 // ----------------------------------------------------------------------------
 void
 embedded_pipeline::
-update_config( VITAL_UNUSED kwiver::vital::config_block_sptr config )
+update_config( [[maybe_unused]] kwiver::vital::config_block_sptr config )
 {
 }
 

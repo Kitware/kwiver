@@ -19,7 +19,7 @@ namespace core {
 bool
 dynamic_config_none
 ::check_configuration(
-  VITAL_UNUSED kwiver::vital::config_block_sptr config ) const
+  [[maybe_unused]] kwiver::vital::config_block_sptr config ) const
 {
   return true;
 }

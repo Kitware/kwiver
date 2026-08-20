@@ -114,7 +114,7 @@ detected_object_set_output_kw18::
 // ----------------------------------------------------------------------------
 bool
 detected_object_set_output_kw18
-::check_configuration( VITAL_UNUSED vital::config_block_sptr config ) const
+::check_configuration( [[maybe_unused]] vital::config_block_sptr config ) const
 {
   if( d->c_write_tot() && d->c_tot_field1_ids().empty() )
   {
@@ -134,7 +134,7 @@ void
 detected_object_set_output_kw18
 ::write_set(
   const kwiver::vital::detected_object_set_sptr set,
-  VITAL_UNUSED std::string const& image_name )
+  [[maybe_unused]] std::string const& image_name )
 {
   if( d->m_first )
   {
