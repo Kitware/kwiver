@@ -171,7 +171,7 @@ triangulate_landmarks::priv
     proj_sample[ 1 ] = lm_image_pts[ s_idx[ 1 ] ];
 
     vital::vector_3d pt3d;
-    if( guess != NULL && num_samples == 1 )
+    if( guess != nullptr && num_samples == 1 )
     {
       pt3d = *guess;
     }
@@ -344,7 +344,7 @@ triangulate_landmarks
         if( lm_cur_pt3d.x() == 0 && lm_cur_pt3d.y() == 0 &&
             lm_cur_pt3d.z() == 0 )
         {
-          triang_guess = NULL;
+          triang_guess = nullptr;
         }
 
         pt3d = d_->ransac_triangulation(

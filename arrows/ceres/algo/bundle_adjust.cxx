@@ -506,7 +506,7 @@ bundle_adjust
 
         auto dist_loss =
           new ::ceres::ScaledLoss(
-            NULL, scale,
+            nullptr, scale,
             ::ceres::Ownership::TAKE_OWNERSHIP );
         problem.AddResidualBlock(
           distance_constraint::create(

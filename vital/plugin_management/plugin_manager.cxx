@@ -39,7 +39,7 @@ static std::string const shared_library_suffix =
 
 // ----------------------------------------------------------------------------
 // ---- Static ----
-plugin_manager* plugin_manager::s_instance( 0 );
+plugin_manager* plugin_manager::s_instance( nullptr );
 
 // ----------------------------------------------------------------------------
 class plugin_manager::priv
@@ -138,7 +138,7 @@ plugin_manager
 {
   // Check env variable for path specification
   const char* env_ptr = kwiversys::SystemTools::GetEnv( env_var );
-  if( 0 != env_ptr )
+  if( env_ptr )
   {
     LOG_DEBUG(
       logger(),

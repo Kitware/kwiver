@@ -4,5 +4,17 @@ KWIVER 2.4.1 Release Notes
 Updates
 -------
 
+Vital: Algo
+
+* Added new abstract algorithm interfaces: merge_detections, refine_tracks,
+  track_objects, train_tracker and query_track_descriptor_set.
+
+* Added perform_text_query, an interface for detecting and segmenting objects
+  across one or more images from a natural language query, optionally
+  refining a set of existing tracks.
+
+* Added segment_via_points, an interface for segmenting an image from
+  user-supplied foreground and background point prompts.
+
 Bug Fixes
 ---------

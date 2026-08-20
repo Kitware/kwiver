@@ -155,7 +155,7 @@ LossFunctionFactory( LossFunctionType type, double s )
   switch( type )
   {
     case TRIVIAL_LOSS:
-      return NULL;
+      return nullptr;
     case HUBER_LOSS:
       return new ::ceres::HuberLoss( s );
     case SOFT_L_ONE_LOSS:
@@ -167,7 +167,7 @@ LossFunctionFactory( LossFunctionType type, double s )
     case TUKEY_LOSS:
       return new ::ceres::TukeyLoss( s );
     default:
-      return NULL;
+      return nullptr;
   }
 }
 

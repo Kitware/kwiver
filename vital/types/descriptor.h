@@ -183,7 +183,7 @@ class descriptor_fixed
 {
 public:
   /// Default Constructor
-  descriptor_fixed< T, N >()
+  descriptor_fixed()
     : node_id_( std::numeric_limits< unsigned int >::max() ) {}
 
   /// The number of elements of the underlying type
@@ -230,12 +230,12 @@ class descriptor_dynamic
 {
 public:
   /// Constructor
-  descriptor_dynamic< T >( size_t len )
+  descriptor_dynamic( size_t len )
     : data_( new T[ len ] ),
       length_( len ),
       node_id_( std::numeric_limits< unsigned int >::max() ) {}
 
-  descriptor_dynamic< T >( size_t len, T* dat )
+  descriptor_dynamic( size_t len, T* dat )
     : length_( len )
   {
     data_ = new T[ len ];
@@ -243,7 +243,7 @@ public:
   }
 
   /// Destructor
-  virtual ~descriptor_dynamic< T >() { delete[] data_; }
+  virtual ~descriptor_dynamic() { delete[] data_; }
 
   /// The number of elements of the underlying type
   std::size_t

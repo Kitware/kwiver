@@ -36,7 +36,7 @@ set( plugin_serialize_protobuf_classes
   kwiver_expand_class_list( "${plugin_serialize_protobuf_classes}" plugin_serialize_headers plugin_serialize_protobuf_sources )
 
 link_directories(${PROTOBUF_LIBRARY})
-include_directories(${PROTOBUF_INCLUDE_DIR})
+include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIR})
 
 # Need to add this include file to the compile because of a defficiency in the protobuf
 # compiler. The compiler has the option to insert an export macro into class definitions

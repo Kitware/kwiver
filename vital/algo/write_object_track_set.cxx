@@ -22,7 +22,7 @@ namespace algo {
 
 write_object_track_set
 ::write_object_track_set()
-  : m_stream( 0 ),
+  : m_stream( nullptr ),
     m_stream_owned( false )
 {
   attach_logger( "algo.write_object_track_set" );
@@ -83,7 +83,7 @@ write_object_track_set
     delete m_stream;
   }
 
-  m_stream = 0;
+  m_stream = nullptr;
 }
 
 // ----------------------------------------------------------------------------

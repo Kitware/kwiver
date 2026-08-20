@@ -76,16 +76,16 @@ class VITAL_TYPES_EXPORT landmark_
 {
 public:
   /// Default Constructor
-  landmark_< T >();
+  landmark_();
 
   /// Constructor for a landmark
   ///
   /// \param loc 3D location of the landmark
   /// \param scale optional scale of the landmark (default of 1)
-  landmark_< T >( Eigen::Matrix< T, 3, 1 > const& loc, T scale = 1 );
+  landmark_( Eigen::Matrix< T, 3, 1 > const& loc, T scale = 1 );
 
   /// Constructor for a landmark_ from a base class landmark
-  explicit landmark_< T >( landmark const& f );
+  explicit landmark_( landmark const& f );
 
   /// Create a clone of this landmark object
   virtual landmark_sptr

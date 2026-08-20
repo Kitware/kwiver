@@ -66,16 +66,16 @@ class VITAL_TYPES_EXPORT pointcloud_ :
 {
 public:
   /// Default Constructor
-  pointcloud_< T >();
+  pointcloud_();
 
   /// Constructor for a pointcloud
   ///
   /// \param positions positions of the pointcloud
-  pointcloud_< T >(
+  pointcloud_(
     std::vector< Eigen::Matrix< T, 3, 1 > > const& positions );
 
   /// Constructor for a pointcloud_ from a base class pointcloud
-  explicit pointcloud_< T >( pointcloud const& f );
+  explicit pointcloud_( pointcloud const& f );
 
   /// Create a clone of this pointcloud object
   virtual pointcloud_sptr

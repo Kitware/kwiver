@@ -487,7 +487,7 @@ TEST_F ( config_block_io, empty_config_write_failure )
     << "Attempting write of a config with nothing in it";
 
   // If the test failed, clean-up the file created.
-  if( 0 == ST::RemoveFile( output_path ) )
+  if( ST::RemoveFile( output_path ).IsSuccess() )
   {
     cerr << "Test failed and output file created. Removing." << endl;
   }

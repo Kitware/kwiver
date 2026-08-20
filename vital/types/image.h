@@ -132,7 +132,7 @@ struct image_pixel_traits_of< bool >: public image_pixel_traits
   VITAL_TYPES_EXPORT
   const static image_pixel_traits::pixel_type static_type =
     image_pixel_traits::BOOL;
-  image_pixel_traits_of< bool >()
+  image_pixel_traits_of()
     : image_pixel_traits( static_type, sizeof( bool ) ) {}
 };
 

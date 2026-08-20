@@ -77,7 +77,7 @@ sprokit::scheduler_t create_scheduler( const sprokit::scheduler::type_t&      na
   }
 
   sprokit::scheduler_factory* pf = dynamic_cast< sprokit::scheduler_factory* > ( a_fact.get() );
-  if (0 == pf)
+  if (!pf)
   {
     // wrong type of factory returned
     VITAL_THROW( no_such_scheduler_type_exception, name );

@@ -9,7 +9,7 @@
 set( FFMPEG_FOUND "NO" )
 
 find_path( FFMPEG_INCLUDE1_DIR ffmpeg/avcodec.h )
-find_path( FFMPEG_INCLUDE2_DIR libavcodec/avcodec.h )
+find_path( FFMPEG_INCLUDE2_DIR libavcodec/avcodec.h PATH_SUFFIXES ffmpeg )
 
 if( FFMPEG_INCLUDE1_DIR)
   set(FFMPEG_INCLUDE_DIR ${FFMPEG_INCLUDE1_DIR} )
