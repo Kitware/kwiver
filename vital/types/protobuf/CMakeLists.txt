@@ -27,7 +27,7 @@ set( proto_files
   point.proto
   )
 
-include_directories(${PROTOBUF_INCLUDE_DIRS})
+include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Need to add this include file to the compile because of a defficiency in the protobuf

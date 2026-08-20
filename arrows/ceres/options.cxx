@@ -228,7 +228,7 @@ camera_options
   double scale =
     static_cast< double >( std::max( 1, problem.NumResiduals() ) );
   auto scaled_loss = new ::ceres::ScaledLoss(
-    NULL, scale,
+    nullptr, scale,
     ::ceres::Ownership::TAKE_OWNERSHIP );
   for( auto& int_par : int_params )
   {
@@ -295,7 +295,7 @@ camera_options
                           problem.NumResiduals();
     const double scale = constraints.size() / sum_dist;
     auto scaled_loss = new ::ceres::ScaledLoss(
-      NULL, weight,
+      nullptr, weight,
       ::ceres::Ownership::TAKE_OWNERSHIP );
     for( auto const& t : constraints )
     {
@@ -351,7 +351,7 @@ camera_options
                           problem.NumResiduals();
     const double scale = constraints.size() / sum_dist;
     auto scaled_loss = new ::ceres::ScaledLoss(
-      NULL, weight,
+      nullptr, weight,
       ::ceres::Ownership::TAKE_OWNERSHIP );
     for( auto curr_constraint : constraints )
     {

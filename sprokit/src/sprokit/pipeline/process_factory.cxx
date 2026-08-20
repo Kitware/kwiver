@@ -130,7 +130,7 @@ create_process( const sprokit::process::type_t&         type,
   config->set_value( process::config_name, kwiver::vital::config_block_value_t( name ) );
 
   sprokit::process_factory* pf = dynamic_cast< sprokit::process_factory* > ( a_fact.get() );
-  if (0 == pf)
+  if (!pf)
   {
     // Wrong type of factory returned.
     VITAL_THROW( no_such_process_type_exception, type );

@@ -43,7 +43,7 @@ main(int argc, char* argv[])
   std::string const library = argv[1];
   sprokit::path_t const path = argv[2];
 
-  library_t handle = NULL;
+  library_t handle = nullptr;
 
 #if defined(_WIN32) || defined(_WIN64)
   handle = LoadLibraryW(path.native().c_str());

@@ -1009,7 +1009,7 @@ ffmpeg_video_input::priv::open_video_state
 
     // Get the stream information by reading a bit of the file
     throw_error_code(
-      avformat_find_stream_info( format_context.get(), NULL ),
+      avformat_find_stream_info( format_context.get(), nullptr ),
       "Could not read stream information" );
 
     // Find a video stream, and optionally any data or audio streams
@@ -1215,7 +1215,7 @@ ffmpeg_video_input::priv::open_video_state
   codec_context->thread_type = FF_THREAD_FRAME;
 
   // Open codec
-  auto const err = avcodec_open2( codec_context.get(), codec, NULL );
+  auto const err = avcodec_open2( codec_context.get(), codec, nullptr );
   if( err < 0 )
   {
     LOG_WARN(
@@ -1310,7 +1310,7 @@ ffmpeg_video_input::priv::open_video_state
     throw_error_code(
       avfilter_graph_create_filter(
         &filter_source_context, avfilter_get_by_name( "buffer" ),
-        "in", ss.str().c_str(), NULL, filter_graph.get() ),
+        "in", ss.str().c_str(), nullptr, filter_graph.get() ),
       "Could not create buffer source" );
   }
 
@@ -1318,7 +1318,7 @@ ffmpeg_video_input::priv::open_video_state
   throw_error_code(
     avfilter_graph_create_filter(
       &filter_sink_context, avfilter_get_by_name( "buffersink" ),
-      "out", NULL, NULL, filter_graph.get() ),
+      "out", nullptr, nullptr, filter_graph.get() ),
     "Could not create buffer sink" );
 
   // Create the input node
@@ -1329,7 +1329,7 @@ ffmpeg_video_input::priv::open_video_state
   output->name = av_strdup( "in" );
   output->filter_ctx = filter_source_context;
   output->pad_idx = 0;
-  output->next = NULL;
+  output->next = nullptr;
 
   // Create the output node
   filter_in_out_uptr input{
@@ -1339,7 +1339,7 @@ ffmpeg_video_input::priv::open_video_state
   input->name = av_strdup( "out" );
   input->filter_ctx = filter_sink_context;
   input->pad_idx = 0;
-  input->next = NULL;
+  input->next = nullptr;
 
   // Parse graph
   {
@@ -1348,7 +1348,7 @@ ffmpeg_video_input::priv::open_video_state
     auto const err =
       avfilter_graph_parse_ptr(
         filter_graph.get(), parent->filter_description().c_str(),
-        &input_ptr, &output_ptr, NULL );
+        &input_ptr, &output_ptr, nullptr );
     avfilter_inout_free( &input_ptr );
     avfilter_inout_free( &output_ptr );
     throw_error_code( err, "Could not parse filter graph" );
@@ -1356,7 +1356,7 @@ ffmpeg_video_input::priv::open_video_state
 
   // Configure graph
   throw_error_code(
-    avfilter_graph_config( filter_graph.get(), NULL ),
+    avfilter_graph_config( filter_graph.get(), nullptr ),
     "Could not configure filter graph" );
 
   filter_params.emplace( parameters );

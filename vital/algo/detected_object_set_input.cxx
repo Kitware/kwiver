@@ -22,7 +22,7 @@ namespace algo {
 
 detected_object_set_input
 ::detected_object_set_input()
-  : m_stream( 0 ),
+  : m_stream( nullptr ),
     m_stream_owned( false )
 {
   attach_logger( "algo.detected_object_set_input" );
@@ -36,7 +36,7 @@ detected_object_set_input
     delete m_stream;
   }
 
-  m_stream = 0;
+  m_stream = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -89,7 +89,7 @@ detected_object_set_input
     delete m_stream;
   }
 
-  m_stream = 0;
+  m_stream = nullptr;
 }
 
 // ----------------------------------------------------------------------------

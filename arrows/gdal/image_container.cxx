@@ -336,7 +336,7 @@ image_container
   char** rpc_metadata = gdal_dataset_->GetMetadata( "RPC" );
   if( CSLCount( rpc_metadata ) > 0 )
   {
-    for( int i = 0; rpc_metadata[ i ] != NULL; ++i )
+    for( int i = 0; rpc_metadata[ i ] != nullptr; ++i )
     {
       add_rpc_metadata( rpc_metadata[ i ], md );
     }
@@ -346,7 +346,7 @@ image_container
   char** nitf_metadata = gdal_dataset_->GetMetadata( "" );
   if( CSLCount( nitf_metadata ) > 0 )
   {
-    for( int i = 0; nitf_metadata[ i ] != NULL; ++i )
+    for( int i = 0; nitf_metadata[ i ] != nullptr; ++i )
     {
       add_nitf_metadata( nitf_metadata[ i ], md );
     }

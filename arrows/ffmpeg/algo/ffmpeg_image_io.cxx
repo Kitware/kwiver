@@ -127,14 +127,14 @@ ffmpeg_image_io
     AVFormatContext* ptr = nullptr;
     throw_error_code(
       avformat_open_input(
-        &ptr, filename.c_str(), av_find_input_format( "image2" ), NULL ),
+        &ptr, filename.c_str(), av_find_input_format( "image2" ), nullptr ),
       "Could not open input" );
     format_context.reset( ptr );
   }
 
   // Get the stream information by reading a bit of the file
   throw_error_code(
-    avformat_find_stream_info( format_context.get(), NULL ),
+    avformat_find_stream_info( format_context.get(), nullptr ),
     "Could not read stream information" );
 
   // Find "video" (image) stream

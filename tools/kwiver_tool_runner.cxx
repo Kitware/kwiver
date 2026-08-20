@@ -233,7 +233,7 @@ main( int argc, char* argv[] )
     applet->add_command_options();
 
     int local_argc = 0;
-    char** local_argv = 0;
+    char** local_argv = nullptr;
     std::vector< char* > argv_vect;
 
     // There are some cases where the applet wants to do its own

@@ -70,7 +70,7 @@ test_reprojection_error(
 
   double* parameters[ 3 ] = { &intrinsics[ 0 ], pose, point };
   vector_2d residuals;
-  cost_func->Evaluate( parameters, residuals.data(), NULL );
+  cost_func->Evaluate( parameters, residuals.data(), nullptr );
   delete cost_func;
 
   EXPECT_NEAR( 0.0, residuals.norm(), 1e-11 );
