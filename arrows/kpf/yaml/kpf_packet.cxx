@@ -32,7 +32,7 @@ packet_t
 packet_t
 ::packet_t( const packet_t& other )
   : header( other.header ),
-    cset( 0 )
+    cset( nullptr )
 {
   *this = other;
 }
@@ -40,7 +40,7 @@ packet_t
 packet_t
 ::packet_t( const packet_header_t& h )
   : header( h ),
-    cset( 0 )
+    cset( nullptr )
 {
   switch( this->header.style )
   {

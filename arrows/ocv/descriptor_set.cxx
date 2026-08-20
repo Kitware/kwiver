@@ -28,7 +28,7 @@ template < typename T >
 vital::descriptor_sptr
 ocv_to_vital_descriptor( const cv::Mat& v )
 {
-  vital::descriptor_array_of< T >* d = NULL;
+  vital::descriptor_array_of< T >* d = nullptr;
   switch( v.cols )
   {
     case 64:

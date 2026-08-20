@@ -48,7 +48,7 @@ This is hosted via the Gitlab Container Registry at gitlab.kitware.com at  gitla
 #### Installing Spack
 
 ```bash
-$ git clone https://github.com/spack <installation prefix of choice>
+$ git clone https://github.com/spack/spack <installation prefix of choice>
 ```
 
 You now have Spack installed

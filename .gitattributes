@@ -7,6 +7,7 @@
 *.in     hooks.checkcopyright
 
 [attr]our-c-style  format.uncrustify=0.78
+[attr]kwsys-c-style  whitespace=tab-in-indent  format.clang-format=18
 
 *.h      our-c-style
 *.cxx    our-c-style

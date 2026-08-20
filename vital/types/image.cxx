@@ -74,7 +74,7 @@ operator<<( std::ostream& os, image_pixel_traits const& pt )
 /// Default Constructor
 image_memory
 ::image_memory()
-  : data_( 0 ),
+  : data_( nullptr ),
     size_( 0 )
 {}
 
@@ -114,7 +114,7 @@ image_memory
   if( size_ != other.size_ )
   {
     delete[] reinterpret_cast< char* >( data_ );
-    data_ = 0;
+    data_ = nullptr;
     if( other.size_ > 0 )
     {
       data_ = new char [ other.size_ ];
@@ -140,7 +140,7 @@ image_memory
 image
 ::image( const image_pixel_traits& pt )
   : data_(),
-    first_pixel_( NULL ),
+    first_pixel_( nullptr ),
     pixel_traits_( pt ),
     width_( 0 ),
     height_( 0 ),
@@ -332,7 +332,7 @@ image
     height_ = 0;
     depth_ = 0;
     data_.reset();
-    first_pixel_ = NULL;
+    first_pixel_ = nullptr;
   }
   set_size( other.width_, other.height_, other.depth_ );
 

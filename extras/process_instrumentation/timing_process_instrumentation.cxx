@@ -32,7 +32,7 @@ ENUM_CONVERTER(
 timing_process_instrumentation
 ::timing_process_instrumentation()
   : m_timer( std::make_shared< kwiver::vital::wall_timer >() ),
-    m_output_file( 0 ),
+    m_output_file( nullptr ),
     m_logger( kwiver::vital::get_logger(
       "sprokit.timing_process_instrumentation" ) )
 {}
@@ -48,7 +48,7 @@ timing_process_instrumentation::
     // Close file and clean up
     m_output_file->close();
     delete m_output_file;
-    m_output_file = 0;
+    m_output_file = nullptr;
   }
 }
 
@@ -221,7 +221,7 @@ timing_process_instrumentation
         process()->name()
                                                 << ". Disabling output." );
     delete m_output_file;
-    m_output_file = 0; // disable output
+    m_output_file = nullptr; // disable output
     return;
   }
 
@@ -260,7 +260,7 @@ void
 timing_process_instrumentation
 ::write_interval( const std::string& tag, double interval )
 {
-  if( m_output_file == 0 )
+  if( !m_output_file )
   {
     return;
   }

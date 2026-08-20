@@ -575,8 +575,8 @@ mesh_half_edge_set
 /// Copy Constructor
 mesh
 ::mesh( const mesh& other )
-  : verts_( ( other.verts_.get() ) ? other.verts_->clone() : 0 ),
-    faces_( ( other.faces_.get() ) ? other.faces_->clone() : 0 ),
+  : verts_( ( other.verts_.get() ) ? other.verts_->clone() : nullptr ),
+    faces_( ( other.faces_.get() ) ? other.faces_->clone() : nullptr ),
     half_edges_( other.half_edges_ ),
     tex_coords_( other.tex_coords_ ),
     tex_source_( other.tex_source_ ),
@@ -593,10 +593,10 @@ mesh
   {
     verts_ = std::unique_ptr< mesh_vertex_array_base >(
       ( other.verts_.get() )
-      ? other.verts_->clone() : 0 );
+      ? other.verts_->clone() : nullptr );
     faces_ = std::unique_ptr< mesh_face_array_base >(
       ( other.faces_.get() )
-      ? other.faces_->clone() : 0 );
+      ? other.faces_->clone() : nullptr );
     half_edges_ = other.half_edges_;
     tex_coords_ = other.tex_coords_;
     valid_tex_faces_ = other.valid_tex_faces_;

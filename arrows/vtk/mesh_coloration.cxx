@@ -203,9 +203,9 @@ mesh_coloration
 
   auto const numFrames = data_list_.size();
 
-  if( input_ == 0 || numFrames == 0 )
+  if( input_ == nullptr || numFrames == 0 )
   {
-    if( input_ == 0 )
+    if( input_ == nullptr )
     {
       LOG_ERROR( logger_, "Error when input has been set" );
     }
@@ -233,7 +233,7 @@ mesh_coloration
 
   vtkPoints* meshPointList = output_->GetPoints();
 
-  if( meshPointList == 0 )
+  if( !meshPointList )
   {
     LOG_ERROR( logger_, "invalid mesh points" );
     LOG_INFO( logger_, "Done: frame " << frame_ );

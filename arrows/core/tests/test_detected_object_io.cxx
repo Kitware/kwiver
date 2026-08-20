@@ -36,7 +36,7 @@ create_dot( const char* n[], const double s[] )
   std::vector< std::string > names;
   std::vector< double > scores;
 
-  for( size_t i = 0; n[ i ] != 0; ++i )
+  for( size_t i = 0; n[ i ]; ++i )
   {
     names.push_back( std::string( n[ i ] ) );
     scores.push_back( s[ i ] );
@@ -55,7 +55,8 @@ make_dos()
 
   kwiver::vital::bounding_box_d bb1( 10, 20, 30, 40 );
 
-  const char* n[]  = { "person", "vehicle", "other", "clam", "barnacle", 0 };
+  const char* n[]  = { "person", "vehicle", "other", "clam", "barnacle",
+                       nullptr };
   double s[] = {   .65,      .6,       .005,    .07,     .005,     0 };
 
   auto dot = create_dot( n, s );

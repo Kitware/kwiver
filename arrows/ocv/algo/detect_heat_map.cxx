@@ -541,7 +541,7 @@ public:
         }
       }
 
-      cv::minMaxLoc( conv_map, &min_val, &max_val, NULL, &max_loc );
+      cv::minMaxLoc( conv_map, &min_val, &max_val, nullptr, &max_loc );
       if( max_val == 0 )
       {
         // No above-threshold regions left.

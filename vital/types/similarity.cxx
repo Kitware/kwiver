@@ -8,8 +8,12 @@
 ///        for \c T = { \c float, \c double }
 
 #include "similarity.h"
+
+#include <cassert>
 #include <cmath>
+
 #include <Eigen/LU>
+
 #include <vital/io/eigen_io.h>
 
 namespace kwiver {

@@ -55,6 +55,7 @@ set( public_headers
   merge_images.h
   mesh_filter.h
   optimize_cameras.h
+  perform_text_query.h
   pointcloud_io.h
   query_track_descriptor_set.h
   read_object_track_set.h
@@ -62,6 +63,7 @@ set( public_headers
   refine_detections.h
   refine_tracks.h
   resection_camera.h
+  segment_via_points.h
   split_image.h
   texture_mesh.h
   track_features.h
@@ -130,6 +132,7 @@ set( sources
   merge_images.cxx
   mesh_filter.cxx
   optimize_cameras.cxx
+  perform_text_query.cxx
   pointcloud_io.cxx
   query_track_descriptor_set.cxx
   read_object_track_set.cxx
@@ -137,6 +140,7 @@ set( sources
   refine_detections.cxx
   refine_tracks.cxx
   resection_camera.cxx
+  segment_via_points.cxx
   split_image.cxx
   texture_mesh.cxx
   track_features.cxx
