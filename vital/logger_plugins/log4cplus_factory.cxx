@@ -136,7 +136,7 @@ public:
       m_logger,
       ::log4cplus::FATAL_LOG_LEVEL,
       msg,
-      0, 0, 0 );
+      nullptr, 0, nullptr );
     do_callback( LEVEL_FATAL, msg, location_info() );
   }
 
@@ -163,7 +163,7 @@ public:
       m_logger,
       ::log4cplus::ERROR_LOG_LEVEL,
       msg,
-      0, 0, 0 );
+      nullptr, 0, nullptr );
     do_callback( LEVEL_ERROR, msg, location_info() );
   }
 
@@ -190,7 +190,7 @@ public:
       m_logger,
       ::log4cplus::WARN_LOG_LEVEL,
       msg,
-      0, 0, 0 );
+      nullptr, 0, nullptr );
     do_callback( LEVEL_WARN, msg, location_info() );
   }
 
@@ -217,7 +217,7 @@ public:
       m_logger,
       ::log4cplus::INFO_LOG_LEVEL,
       msg,
-      0, 0, 0 );
+      nullptr, 0, nullptr );
     do_callback( LEVEL_INFO, msg, location_info() );
   }
 
@@ -244,7 +244,7 @@ public:
       m_logger,
       ::log4cplus::DEBUG_LOG_LEVEL,
       msg,
-      0, 0, 0 );
+      nullptr, 0, nullptr );
     do_callback( LEVEL_DEBUG, msg, location_info() );
   }
 
@@ -271,7 +271,7 @@ public:
       m_logger,
       log4cplus::TRACE_LOG_LEVEL,
       msg,
-      0, 0, 0 );
+      nullptr, 0, nullptr );
     do_callback( LEVEL_TRACE, msg, location_info() );
   }
 
