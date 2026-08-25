@@ -191,13 +191,22 @@ class {class_.name}_trampoline
             )
             argument_name_list = ", ".join([arg.name for arg in member.arguments])
             const_specifier = "const " if member.has_const else ""
+            return_type_str = str(member.return_type)
+            # If the return type contains a comma (e.g., std::map<K, V>),
+            # use a type alias to avoid confusing the preprocessor macro
+            if "," in return_type_str:
+                macro_return_type = f"{member.name}_return_t"
+                alias_line = f"\n    using {macro_return_type} = {return_type_str};"
+            else:
+                macro_return_type = return_type_str
+                alias_line = ""
             stream(
                 f"""
-  {member.return_type}
+  {return_type_str}
   {member.name}({argument_string}) {const_specifier}override
-  {{
+  {{{alias_line}
     {pybind11_macro}(
-      {member.return_type},
+      {macro_return_type},
       {full_class_name(class_)},
       {member.name},
       {argument_name_list}
