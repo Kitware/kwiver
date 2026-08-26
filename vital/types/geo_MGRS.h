@@ -32,6 +32,7 @@ class VITAL_TYPES_EXPORT geo_MGRS
 {
 public:
   geo_MGRS();
+  geo_MGRS( geo_MGRS const& other );
   geo_MGRS( std::string const& coord );
   ~geo_MGRS();
 
@@ -45,7 +46,7 @@ public:
 
   bool operator==( const geo_MGRS& rhs ) const;
   bool operator!=( const geo_MGRS& rhs ) const;
-  geo_MGRS operator=( const geo_MGRS& mu );
+  geo_MGRS operator=( const geo_MGRS& other );
 
 private:
   std::string mgrs_coord_;

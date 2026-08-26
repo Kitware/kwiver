@@ -18,6 +18,11 @@ geo_MGRS
 {}
 
 geo_MGRS
+::geo_MGRS( geo_MGRS const& other )
+  : mgrs_coord_( other.coord() )
+{}
+
+geo_MGRS
 ::geo_MGRS( std::string const& coord )
   : mgrs_coord_( coord )
 {}
@@ -78,11 +83,11 @@ geo_MGRS
 
 geo_MGRS
 geo_MGRS
-::operator=( const geo_MGRS& m )
+::operator=( const geo_MGRS& other )
 {
-  if( this != &m )
+  if( this != &other )
   {
-    this->mgrs_coord_ = m.coord();
+    this->mgrs_coord_ = other.coord();
   }
 
   return *this;

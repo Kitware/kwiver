@@ -11,6 +11,8 @@
 
 #include "types.h"
 
+#include <cstdint>
+
 /**
  * \file stamp.h
  *

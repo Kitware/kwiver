@@ -27,7 +27,6 @@ constexpr uint8_t first_byte_patterns[ first_byte_options ] = { 0b0000'0000,
                                                                 0b1100'0000,
                                                                 0b1110'0000,
                                                                 0b1111'0000 };
-constexpr size_t first_byte_value_bits[ first_byte_options ] = { 7, 5, 4, 3 };
 constexpr uint8_t continue_byte_mask = 0b1100'0000;
 constexpr uint8_t continue_byte_pattern = 0b1000'0000;
 constexpr size_t continue_byte_value_bits = 6;

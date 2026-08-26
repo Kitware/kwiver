@@ -603,7 +603,7 @@ public:
       case klv_imap::KIND_NAN_QUIET:
       case klv_imap::KIND_NAN_SIGNALING:
         save( "sign", std::signbit( value.as_double() ) );
-      // Intentional fall-through
+        [[fallthrough]];
       case klv_imap::KIND_USER_DEFINED:
         save( "other-bits", value.other_bits() );
         break;
@@ -1044,7 +1044,7 @@ struct klv_json_loader : public klv_json_base< load_archive >
   {
     try
     {
-      load< nullptr_t >();
+      load< std::nullptr_t >();
       return true;
     }
     catch( std::runtime_error const& )
