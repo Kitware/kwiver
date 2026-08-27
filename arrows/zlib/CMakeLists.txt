@@ -23,6 +23,16 @@ kwiver_install_headers(
   SUBDIR arrows/zlib
   )
 
+
+if(NOT KWIVER_BUILD_SHARED)
+  if(WIN32)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a)
+  else()
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+  endif()
+endif()
+find_package(ZLIB MODULE REQUIRED)
+
 kwiver_add_library( kwiver_algo_zlib
   ${sources}
   ${public_headers}
@@ -32,7 +42,7 @@ kwiver_add_library( kwiver_algo_zlib
 target_link_libraries( kwiver_algo_zlib
   PRIVATE
     vital
-    ${ZLIB_LIBRARIES}
+    ZLIB::ZLIB
   )
 
 if (KWIVER_ENABLE_TESTS)
