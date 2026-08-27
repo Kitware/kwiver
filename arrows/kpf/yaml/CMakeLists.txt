@@ -56,7 +56,7 @@ target_link_libraries( kpf_yaml
   PRIVATE        vital
                  vital_logger
                  vital_util
-                 ${YAML_CPP_LIBRARIES}
+                 yaml-cpp
   )
 
 kwiver_install_headers(
