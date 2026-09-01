@@ -17,6 +17,7 @@ Directory Structure and Provided Functionality
                       especially useful for Geospatial image formats like
                       GeoTiff and NITF.
 `<arrows/klv>`_       Algorithms to implement the KLV encoding standard.
+`<arrows/matlab>`_    An interface for running Matlab code KWIVER
 `<arrows/kpf>`_       Supports the input and output of data in the KWIVER Packet
                       Format (KPF).
 `<arrows/mvg>`_       Multi-View Geometry algorithms with no additional

@@ -69,6 +69,11 @@ if( KWIVER_ENABLE_KPF )
 endif()
 
 # if klv is enabled
+# if matlab is enabled
+if( KWIVER_ENABLE_MATLAB )
+  add_subdirectory( matlab )
+endif()
+
 if( KWIVER_ENABLE_KLV )
   add_subdirectory( klv )
 endif()
