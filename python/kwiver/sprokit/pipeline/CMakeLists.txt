@@ -2,7 +2,7 @@ project(sprokit_python_sprokit_pipeline)
 
 kwiver_add_python_library(datum
   sprokit/pipeline
-  datum.cxx)
+  SOURCES datum.cxx)
 target_link_libraries(python-sprokit.pipeline-datum
   PRIVATE             sprokit_pipeline
                       vital_python_util
@@ -10,21 +10,21 @@ target_link_libraries(python-sprokit.pipeline-datum
 
 kwiver_add_python_library(edge
   sprokit/pipeline
-  edge.cxx)
+  SOURCES edge.cxx)
 target_link_libraries(python-sprokit.pipeline-edge
   PRIVATE             sprokit_pipeline
                       vital_python_util)
 
 kwiver_add_python_library(pipeline
   sprokit/pipeline
-  pipeline.cxx)
+  SOURCES pipeline.cxx)
 target_link_libraries(python-sprokit.pipeline-pipeline
   PRIVATE             sprokit_pipeline
                       vital_python_util)
 
 kwiver_add_python_library(process
   sprokit/pipeline
-  process.cxx)
+  SOURCES process.cxx)
 target_link_libraries(python-sprokit.pipeline-process
   PRIVATE             sprokit_pipeline
                       vital_python_util
@@ -32,14 +32,14 @@ target_link_libraries(python-sprokit.pipeline-process
 
 kwiver_add_python_library(process_cluster
   sprokit/pipeline
-  process_cluster.cxx)
+  SOURCES process_cluster.cxx)
 target_link_libraries(python-sprokit.pipeline-process_cluster
   PRIVATE             sprokit_pipeline
                       vital_python_util)
 
 kwiver_add_python_library(process_factory
   sprokit/pipeline
-  process_factory.cxx)
+  SOURCES process_factory.cxx)
 target_link_libraries(python-sprokit.pipeline-process_factory
   PRIVATE             sprokit_pipeline
                       vital_python_util
@@ -48,14 +48,14 @@ target_link_libraries(python-sprokit.pipeline-process_factory
 
 kwiver_add_python_library(scheduler
   sprokit/pipeline
-  scheduler.cxx)
+  SOURCES scheduler.cxx)
 target_link_libraries(python-sprokit.pipeline-scheduler
   PRIVATE             sprokit_pipeline
                       vital_python_util)
 
 kwiver_add_python_library(scheduler_factory
   sprokit/pipeline
-  scheduler_factory.cxx)
+  SOURCES scheduler_factory.cxx)
 target_link_libraries(python-sprokit.pipeline-scheduler_factory
   PRIVATE             sprokit_pipeline
                       vital_python_util
@@ -64,21 +64,21 @@ target_link_libraries(python-sprokit.pipeline-scheduler_factory
 
 kwiver_add_python_library(stamp
   sprokit/pipeline
-  stamp.cxx)
+  SOURCES stamp.cxx)
 target_link_libraries(python-sprokit.pipeline-stamp
   PRIVATE             sprokit_pipeline
                       vital_python_util)
 
 kwiver_add_python_library(utils
   sprokit/pipeline
-  utils.cxx)
+  SOURCES utils.cxx)
 target_link_libraries(python-sprokit.pipeline-utils
   PRIVATE             sprokit_pipeline
                       vital_python_util)
 
 kwiver_add_python_library(version
   sprokit/pipeline
-  version.cxx)
+  SOURCES version.cxx)
 target_link_libraries(python-sprokit.pipeline-version
   PRIVATE             sprokit_pipeline
                       vital_python_util)

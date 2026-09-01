@@ -46,17 +46,20 @@ kwiver_add_library( kpf_yaml
   ${private_sources}
 )
 
-target_include_directories(kpf_yaml PRIVATE ${YAML_CPP_INCLUDE_DIR})
+target_include_directories(kpf_yaml PUBLIC ${YAML_CPP_INCLUDE_DIR})
 
 if(WIN32)
   target_compile_definitions(kpf_yaml PRIVATE YAML_CPP_DLL)
 endif()
 
+# kpf_yaml_schemas.h is an installed public header that includes
+# <yaml-cpp/yaml.h>, so yaml-cpp must be linked PUBLIC for its include
+# directories to reach consumers of that header.
 target_link_libraries( kpf_yaml
+  PUBLIC         yaml-cpp
   PRIVATE        vital
                  vital_logger
                  vital_util
-                 yaml-cpp
   )
 
 kwiver_install_headers(
