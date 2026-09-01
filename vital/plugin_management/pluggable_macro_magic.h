@@ -297,6 +297,37 @@ static std::string plugin_description()                 \
 }
 
 /**
+ * As PLUGGABLE_IMPL_BASIC, but the name the plugin registers under is given
+ * explicitly instead of being taken from the class name. Needed wherever two
+ * implementations of the same interface share a class name (for example a
+ * plain and an OpenCV-backed variant), or where the registered name has to
+ * stay stable across a class rename.
+ */
+#define PLUGGABLE_IMPL_BASIC_NAMED( class_name, plugin_name_str, description ) \
+public:                                                                         \
+static std::string plugin_name()                                               \
+{                                                                              \
+  return plugin_name_str;                                                      \
+}                                                                              \
+static std::string plugin_description()                                        \
+{                                                                              \
+  return description;                                                          \
+}
+
+/**
+ * As PLUGGABLE_IMPL, with an explicit registered plugin name.
+ */
+#define PLUGGABLE_IMPL_NAMED( class_name, plugin_name_str, description, ... ) \
+PLUGGABLE_VARIABLES( __VA_ARGS__ )                                            \
+PLUGGABLE_CONSTRUCTOR( class_name, __VA_ARGS__ )                              \
+PLUGGABLE_IMPL_BASIC_NAMED( class_name, plugin_name_str, description )        \
+PLUGGABLE_STATIC_FROM_CONFIG( class_name, __VA_ARGS__ )                       \
+PLUGGABLE_STATIC_GET_DEFAULT( __VA_ARGS__ )                                   \
+PLUGGABLE_SET_CONFIGURATION( class_name, __VA_ARGS__ )                        \
+PLUGGABLE_GET_CONFIGURATION( __VA_ARGS__ )                                    \
+
+
+/**
  * All together now: TODO detail composition
  */
 #define PLUGGABLE_IMPL( class_name, description, ... )  \
