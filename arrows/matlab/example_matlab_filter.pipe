@@ -1,0 +1,47 @@
+#
+# Example pipeline configuration for matlab based image filter
+#
+# ================================================================
+process input
+  :: frame_list_input
+# Input file containing new-line separated paths to sequential image
+# files.
+  :image_list_file input_image_list.txt
+  :frame_time .03
+  :image_reader:type ocv
+
+# ================================================================
+process filter
+ :: image_filter
+  :filter:type   matlab
+  :filter:matlab:program_file     example_filter/example_matlab_filter.m
+  # Specify initial config for the detector
+  # The following line is presented to the matlab script as "a=1;"
+  :filter:matlab:config:a_var          1
+  :filter:matlab:config:border         2
+  :filter:matlab:config:saving         false
+
+# ================================================================
+process disp
+  :: image_viewer
+:annotate_image         true
+:pause_time             1.0
+:footer                 NOAA images
+:header                 header-header
+
+# ================================================================
+# global pipeline config
+#
+config _pipeline:_edge
+       :capacity 2
+
+# ================================================================
+# connections
+connect from input.timestamp
+        to   disp.timestamp
+
+connect from input.image
+        to   filter.image
+
+connect from filter.image
+        to   disp.image

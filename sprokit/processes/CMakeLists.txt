@@ -49,3 +49,7 @@ kwiver_install_headers(
 if (KWIVER_ENABLE_TESTS)
   add_subdirectory( tests )
 endif()
+
+if (KWIVER_ENABLE_MATLAB)
+  add_subdirectory( matlab )
+endif()

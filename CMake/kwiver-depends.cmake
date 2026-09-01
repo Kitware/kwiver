@@ -36,5 +36,6 @@ if(KWIVER_ENABLE_ARROWS)
   include( kwiver-depends-zlib )
 endif()
 
+include( kwiver-depends-Matlab )
 include( kwiver-depends-ZeroMQ )
 include( kwiver-depends-OpenMP )
