@@ -275,6 +275,31 @@ intersection(
   return bounding_box< T >( one.get_eabb().intersection( other.get_eabb() ) );
 }
 
+/// @brief Scale a box about its center by some scale factor.
+///
+/// This operator scales a bounding_box about its center by the specified
+/// factor. A new box is returned that has been scaled from the input box.
+///
+/// @param bbox Box to scale
+/// @param scale_factor Scale factor to use
+///
+/// @return A new bounding box that has been scaled about its center.
+template < typename T >
+bounding_box< T >
+scale_about_center(
+  bounding_box< T > const& bbox,
+  double scale_factor )
+{
+  auto center = bbox.center();
+  auto half_width = bbox.width() * scale_factor / 2.0;
+  auto half_height = bbox.height() * scale_factor / 2.0;
+  return bounding_box< T >(
+    static_cast< T >( center[ 0 ] - half_width ),
+    static_cast< T >( center[ 1 ] - half_height ),
+    static_cast< T >( center[ 0 ] + half_width ),
+    static_cast< T >( center[ 1 ] + half_height ) );
+}
+
 } // namespace vital
 
 }     // end namespace kwiver

@@ -69,9 +69,13 @@ track
     new_state->track_ = t;
     t->history_.emplace_back( std::move( new_state ) );
   }
-  if( this->attrs_ )
+  // Thread-safe access to attrs_ during clone
   {
-    t->set_attributes( this->attrs_->clone() );
+    std::lock_guard< std::mutex > lock( attrs_mutex_ );
+    if( this->attrs_ )
+    {
+      t->attrs_ = this->attrs_->clone();
+    }
   }
   return t;
 }
@@ -286,6 +290,7 @@ attribute_set_sptr
 track
 ::attributes() const
 {
+  std::lock_guard< std::mutex > lock( attrs_mutex_ );
   return this->attrs_;
 }
 
@@ -294,6 +299,7 @@ void
 track
 ::set_attributes( attribute_set_sptr&& attrs )
 {
+  std::lock_guard< std::mutex > lock( attrs_mutex_ );
   this->attrs_ = std::move( attrs );
 }
 
@@ -302,7 +308,21 @@ void
 track
 ::set_attributes( attribute_set_sptr const& attrs )
 {
+  std::lock_guard< std::mutex > lock( attrs_mutex_ );
   this->attrs_ = attrs;
+}
+
+// ----------------------------------------------------------------------------
+bool
+track
+::has_attribute( std::string const& key ) const
+{
+  std::lock_guard< std::mutex > lock( attrs_mutex_ );
+  if( !attrs_ )
+  {
+    return false;
+  }
+  return attrs_->has( key );
 }
 
 } // namespace vital
