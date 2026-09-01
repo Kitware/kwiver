@@ -28,7 +28,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from kwiver.vital.config import config
+from kwiver.vital.config import empty_config
 from kwiver.sprokit.pipeline import datum
 from kwiver.sprokit.pipeline import edge
 from kwiver.sprokit.pipeline import pipeline
@@ -97,6 +97,10 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
             proc = p.process_by_name(name)
 
             thread = threading.Thread(target=self._run_process, name=name, args=(proc,))
+            # A process blocked reading an edge cannot observe the stop event.
+            # Daemonising means such a thread can never keep the interpreter
+            # alive once the pipeline has failed.
+            thread.daemon = True
 
             self._threads.append(thread)
 
@@ -104,8 +108,24 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
             thread.start()
 
     def _wait(self):
-        for thread in self._threads:
-            thread.join()
+        # Do not join unconditionally. When a process raises, the threads that
+        # feed or drain it are typically blocked inside a step() on an edge and
+        # will never look at the stop event, so joining them hangs the pipeline
+        # instead of reporting the failure.
+        while True:
+            alive = [t for t in self._threads if t.is_alive()]
+
+            if not alive:
+                break
+
+            with self._error_lock:
+                failed = self._process_exception is not None
+
+            if failed:
+                break
+
+            for thread in alive:
+                thread.join(0.1)
 
         # Re-raise any exception that occurred in a process thread
         if self._process_exception is not None:
@@ -160,7 +180,7 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
             self._event.set()
 
     def _make_monitor_edge_config(self):
-        self._edge_conf = config.empty_config()
+        self._edge_conf = empty_config()
 
 
 def __sprokit_register__():

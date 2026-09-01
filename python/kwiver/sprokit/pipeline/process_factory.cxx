@@ -45,7 +45,8 @@ static std::string get_description( const std::string& name );
 static std::vector< std::string > process_names();
 
 // ============================================================================
-typedef std::function< pybind11::object ( kwiver::vital::config_block_sptr const& config ) > py_process_factory_func_t;
+typedef std::function< pybind11::object ( kwiver::vital::config_block_sptr const& config ) >
+  py_process_factory_func_t;
 
 class python_process_factory
   : public ::sprokit::process_factory
@@ -86,7 +87,9 @@ python_process_factory
 {
   this->add_attribute( CONCRETE_TYPE, type )
     .add_attribute( PLUGIN_FACTORY_TYPE, typeid( *this ).name() )
-    .add_attribute( PLUGIN_CATEGORY, "process" );
+    .add_attribute( PLUGIN_CATEGORY, "process" )
+    .add_attribute( PLUGIN_NAME, type )
+    .add_attribute( PLUGIN_MODULE_NAME, "python-runtime" );
 }
 
 python_process_factory::
@@ -205,17 +208,13 @@ register_process(
     kwiver::vital::plugin_manager::instance();
   auto fact = vpm.add_factory(
     new python_process_factory(
-      type,                                                      // derived type
-                                                                 // name string
-      typeid( ::sprokit::process ).name(),
+      type,
+      ::sprokit::process::interface_name(),
       wrap ) );
 
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, type )
-    .add_attribute(
-    kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME,
-    "python-runtime" )
-    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION, desc )
-  ;
+  fact->add_attribute(
+    kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+    desc );
 }
 
 // ------------------------------------------------------------------
@@ -241,28 +240,17 @@ std::string
 get_description( const std::string& type )
 {
   kwiver::vital::plugin_factory_handle_t a_fact;
-  try
-  {
-    typedef kwiver::vital::implementation_factory_by_name< ::sprokit::process >
-      proc_factory;
 
-    proc_factory ifact;
+  // Python processes are registered with sprokit::process interface type
+  // (see register_process above), so we only need to look up using that type.
+  typedef kwiver::vital::implementation_factory_by_name< ::sprokit::process >
+    proc_factory;
 
-    VITAL_PYTHON_TRANSLATE_EXCEPTION(
-      a_fact = ifact.find_factory( type );
-    )
-  }
-  catch( const std::exception& e )
-  {
-    typedef kwiver::vital::implementation_factory_by_name< object >
-      py_proc_factory;
+  proc_factory ifact;
 
-    py_proc_factory ifact;
-
-    VITAL_PYTHON_TRANSLATE_EXCEPTION(
-      a_fact = ifact.find_factory( type );
-    )
-  }
+  VITAL_PYTHON_TRANSLATE_EXCEPTION(
+    a_fact = ifact.find_factory( type );
+  )
 
   std::string buf = "-- Not Set --";
   a_fact->get_attribute(
