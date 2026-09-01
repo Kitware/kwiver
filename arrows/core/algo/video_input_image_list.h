@@ -58,6 +58,18 @@ public:
       "Instead of accepting the input list as-is, sort the input file list "
       "based on the timestamp metadata provided for the file.",
       false ),
+    PARAM_DEFAULT(
+      skip_bad_images, bool,
+      "Whether or not to skip over bad images if they fail to load. The "
+      "process will fail regardless of this flag on the first image if it is "
+      "invalid as an extra safety check.",
+      false ),
+    PARAM_DEFAULT(
+      disable_image_load, bool,
+      "Option to disable file loading altogether, which can assist in debug "
+      "situations or when performing detection conversions which just want "
+      "to make use of this process for its output filenames.",
+      false ),
     PARAM(
       image_reader, kwiver::vital::algo::image_io_sptr,
       "Algorithm to use for reading the images" )

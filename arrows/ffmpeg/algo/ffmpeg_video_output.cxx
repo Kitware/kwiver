@@ -17,6 +17,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
 #include <libavutil/pixdesc.h>
 #include <libswscale/swscale.h>
 }
@@ -742,6 +743,14 @@ ffmpeg_video_output::impl::open_video_state
   if( codec_context->height <= 0 )
   {
     codec_context->height = parent->height();
+  }
+
+  // Set the CRF quality parameter if one was configured
+  if( !parent->parent.c_crf.empty() )
+  {
+    av_opt_set(
+      codec_context.get(), "crf", parent->parent.c_crf.c_str(),
+      AV_OPT_SEARCH_CHILDREN );
   }
   if( codec_context->bit_rate <= 0 )
   {

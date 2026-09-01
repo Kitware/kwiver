@@ -85,6 +85,11 @@ public:
 
   bool c_sort_by_time() { return m_parent.get_sort_by_time(); }
 
+  bool c_skip_bad_images() { return m_parent.get_skip_bad_images(); }
+
+  bool
+  c_disable_image_load() { return m_parent.get_disable_image_load(); }
+
   // Local state
   std::vector< kv::path_t > m_files;
   std::vector< kv::path_t >::const_iterator m_current_file;
@@ -343,7 +348,34 @@ video_input_image_list
     //
     // This call returns a *new* image container; this is good since
     // we are going to pass it downstream using the sptr
-    d->m_image = d->m_image_reader()->load( *d->m_current_file );
+    if( d->c_disable_image_load() )
+    {
+      d->m_image = kv::image_container_sptr();
+    }
+    else if( !d->c_skip_bad_images() )
+    {
+      d->m_image = d->m_image_reader()->load( *d->m_current_file );
+    }
+    else
+    {
+      // The first frame still fails hard, as an extra safety check that the
+      // list points at readable imagery at all.
+      try
+      {
+        d->m_image = d->m_image_reader()->load( *d->m_current_file );
+      }
+      catch( ... )
+      {
+        if( d->m_frame_number <= 1 )
+        {
+          throw;
+        }
+        LOG_WARN(
+          logger(),
+          "skipping unreadable image \"" << *d->m_current_file << "\"" );
+        d->m_image = kv::image_container_sptr();
+      }
+    }
   }
   return d->m_image;
 }
@@ -392,7 +424,7 @@ video_input_image_list::priv
   if( stream_reader.getline( line ) )
   {
     auto resolved_file = line;
-    if( !ksst::FileExists( resolved_file ) )
+    if( !ksst::FileExists( resolved_file ) && !this->c_disable_image_load() )
     {
       // Resolve against specified path
       resolved_file = ksst::FindFile( line, search_path, true );
@@ -417,7 +449,7 @@ video_input_image_list::priv
   while( stream_reader.getline( line ) )
   {
     auto resolved_file = line;
-    if( !ksst::FileExists( resolved_file ) )
+    if( !ksst::FileExists( resolved_file ) && !this->c_disable_image_load() )
     {
       resolved_file = data_dir + line;
       if( !ksst::FileExists( resolved_file ) )

@@ -54,6 +54,10 @@ public:
       "Desired bitrate in bits per second.",
       0 ),
     PARAM_DEFAULT(
+      crf, std::string,
+      "Desired CRF quality setting (empty indicates unused).",
+      "" ),
+    PARAM_DEFAULT(
       codec_name, std::string,
       "String identifying the codec to use.",
       "" ),
