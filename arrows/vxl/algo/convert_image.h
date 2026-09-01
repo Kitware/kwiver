@@ -52,7 +52,13 @@ public:
       "normalization such that the output image's min and max "
       "values correspond to the percentiles in the orignal "
       "image at this value and one minus this value, respectively.",
-      -1.0 )
+      -1.0 ),
+    PARAM_DEFAULT(
+      force_three_channel, bool,
+      "Force the output to have three channels, replicating the single "
+      "available plane across all three for grayscale input. Used ahead of "
+      "detectors that only accept three-channel imagery.",
+      false )
   )
 
   virtual ~convert_image() = default;

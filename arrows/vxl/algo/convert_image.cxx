@@ -149,6 +149,28 @@ percentile_scale_image(
     } );
 }
 
+template < typename PixType >
+void
+force_three_channels( vil_image_view< PixType >& image )
+{
+  if( image.nplanes() == 3 )
+  {
+    return;
+  }
+
+  const vil_image_view< PixType > input = image;
+
+  image = vil_image_view< PixType >( input.ni(), input.nj(), 3 );
+
+  vil_image_view< PixType > plane1 = vil_plane( image, 0 );
+  vil_image_view< PixType > plane2 = vil_plane( image, 1 );
+  vil_image_view< PixType > plane3 = vil_plane( image, 2 );
+
+  vil_copy_reformat( vil_plane( input, 0 ), plane1 );
+  vil_copy_reformat( vil_plane( input, ( input.nplanes() > 1 ? 1 : 0 ) ), plane2 );
+  vil_copy_reformat( vil_plane( input, ( input.nplanes() > 2 ? 2 : 0 ) ), plane3 );
+}
+
 } // namespace <anonoymous>
 
 // ----------------------------------------------------------------------------
@@ -188,6 +210,8 @@ public:
   c_random_grayscale() const { return parent.c_random_grayscale; }
   double
   c_percentile_norm() const { return parent.c_percentile_norm; }
+  bool
+  c_force_three_channel() const { return parent.c_force_three_channel; }
 
   std::random_device random_device;
   std::mt19937 random_engine{ random_device() };
@@ -268,6 +292,12 @@ convert_image::priv
   {
     output = scale_image< opix_t >( input, c_scale_factor() );
   }
+
+  if( c_force_three_channel() )
+  {
+    force_three_channels( output );
+  }
+
   return output;
 }
 
