@@ -205,7 +205,7 @@ deserializer_process
         auto deser_data = msg_elem.m_serializer->deserialize( elem_buffer );
 
         // test for empty any()
-        if ( deser_data.empty() )
+        if ( !deser_data.has_value() )
         {
           LOG_ERROR( logger(), "Deserializer for type \"" << msg_elem.m_port_type
                      << "\" from message \"" << msg_type
