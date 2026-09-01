@@ -47,6 +47,7 @@ from .simple_transform_2d_io import *
 from .simple_triangulate_landmarks import *
 from .simple_uuid_factory import *
 from .simple_video_input import *
+from .simple_video_output import *
 from .simple_uv_unwrap_mesh import *
 from .simple_write_object_track_set import *
 from .simple_write_track_descriptor_set import *

@@ -13,6 +13,13 @@ bool load_python_library_from_interpretor(
   const std::string python_library_path );
 
 std::string find_python_library();
-void check_and_initialize_python_interpretor();
+
+/// Ensure an embedded Python interpreter is available.
+///
+/// Initializes an interpreter if one is not already running.  Returns
+/// \c false (without aborting the process) if no interpreter could be
+/// initialized, for example when the host executable has no Python
+/// environment configured; callers should then skip Python plugin loading.
+bool check_and_initialize_python_interpretor();
 
 #endif

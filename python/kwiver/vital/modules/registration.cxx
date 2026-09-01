@@ -67,7 +67,17 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   {
     return;
   }
-  check_and_initialize_python_interpretor();
+  if( !check_and_initialize_python_interpretor() )
+  {
+    // No Python interpreter could be initialized (for example a C++ host with
+    // no Python environment configured).  Skip Python plugin discovery rather
+    // than leaving the process in a half-initialized state.
+    LOG_WARN(
+      logger,
+      "No Python interpreter available; skipping Python plugin discovery" );
+    vpm.mark_module_as_loaded( module_name );
+    return;
+  }
 
   bool python_library_loaded = load_python_library_from_env();
   if( !python_library_loaded )
