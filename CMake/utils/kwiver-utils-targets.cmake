@@ -253,7 +253,27 @@ function(kwiver_add_library     name)
   if( NOT DEFINED add_library_function )
     set( add_library_function "add_library" )
   endif()
-  cmake_language( CALL "${add_library_function}" "${name}" ${ARGN} )
+
+  # VS 2026 / CMake 4.x quirk: BUILD_SHARED_LIBS reads as OFF inside this
+  # function scope even when the project asked for shared, so fall back to
+  # KWIVER_BUILD_SHARED. Without an explicit type keyword the default is
+  # STATIC, which breaks transitive PRIVATE-dep propagation downstream
+  # (kwant/vivia), so force SHARED when the caller named no type.
+  set( _kal_has_type FALSE )
+  foreach( _kal_arg IN LISTS ARGN )
+    if( _kal_arg STREQUAL "STATIC" OR _kal_arg STREQUAL "SHARED" OR
+        _kal_arg STREQUAL "MODULE" OR _kal_arg STREQUAL "OBJECT" OR
+        _kal_arg STREQUAL "INTERFACE" )
+      set( _kal_has_type TRUE )
+      break()
+    endif()
+  endforeach()
+
+  if( NOT _kal_has_type AND ( BUILD_SHARED_LIBS OR KWIVER_BUILD_SHARED ) )
+    cmake_language( CALL "${add_library_function}" "${name}" SHARED ${ARGN} )
+  else()
+    cmake_language( CALL "${add_library_function}" "${name}" ${ARGN} )
+  endif()
 
   _kwiver_check_and_set_library_dir()
   _kwiver_validate_path_value(library_dir "${library_dir}")

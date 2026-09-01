@@ -19,9 +19,10 @@ if (KWIVER_ENABLE_OPENCV AND KWIVER_ENABLE_VXL)
     add_subdirectory( kpf )
 
     list(APPEND kwiver_examples_libraries kwiver_algo_kpf kpf_yaml ${YAML_CPP_LIBRARIES})
-    if(WIN32)
-      set(kwiver_examples_flags YAML_CPP_DLL)
-    endif()
+    # yaml-cpp static in fletch - YAML_CPP_DLL must not be defined.
+    # if(WIN32)
+    #   set(kwiver_examples_flags YAML_CPP_DLL)
+    # endif()
   endif()
 
 
