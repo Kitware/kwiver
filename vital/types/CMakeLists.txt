@@ -113,7 +113,7 @@ kwiver_install_headers(  # generated export header file
   NOPATH
 )
 kwiver_add_library(
-  vital_types
+  vital_types SHARED
   ${vital_types_public_headers}
   ${vital_types_sources}
   ${CMAKE_CURRENT_BINARY_DIR}/vital_types_export.h

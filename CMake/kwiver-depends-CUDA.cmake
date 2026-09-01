@@ -17,6 +17,21 @@ option( KWIVER_ENABLE_CUDNN
 unset(_default)
 
 if( KWIVER_ENABLE_CUDA )
+  # Set CMAKE_CUDA_COMPILER from CUDA_NVCC_EXECUTABLE if available
+  # This is needed for CMake 3.31+ which has different CUDA detection
+  if( CUDA_NVCC_EXECUTABLE AND NOT CMAKE_CUDA_COMPILER )
+    set( CMAKE_CUDA_COMPILER "${CUDA_NVCC_EXECUTABLE}" CACHE FILEPATH "CUDA compiler" )
+  endif()
+  if( CUDA_TOOLKIT_ROOT_DIR AND NOT CUDAToolkit_ROOT )
+    set( CUDAToolkit_ROOT "${CUDA_TOOLKIT_ROOT_DIR}" CACHE PATH "CUDA toolkit root" )
+  endif()
+
+  # Find CUDA toolkit first to help CMake locate CUDA
+  find_package(CUDAToolkit QUIET)
+  if(CUDAToolkit_FOUND AND NOT CMAKE_CUDA_COMPILER)
+    set(CMAKE_CUDA_COMPILER "${CUDAToolkit_NVCC_EXECUTABLE}" CACHE FILEPATH "CUDA compiler")
+  endif()
+
   enable_language(CUDA)
 
   if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.23")

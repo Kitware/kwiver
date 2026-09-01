@@ -37,7 +37,7 @@ namespace kwiver::vital {
 ///                                camera_intrinsics instance.
 /// \param[out] nested_camera_intrinsics The nested camera_intrinsics's sptr
 /// variable.
-void
+inline void
 set_nested_camera_intrinsics_configuration(
   std::string const& name,
   config_block_sptr config,
@@ -93,7 +93,7 @@ set_nested_camera_intrinsics_configuration(
 ///                              nested camera_intrinsics's configuration.
 /// \param[in]       nested_camera_intrinsics The nested camera_intrinsics's
 /// sptr variable.
-void
+inline void
 get_nested_camera_intrinsics_configuration(
   std::string const& name,
   config_block_sptr config,
@@ -147,7 +147,8 @@ get_nested_camera_intrinsics_configuration(
 template < typename ValueType,
   typename std::enable_if_t< detail::is_shared_ptr< ValueType >::value,
     bool > = true,
-  typename std::enable_if_t< std::is_base_of_v< kwiver::vital::camera_intrinsics, typename ValueType::element_type >, bool > = true >
+  typename std::enable_if_t< std::is_base_of_v< kwiver::vital::camera_intrinsics,
+    typename ValueType::element_type >, bool > = true >
 void
 set_config_helper(
   config_block_sptr config, const std::string& key,
@@ -175,7 +176,8 @@ set_config_helper(
 template < typename ValueType,
   typename std::enable_if_t< detail::is_shared_ptr< ValueType >::value,
     bool > = true,
-  typename std::enable_if_t< std::is_base_of_v< kwiver::vital::camera_intrinsics, typename ValueType::element_type >, bool > = true >
+  typename std::enable_if_t< std::is_base_of_v< kwiver::vital::camera_intrinsics,
+    typename ValueType::element_type >, bool > = true >
 ValueType
 get_config_helper( config_block_sptr config, config_block_key_t const& key )
 {
