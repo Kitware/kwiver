@@ -22,32 +22,31 @@ class KWIVER_ALGO_MATLAB_EXPORT matlab_detection_output
   : public vital::algo::detected_object_set_output
 {
 public:
-  matlab_detection_output();
-  virtual ~matlab_detection_output();
-
   PLUGGABLE_IMPL(
     matlab_detection_output,
     "Bridge to matlab detection output writer.",
     PARAM_DEFAULT(
       program_file, std::string,
       "File name of the matlab detection writer program to run.",
-      "" ) )virtual vital::config_block_sptr get_configuration() const;
-  void set_configuration_internal(
-    vital::config_block_sptr config ) override;
+      "" ) )
+
+  virtual ~matlab_detection_output();
+
+  bool check_configuration( vital::config_block_sptr config ) const override;
+
+  void write_set(
+    const kwiver::vital::detected_object_set_sptr set,
+    std::string const& image_name ) override;
 
 protected:
   void initialize() override;
-
-  virtual bool check_configuration( vital::config_block_sptr config ) const;
-
-  virtual void write_set(
-    const kwiver::vital::detected_object_set_sptr set,
-    std::string const& image_name );
+  void set_configuration_internal(
+    vital::config_block_sptr config ) override;
 
 private:
   class priv;
 
-  std::unique_ptr< priv > d;
+  KWIVER_UNIQUE_PTR( priv, d );
 };
 
 } // namespace matlab
