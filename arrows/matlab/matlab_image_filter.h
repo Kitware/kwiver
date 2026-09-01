@@ -22,9 +22,6 @@ class KWIVER_ALGO_MATLAB_EXPORT matlab_image_filter
   : public vital::algo::image_filter
 {
 public:
-  matlab_image_filter();
-  virtual ~matlab_image_filter();
-
   PLUGGABLE_IMPL(
     matlab_image_filter,
     "Bridge to matlab image filter implementation.",
@@ -32,17 +29,19 @@ public:
       program_file, std::string,
       "File name of the matlab image filter program to run.",
       "" ) )
-  void set_configuration_internal(
-    vital::config_block_sptr config ) override;
 
-protected:
-  void initialize() override;
+  virtual ~matlab_image_filter();
 
   bool check_configuration( vital::config_block_sptr config ) const override;
 
-  // Main detection method
+  // Main filtering method
   vital::image_container_sptr filter(
     vital::image_container_sptr image_data ) override;
+
+protected:
+  void initialize() override;
+  void set_configuration_internal(
+    vital::config_block_sptr config ) override;
 
 private:
   class priv;

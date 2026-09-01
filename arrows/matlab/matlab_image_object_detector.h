@@ -22,9 +22,6 @@ class KWIVER_ALGO_MATLAB_EXPORT matlab_image_object_detector
   : public vital::algo::image_object_detector
 {
 public:
-  matlab_image_object_detector();
-  virtual ~matlab_image_object_detector();
-
   PLUGGABLE_IMPL(
     matlab_image_object_detector,
     "Wrapper/bridge to matlab object detector implementation.",
@@ -32,17 +29,19 @@ public:
       program_file, std::string,
       "File name of the matlab image object detector program to run.",
       "" ) )
-  void set_configuration_internal(
-    vital::config_block_sptr config ) override;
 
-protected:
-  void initialize() override;
+  virtual ~matlab_image_object_detector();
 
   bool check_configuration( vital::config_block_sptr config ) const override;
 
   // Main detection method
   vital::detected_object_set_sptr detect(
     vital::image_container_sptr image_data ) const override;
+
+protected:
+  void initialize() override;
+  void set_configuration_internal(
+    vital::config_block_sptr config ) override;
 
 private:
   class priv;
