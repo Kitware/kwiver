@@ -49,6 +49,17 @@ set( vxl_classes
   vil_image_memory
   )
 
+# The vidl ffmpeg reader is only meaningful when FFmpeg is available. Upstream
+# had this block version-gated and commented out, leaving the arrow unbuildable;
+# VIAME has always built it under plain KWIVER_ENABLE_FFMPEG, which is what the
+# pipes and DIVE select as "vidl_ffmpeg", so keep that gating.
+if( KWIVER_ENABLE_FFMPEG )
+  list( APPEND vxl_classes
+    algo/vidl_ffmpeg_video_input
+    )
+  add_definitions( -DVXL_ENABLE_FFMPEG )
+endif()
+
 kwiver_expand_class_list( "${vxl_classes}" vxl_headers_public vxl_sources )
 
 kwiver_install_headers(
@@ -73,6 +84,7 @@ target_link_libraries( kwiver_algo_vxl
                        kwiver_algo_mvg
                        rrel rsdl
                        vnl
+                       vidl
                        vil_algo
                        vgl_algo
                        vpgl_algo
