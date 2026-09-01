@@ -42,8 +42,8 @@ public:
   {
     using kvpf = kwiver::vital::plugin_factory;
 
-    kwiver::vital::plugin_factory* fact = new kwiver::vital::plugin_factory_0< tool_t >(
-      typeid( kwiver::tools::kwiver_applet ).name() );
+    kwiver::vital::plugin_factory* fact =
+      new kwiver::vital::applet_plugin_factory< tool_t >();
 
     fact->add_attribute( kvpf::PLUGIN_NAME,      tool_t::_plugin_name )
       .add_attribute( kvpf::PLUGIN_DESCRIPTION,  tool_t::_plugin_description )
