@@ -13,6 +13,8 @@
 #pragma warning (pop)
 #endif
 
+#include <typeinfo>
+
 #include <sprokit/pipeline/datum.h>
 
 // Type conversions
@@ -385,7 +387,7 @@ datum_get_error( ::sprokit::datum const& self )
 }
 
 // This converts straight to a pybind11::object.
-// For an explanation of the 'any.is_type<TYPE>()' call,
+// For an explanation of the 'any.type() == typeid(TYPE)' call,
 // see the comment in python/kwiver/sprokit/adapters/adapter_data_set.cxx.
 object
 datum_get_datum_correct_type( ::sprokit::datum const& self )
@@ -398,7 +400,7 @@ datum_get_datum_correct_type( ::sprokit::datum const& self )
   kwiver::vital::any const any = self.get_datum< kwiver::vital::any >();
 
 #define DATUM_GET_OBJECT( TYPE )                         \
-if( any.is_type< TYPE >() )                              \
+if( any.type() == typeid( TYPE ) )                       \
 {                                                        \
   return cast( kwiver::vital::any_cast< TYPE >( any ) ); \
 }
@@ -424,7 +426,7 @@ if( any.is_type< TYPE >() )                              \
 
   std::string msg(
     "Unable to convert object stored in datum. Data is of type: " );
-  msg += any.type_name();
+  msg += any.type().name();
   throw type_error( msg );
 }
 

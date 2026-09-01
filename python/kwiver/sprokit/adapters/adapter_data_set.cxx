@@ -2,6 +2,7 @@
 // OSI-approved BSD 3-Clause License. See top-level LICENSE file or
 // https://github.com/Kitware/kwiver/blob/master/LICENSE for details.
 
+#include <typeinfo>
 #include <sprokit/processes/adapters/adapter_data_set.h>
 
 #include <pybind11/embed.h>
@@ -108,7 +109,7 @@ if( py::isinstance< PYTYPE >( obj ) )         \
 // object,
 // so need to cast.
 //
-// The 'any.is_type<TYPE>()' call essentially does a string comparison
+// The 'any.type() == typeid(TYPE)' call essentially does a string comparison
 // of the underlying C++ types. This allows for comparisons across pybind
 // modules.
 // For example, adding a datum containing a datum.VectorDouble to an ADS then
@@ -133,7 +134,7 @@ get_port_data_correct_type(
     self.get_port_data< kwiver::vital::any >( port );
 
 #define ADS_GET_OBJECT( TYPE )                               \
-if( any.is_type< TYPE >() )                                  \
+if( any.type() == typeid( TYPE ) )                           \
 {                                                            \
   return py::cast( kwiver::vital::any_cast< TYPE >( any ) ); \
 }
@@ -161,7 +162,7 @@ if( any.is_type< TYPE >() )                                  \
     "Unable to convert object found at adapter data set port: " );
   msg += port;
   msg += ". Data is of type: ";
-  msg += any.type_name();
+  msg += any.type().name();
   throw py::type_error( msg );
 }
 
