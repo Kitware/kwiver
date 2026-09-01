@@ -82,7 +82,6 @@ public:
 
   bool end_of_video() const override;
   bool good() const override;
-  bool seekable() const override;
   size_t num_frames() const override;
 
   bool next_frame( kwiver::vital::time_usec_t timeout = 0 ) override;
@@ -101,7 +100,13 @@ public:
 
   kwiver::vital::image_container_sptr frame_image() override;
   kwiver::vital::metadata_vector frame_metadata() override;
-  kwiver::vital::metadata_map_sptr metadata_map() override;
+
+  /// Bulk metadata for the whole video.
+  ///
+  /// No longer part of the video_input interface, which dropped it, but kept
+  /// as a concrete method: viame/master exposed it, it is covered by this
+  /// arrow's tests, and there is no cost to retaining it.
+  kwiver::vital::metadata_map_sptr metadata_map();
 
 protected:
   void initialize() override;

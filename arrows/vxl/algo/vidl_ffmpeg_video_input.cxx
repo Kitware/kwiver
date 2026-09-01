@@ -163,17 +163,19 @@ public:
 
     m_prev_misp_timestamp = m_curr_misp_timestamp;
 
-    auto it = md_buffer.cbegin();
-    while( it != md_buffer.cend() )
+    // The demuxer now consumes a whole frame's worth of packets at once and
+    // its per-packet entry point is private, so collect them first.
+    std::vector< klv::klv_packet > packets;
+    auto it = &*md_buffer.cbegin();
+    while( it != &*md_buffer.cend() )
     {
-      klv::klv_packet packet;
       try
       {
-        packet = klv::klv_read_packet(
-          it,
-          std::distance( it, md_buffer.cend() ) );
+        auto const length =
+          static_cast< size_t >( std::distance( it, &*md_buffer.cend() ) );
+        packets.emplace_back( klv::klv_read_packet( it, length ) );
       }
-      catch( kwiver::vital::metadata_buffer_overflow const& e )
+      catch( kwiver::vital::metadata_buffer_overflow const& )
       {
         // We only have part of a packet; quit until we have more data
         break;
@@ -181,36 +183,38 @@ public:
       catch( kwiver::vital::metadata_exception const& e )
       {
         LOG_ERROR( d_logger, "error while parsing KLV packet: " << e.what() );
+        it = &*md_buffer.cend();
       }
+    }
 
+    for( auto const& packet : packets )
+    {
       if( klv::klv_lookup_packet_traits().by_uds_key( packet.key ).tag() !=
           klv::KLV_PACKET_MISB_1108_LOCAL_SET )
       {
+        // klv_packet_timestamp reports failure as nullopt rather than 0
         auto const timestamp = klv::klv_packet_timestamp( packet );
-        m_curr_misp_timestamp = std::max( m_curr_misp_timestamp, timestamp );
+        if( timestamp )
+        {
+          m_curr_misp_timestamp =
+            std::max( m_curr_misp_timestamp, *timestamp );
+        }
       }
-
-      m_klv_demuxer.demux_packet( packet );
     }
 
     // Erase the bytes we just used
-#if defined( __GNUC__ ) && __GNUC__ < 5
-    // Old GCC bug means we have to convert from const_iterator to iterator
-    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54577
     md_buffer.erase(
       md_buffer.begin(),
-      std::next(
-        md_buffer.begin(),
-        std::distance( md_buffer.cbegin(), it ) ) );
-#else
-    md_buffer.erase( md_buffer.cbegin(), it );
-#endif
+      md_buffer.begin() + std::distance( &*md_buffer.cbegin(), it ) );
+
+    if( !packets.empty() )
+    {
+      m_klv_demuxer.send_frame( packets, m_curr_misp_timestamp );
+    }
 
     // Get the vital metadata structure for the current frame
     auto result =
-      klv::klv_to_vital_metadata(
-        m_klv_timeline, { m_prev_misp_timestamp,
-                          m_curr_misp_timestamp } );
+      klv::klv_to_vital_metadata( m_klv_timeline, m_curr_misp_timestamp );
 
     // Add the frame timestamp to the metadata
     kwiver::vital::timestamp frame_timestamp;
@@ -314,12 +318,16 @@ public:
     do
     {
       auto const packet_data = d_video_stream.current_packet_data();
+      // Tag type and accessor match viame/master exactly: the string-tagged
+      // form, read out in microseconds.
       auto it = kwiver::arrows::klv::find_misp_timestamp(
-        packet_data.cbegin(),
-        packet_data.cend() );
-      if( it != packet_data.cend() )
+        &*packet_data.cbegin(),
+        &*packet_data.cend(),
+        klv::MISP_TIMESTAMP_TAG_STRING );
+      if( it != &*packet_data.cend() )
       {
-        meta_ts = kwiver::arrows::klv::read_misp_timestamp( it ).timestamp;
+        meta_ts = kwiver::arrows::klv::read_misp_timestamp( it )
+                  .microseconds().count();
         LOG_DEBUG( this->d_logger, "Found MISP frame time:" << meta_ts );
 
         d_have_abs_frame_time = true;
@@ -693,7 +701,14 @@ vidl_ffmpeg_video_input
     vital::algo::video_input::HAS_ABSOLUTE_FRAME_TIME,
     ( d->d_have_frame_time & d->d_have_abs_frame_time ) );
   set_capability( vital::algo::video_input::HAS_METADATA, d->d_have_metadata  );
-  set_capability( vital::algo::video_input::IS_SEEKABLE, d->d_is_seekable );
+  // IS_SEEKABLE split into per-frame and per-time capabilities. vidl seeks
+  // by frame; seek_time() is emulated by scanning, so it additionally needs
+  // an absolute time source to mean anything.
+  set_capability(
+    vital::algo::video_input::IS_SEEKABLE_BY_FRAME, d->d_is_seekable );
+  set_capability(
+    vital::algo::video_input::IS_SEEKABLE_BY_TIME,
+    ( d->d_is_seekable && d->d_have_abs_frame_time ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -971,6 +986,7 @@ vidl_ffmpeg_video_input
   return d->process_metadata( { curr_md.cbegin(), curr_md.cend() } );
 }
 
+// ----------------------------------------------------------------------------
 kwiver::vital::metadata_map_sptr
 vidl_ffmpeg_video_input
 ::metadata_map()
@@ -1005,13 +1021,6 @@ vidl_ffmpeg_video_input
   return d->d_video_stream.is_valid() && d->d_frame_advanced;
 }
 
-// ----------------------------------------------------------------------------
-bool
-vidl_ffmpeg_video_input
-::seekable() const
-{
-  return d->d_video_stream.is_seekable();
-}
 
 // ----------------------------------------------------------------------------
 size_t
