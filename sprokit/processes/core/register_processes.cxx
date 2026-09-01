@@ -13,6 +13,7 @@
 #include "compute_homography_process.h"
 #include "compute_stereo_depth_map_process.h"
 #include "compute_track_descriptors_process.h"
+#include "convert_tracks_to_detections_process.h"
 #include "detect_features_if_keyframe_process.h"
 #include "detect_features_process.h"
 #include "close_loops_process.h"
@@ -33,21 +34,27 @@
 #include "keyframe_selection_process.h"
 #include "matcher_process.h"
 #include "merge_detection_sets_process.h"
-#include "perform_query_process.h"
 #include "merge_images_process.h"
+#include "merge_track_sets_process.h"
+#include "perform_query_process.h"
 #include "print_config_process.h"
 #include "detect_motion_process.h"
 #include "read_descriptor_process.h"
 #include "read_object_track_process.h"
 #include "read_track_descriptor_process.h"
 #include "refine_detections_process.h"
+#include "refine_tracks_process.h"
 #include "serializer_process.h"
 #include "deserializer_process.h"
 #include "shift_detected_object_set_frames_process.h"
 #include "split_image_process.h"
 #include "stabilize_image_process.h"
 #include "track_features_process.h"
+#include "track_objects_process.h"
+#include "train_detector_process.h"
+#include "unwrap_detections_process.h"
 #include "video_input_process.h"
+#include "video_output_process.h"
 #include "write_object_track_process.h"
 #include "write_track_descriptor_process.h"
 
@@ -78,10 +85,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_process< matcher_process >();
   reg.register_process< compute_homography_process >();
   reg.register_process< compute_stereo_depth_map_process >();
+  reg.register_process< convert_tracks_to_detections_process >();
   reg.register_process< draw_tracks_process >();
   reg.register_process< read_descriptor_process >();
   reg.register_process< refine_detections_process >();
+  reg.register_process< refine_tracks_process >();
   reg.register_process< image_object_detector_process >();
+  reg.register_process< train_detector_process >();
   reg.register_process< image_filter_process >();
   reg.register_process< image_writer_process >();
   reg.register_process< image_file_reader_process >();
@@ -90,12 +100,14 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_process< detected_object_filter_process >();
   reg.register_process< downsample_process >();
   reg.register_process< video_input_process >();
+  reg.register_process< video_output_process >();
   reg.register_process< draw_detected_object_set_process >();
   reg.register_process< split_image_process >();
   reg.register_process< merge_images_process >( process_registrar::no_test );
   reg.register_process< read_track_descriptor_process >();
   reg.register_process< write_track_descriptor_process >();
   reg.register_process< track_features_process >();
+  reg.register_process< track_objects_process >();
   reg.register_process< keyframe_selection_process >();
   reg.register_process< detect_features_if_keyframe_process >();
   reg.register_process< close_loops_process >();
@@ -108,11 +120,13 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   reg.register_process< serializer_process >( process_registrar::no_test );
   reg.register_process< deserializer_process >( process_registrar::no_test );
   reg.register_process< merge_detection_sets_process >( process_registrar::no_test );
+  reg.register_process< merge_track_sets_process >( process_registrar::no_test );
   reg.register_process< handle_descriptor_request_process >();
   reg.register_process< compute_track_descriptors_process >();
   reg.register_process< perform_query_process >();
   reg.register_process< detect_motion_process >();
   reg.register_process< shift_detected_object_set_frames_process >();
+  reg.register_process< unwrap_detections_process >();
 
   reg.mark_module_as_loaded();
 } // register_process

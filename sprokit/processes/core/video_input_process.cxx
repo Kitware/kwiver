@@ -28,15 +28,28 @@ namespace algo = kwiver::vital::algo;
 
 namespace kwiver {
 
-//                 (config-key, value-type, default-value, description )
-create_algorithm_name_config_trait( video_reader );
+// (config-key, value-type, default-value, description )
+create_config_trait( video_filename, std::string, "",
+  "Name of video file." );
 
-create_config_trait( video_filename, std::string, "", "Name of video file." );
 create_config_trait( frame_time, double, "0.03333333",
-                     "Inter frame time in seconds. "
-                     "If the input video stream does not supply frame times, "
-                     "this value is used to create a default timestamp. "
-                     "If the video stream has frame times, then those are used." );
+  "Inter frame time in seconds. "
+  "If the input video stream does not supply frame times, "
+  "this value is used to create a default timestamp. "
+  "If the video stream has frame times, then those are used." );
+
+create_config_trait( no_path_in_name, bool, "true",
+  "Set to true if the output file path should not contain a "
+  "full path to the image or video file and just contain the "
+  "file name for the image." );
+
+create_config_trait( exit_on_invalid, bool, "true",
+  "If a frame in the middle of a sequence is invalid, do not "
+  "exit and throw an error, continue processing data. If the "
+  "first frame cannot be read, always exit regardless of this "
+  "setting." );
+
+create_algorithm_name_config_trait( video_reader );
 
 //----------------------------------------------------------------
 // Private implementation class
@@ -48,14 +61,17 @@ public:
 
   // Configuration values
   std::string                           m_config_video_filename;
-  kwiver::vital::time_usec_t              m_config_frame_time;
+  kwiver::vital::time_usec_t            m_config_frame_time;
   bool                                  m_has_config_frame_time;
+  bool                                  m_no_path_in_name;
+  bool                                  m_exit_on_invalid;
 
   kwiver::vital::algo::video_input_sptr m_video_reader;
   kwiver::vital::algorithm_capabilities m_video_traits;
 
   kwiver::vital::frame_id_t             m_frame_number;
-  kwiver::vital::time_usec_t              m_frame_time;
+  kwiver::vital::time_usec_t            m_frame_time;
+  bool                                  m_first_frame;
 
   kwiver::vital::metadata_vector        m_last_metadata;
 
@@ -86,9 +102,12 @@ void video_input_process
   // Examine the configuration
   d->m_config_video_filename = config_value_using_trait( video_filename );
   d->m_config_frame_time = static_cast<vital::time_usec_t>(
-                               config_value_using_trait( frame_time ) * 1e6); // in usec
+    config_value_using_trait( frame_time ) * 1e6 ); // in usec
+  d->m_no_path_in_name = config_value_using_trait( no_path_in_name );
+  d->m_exit_on_invalid = config_value_using_trait( exit_on_invalid );
 
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
+
   if( algo_config->has_value( "frame_time" ) )
   {
     d->m_has_config_frame_time = true;
@@ -126,14 +145,52 @@ void video_input_process
 void video_input_process
 ::_step()
 {
-  if ( d->m_video_reader->next_frame() )
+  kwiver::vital::timestamp ts;
+
+  bool frame_read = false;
+  bool bad_frame = false;
+
+  try
+  {
+    frame_read = d->m_video_reader->next_frame();
+  }
+  catch( const kwiver::vital::image_exception& e )
+  {
+    if ( d->m_exit_on_invalid || d->m_first_frame )
+    {
+      throw e;
+    }
+    else
+    {
+      frame_read = true;
+      bad_frame = true;
+
+      LOG_WARN( logger(), "Video source skipping corrupt frame." );
+    }
+  }
+
+  // next_frame() no longer returns the timestamp through an out-parameter, so
+  // query it separately. A corrupt frame leaves the reader without a usable
+  // timestamp, so it keeps the default-constructed value in that case.
+  if ( frame_read && ! bad_frame )
+  {
+    ts = d->m_video_reader->frame_timestamp();
+  }
+
+  d->m_first_frame = false;
+  double video_frame_rate = d->m_video_reader->frame_rate();
+
+  if ( frame_read )
   {
     kwiver::vital::metadata_vector metadata;
     kwiver::vital::image_container_sptr frame;
     {
       scoped_step_instrumentation();
 
-      frame = d->m_video_reader->frame_image();
+      if( !bad_frame )
+      {
+        frame = d->m_video_reader->frame_image();
+      }
 
       // --- debug
 #if defined DEBUG
@@ -168,15 +225,15 @@ void video_input_process
       if ( ! d->m_video_traits.capability( kwiver::vital::algo::video_input::HAS_FRAME_TIME ) )
       {
         // create an internal time standard
-        double frame_rate = d->m_video_reader->frame_rate();
         if( ! d->m_video_traits.capability( kwiver::vital::algo::video_input::HAS_FRAME_RATE ) ||
-            frame_rate <= 0.0 || d->m_has_config_frame_time )
+            video_frame_rate <= 0.0 || d->m_has_config_frame_time )
         {
+          video_frame_rate = 1e6 / d->m_config_frame_time;
           d->m_frame_time = d->m_frame_number * d->m_config_frame_time;
         }
         else
         {
-          time_t frame_time_usec = ( 1.0 / frame_rate ) * 1e6;
+          time_t frame_time_usec = ( 1.0 / video_frame_rate ) * 1e6;
           d->m_frame_time = d->m_frame_number * frame_time_usec;
         }
         ts.set_time_usec( d->m_frame_time );
@@ -195,7 +252,7 @@ void video_input_process
       // it is still the best we have.
       if ( metadata.empty() )
       {
-        // The saved one could be empty, but it is the bewt we have.
+        // The saved one could be empty, but it is the best we have.
         metadata = d->m_last_metadata;
       }
       else
@@ -205,10 +262,25 @@ void video_input_process
       }
     }
 
-    push_to_port_using_trait( timestamp, ts );
-    push_to_port_using_trait( image, frame );
-    push_to_port_using_trait( metadata, metadata );
-    push_to_port_using_trait( frame_rate, d->m_video_reader->frame_rate() );
+    kwiver::vital::path_t filename = d->m_video_reader->filename();
+
+    if ( d->m_no_path_in_name )
+    {
+      const size_t last_slash_idx = filename.find_last_of("\\/");
+      if ( std::string::npos != last_slash_idx )
+      {
+        filename.erase( 0, last_slash_idx + 1 );
+      }
+    }
+
+    if( ts.get_frame() < 4294967000 && ts.get_frame() > 0 )
+    {
+      push_to_port_using_trait( timestamp, ts );
+      push_to_port_using_trait( image, frame );
+      push_to_port_using_trait( metadata, metadata );
+      push_to_port_using_trait( frame_rate, video_frame_rate );
+      push_to_port_using_trait( file_name, filename );
+    }
   }
   else
   {
@@ -216,12 +288,13 @@ void video_input_process
 
     // indicate done
     mark_process_as_complete();
-    const sprokit::datum_t dat= sprokit::datum::complete_datum();
+    const sprokit::datum_t dat = sprokit::datum::complete_datum();
 
     push_datum_to_port_using_trait( timestamp, dat );
     push_datum_to_port_using_trait( image, dat );
     push_datum_to_port_using_trait( metadata, dat );
     push_datum_to_port_using_trait( frame_rate, dat );
+    push_datum_to_port_using_trait( file_name, dat );
   }
 }
 
@@ -241,12 +314,15 @@ void video_input_process
   declare_output_port_using_trait( image, shared );
   declare_output_port_using_trait( metadata, shared );
   declare_output_port_using_trait( frame_rate, optional );
+  declare_output_port_using_trait( file_name, optional );
 }
 
 // ----------------------------------------------------------------
 void video_input_process
 ::make_config()
 {
+  declare_config_using_trait( no_path_in_name );
+  declare_config_using_trait( exit_on_invalid );
   declare_config_using_trait( video_reader );
   declare_config_using_trait( video_filename );
   declare_config_using_trait( frame_time );
@@ -256,8 +332,11 @@ void video_input_process
 video_input_process::priv
 ::priv()
   : m_has_config_frame_time( false ),
+    m_no_path_in_name( true ),
+    m_exit_on_invalid( true ),
     m_frame_number( 1 ),
-    m_frame_time( 0 )
+    m_frame_time( 0 ),
+    m_first_frame( true )
 {
 }
 

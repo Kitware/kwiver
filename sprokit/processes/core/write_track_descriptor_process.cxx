@@ -119,7 +119,7 @@ void write_track_descriptor_process
 
   {
     scoped_step_instrumentation();
-    d->m_writer->write_set( input );
+    d->m_writer->write_set( input, file_name );
   }
 }
 

@@ -17,12 +17,20 @@
 
 #include <sprokit/pipeline/process_exception.h>
 
+#include <fstream>
+#include <memory>
+#include <ctime>
+
 namespace algo = kwiver::vital::algo;
 
 namespace kwiver {
 
 // (config-key, value-type, default-value, description )
-create_config_trait( file_name, std::string, "", "Name of the detection set file to write." );
+create_config_trait( file_name, std::string, "",
+  "Name of the detection set file to write." );
+create_config_trait( frame_list_output, std::string, "",
+  "Optional frame list output to also write." );
+
 create_algorithm_name_config_trait( writer );
 
 /**
@@ -50,7 +58,7 @@ create_algorithm_name_config_trait( writer );
  * and configures the writing algorithm
  */
 
-//----------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Private implementation class
 class detected_object_output_process::priv
 {
@@ -60,8 +68,10 @@ public:
 
   // Configuration values
   std::string m_file_name;
+  std::string m_frame_list_output;
 
   algo::detected_object_set_output_sptr m_writer;
+  std::unique_ptr< std::ofstream > m_frame_list_writer;
 }; // end priv class
 
 // ================================================================
@@ -71,6 +81,9 @@ detected_object_output_process
   : process( config ),
     d( new detected_object_output_process::priv )
 {
+  // Required so that we can do 1 step past the end
+  set_data_checking_level( check_none );
+
   make_ports();
   make_config();
 }
@@ -88,13 +101,39 @@ void detected_object_output_process
 
   // Get process config entries
   d->m_file_name = config_value_using_trait( file_name );
-  if ( d->m_file_name.empty() )
+  d->m_frame_list_output = config_value_using_trait( frame_list_output );
+
+  if( d->m_file_name.empty() )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
              "Required file name not specified." );
   }
 
-  // Get algo conrig entries
+  std::size_t time_pos = d->m_file_name.find( "[CURRENT_TIME]" );
+  if( time_pos != std::string::npos )
+  {
+    char buffer[256];
+    time_t raw;
+    struct tm *t;
+    time( &raw );
+    t = localtime( &raw );
+
+    strftime( buffer, sizeof( buffer ), "%Y%m%d_%H%M%S", t );
+    d->m_file_name.replace( time_pos, 14, buffer );
+
+    std::size_t frame_time_pos = d->m_frame_list_output.find( "[CURRENT_TIME]" );
+    if( !d->m_frame_list_output.empty() && frame_time_pos != std::string::npos )
+    {
+      d->m_frame_list_output.replace( frame_time_pos, 14, buffer );
+    }
+  }
+
+  if( !d->m_frame_list_output.empty() )
+  {
+    d->m_frame_list_writer.reset( new std::ofstream( d->m_frame_list_output ) );
+  }
+
+  // Get algo config entries
   kwiver::vital::config_block_sptr algo_config = get_config(); // config for process
 
   // validate configuration
@@ -102,7 +141,8 @@ void detected_object_output_process
          writer,
          algo_config, d->m_writer ) )
   {
-    VITAL_THROW( sprokit::invalid_configuration_exception, name(), "Configuration check failed." );
+    VITAL_THROW( sprokit::invalid_configuration_exception, name(),
+                 "Configuration check failed." );
   }
 
   // instantiate image reader and converter based on config type
@@ -110,10 +150,10 @@ void detected_object_output_process
     writer,
     algo_config,
     d->m_writer);
-  if ( ! d->m_writer )
+  if ( !d->m_writer )
   {
     VITAL_THROW( sprokit::invalid_configuration_exception, name(),
-             "Unable to create writer." );
+                 "Unable to create writer." );
   }
 }
 
@@ -130,6 +170,18 @@ void detected_object_output_process
 void detected_object_output_process
 ::_step()
 {
+  auto datum = peek_at_datum_using_trait( detected_object_set );
+
+  if ( datum->type() == sprokit::datum::complete )
+  {
+    grab_edge_datum_using_trait( detected_object_set );
+    mark_process_as_complete();
+
+    d->m_writer->complete();
+
+    return;
+  }
+
   std::string file_name;
 
   // image name is optional
@@ -138,7 +190,13 @@ void detected_object_output_process
     file_name = grab_from_port_using_trait( image_file_name );
   }
 
-  kwiver::vital::detected_object_set_sptr input = grab_from_port_using_trait( detected_object_set );
+  if ( d->m_frame_list_writer )
+  {
+    *d->m_frame_list_writer << file_name << std::endl;
+  }
+
+  kwiver::vital::detected_object_set_sptr input =
+    grab_from_port_using_trait( detected_object_set );
 
   {
     scoped_step_instrumentation();
@@ -172,6 +230,7 @@ void detected_object_output_process
 ::make_config()
 {
   declare_config_using_trait( file_name );
+  declare_config_using_trait( frame_list_output );
   declare_config_using_trait( writer );
 }
 
@@ -184,6 +243,10 @@ detected_object_output_process::priv
 detected_object_output_process::priv
 ::~priv()
 {
+  if( m_frame_list_writer )
+  {
+    m_frame_list_writer->close();
+  }
 }
 
 } // end namespace
