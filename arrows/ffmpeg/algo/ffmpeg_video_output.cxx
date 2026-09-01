@@ -17,6 +17,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/pixdesc.h>
 #include <libswscale/swscale.h>
 }
 
@@ -699,9 +700,35 @@ ffmpeg_video_output::impl::open_video_state
   auto pix_fmts = codec->pix_fmts;
 #endif
   throw_error_null( pix_fmts, "NULL pixel format list" );
+
+  // When the incoming settings do not specify a pixel format (e.g. when
+  // transcoding from images), fall back to the configured pixel_format. This
+  // defaults to yuv420p because an RGB24 hint biases
+  // avcodec_find_best_pix_fmt_of_list toward least-lossy 4:4:4 / RGB formats,
+  // producing H.264/H.265 streams that most players (VLC, browsers, hardware
+  // decoders) cannot play.
+  auto fallback_pix_fmt = AV_PIX_FMT_RGB24;
+  auto const& requested_pix_fmt_name = parent->parent.c_pixel_format;
+  if( !requested_pix_fmt_name.empty() )
+  {
+    auto const requested_pix_fmt =
+      av_get_pix_fmt( requested_pix_fmt_name.c_str() );
+    if( requested_pix_fmt != AV_PIX_FMT_NONE )
+    {
+      fallback_pix_fmt = requested_pix_fmt;
+    }
+    else
+    {
+      LOG_WARN(
+        parent->logger,
+        "Unrecognized pixel_format '" << requested_pix_fmt_name
+        << "'; letting the encoder choose its preferred format" );
+    }
+  }
+
   codec_context->pix_fmt = avcodec_find_best_pix_fmt_of_list(
     static_cast< AVPixelFormat const* >( pix_fmts ),
-    ( codec_context->pix_fmt < 0 ) ? AV_PIX_FMT_RGB24 : codec_context->pix_fmt,
+    ( codec_context->pix_fmt < 0 ) ? fallback_pix_fmt : codec_context->pix_fmt,
     false, nullptr );
   if( codec_context->framerate.num <= 0 )
   {

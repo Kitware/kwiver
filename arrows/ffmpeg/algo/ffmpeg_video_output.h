@@ -74,7 +74,16 @@ public:
       format_name, std::string,
       "String identifying the video format to use. Will override any guesses "
       "based on file extension or contents of the file.",
-      "" ) );
+      "" ),
+    PARAM_DEFAULT(
+      pixel_format, std::string,
+      "Preferred output pixel format (e.g. yuv420p). Used when the incoming "
+      "video settings do not specify one, such as when transcoding from "
+      "images. Defaults to yuv420p for broad playback compatibility; the "
+      "encoder will pick the closest supported format if the exact one is "
+      "unavailable. Leave empty to let the encoder choose freely (may yield "
+      "4:4:4 / RGB streams that many players cannot decode).",
+      "yuv420p" ) );
 
   virtual ~ffmpeg_video_output();
   bool check_configuration( vital::config_block_sptr config ) const override;

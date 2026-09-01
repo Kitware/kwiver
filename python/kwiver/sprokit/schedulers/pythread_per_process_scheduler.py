@@ -127,6 +127,14 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
             for thread in alive:
                 thread.join(0.1)
 
+        if self._process_exception is not None:
+            # Grace period for threads that can still unwind on their own.
+            # Any that remain are blocked on an edge whose peer died and are
+            # daemonic, so they cannot be unblocked from here; abandon them.
+            for thread in self._threads:
+                if thread.is_alive():
+                    thread.join(0.5)
+
         # Re-raise any exception that occurred in a process thread
         if self._process_exception is not None:
             raise self._process_exception
@@ -139,7 +147,10 @@ class PyThreadPerProcessScheduler(scheduler.PythonScheduler):
 
     def _stop(self):
         self._event.set()
-        self.shutdown()
+        # Do not call self.shutdown() here. The C++ scheduler::stop() already
+        # holds the non-recursive scheduler mutex when it calls _stop(), and
+        # shutdown() takes that same mutex, so calling it here deadlocks. The
+        # base class performs the shutdown once _stop() returns.
 
     def _run_process(self, proc):
         utils.name_thread(proc.name())
