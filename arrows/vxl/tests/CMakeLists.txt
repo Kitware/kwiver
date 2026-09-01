@@ -32,6 +32,10 @@ kwiver_discover_gtests(vxl pixel_feature_extractor        LIBRARIES ${test_libra
 kwiver_discover_gtests(vxl polygon                        LIBRARIES ${test_libraries})
 kwiver_discover_gtests(vxl split_image                    LIBRARIES ${test_libraries})
 
+if( KWIVER_ENABLE_FFMPEG )
+  kwiver_discover_gtests(vxl vidl_ffmpeg_video_input        LIBRARIES ${test_libraries}  ARGUMENTS "${kwiver_test_data_directory}")
+endif()
+
 if( KWIVER_ENABLE_MVG )
   # Additional tests that depend on the MVG arrow
   list(APPEND test_libraries kwiver_algo_mvg)

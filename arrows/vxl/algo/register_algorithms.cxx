@@ -13,6 +13,7 @@
 #include <vital/algo/estimate_similarity_transform.h>
 #include <vital/algo/image_filter.h>
 #include <vital/algo/image_io.h>
+#include <vital/algo/video_input.h>
 #include <vital/algo/nearest_neighbors.h>
 #include <vital/algo/optimize_cameras.h>
 
@@ -38,6 +39,10 @@
 #include <arrows/vxl/algo/split_image.h>
 #include <arrows/vxl/algo/threshold.h>
 #include <arrows/vxl/algo/triangulate_landmarks.h>
+
+#ifdef VXL_ENABLE_FFMPEG
+#include <arrows/vxl/algo/vidl_ffmpeg_video_input.h>
+#endif
 #include <arrows/vxl/kd_tree.h>
 
 namespace kwiver {
@@ -132,6 +137,12 @@ register_factories( kwiver::vital::plugin_loader& vpl )
   fact = vpl.add_factory< vital::algo::split_image,
     split_image >( "vxl" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows.vxl" );
+
+#ifdef VXL_ENABLE_FFMPEG
+  fact = vpl.add_factory< vital::algo::video_input,
+    vidl_ffmpeg_video_input >( "vidl_ffmpeg" );
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows.vxl" );
+#endif
 
   fact = vpl.add_factory< vital::algo::image_filter,
     threshold >( "vxl_threshold" );
