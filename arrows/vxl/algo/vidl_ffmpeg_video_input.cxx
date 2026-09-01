@@ -28,6 +28,7 @@
 
 #include <chrono>
 #include <memory>
+#include <optional>
 #include <mutex>
 #include <sstream>
 #include <vector>
@@ -166,13 +167,13 @@ public:
     // The demuxer now consumes a whole frame's worth of packets at once and
     // its per-packet entry point is private, so collect them first.
     std::vector< klv::klv_packet > packets;
-    auto it = &*md_buffer.cbegin();
-    while( it != &*md_buffer.cend() )
+    klv::klv_read_iter_t it = md_buffer.data();
+    auto const* const buffer_end = md_buffer.data() + md_buffer.size();
+    while( it != buffer_end )
     {
       try
       {
-        auto const length =
-          static_cast< size_t >( std::distance( it, &*md_buffer.cend() ) );
+        auto const length = static_cast< size_t >( buffer_end - it );
         packets.emplace_back( klv::klv_read_packet( it, length ) );
       }
       catch( kwiver::vital::metadata_buffer_overflow const& )
@@ -183,7 +184,7 @@ public:
       catch( kwiver::vital::metadata_exception const& e )
       {
         LOG_ERROR( d_logger, "error while parsing KLV packet: " << e.what() );
-        it = &*md_buffer.cend();
+        it = buffer_end;
       }
     }
 
@@ -204,12 +205,17 @@ public:
 
     // Erase the bytes we just used
     md_buffer.erase(
-      md_buffer.begin(),
-      md_buffer.begin() + std::distance( &*md_buffer.cbegin(), it ) );
+      md_buffer.begin(), md_buffer.begin() + ( it - md_buffer.data() ) );
 
     if( !packets.empty() )
     {
-      m_klv_demuxer.send_frame( packets, m_curr_misp_timestamp );
+      // Before any MISP timestamp has been seen there is no meaningful
+      // backup time to offer, so pass none rather than claiming time zero
+      m_klv_demuxer.send_frame(
+        packets,
+        m_curr_misp_timestamp
+          ? std::optional< uint64_t >( m_curr_misp_timestamp )
+          : std::nullopt );
     }
 
     // Get the vital metadata structure for the current frame
@@ -321,10 +327,10 @@ public:
       // Tag type and accessor match viame/master exactly: the string-tagged
       // form, read out in microseconds.
       auto it = kwiver::arrows::klv::find_misp_timestamp(
-        &*packet_data.cbegin(),
-        &*packet_data.cend(),
+        packet_data.data(),
+        packet_data.data() + packet_data.size(),
         klv::MISP_TIMESTAMP_TAG_STRING );
-      if( it != &*packet_data.cend() )
+      if( it != packet_data.data() + packet_data.size() )
       {
         meta_ts = kwiver::arrows::klv::read_misp_timestamp( it )
                   .microseconds().count();
@@ -899,9 +905,17 @@ vidl_ffmpeg_video_input
     return false;
   }
 
-  // Restart from the beginning so the scan is independent of where we are
+  // Restart from the beginning so the scan is independent of where we are.
+  // Frames are emitted on the 1-anchored output_nth_frame pattern and
+  // seek_frame rejects frames off it, so align the start up to the pattern.
+  auto const skip = static_cast< kwiver::vital::timestamp::frame_t >(
+    d->c_frame_skip > 0 ? d->c_frame_skip : 1 );
   auto frame = static_cast< kwiver::vital::timestamp::frame_t >(
     d->c_start_at_frame > 0 ? d->c_start_at_frame : 1 );
+  if( ( frame - 1 ) % skip != 0 )
+  {
+    frame += skip - ( frame - 1 ) % skip;
+  }
 
   while( this->seek_frame( frame, timeout ) )
   {
@@ -910,8 +924,7 @@ vidl_ffmpeg_video_input
     {
       return true;
     }
-    frame += static_cast< kwiver::vital::timestamp::frame_t >(
-      d->c_frame_skip );
+    frame += skip;
   }
 
   return false;
