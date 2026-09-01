@@ -23,7 +23,7 @@ class KWIVER_ALGO_OCV_EXPORT refine_detections_write_to_disk
   : public vital::algo::refine_detections
 {
 public:
-  // "ocv_write",
+  // Registered as "ocv_write" in register_algorithms.cxx
   PLUGGABLE_IMPL(
     refine_detections_write_to_disk,
     "Debugging process for writing out detections",

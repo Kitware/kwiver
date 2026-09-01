@@ -49,6 +49,7 @@
 #include <arrows/ocv/algo/refine_detections_write_to_disk.h>
 #include <arrows/ocv/algo/resection_camera.h>
 #include <arrows/ocv/algo/split_image.h>
+#include <arrows/ocv/algo/split_image_channels.h>
 #include <arrows/ocv/algo/track_features_klt.h>
 
 namespace kwiver {
@@ -210,9 +211,12 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ocv" );
 
   fact = vpm.add_factory< vital::algo::refine_detections,
-    refine_detections_write_to_disk >( "ocv" );
+    refine_detections_write_to_disk >( "ocv_write" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ocv" );
   fact = vpm.add_factory< vital::algo::split_image, split_image >( "ocv" );
+  fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ocv" );
+  fact = vpm.add_factory< vital::algo::split_image,
+    split_image_channels >( "ocv_channels" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ocv" );
   fact = vpm.add_factory< vital::algo::merge_images, merge_images >( "ocv" );
   fact->add_attribute( kvpf::PLUGIN_MODULE_NAME, "arrows_ocv" );

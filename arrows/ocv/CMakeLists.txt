@@ -44,6 +44,7 @@ set( plugin_ocv_classes
   algo/refine_detections_write_to_disk
   algo/resection_camera
   algo/split_image
+  algo/split_image_channels
   algo/detect_features
   algo/extract_descriptors
   algo/match_features
