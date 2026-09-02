@@ -48,7 +48,15 @@ geo_raw_polygon_t
 geo_polygon
 ::polygon() const
 {
-  return m_poly.at( m_original_crs );
+  // A default-constructed geo_polygon carries a sentinel crs of -1 and an
+  // empty map, so the lookup below would throw. Callers reaching this through
+  // polygon( crs ) on an empty polygon just want an empty result.
+  if( m_original_crs >= 0 )
+  {
+    return m_poly.at( m_original_crs );
+  }
+
+  return geo_raw_polygon_t();
 }
 
 // ----------------------------------------------------------------------------

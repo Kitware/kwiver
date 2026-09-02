@@ -31,12 +31,17 @@ public:
       pattern, std::string,
       "The output pattern for writing images to disk. "
       "Parameters that may be included in the pattern are (in formatting order)"
-      "the id (an integer), the source image filename (a string), "
-      "and four values for the chip coordinate: "
-      "top left x, top left y, width, height (all floating point numbers). "
-      "A possible full pattern would be '%d-%s-%f-%f-%f-%f.png'. "
+      "the detection category (a string), the source image filename or frame "
+      "number (a string), and four values for the chip coordinate: "
+      "top left x, top left y, width, height (all integers). "
+      "A possible full pattern would be '%s-%s-%d-%d-%d-%d.png'. "
       "The pattern must contain the correct file extension.",
-      "detection_%10d.png" )
+      "%s-%s+%d_%d_%dx%d.png" ),
+    PARAM_DEFAULT(
+      unknown_label, std::string,
+      "Label to use in the output pattern for detections which carry no "
+      "classification.",
+      "unknown" )
   );
 
   /// Destructor
@@ -60,7 +65,8 @@ public:
 
 private:
   // Variables
-  mutable size_t id { 0 };
+  mutable unsigned detection_counter { 0 };
+  mutable unsigned frame_counter { 0 };
 };
 
 } // end namespace ocv

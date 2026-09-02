@@ -58,6 +58,14 @@ refine_detections_write_to_disk
   vital::image_container_sptr image_data,
   vital::detected_object_set_sptr detections ) const
 {
+  // Input validation and formatting
+  this->frame_counter++;
+
+  if( !detections )
+  {
+    return detections;
+  }
+
   cv::Mat img = ocv::image_container::vital_to_ocv(
     image_data->get_image(),
     ocv::image_container::BGR_COLOR );
@@ -85,12 +93,46 @@ refine_detections_write_to_disk
     // Clip detection box to image bounds.
     bbox = intersection( bounds, bbox );
 
-    // Generate output filename
+    // Generate output filename. The pattern is a printf format string, so the
+    // argument types have to line up with it exactly: two strings followed by
+    // four ints. Passing anything else here is undefined behaviour.
+    std::string category_str;
+    std::string frame_str;
+
+    if( !filename.empty() )
+    {
+      frame_str = filename;
+    }
+    else
+    {
+      // No source filename in the metadata, so fall back to a zero-padded
+      // frame number.
+      std::size_t const max_zeros = 6;
+      frame_str = std::to_string( this->frame_counter );
+      frame_str = std::string(
+        max_zeros - std::min( max_zeros, frame_str.length() ), '0' ) +
+        frame_str;
+    }
+
+    if( det->type() )
+    {
+      det->type()->get_most_likely( category_str );
+    }
+    if( !det->type() || category_str.empty() )
+    {
+      category_str = this->get_unknown_label();
+    }
+
     std::string ofn = kwiver::vital::string_format(
       this->get_pattern(),
-      this->id++, filename.c_str(),
-      bbox.upper_left()[ 0 ], bbox.upper_left()[ 1 ],
-      bbox.width(), bbox.height() );
+      category_str.c_str(),
+      frame_str.c_str(),
+      static_cast< int >( bbox.upper_left()[ 0 ] ),
+      static_cast< int >( bbox.upper_left()[ 1 ] ),
+      static_cast< int >( bbox.width() ),
+      static_cast< int >( bbox.height() ) );
+
+    this->detection_counter++;
     if( ofn.empty() )
     {
       LOG_ERROR(
