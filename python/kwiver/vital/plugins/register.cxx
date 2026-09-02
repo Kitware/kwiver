@@ -190,6 +190,11 @@ check_and_initialize_python_interpreter()
     "python.kwiver.vital.plugins.check_and_initialize_python_interpreter"
   );
 
+  // Tracks whether this process embedded the interpreter itself, as opposed to
+  // kwiver having been loaded from a running python. Only in the former case
+  // is the GIL ours to hand back further down.
+  static bool interpreter_is_ours = false;
+
   // Check if a python interpreter already exists, so we don't clobber sys.argv
   // (e.g. if sprokit is initialized from python)
   if( !Py_IsInitialized() )
@@ -226,6 +231,7 @@ check_and_initialize_python_interpreter()
     }
     PyConfig_Clear( &config );
     LOG_DEBUG( log, "Python interpreter initialized" );
+    interpreter_is_ours = true;
   }
 
   // if we are in a virtual enviroment add its site-packages in the module
@@ -264,15 +270,34 @@ check_and_initialize_python_interpreter()
 
   // Let pybind11 initialize threads and set up its internal data structures if
   // not already done so.
-  if( !PyEval_ThreadsInitialized() )
+  //
+  // This is deliberately not guarded on PyEval_ThreadsInitialized(): since
+  // Python 3.7 threads are always initialized by the time the interpreter is
+  // up, so that function always returns true and the release below would never
+  // run. The GIL would then stay held by whichever thread got here first --
+  // the main thread, for a tool like the pipeline runner -- and every
+  // subsequent attempt to call into Python from another thread would block in
+  // gil_scoped_acquire forever. That is only visible with a scheduler that
+  // steps processes on its own threads, so a pipeline with a python algorithm
+  // deadlocks under thread_per_process while working under
+  // pythread_per_process.
+  //
+  // Guard on having done it once instead, and only hand back the GIL if this
+  // thread actually holds it: when kwiver is loaded from a python process the
+  // caller owns the GIL and expects it back.
+  static bool threads_initialized = false;
+
+  if( interpreter_is_ours && !threads_initialized )
   {
+    threads_initialized = true;
+
     LOG_DEBUG(
-      log, "Python threads not initialized yet, letting pybind11 do "
-           "it's thing." );
+      log, "Letting pybind11 initialize its internal data structures." );
     {
       pybind11::detail::get_internals();
     }
-    // Release the GIL
+
+    // Release the GIL so other threads can acquire it
     PyEval_SaveThread();
   }
   return true;
