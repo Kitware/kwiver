@@ -210,7 +210,11 @@ void downsample_process
 
   if( d->is_first_ && process::count_output_port_edges( "frame_rate" ) > 0 )
   {
-    push_to_port_using_trait( frame_rate, d->target_frame_rate_ );
+    // With downsampling off every frame is passed through, so the rate
+    // downstream sees is the source's own. Reporting the disabled target
+    // instead hands encoders a negative rate they cannot open with.
+    push_to_port_using_trait( frame_rate,
+      d->target_frame_rate_ > 0.0 ? d->target_frame_rate_ : frame_rate );
     push_datum_to_port_using_trait( frame_rate, sprokit::datum::complete_datum() );
   }
 
