@@ -334,6 +334,20 @@ video_input_image_list
 }
 
 // ----------------------------------------------------------------------------
+kv::path_t
+video_input_image_list
+::filename() const
+{
+  // viame/master dereferenced this unguarded; check against the end iterator
+  // so a call before open() or after the last frame cannot be UB.
+  if( d->m_current_file != d->m_files.cend() )
+  {
+    return *( d->m_current_file );
+  }
+  return {};
+}
+
+// ----------------------------------------------------------------------------
 kv::image_container_sptr
 video_input_image_list
 ::frame_image()

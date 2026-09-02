@@ -80,6 +80,12 @@ public:
   /// Check that the algorithm's currently configuration is valid.
   bool check_configuration( vital::config_block_sptr config ) const override;
 
+  /// Path of the image currently being read.
+  ///
+  /// The base class returns an empty string, which leaves consumers such as
+  /// video_input_process with no per-frame name to pass downstream.
+  kwiver::vital::path_t filename() const override;
+
   /// \brief Open a list of images.
   ///
   /// This method opens the file that contains the list of images. Each
