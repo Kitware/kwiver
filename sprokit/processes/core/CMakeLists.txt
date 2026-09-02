@@ -115,6 +115,18 @@ kwiver_private_header_group( ${private_headers} )
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
+# video_output_process populates the writer's width, height and frame rate from
+# the incoming frame, but only under WITH_FFMPEG, because ffmpeg supplies the
+# only concrete video_settings implementation. Without the define it compiles
+# the fallback that passes no settings at all, and every ffmpeg write then fails
+# with "requires width, height, and frame rate to be specified prior to calling
+# open". The conditional source survived the port; the define and the link did
+# not.
+if( KWIVER_ENABLE_FFMPEG )
+  add_definitions( -DWITH_FFMPEG )
+  set( KWIVER_FFMPEG_ARROW kwiver_algo_ffmpeg )
+endif()
+
 kwiver_add_plugin( kwiver_processes
   SUBDIR           ${kwiver_plugin_process_subdir}
   SOURCES          ${sources}
@@ -124,4 +136,5 @@ kwiver_add_plugin( kwiver_processes
                    kwiver_adapter
                    kwiversys
                    vital vital_vpm vital_logger vital_config
+                   ${KWIVER_FFMPEG_ARROW}
 )

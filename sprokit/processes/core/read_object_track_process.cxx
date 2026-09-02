@@ -37,6 +37,11 @@ public:
   std::string m_file_name;
 
   algo::read_object_track_set_sptr m_reader;
+
+  // Set once the reader stops producing. When an external frame source drives
+  // this process it may keep sending frames after the last track, so the
+  // reader running dry is not by itself the end of the stream.
+  bool m_reader_finished = false;
 }; // end priv class
 
 // ===============================================================================
@@ -103,22 +108,54 @@ void read_object_track_process
 void read_object_track_process
 ::_step()
 {
-  std::string image_name;
+  bool end_process = false;
+
+  std::string file_name;
   kwiver::vital::object_track_set_sptr set;
 
-  if( d->m_reader->read_set( set ) )
+  if( has_input_port_edge_using_trait( image_file_name ) )
   {
-    push_to_port_using_trait( object_track_set, set );
+    auto port_info = peek_at_port_using_trait( image_file_name );
+
+    if( port_info.datum->type() == sprokit::datum::complete )
+    {
+      end_process = true;
+    }
+    else
+    {
+      file_name = grab_from_port_using_trait( image_file_name );
+    }
+  }
+
+  if( !end_process && !d->m_reader_finished && !d->m_reader->read_set( set ) )
+  {
+    // Indicates the reader is done producing tracks and won't produce more.
+    d->m_reader_finished = true;
+
+    // If false, we are driven by an external frame source which might continue
+    // to send frames after ones which don't contain tracks, so don't send a
+    // complete message yet; rely on that source telling us when we're done.
+    if( file_name.empty() )
+    {
+      end_process = true;
+    }
+  }
+
+  if( end_process )
+  {
+    LOG_DEBUG( logger(), "End of input reached, process terminating" );
+    mark_process_as_complete();
+
+    const sprokit::datum_t dat = sprokit::datum::complete_datum();
+    push_datum_to_port_using_trait( object_track_set, dat );
   }
   else
   {
-    LOG_DEBUG( logger(), "End of input reached, process terminating" );
-
-    // indicate done
-    mark_process_as_complete();
-    const sprokit::datum_t dat= sprokit::datum::complete_datum();
-
-    push_datum_to_port_using_trait( object_track_set, dat );
+    if( !set )
+    {
+      set = std::make_shared< kwiver::vital::object_track_set >();
+    }
+    push_to_port_using_trait( object_track_set, set );
   }
 }
 
@@ -129,6 +166,7 @@ void read_object_track_process
   // Set up for required ports
   sprokit::process::port_flags_t optional;
 
+  declare_input_port_using_trait( image_file_name, optional );
   declare_output_port_using_trait( object_track_set, optional );
 }
 
