@@ -606,6 +606,17 @@ void kwiver::vital::python::image
       "Types.PIXEL_UNSIGNED" ),
     py::arg( "bytes" ) = 1 )
 
+  // Raw-buffer constructor: a bytes object plus explicit geometry and strides.
+  // VitalPIL.from_pil() builds every image this way, so python code as common
+  // as ImageContainer(VitalPIL.from_pil(pil_img)) fails with a TypeError
+  // without it.
+  .def(
+    py::init( &kwiver::vital::python::image::new_image_from_data ),
+    py::arg( "first_pixel" ), py::arg( "width" ), py::arg( "height" ),
+    py::arg( "depth" ),
+    py::arg( "w_step" ), py::arg( "h_step" ), py::arg( "d_step" ),
+    py::arg( "pixel_type" ), py::arg( "bytes" ) )
+
   // create initializer from typed numpy arrays
 #define init_from_numpy( T )                                              \
 .def(                                                                     \

@@ -141,6 +141,14 @@ foreach (_kwiver_python_module IN LISTS classes)
   string(APPEND _kwiver_python_algo_all_modules_load_algos "   ${_kwiver_python_module}(m);\n")
 endforeach ()
 
+# Hand-written adjustments layered over the generated bindings. These run
+# after every generated loader so they can look classes up on the module and
+# re-def what the generator cannot express (an in/out parameter, say).
+string(APPEND _kwiver_python_algo_all_modules_includes
+  "#include <python/kwiver/vital/algo/extract_descriptors_extras.h>\n")
+string(APPEND _kwiver_python_algo_all_modules_load_algos
+  "   extract_descriptors_extras(m);\n")
+
 set(_kwiver_python_algo_all_modules_content)
 string(CONCAT _kwiver_python_algo_all_modules_content
 "#include <pybind11/pybind11.h>\n"
@@ -169,6 +177,7 @@ set(module_sources
   algorithm.cxx
   algorithm_capabilities.cxx
   algorithm_trampoline.txx
+  extract_descriptors_extras.cxx
   "${CMAKE_CURRENT_BINARY_DIR}/algorithm_module.cxx"
   ${algo_sources}
 )
