@@ -205,10 +205,12 @@ void video_output_process
   {
     // instantiate a video reader
 #ifdef WITH_FFMPEG
-    arrows::ffmpeg::ffmpeg_video_settings default_settings;
-    default_settings.frame_rate = av_d2q( d->m_frame_rate, 1e9 );
-    default_settings.parameters->width = frame->width();
-    default_settings.parameters->height = frame->height();
+    // frame_rate is an accessor now; the settable field is frame_rate_q, and
+    // the constructor takes the geometry directly. This block never compiled
+    // while WITH_FFMPEG was undefined, so it had drifted from the current API.
+    arrows::ffmpeg::ffmpeg_video_settings default_settings(
+      frame->width(), frame->height(),
+      av_d2q( d->m_frame_rate, 1e9 ) );
     vital::video_settings const* settings = &default_settings;
 #else
     // vital::video_settings is abstract and ffmpeg supplies the only concrete

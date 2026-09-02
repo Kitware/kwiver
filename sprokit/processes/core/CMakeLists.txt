@@ -124,6 +124,14 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 # not.
 if( KWIVER_ENABLE_FFMPEG )
   add_definitions( -DWITH_FFMPEG )
+  # The ffmpeg arrow puts FFmpeg on the header path with a directory-scoped
+  # include_directories, which does not propagate to consumers, so linking the
+  # arrow alone does not make libavcodec reachable from here. SYSTEM matters:
+  # FFMPEG_INCLUDE_DIR is the shared install prefix, which also carries
+  # kwiver's own installed headers, and kwiver builds with
+  # -Werror=non-virtual-dtor, so adding it as a normal include turns warnings
+  # in those headers into errors.
+  include_directories( SYSTEM ${FFMPEG_INCLUDE_DIR} )
   set( KWIVER_FFMPEG_ARROW kwiver_algo_ffmpeg )
 endif()
 
