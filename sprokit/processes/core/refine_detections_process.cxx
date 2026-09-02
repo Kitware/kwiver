@@ -5,6 +5,8 @@
 #include "refine_detections_process.h"
 
 #include <vital/algo/refine_detections.h>
+#include <vital/types/object_track_set.h>
+#include <vital/types/timestamp.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
 #include <sprokit/pipeline/process_exception.h>
@@ -21,6 +23,7 @@ public:
   priv();
   ~priv();
 
+   vital::frame_id_t m_current_idx;
    vital::algo::refine_detections_sptr m_refiner;
 
 }; // end priv class
@@ -70,29 +73,137 @@ _configure()
 // ------------------------------------------------------------------
 void
 refine_detections_process::
+_finalize()
+{
+  mark_process_as_complete();
+
+  const sprokit::datum_t dat = sprokit::datum::complete_datum();
+
+  push_datum_to_port_using_trait( detected_object_set, dat );
+  push_datum_to_port_using_trait( object_track_set, dat );
+}
+
+// ------------------------------------------------------------------
+void
+refine_detections_process::
 _step()
 {
-  // The image port is optional: several refiners (nms, add_fixed, ...) work on
-  // the detections alone. Only grab it when something is connected, otherwise
-  // the grab throws on an unconnected port.
   vital::image_container_sptr image;
+  vital::timestamp timestamp;
+  vital::detected_object_set_sptr dets;
+  vital::object_track_set_sptr tracks;
+  vital::frame_id_t cur_frame_id = 0;
+
+  // Every input is optional: an nms or add_fixed refiner works on the
+  // detections alone, and a track refiner takes the track set instead. Peek
+  // before grabbing so the complete datum is recognised and forwarded rather
+  // than consumed as data -- without that the downstream processes never learn
+  // the stream ended, and a pipeline that fans one image out to several
+  // refiners and merges the results deadlocks with every thread waiting.
+  if( has_input_port_edge_using_trait( detected_object_set ) )
+  {
+    auto port_check = peek_at_port_using_trait( detected_object_set );
+
+    if( port_check.datum->type() == sprokit::datum::complete )
+    {
+      this->_finalize();
+      return;
+    }
+
+    dets = grab_from_port_using_trait( detected_object_set );
+  }
+
+  if( has_input_port_edge_using_trait( object_track_set ) )
+  {
+    auto port_check = peek_at_port_using_trait( object_track_set );
+
+    if( port_check.datum->type() == sprokit::datum::complete )
+    {
+      this->_finalize();
+      return;
+    }
+
+    tracks = grab_from_port_using_trait( object_track_set );
+  }
 
   if( has_input_port_edge_using_trait( image ) )
   {
     image = grab_from_port_using_trait( image );
   }
 
-  vital::detected_object_set_sptr dets = grab_from_port_using_trait( detected_object_set );
+  if( has_input_port_edge_using_trait( timestamp ) )
+  {
+    timestamp = grab_from_port_using_trait( timestamp );
 
-  vital::detected_object_set_sptr results;
+    if( timestamp.has_valid_frame() )
+    {
+      cur_frame_id = timestamp.get_frame();
+    }
+  }
+  else
+  {
+    cur_frame_id = d->m_current_idx;
+  }
+
+  vital::detected_object_set_sptr output_dets;
+
   {
     scoped_step_instrumentation();
 
-    // Get detections from refiner on image
-    results = d->m_refiner->refine( image, dets );
+    if( dets )
+    {
+      output_dets = d->m_refiner->refine( image, dets );
+    }
+
+    if( tracks )
+    {
+      // Refine the detections belonging to this frame, then write them back
+      // into the states they came from so the track set stays intact.
+      auto frame_dets = std::make_shared< kwiver::vital::detected_object_set >();
+
+      for( auto& trk : tracks->tracks() )
+      {
+        for( auto& state : *trk )
+        {
+          auto obj_state =
+            std::static_pointer_cast< kwiver::vital::object_track_state >( state );
+
+          if( state->frame() == cur_frame_id )
+          {
+            frame_dets->add( obj_state->detection() );
+          }
+        }
+      }
+
+      frame_dets = d->m_refiner->refine( image, frame_dets );
+
+      if( !dets )
+      {
+        output_dets = frame_dets;
+      }
+
+      auto dets_itr = frame_dets->begin();
+
+      for( auto& trk : tracks->tracks() )
+      {
+        for( auto& state : *trk )
+        {
+          auto obj_state =
+            std::static_pointer_cast< kwiver::vital::object_track_state >( state );
+
+          if( state->frame() == cur_frame_id )
+          {
+            obj_state->set_detection( *dets_itr++ );
+          }
+        }
+      }
+    }
   }
 
-  push_to_port_using_trait( detected_object_set, results );
+  push_to_port_using_trait( detected_object_set, output_dets );
+  push_to_port_using_trait( object_track_set, tracks );
+
+  d->m_current_idx++;
 }
 
 // ------------------------------------------------------------------
@@ -100,18 +211,19 @@ void
 refine_detections_process::
 make_ports()
 {
-  // Set up for required ports
-  sprokit::process::port_flags_t required;
   sprokit::process::port_flags_t optional;
 
-  required.insert( flag_required );
-
+  // Nothing is required: which inputs are connected depends on whether the
+  // refiner works on detections, on tracks, and on whether it needs the image.
   // -- input --
   declare_input_port_using_trait( image, optional );
-  declare_input_port_using_trait( detected_object_set, required );
+  declare_input_port_using_trait( timestamp, optional );
+  declare_input_port_using_trait( detected_object_set, optional );
+  declare_input_port_using_trait( object_track_set, optional );
 
   // -- output --
   declare_output_port_using_trait( detected_object_set, optional );
+  declare_output_port_using_trait( object_track_set, optional );
 }
 
 // ------------------------------------------------------------------
@@ -125,6 +237,7 @@ make_config()
 // ================================================================
 refine_detections_process::priv
 ::priv()
+  : m_current_idx( 0 )
 {
 }
 
