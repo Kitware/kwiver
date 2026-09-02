@@ -47,7 +47,21 @@ new_desc_set1( py::list py_list )
 using namespace kwiver::vital::python;
 PYBIND11_MODULE( descriptor_set, m )
 {
-  py::class_< desc_set, std::shared_ptr< desc_set > >( m, "BaseDescriptorSet" );
+  // The accessors live on the base class: a descriptor set that reaches
+  // python from C++ -- the return of ExtractDescriptors.extract(), say -- is
+  // whatever subclass the arrow built, which pybind only knows as the base.
+  // Binding them on DescriptorSet alone leaves such objects with no usable
+  // interface at all.
+  py::class_< desc_set, std::shared_ptr< desc_set > >( m, "BaseDescriptorSet" )
+    .def( "descriptors", &desc_set::descriptors )
+    .def( "empty", &desc_set::empty )
+    .def( "size", &desc_set::size )
+    .def( "__len__", &desc_set::size )
+    .def(
+      "__getitem__",
+      static_cast< kwiver::vital::descriptor_sptr ( desc_set::* )( size_t ) >(
+        &desc_set::at ) )
+  ;
 
   py::class_< s_desc_set, desc_set, std::shared_ptr< s_desc_set > >(
     m,
@@ -56,9 +70,5 @@ PYBIND11_MODULE( descriptor_set, m )
     .def(
       py::init( &new_desc_set1 ),
       py::arg( "list" ) )
-    .def( "descriptors", &s_desc_set::descriptors )
-    .def( "empty", &s_desc_set::empty )
-    .def( "size", &s_desc_set::size )
-    .def( "__len__", &s_desc_set::size )
   ;
 }

@@ -49,6 +49,17 @@ PYBIND11_MODULE( track_set, m )
     .def( "last_frame", &kwiver::vital::track_set::last_frame )
     .def( "size", &kwiver::vital::track_set::size )
     .def( "tracks", &kwiver::vital::track_set::tracks )
+    // viame's frame stabilizer builds its track set incrementally through
+    // these two; they were bound before the rewrite and python-side track
+    // bookkeeping has no substitute for them.
+    .def(
+      "insert",
+      static_cast< void ( kwiver::vital::track_set::* )(
+        kwiver::vital::track_sptr const& ) >(
+        &kwiver::vital::track_set::insert ) )
+    .def(
+      "active_tracks", &kwiver::vital::track_set::active_tracks,
+      py::arg( "offset" ) = -1 )
     .def( "__len__", &kwiver::vital::track_set::size )
   ;
 }
