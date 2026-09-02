@@ -76,6 +76,12 @@ kwiver_add_library( kwiver_algo_ocv
   )
 target_compile_definitions( kwiver_algo_ocv
   PUBLIC KWIVER_OPENCV_VERSION_MAJOR=${KWIVER_OPENCV_VERSION_MAJOR}
+  # The SURF detector and descriptor compile out entirely unless both of these
+  # are set, taking "ocv_SURF" out of the registry with them. PUBLIC so the
+  # separately compiled plugin registration sees the same guard the headers do;
+  # a directory-scoped add_definitions would not reach it.
+  PUBLIC HAVE_OPENCV_NONFREE
+  PUBLIC HAVE_OPENCV_XFEATURES2D
   )
 target_link_libraries( kwiver_algo_ocv
   PUBLIC               vital_algo

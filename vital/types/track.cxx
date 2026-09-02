@@ -109,10 +109,12 @@ bool
 track
 ::append( track_state_sptr&& state )
 {
-  if( state && !state->track_.expired() )
-  {
-    throw std::logic_error( "track states may not be reparented" );
-  }
+  // Appending a state that already belongs to a track reparents it rather than
+  // throwing. VIAME processes that rebuild tracks -- append_detections is the
+  // one this matters for -- move states between tracks as they go, and the
+  // ownership pointer below is overwritten anyway. insert() keeps the check:
+  // there the position depends on the existing history, so a state arriving
+  // from elsewhere is a genuine ordering mistake.
 
   if( !state ||
       ( !this->history_.empty() &&
