@@ -9,7 +9,9 @@
 #include <vital/plugin_management/plugin_manager.h>
 
 #include <opencv2/opencv_modules.hpp>
-#ifdef HAVE_OPENCV_NONFREE
+#if defined( HAVE_OPENCV_NONFREE ) && KWIVER_OPENCV_VERSION_MAJOR < 3
+// 2.4.x only: from 3.x the non-free algorithms moved to xfeatures2d and their
+// own headers pull in whatever they need, so this file no longer exists.
 #include <opencv2/nonfree/nonfree.hpp>
 #endif
 
@@ -65,7 +67,10 @@ register_factories( kwiver::vital::plugin_loader& vpm )
 {
   using kvpf = ::kwiver::vital::plugin_factory;
 
-#if defined( HAVE_OPENCV_NONFREE )
+#if defined( HAVE_OPENCV_NONFREE ) && KWIVER_OPENCV_VERSION_MAJOR < 3
+  // 2.4.x needed an explicit nudge to register the non-free algorithms. From
+  // 3.x they live in xfeatures2d and construct on demand, and this function
+  // no longer exists.
   cv::initModule_nonfree();
 #endif
 
