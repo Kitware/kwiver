@@ -406,6 +406,21 @@ class KwiverProcess(process.PythonProcess):
 
         return self.grab_value_from_port(pt.name)
 
+    def has_input_port_edge_using_trait(self, ptn):
+        """
+        Was this specific input port connected?
+
+        Returns true if the input port is connected.
+
+        :param ptn: port trait name
+
+        """
+        pt = self._port_trait_set.get(ptn, None)
+        if pt is None:
+            raise ValueError('port trait name "%s" not registered' % ptn)
+
+        return self.has_input_port_edge(pt.name)
+
     def declare_config_using_trait(self, name):
         """
         Declare a process config entry from the named trait.
