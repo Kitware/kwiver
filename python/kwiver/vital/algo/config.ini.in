@@ -1,7 +1,7 @@
 # see ./scripts/cpp_to_pybind11.py for detail documentation
 [Defaults]
 list_delimiter=;
-include_dirs=$<TARGET_PROPERTY:vital_algo,INCLUDE_DIRECTORIES>
+include_dirs=@KWIVER_PYBIND11_PARSER_INCLUDE_DIRS@$<TARGET_PROPERTY:vital_algo,INCLUDE_DIRECTORIES>
 classes=@KWIVER_PYBIND11_ALGO@
 project_source_directory=@CMAKE_SOURCE_DIR@
 working_directory=.

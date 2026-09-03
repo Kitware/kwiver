@@ -90,6 +90,37 @@ set( classes
   write_track_descriptor_set
 )
 
+# castxml parses the headers with its own bundled clang -- 13, in the castxml
+# 0.4.5 wheel -- while emulating an MSVC compiler, so the standard library it
+# reads has to be one that clang can parse. The VS 2026 headers are not: they
+# use C++23 static call operators unconditionally and static_assert on any
+# clang older than 19, so emulating the compiler that is doing the build fails
+# with a few dozen errors out of <memory>, <vector> and <tuple>. Point this at
+# an older toolset's cl.exe to parse against its headers instead. Only
+# declarations are read from it; the wrappers are still compiled by
+# CMAKE_CXX_COMPILER.
+set( KWIVER_PYBIND11_CASTXML_COMPILER "${CMAKE_CXX_COMPILER}" CACHE FILEPATH
+  "MSVC compiler for castxml to emulate when generating pybind11 wrappers" )
+mark_as_advanced( KWIVER_PYBIND11_CASTXML_COMPILER )
+
+# The emulated compiler only supplies predefined macros. castxml takes the
+# system headers from the INCLUDE environment instead, which the build sets to
+# CMAKE_CXX_COMPILER's toolset, so emulating an older compiler against newer
+# headers still reads the headers that cannot be parsed. Put the emulated
+# toolset's own include directories at the front of the parse path, where they
+# shadow whatever INCLUDE carries.
+set(KWIVER_PYBIND11_PARSER_INCLUDE_DIRS "")
+if (MSVC AND NOT KWIVER_PYBIND11_CASTXML_COMPILER STREQUAL CMAKE_CXX_COMPILER)
+  get_filename_component(_kwiver_castxml_toolset
+    "${KWIVER_PYBIND11_CASTXML_COMPILER}/../../../.." ABSOLUTE)
+  foreach (_dir "${_kwiver_castxml_toolset}/include"
+                "${_kwiver_castxml_toolset}/ATLMFC/include")
+    if (EXISTS "${_dir}")
+      string(APPEND KWIVER_PYBIND11_PARSER_INCLUDE_DIRS "${_dir};")
+    endif ()
+  endforeach ()
+endif ()
+
 # generate configuration file for the wrapper generator
 set(KWIVER_PYBIND11_ALGO "${classes}")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.ini.in  ${CMAKE_CURRENT_BINARY_DIR}/config.ini.in @ONLY)
@@ -97,7 +128,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.ini.in  ${CMAKE_CURRENT_BINARY
 if (MSVC)
 file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/config.ini.in
 "run_external_castxml=1
-compiler_path=${CMAKE_CXX_COMPILER}
+compiler_path=${KWIVER_PYBIND11_CASTXML_COMPILER}
 ")
 endif ()
 file(GENERATE
@@ -112,12 +143,22 @@ kwiver_expand_pybind_class_list("${classes}" algo_sources)
 set(vital_algo_dependencies)
 kwiver_generate_dependencies("${classes}" vital_algo_dependencies)
 
+# The generator finds castxml by searching PATH, so the install bin directory
+# has to be prepended to it. Windows separates PATH entries with ';', not ':',
+# and using the wrong one glues the install directory onto the front of the
+# first system entry, leaving neither path valid and castxml unfindable.
+if( WIN32 )
+  set( _kwiver_pybind11_path "${CMAKE_INSTALL_PREFIX}/bin;$ENV{PATH}" )
+else()
+  set( _kwiver_pybind11_path "${CMAKE_INSTALL_PREFIX}/bin:$ENV{PATH}" )
+endif()
+
 # we generate all wrappings at once instead of per file since the startup cost
 # of the C++ parser is high
 add_custom_command(OUTPUT ${algo_sources}
   COMMAND  ${CMAKE_COMMAND} -E env
           "PYTHONPATH=${kwiver_python_install_path}"
-          "PATH=${CMAKE_INSTALL_PREFIX}/bin:$ENV{PATH}"
+          "PATH=${_kwiver_pybind11_path}"
           ${Python_EXECUTABLE}
           "${KWIVER_SOURCE_DIR}/scripts/cpp_to_pybind11.py"
           -c "${CMAKE_CURRENT_BINARY_DIR}/config.ini"
