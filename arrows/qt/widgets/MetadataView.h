@@ -25,7 +25,7 @@ class KWIVER_ALGO_QT_WIDGETS_EXPORT MetadataView : public QScrollArea
   Q_OBJECT
 
 public:
-  explicit MetadataView( QWidget* parent = 0 );
+  explicit MetadataView( QWidget* parent = nullptr );
   virtual ~MetadataView();
 
   bool eventFilter( QObject* sender, QEvent* e ) override;
