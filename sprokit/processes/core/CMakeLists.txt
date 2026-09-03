@@ -132,7 +132,11 @@ if( KWIVER_ENABLE_FFMPEG )
   # -Werror=non-virtual-dtor, so adding it as a normal include turns warnings
   # in those headers into errors.
   include_directories( SYSTEM ${FFMPEG_INCLUDE_DIR} )
-  set( KWIVER_FFMPEG_ARROW kwiver_algo_ffmpeg )
+  # The arrow links FFmpeg PRIVATE, so its symbols are not reachable through
+  # it. video_output_process calls av_d2q itself, which an import library does
+  # not forward, so link FFmpeg here as well or the plugin fails with
+  # "unresolved external symbol av_d2q".
+  set( KWIVER_FFMPEG_ARROW kwiver_algo_ffmpeg ${FFMPEG_LIBRARIES} )
 endif()
 
 kwiver_add_plugin( kwiver_processes
