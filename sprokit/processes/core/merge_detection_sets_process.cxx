@@ -6,12 +6,18 @@
 
 #include <kwiver_type_traits.h>
 
+#include <sprokit/pipeline/process_exception.h>
+
+#include <vital/algo/merge_detections.h>
 #include <vital/types/detected_object_set.h>
 #include <vital/util/string.h>
 
 #include <set>
+#include <vector>
 
 namespace kwiver {
+
+create_algorithm_name_config_trait( merger );
 
 // ----------------------------------------------------------------------------
 class merge_detection_sets_process::priv
@@ -20,6 +26,9 @@ public:
 
   // This is the list of input ports we are reading from.
   std::set< std::string > p_port_list;
+
+  // Optional merge algorithm. When unset the input sets are concatenated.
+  vital::algo::merge_detections_sptr m_merger;
 };
 
 // ----------------------------------------------------------------------------
@@ -44,6 +53,34 @@ merge_detection_sets_process
 void merge_detection_sets_process
 ::_configure()
 {
+  vital::config_block_sptr algo_config = get_config();
+
+  // The merger is optional: with no type configured the process keeps its
+  // historical behaviour of concatenating every input set.
+  if( !algo_config->has_value( "merger:type" ) ||
+      algo_config->get_value< std::string >( "merger:type" ).empty() )
+  {
+    return;
+  }
+
+  set_nested_algo_configuration_using_trait(
+    merger, algo_config, d->m_merger );
+
+  if( !d->m_merger )
+  {
+    VITAL_THROW( sprokit::invalid_configuration_exception,
+                 name(), "Unable to create \"merger\"" );
+  }
+
+  get_nested_algo_configuration_using_trait(
+    merger, algo_config, d->m_merger );
+
+  if( !check_nested_algo_configuration_using_trait(
+        merger, algo_config, d->m_merger ) )
+  {
+    VITAL_THROW( sprokit::invalid_configuration_exception,
+                 name(), "Configuration check failed." );
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -66,13 +103,28 @@ merge_detection_sets_process
   // sum up all the time spent adding the input sets to the output
   // sets, but that is not very interesting.
 
-  auto set_out = std::make_shared< vital::detected_object_set > ();
+  std::vector< vital::detected_object_set_sptr > set_list;
 
   for ( auto const& port_name : d->p_port_list )
   {
-    vital::detected_object_set_sptr set_in = grab_from_port_as<vital::detected_object_set_sptr>( port_name );
-    set_out->add( set_in );
+    set_list.push_back(
+      grab_from_port_as<vital::detected_object_set_sptr>( port_name ) );
   } // end for
+
+  vital::detected_object_set_sptr set_out;
+
+  if( d->m_merger )
+  {
+    set_out = d->m_merger->merge( set_list );
+  }
+  else
+  {
+    set_out = std::make_shared< vital::detected_object_set > ();
+    for ( auto const& set_in : set_list )
+    {
+      set_out->add( set_in );
+    }
+  }
 
   push_to_port_using_trait(detected_object_set, set_out);
 }
@@ -95,6 +147,7 @@ void
 merge_detection_sets_process
 ::make_config()
 {
+  declare_config_using_trait( merger );
 }
 
 // ----------------------------------------------------------------------------
