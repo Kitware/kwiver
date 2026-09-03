@@ -146,6 +146,10 @@ purelib_path = sysconfig.get_path("purelib", vars={"base": base_path})
 # Force site-packages instead of dist-packages
 purelib_path = purelib_path.replace("dist-packages", "site-packages")
 rel_path = os.path.relpath(purelib_path, base_path)
+# relpath uses the native separator, so this comes back with backslashes on
+# Windows. They end up embedded in generated install scripts, where CMake
+# reads them as escapes and stops with "Invalid character escape".
+rel_path = rel_path.replace(os.sep, "/")
 # Remove local/ prefix if present
 if rel_path.startswith("local/"):
     rel_path = rel_path[6:]  # Remove "local/"
