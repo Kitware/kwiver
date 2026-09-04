@@ -146,10 +146,19 @@ else ()
 # looks where a GCC installation would normally be. Hand it the include
 # directories the build compiler itself uses so a toolchain kept somewhere
 # else -- a Red Hat gcc-toolset under /opt/rh, say -- is found as well.
+# Only the standard library directories, though. The rest of
+# CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES is either somewhere clang already
+# looks or, worse, GCC's own compiler-internal include directory: its SIMD
+# intrinsic headers are written against __builtin_ia32_* builtins that clang
+# does not have under those names, so putting that ahead of clang's own
+# <xmmintrin.h> is 20 errors out of Eigen before any of our headers are read.
+set(_kwiver_castxml_include_dirs ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+list(FILTER _kwiver_castxml_include_dirs INCLUDE REGEX "/c\\+\\+/")
 file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/config.ini.in
 "run_external_castxml=1
-compiler_include_dirs=${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
+compiler_include_dirs=${_kwiver_castxml_include_dirs}
 ")
+unset(_kwiver_castxml_include_dirs)
 endif ()
 file(GENERATE
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/config.ini
