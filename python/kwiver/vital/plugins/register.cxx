@@ -29,6 +29,7 @@
 #endif
 
 #include <cstdlib>
+#include <exception>
 #include <filesystem>
 
 namespace kv = ::kwiver::vital;
@@ -44,6 +45,11 @@ namespace py = pybind11;
  */
 static bool check_and_initialize_python_interpreter();
 
+/**
+ * @brief Body of the registration function, called with exceptions contained.
+ */
+static void register_factories_impl( ::kv::plugin_loader& vpl );
+
 // ----------------------------------------------------------------------------
 // Registration Function
 extern "C"
@@ -51,6 +57,37 @@ extern "C"
 
 void
 register_factories( ::kv::plugin_loader& vpl )
+{
+  ::kv::logger_handle_t log = ::kv::get_logger(
+    "python.kwiver.vital.plugins.register_factories"
+  );
+
+  // The plugin loader calls this through a function pointer, so an exception
+  // leaving here unwinds out of an extern "C" boundary and reaches
+  // std::terminate -- killing every process that loads this plugin, kwiver's
+  // own tools included. Python plugins are an optional extra: if discovery
+  // fails, say the interpreter cannot import the discovery module, the host
+  // should carry on without them.
+  try
+  {
+    register_factories_impl( vpl );
+  }
+  catch( std::exception const& e )
+  {
+    LOG_ERROR(
+      log, "Python plugin discovery failed, continuing without python "
+      "plugins: " << e.what() );
+  }
+  catch( ... )
+  {
+    LOG_ERROR(
+      log, "Python plugin discovery failed with an unrecognized exception, "
+      "continuing without python plugins" );
+  }
+}
+
+void
+register_factories_impl( ::kv::plugin_loader& vpl )
 {
   ::kv::logger_handle_t log = ::kv::get_logger(
     "python.kwiver.vital.plugins.register_factories"
