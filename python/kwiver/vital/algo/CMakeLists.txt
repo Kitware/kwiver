@@ -141,8 +141,14 @@ else ()
 # parses the same headers cleanly, and it still finds the system libstdc++ by
 # detecting the GCC installation, so emulating nothing is both simpler and
 # more portable than requiring a clang on PATH for the generator's benefit.
+#
+# castxml's clang still has to find a standard library, though, and it only
+# looks where a GCC installation would normally be. Hand it the include
+# directories the build compiler itself uses so a toolchain kept somewhere
+# else -- a Red Hat gcc-toolset under /opt/rh, say -- is found as well.
 file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/config.ini.in
 "run_external_castxml=1
+compiler_include_dirs=${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
 ")
 endif ()
 file(GENERATE

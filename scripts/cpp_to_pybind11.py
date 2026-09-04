@@ -506,6 +506,7 @@ def parse_headers(
     declaration_names,
     run_external_castxml=None,
     compiler_path=None,
+    compiler_include_dirs=(),
 ):
     """
     Parse the provided headers and extract declatation form them.
@@ -543,6 +544,14 @@ def parse_headers(
         command.append(generator_path)
         command.append(cflags)
         command.append(" ".join(f'-I"{path}"' for path in include_directories))
+        # castxml parses with its own bundled clang, which looks for a GCC
+        # installation in the usual prefixes. That misses a standard library
+        # kept anywhere else -- a Red Hat gcc-toolset under /opt/rh, say, where
+        # nothing but <cstdlib> not found comes back. Point it at the include
+        # directories the compiler doing the build actually uses.
+        command.append(
+            " ".join(f'-isystem "{path}"' for path in compiler_include_dirs)
+        )
         command.append("-c -x c++")
         if compiler_path:
             command.append(f'--castxml-cc-msvc  "(" "{compiler_path}"  -std:c++17  ")"')
@@ -606,6 +615,13 @@ def parse_arguments():
         "-I",
         "--include-dirs",
         help="Add an include directory to the parser",
+        default="",
+    )
+
+    arg_parser.add_argument(
+        "--compiler-include-dirs",
+        help="The build compiler's own implicit include directories, passed to "
+        "castxml as -isystem so it finds that compiler's standard library",
         default="",
     )
 
@@ -711,6 +727,9 @@ def parse_arguments():
     args.output = [wd / output for output in args.output]
     args.input = [sd / filename for filename in args.input]
     args.include_dirs = args.include_dirs.split(sep)
+    args.compiler_include_dirs = [
+        d for d in args.compiler_include_dirs.split(sep) if d
+    ]
     logger.debug(f"{args.declaration_names=}")
     logger.debug(f"{args.input=}")
     return args
@@ -739,6 +758,7 @@ if __name__ == "__main__":
         args.declaration_names,
         args.run_external_castxml,
         args.compiler_path,
+        args.compiler_include_dirs,
     )
 
     try:
