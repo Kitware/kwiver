@@ -90,8 +90,18 @@ function (kwiver_add_python_library    name    modpath)
     set(library_subdir "${modpath}")
   else()
     if(WIN32)
-        # do not prepend "/Lib" . It is already contained in kwiver_python_subdir
+      # A stock Windows python keeps its packages in "Lib/site-packages", so
+      # kwiver_python_subdir comes out as "Lib" and already carries the library
+      # directory -- prepending another one would give "lib/Lib/...". A python
+      # laid out the unix way, which is what an internally built one uses, gives
+      # "python3.X" instead, and dropping the library directory there leaves the
+      # destination rooted at "/python3.X/site-packages" -- an absolute path that
+      # installs outside the install prefix entirely.
+      string(TOLOWER "${kwiver_python_subdir}" _kwiver_python_subdir_lower)
+      string(TOLOWER "${KWIVER_DEFAULT_LIBRARY_DIR}" _kwiver_library_dir_lower)
+      if(_kwiver_python_subdir_lower STREQUAL _kwiver_library_dir_lower)
         set(library_dir "")
+      endif()
     endif()
     set(library_subdir "/${kwiver_python_subdir}/${python_sitename}/${project_name}/${modpath}")
   endif()
