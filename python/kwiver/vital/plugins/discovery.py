@@ -22,7 +22,15 @@ from kwiver.vital.plugins import Pluggable
 # the python version 3.10+ `importlib.metadata.entry_points`.
 # This comparison IS NOT CHAINED on purpose to support mypy compatibility.
 # noinspection PyChainedComparisons
-if sys.version_info >= (3, 8):
+if sys.version_info >= (3, 10):
+    import importlib.metadata as metadata
+
+    # entry_points() returns an EntryPoints object from 3.10 on, and its
+    # dict-style .get() was removed outright in 3.12, so select by group.
+    def get_ns_entrypoints(ns: str) -> Iterable["metadata.EntryPoint"]:
+        return metadata.entry_points(group=ns)
+
+elif sys.version_info >= (3, 8):
     import importlib.metadata as metadata
 
     def get_ns_entrypoints(ns: str) -> Iterable["metadata.EntryPoint"]:
