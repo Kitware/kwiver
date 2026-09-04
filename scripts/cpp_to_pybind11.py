@@ -544,7 +544,11 @@ def parse_headers(
         command.append(cflags)
         command.append(" ".join(f'-I"{path}"' for path in include_directories))
         command.append("-c -x c++")
-        command.append(f'--castxml-cc-msvc  "(" "{compiler_path}"  -std:c++17  ")"')
+        if compiler_path:
+            command.append(f'--castxml-cc-msvc  "(" "{compiler_path}"  -std:c++17  ")"')
+        # With no compiler_path we ask castxml to emulate nothing and parse
+        # with its own bundled clang, which is the only combination that reads
+        # a modern glibc without tripping over the _FloatN types.
         command.append(f"--castxml-output=1")
         command.append(f"-o python_kwiver_vital_algo.xml python_kwiver_vital_algo.h")
         command.append('--castxml-start "{0}"'.format(",".join(declaration_names)))
@@ -555,6 +559,13 @@ def parse_headers(
         process = subprocess.Popen(args=cmd_line, shell=True, stdout=subprocess.PIPE)
 
         process.wait()
+        if process.returncode != 0:
+            # Without this the missing xml surfaces later as a bare "xml file
+            # does not exist" from pygccxml, with castxml's actual diagnostics
+            # nowhere in sight.
+            raise RuntimeError(
+                f"CASTXML failed with exit code {process.returncode}: {cmd_line}"
+            )
         parsed_declarations = parser.parse_xml_file(
             "python_kwiver_vital_algo.xml", config=config
         )

@@ -130,6 +130,20 @@ file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/config.ini.in
 "run_external_castxml=1
 compiler_path=${KWIVER_PYBIND11_CASTXML_COMPILER}
 ")
+else ()
+# Elsewhere, drive castxml ourselves as well, but with no compiler to emulate
+# at all. Left to itself pygccxml always asks castxml to emulate a host
+# compiler, choosing clang++ if it can find one and falling back to c++, and
+# emulating GCC 13 against glibc 2.39 is a combination castxml cannot handle:
+# it stubs _Float32/_Float64/_Float128 out as opaque structs that glibc's own
+# iseqsig and strtof32 overloads no longer match, giving 20 errors out of
+# <cmath>, <cwchar> and <cstdlib> and no xml file. castxml's own bundled clang
+# parses the same headers cleanly, and it still finds the system libstdc++ by
+# detecting the GCC installation, so emulating nothing is both simpler and
+# more portable than requiring a clang on PATH for the generator's benefit.
+file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/config.ini.in
+"run_external_castxml=1
+")
 endif ()
 file(GENERATE
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/config.ini
