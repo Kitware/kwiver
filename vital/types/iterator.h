@@ -300,6 +300,27 @@ public:
   /// Use base class's equality operator overload.
   using base_t::operator=;
 
+  /// Friend operator== overload for testing two same-type iterators.
+  ///
+  /// The base class overload already handles this, but only by converting
+  /// both arguments to the base. The mixed const/non-const overloads on
+  /// const_iterator convert exactly one argument, so neither candidate is
+  /// better than the other for every argument and the comparison is
+  /// ambiguous. An exact match for the same-type case outranks all of them.
+  friend bool
+  operator==( iterator< T > const& lhs, iterator< T > const& rhs )
+  {
+    return static_cast< base_t const& >( lhs ) ==
+           static_cast< base_t const& >( rhs );
+  }
+
+  /// Friend operator!= overload for testing two same-type iterators.
+  friend bool
+  operator!=( iterator< T > const& lhs, iterator< T > const& rhs )
+  {
+    return !( lhs == rhs );
+  }
+
   /// Allow const_iterator to access protected members when copy-constructing
   /// from a non-const iterator instance.
   friend class const_iterator< T >;
@@ -383,6 +404,27 @@ public:
 
   /// Use base class's equality operator overload.
   using base_t::operator=;
+
+  /// Friend operator== overload for testing two same-type iterators.
+  ///
+  /// The base class overload already handles this, but only by converting
+  /// both arguments to the base. The mixed const/non-const overloads on
+  /// const_iterator convert exactly one argument, so neither candidate is
+  /// better than the other for every argument and the comparison is
+  /// ambiguous. An exact match for the same-type case outranks all of them.
+  friend bool
+  operator==( const_iterator< T > const& lhs, const_iterator< T > const& rhs )
+  {
+    return static_cast< base_t const& >( lhs ) ==
+           static_cast< base_t const& >( rhs );
+  }
+
+  /// Friend operator!= overload for testing two same-type iterators.
+  friend bool
+  operator!=( const_iterator< T > const& lhs, const_iterator< T > const& rhs )
+  {
+    return !( lhs == rhs );
+  }
 
   /// Friend operator== overload for testing [non-const, const] equality.
   friend bool
