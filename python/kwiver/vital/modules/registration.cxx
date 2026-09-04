@@ -12,6 +12,7 @@
 #include <vital/plugin_management/plugin_loader.h>
 
 #include <algorithm>
+#include <exception>
 #include <pybind11/stl.h>
 #include <string>
 // ==================================================================
@@ -51,10 +52,43 @@ static void load_additional_cpp_modules( kwiver::vital::plugin_loader& vpm );
  * modules that are advertised through entrypoints.
  */
 
+// Python plugin discovery is best effort: a host with a broken or missing
+// python environment should lose the python plugins, not die. This entry point
+// is called through a function pointer from the plugin loader, so anything that
+// escapes it unwinds through an extern "C" boundary and reaches std::terminate
+// -- which aborts every process that loads this plugin, kwiver's own tools
+// included. The body already ignores python exceptions; catch everything else
+// here so the same is true of the C++ ones.
+static void register_factories_impl( kwiver::vital::plugin_loader& vpm );
+
 extern "C"
 MODULES_PYTHON_EXPORT
 void
 register_factories( kwiver::vital::plugin_loader& vpm )
+{
+  auto logger = kwiver::vital::get_logger( "vital.python_modules" );
+  try
+  {
+    register_factories_impl( vpm );
+  }
+  catch( std::exception const& e )
+  {
+    LOG_ERROR(
+      logger,
+      "Python plugin registration failed, continuing without the python "
+      "plugins: " << e.what() );
+  }
+  catch( ... )
+  {
+    LOG_ERROR(
+      logger,
+      "Python plugin registration failed with an unrecognized exception, "
+      "continuing without the python plugins" );
+  }
+}
+
+void
+register_factories_impl( kwiver::vital::plugin_loader& vpm )
 {
   if( is_suppressed() )
   {

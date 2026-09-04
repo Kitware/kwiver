@@ -1,8 +1,14 @@
 import sysconfig
-import distutils.sysconfig as du_sysconfig
 import sys
 import os
 import itertools
+
+try:
+    import distutils.sysconfig as du_sysconfig
+except ImportError:
+    # distutils was removed in python 3.12. It is only consulted here for
+    # LIBDIR, which sysconfig reports as well.
+    du_sysconfig = sysconfig
 
 
 def find_python_library():
