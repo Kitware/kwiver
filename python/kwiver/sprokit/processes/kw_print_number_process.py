@@ -28,7 +28,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import print_function
 import kwiver.sprokit.pipeline.process
-import kwiver.vital.config.config
 
 import os.path
 
