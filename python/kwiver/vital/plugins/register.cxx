@@ -272,37 +272,41 @@ check_and_initialize_python_interpreter()
   }
 
   // if we are in a virtual enviroment add its site-packages in the module
-  // search paths of the interpreter
-  std::string virtual_env_site_packages_path =
+  // search paths of the interpreter.
+  //
+  // Only the first call through here does so. This function runs again for
+  // every plugin load, and by then the GIL has been handed back by
+  // PyEval_SaveThread() below, so the GIL has to be reacquired before touching
+  // the interpreter -- otherwise the second load faults.
+  static bool virtual_env_path_added = false;
+  std::string const virtual_env_site_packages_path =
     get_virtual_env_site_packages();
-  if( !virtual_env_site_packages_path.empty() )
+  if( !virtual_env_path_added && !virtual_env_site_packages_path.empty() )
   {
+    virtual_env_path_added = true;
+
     LOG_DEBUG(
       log,
       "Adding " << virtual_env_site_packages_path << " to pythonpath" );
 
-    PyObject* sys_path = PySys_GetObject( "path" );
-    if( !sys_path )
-    {
-      LOG_ERROR( log, "Error getting sys.path" );
-      return true;
-    }
+    py::gil_scoped_acquire gil;
 
+    PyObject* sys_path = PySys_GetObject( "path" );
     PyObject* item =
       PyUnicode_FromStringAndSize(
         virtual_env_site_packages_path.c_str(),
         virtual_env_site_packages_path.size() );
-    if( PyList_Insert( sys_path, 0, item ) )
+    if( !sys_path || !item )
     {
-      LOG_ERROR( log, "Error appending item to sys.path" );
-      return true;
+      LOG_ERROR( log, "Error getting sys.path" );
+      PyErr_Clear();
     }
-    if( PySys_SetObject( "path", sys_path ) )
+    else if( PyList_Insert( sys_path, 0, item ) )
     {
-      LOG_ERROR( log, "Error setting sys.path" );
-      return true;
+      LOG_ERROR( log, "Error prepending item to sys.path" );
+      PyErr_Clear();
     }
-    Py_DECREF( item );
+    Py_XDECREF( item );
   }
 
   // Let pybind11 initialize threads and set up its internal data structures if
