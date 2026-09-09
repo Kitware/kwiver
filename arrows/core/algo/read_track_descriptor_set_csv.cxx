@@ -41,9 +41,6 @@ public:
   ~priv() {}
 
   bool m_first;
-  bool m_batch_load;
-
-  bool m_read_raw_descriptor;
 
   std::string m_delim;
   std::string m_sub_delim;
@@ -96,7 +93,7 @@ read_track_descriptor_set_csv
     d->m_first = false;
   }
 
-  if( d->m_batch_load )
+  if( d->c_batch_load() )
   {
     set = std::make_shared< vital::track_descriptor_set >( d->m_all_descs );
     return true;
@@ -165,7 +162,7 @@ read_track_descriptor_set_csv::priv
     vital::tokenize( tokens[ 3 ], tid_tokens, m_sub_delim, true );
     vital::tokenize( tokens[ 7 ], hist_tokens, m_sub_delim, true );
 
-    if( m_read_raw_descriptor )
+    if( c_read_raw_descriptor() )
     {
       vital::tokenize( tokens[ 5 ], raw_tokens, m_sub_delim, true );
     }
@@ -177,7 +174,7 @@ read_track_descriptor_set_csv::priv
     bool contains_world_info = ( hist_size == hist_tokens.size() / 10 );
 
     if( tid_size != tid_tokens.size() ||
-        ( m_read_raw_descriptor && desc_size != raw_tokens.size() ) ||
+        ( c_read_raw_descriptor() && desc_size != raw_tokens.size() ) ||
         ( !contains_world_info && hist_size != hist_tokens.size() / 6 ) )
     {
       VITAL_THROW(
@@ -190,7 +187,7 @@ read_track_descriptor_set_csv::priv
       desc->add_track_id( std::stoi( id ) );
     }
 
-    if( m_read_raw_descriptor )
+    if( c_read_raw_descriptor() )
     {
       desc->resize_descriptor( desc_size );
 
@@ -235,7 +232,7 @@ read_track_descriptor_set_csv::priv
     }
 
     // Add track to indexes
-    if( !m_batch_load && !desc->get_history().empty() )
+    if( !c_batch_load() && !desc->get_history().empty() )
     {
       int frame_index = desc->get_history().back().get_timestamp().get_frame();
       m_descs_by_frame_id[ frame_index ].push_back( desc );

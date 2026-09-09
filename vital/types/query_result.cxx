@@ -14,6 +14,9 @@ namespace vital {
 // ----------------------------------------------------------------------------
 query_result
 ::query_result()
+  : m_instance_id( 0 ),
+    m_relevancy_score( 0.0 ),
+    m_preference_score( 0.0 )
 {}
 
 // ----------------------------------------------------------------------------
@@ -78,6 +81,22 @@ query_result
 ::set_relevancy_score( double s )
 {
   m_relevancy_score = s;
+}
+
+// ----------------------------------------------------------------------------
+double
+query_result
+::preference_score() const
+{
+  return m_preference_score;
+}
+
+// ----------------------------------------------------------------------------
+void
+query_result
+::set_preference_score( double s )
+{
+  m_preference_score = s;
 }
 
 // ----------------------------------------------------------------------------
