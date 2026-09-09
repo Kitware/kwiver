@@ -49,6 +49,7 @@ create_config_trait( merge_duplicate_results, bool,
 create_algorithm_name_config_trait( descriptor_query );
 
 create_port_trait( feedback_request, query_result, "Feedback requests" );
+create_port_trait( iqr_model, uchar_vector, "Serialized IQR model bytes" );
 
 
 //------------------------------------------------------------------------------

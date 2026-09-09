@@ -178,7 +178,7 @@ if( any.type() == typeid( TYPE ) )                           \
   // Sets of query results / track descriptors are typedef'd vectors of
   // shared_ptrs (not distinct bound classes), so convert them to python
   // lists of the already-bound element types.
-  if( any.is_type< kwiver::vital::query_result_set_sptr >() )
+  if( any.type() == typeid( kwiver::vital::query_result_set_sptr ) )
   {
     auto const set_sptr =
       kwiver::vital::any_cast< kwiver::vital::query_result_set_sptr >( any );
@@ -192,7 +192,7 @@ if( any.type() == typeid( TYPE ) )                           \
     }
     return result;
   }
-  if( any.is_type< kwiver::vital::track_descriptor_set_sptr >() )
+  if( any.type() == typeid( kwiver::vital::track_descriptor_set_sptr ) )
   {
     auto const set_sptr =
       kwiver::vital::any_cast< kwiver::vital::track_descriptor_set_sptr >( any );
