@@ -282,3 +282,29 @@ TEST ( detected_object_set, filter_predicate_no_change )
 
   EXPECT_EQ( 2, do_set->size() );
 }
+
+
+TEST( detected_object_set, transform_all_polygon_pieces )
+{
+  auto det = std::make_shared< detected_object >( bounding_box_d( 0, 0, 50, 50 ) );
+  det->set_flattened_polygons( {
+    { 0, 0, 10, 0, 10, 10, 0, 10 },
+    { 30, 30, 40, 30, 40, 40, 30, 40 } } );
+  detected_object_set detections;
+  detections.add( det );
+  detections.scale( 2.0 );
+  detections.shift( 5.0, -3.0 );
+  std::vector< std::vector< double > > expected = {
+    { 5, -3, 25, -3, 25, 17, 5, 17 },
+    { 65, 57, 85, 57, 85, 77, 65, 77 } };
+  EXPECT_EQ( expected, det->get_flattened_polygons() );
+  EXPECT_EQ( expected, det->clone()->get_flattened_polygons() );
+  detected_object copied( *det );
+  EXPECT_EQ( expected, copied.get_flattened_polygons() );
+  detected_object assigned( bounding_box_d( 0, 0, 1, 1 ) );
+  assigned = copied;
+  EXPECT_EQ( expected, assigned.get_flattened_polygons() );
+  assigned.set_flattened_polygon( expected.front() );
+  EXPECT_EQ( 1, assigned.get_flattened_polygons().size() );
+  EXPECT_EQ( expected.front(), assigned.get_flattened_polygon() );
+}

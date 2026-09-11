@@ -217,15 +217,15 @@ detected_object_set
     detection->set_bounding_box( bbox );
 
     // Scale the segmentation polygon too, so it stays aligned with the bbox.
-    auto poly = detection->get_flattened_polygon();
-    if( !poly.empty() )
+    auto polygons = detection->get_flattened_polygons();
+    for( auto& poly : polygons )
     {
       for( auto& v : poly )
       {
         v *= scale_factor;
       }
-      detection->set_flattened_polygon( poly );
     }
+    detection->set_flattened_polygons( polygons );
   }
 }
 
@@ -248,16 +248,16 @@ detected_object_set
     detection->set_bounding_box( bbox );
 
     // Shift the segmentation polygon too, so it stays aligned with the bbox.
-    auto poly = detection->get_flattened_polygon();
-    if( !poly.empty() )
+    auto polygons = detection->get_flattened_polygons();
+    for( auto& poly : polygons )
     {
       for( size_t i = 0; i + 1 < poly.size(); i += 2 )
       {
         poly[ i ] += col_shift;
         poly[ i + 1 ] += row_shift;
       }
-      detection->set_flattened_polygon( poly );
     }
+    detection->set_flattened_polygons( polygons );
   }
 }
 
