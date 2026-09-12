@@ -221,6 +221,22 @@ void image_writer_process
     scoped_step_instrumentation();
     LOG_DEBUG( logger(), "Writing image to file \"" << a_file << "\"" );
 
+    // Create the containing directory. The writers do not, so a template
+    // pointing at a directory that does not exist yet wrote nothing at all --
+    // and image_io implementations vary in whether they raise, so the usual
+    // symptom was a silently empty output folder.
+    std::string const a_dir =
+      kwiversys::SystemTools::GetFilenamePath( a_file );
+
+    if( !a_dir.empty() && !kwiversys::SystemTools::FileIsDirectory( a_dir ) )
+    {
+      if( !kwiversys::SystemTools::MakeDirectory( a_dir ) )
+      {
+        VITAL_THROW( vital::file_write_exception, a_file,
+          "Unable to create output directory \"" + a_dir + "\"" );
+      }
+    }
+
     d->m_image_writer->save( a_file, input );
   }
 

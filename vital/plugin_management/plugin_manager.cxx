@@ -26,6 +26,14 @@ namespace {
 typedef kwiversys::SystemTools ST;
 
 static char const* environment_variable_name( "KWIVER_PLUGIN_PATH" );
+
+// Set to 1 to scan only KWIVER_PLUGIN_PATH and skip the paths compiled in at
+// configure time. Those are derived from CMAKE_INSTALL_PREFIX, so a relocated
+// or repackaged install still searches the tree it was built in: harmless when
+// that tree is gone, but where it survives every factory is found twice and the
+// duplicates are logged as warnings on every run.
+static char const* defaults_opt_out_variable_name(
+  "KWIVER_PLUGIN_PATH_NO_DEFAULTS" );
 static std::string const register_function_name =
   std::string( "register_factories" );
 
@@ -92,16 +100,27 @@ plugin_manager
   // Check env variable for path specification
   add_path_from_environment( environment_variable_name );
 
-  // Add the built-in search path
-  ST::Split(
-    default_module_paths, m_priv->m_search_paths,
-    PATH_SEPARATOR_CHAR );
-#ifdef CMAKE_INTDIR
-  for( auto& p : m_priv->m_search_paths )
+  // Add the built-in search path, unless the environment says this install
+  // enumerates its own plugin directories.
+  std::string no_defaults;
+
+  if( !ST::GetEnv( defaults_opt_out_variable_name, no_defaults ) ||
+      no_defaults.empty() || no_defaults == "0" )
   {
-    ST::ReplaceString( p, "$<CONFIGURATION>", CMAKE_INTDIR );
-  }
+    std::vector< std::string > builtin_paths;
+
+    ST::Split( default_module_paths, builtin_paths, PATH_SEPARATOR_CHAR );
+#ifdef CMAKE_INTDIR
+    for( auto& p : builtin_paths )
+    {
+      ST::ReplaceString( p, "$<CONFIGURATION>", CMAKE_INTDIR );
+    }
 #endif
+
+    m_priv->m_search_paths.insert(
+      m_priv->m_search_paths.end(), builtin_paths.begin(),
+      builtin_paths.end() );
+  }
 
   // Add paths to the real loader
   m_priv->m_loader->add_search_path( m_priv->m_search_paths );
