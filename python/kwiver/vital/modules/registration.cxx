@@ -113,6 +113,14 @@ register_factories_impl( kwiver::vital::plugin_loader& vpm )
     return;
   }
 
+  // Pre-loading libpython's symbols with RTLD_GLOBAL exists so that Python
+  // extension modules can resolve them. That is a Linux concern, and the
+  // helpers below are compiled only when VITAL_LOAD_PYLIB_SYM is defined,
+  // which the CMakeLists does if(UNIX). Elsewhere -- Windows in particular --
+  // the loader resolves python3xx.dll normally, so attempting this would fail
+  // by construction and reporting that failure as an error on every single
+  // run is noise that real errors then hide in.
+#ifdef VITAL_LOAD_PYLIB_SYM
   bool python_library_loaded = load_python_library_from_env();
   if( !python_library_loaded )
   {
@@ -132,6 +140,7 @@ register_factories_impl( kwiver::vital::plugin_loader& vpm )
   {
     LOG_ERROR(logger, "Cannot load python library from interpretor or env" );
   }
+#endif
   // Load python modules
   {
     pybind11::gil_scoped_acquire acquire;
