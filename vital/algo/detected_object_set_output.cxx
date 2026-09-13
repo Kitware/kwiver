@@ -39,6 +39,22 @@ void
 detected_object_set_output
 ::open( std::string const& filename )
 {
+  // Create the containing directory rather than failing on it. The error
+  // below names the file, so a missing parent directory reads as a missing
+  // output file, which sends you looking in the wrong place.
+  std::string const dir =
+    kwiversys::SystemTools::GetFilenamePath(
+      kwiversys::SystemTools::CollapseFullPath( filename ) );
+
+  if( !dir.empty() && !kwiversys::SystemTools::FileIsDirectory( dir ) )
+  {
+    if( !kwiversys::SystemTools::MakeDirectory( dir ) )
+    {
+      VITAL_THROW( file_write_exception, dir,
+        "Unable to create the output directory" );
+    }
+  }
+
   // try to open the file
   std::unique_ptr< std::ostream > file( new std::ofstream( filename ) );
   if( !*file )
