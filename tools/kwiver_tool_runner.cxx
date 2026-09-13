@@ -15,6 +15,11 @@
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <cstdio>
+#if !defined( _WIN32 )
+#include <dlfcn.h>
+#include <unistd.h>
+#endif
 #include <memory>
 #include <utility>
 
@@ -181,6 +186,60 @@ help_applet(
   std::cout << applet->m_cmd_options->help();
 }
 
+// ----------------------------------------------------------------------------
+// Leaving a process that embedded Python.
+//
+// Python extension modules -- numpy, torch, the CUDA bindings, over a hundred
+// of them in a full build -- register atexit handlers and static destructors
+// that libc runs after main returns. This driver embeds an interpreter to host
+// the python plugins and, by design, never calls Py_Finalize, so that teardown
+// runs against a live interpreter whose GIL was handed back by
+// PyEval_SaveThread(). It corrupts the heap: glibc aborts inside
+// __run_exit_handlers with "double free or corruption (!prev)", raising
+// SIGABRT long after every output file has been written and flushed.
+//
+// The damage is entirely in the exit status. A run that did its work and
+// produced its output reports 134, so batch schedulers record it as FAILED and
+// any wrapper testing $? treats a completed run as a failure -- and a
+// genuinely failed run becomes indistinguishable from a successful one.
+//
+// This needs no work to reproduce: "kwiver runner --help" aborts after doing
+// nothing but loading plugins. Holding the GIL across the handler chain does
+// not help; the heap is already corrupt by the time exit() runs.
+//
+// There is nothing left for teardown to do. The interpreter is never
+// finalized, and the applet has already written and closed its output. So
+// flush what this process owns and leave without running the handler chain.
+namespace {
+
+int
+leave( int status )
+{
+  std::cout.flush();
+  std::cerr.flush();
+  std::fflush( nullptr );
+
+#if !defined( _WIN32 )
+  // Resolved at runtime rather than linked: this driver does not link against
+  // libpython, and the symbol exists only once the python plugin module has
+  // been dlopen'd with RTLD_GLOBAL. A build with no python plugins, or a run
+  // that never loaded them, keeps ordinary teardown.
+  using py_is_initialized_t = int ( * )();
+  auto* const py_is_initialized =
+    reinterpret_cast< py_is_initialized_t >(
+      dlsym( RTLD_DEFAULT, "Py_IsInitialized" ) );
+
+  if( py_is_initialized && py_is_initialized() )
+  {
+    _exit( status );
+  }
+#endif
+
+  return status;
+}
+
+} // namespace
+
 // ============================================================================
 int
 main( int argc, char* argv[] )
@@ -268,36 +327,36 @@ main( int argc, char* argv[] )
                                             // stack variable is o.k.
 
     // Run the specified tool
-    return applet->run();
+    return leave( applet->run() );
   }
   catch( cxxopts::OptionException& e )
   {
     std::cerr << "Command argument error: " << e.what() << std::endl;
-    exit( -1 );
+    return leave( -1 );
   }
   catch( kwiver::vital::plugin_factory_not_found& )
   {
     std::cerr << "Tool \"" << argv[ 1 ] << "\" not found. Type \""
               << argv[ 0 ] << " help\" to list available tools." << std::endl;
 
-    exit( -1 );
+    return leave( -1 );
   }
   catch( kwiver::vital::vital_exception& e )
   {
     std::cerr << "Caught unhandled kwiver::vital::vital_exception: " <<
       e.what() << std::endl;
-    exit( -1 );
+    return leave( -1 );
   }
   catch( std::exception& e )
   {
     std::cerr << "Caught unhandled std::exception: " << e.what() << std::endl;
-    exit( -1 );
+    return leave( -1 );
   }
   catch( ... )
   {
     std::cerr << "Caught unhandled exception" << std::endl;
-    exit( -1 );
+    return leave( -1 );
   }
 
-  return 0;
+  return leave( 0 );
 }
