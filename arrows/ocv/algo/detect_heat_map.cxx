@@ -19,6 +19,10 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 
+#include <climits>
+#include <cstdint>
+#include <limits>
+
 namespace kwiver {
 
 namespace arrows {
@@ -196,6 +200,44 @@ mask_bounding_box(
 }
 
 // ----------------------------------------------------------------------------
+/// Disk structuring element built like vil_structuring_element::set_to_disk,
+/// so masks match those of the vxl_morphology image filter.
+static
+cv::Mat
+disk_element( double radius )
+{
+  int const half = static_cast< int >( radius + 1 );
+  cv::Mat element = cv::Mat::zeros( 2 * half + 1, 2 * half + 1, CV_8U );
+  for( int j = -half; j <= half; ++j )
+  {
+    for( int i = -half; i <= half; ++i )
+    {
+      if( i * i + j * j < radius * radius )
+      {
+        element.at< uchar >( j + half, i + half ) = 1;
+      }
+    }
+  }
+  return element;
+}
+
+// ----------------------------------------------------------------------------
+static
+double
+max_pixel_value( int depth )
+{
+  switch( depth )
+  {
+    case CV_8U: return std::numeric_limits< uint8_t >::max();
+    case CV_8S: return std::numeric_limits< int8_t >::max();
+    case CV_16U: return std::numeric_limits< uint16_t >::max();
+    case CV_16S: return std::numeric_limits< int16_t >::max();
+    case CV_32S: return std::numeric_limits< int32_t >::max();
+    default: return 1.0;
+  }
+}
+
+// ----------------------------------------------------------------------------
 // ----------------------------- Sprokit --------------------------------------
 
 /// Private implementation class
@@ -224,6 +266,10 @@ public:
   m_max_boxes() const { return parent.get_max_boxes(); }
   int
   m_pyr_red_levels() const { return parent.get_pyr_red_levels(); }
+  double
+  m_opening_radius() const { return parent.get_opening_radius(); }
+  double
+  m_closing_radius() const { return parent.get_closing_radius(); }
 
   double
   m_fixed_score() const
@@ -637,6 +683,18 @@ public:
   {
     cv::Mat mask;
     cv::threshold( heat_map, mask, m_threshold(), 1, cv::THRESH_BINARY );
+    mask.convertTo( mask, CV_8U );
+
+    if( m_opening_radius() > 0 )
+    {
+      cv::morphologyEx(
+        mask, mask, cv::MORPH_OPEN, disk_element( m_opening_radius() ) );
+    }
+    if( m_closing_radius() > 0 )
+    {
+      cv::morphologyEx(
+        mask, mask, cv::MORPH_CLOSE, disk_element( m_closing_radius() ) );
+    }
 
     auto detected_objects = std::make_shared< detected_object_set >();
 
@@ -652,8 +710,7 @@ public:
       mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE,
       cv::Point( 0, 0 ) );
 
-    auto dot = std::make_shared< detected_object_type >();
-    dot->set_score( m_class_name(), m_fixed_score() );
+    double const value_scale = 1.0 / max_pixel_value( heat_map.depth() );
 
     for( size_t j = 0; j < contours.size(); ++j )
     {
@@ -669,11 +726,32 @@ public:
             cv_bbox.x + cv_bbox.width,
             cv_bbox.y + cv_bbox.height );
 
+          double score = m_fixed_score();
+          if( m_score_mode() == "max" || m_score_mode() == "mean" )
+          {
+            cv::Mat region = cv::Mat::zeros( cv_bbox.size(), CV_8U );
+            cv::drawContours(
+              region, contours, static_cast< int >( j ), 1, cv::FILLED,
+              cv::LINE_8, cv::noArray(), INT_MAX, -cv_bbox.tl() );
+
+            cv::Mat const values = heat_map( cv_bbox );
+            if( m_score_mode() == "max" )
+            {
+              cv::minMaxLoc( values, nullptr, &score, nullptr, nullptr, region );
+            }
+            else
+            {
+              score = cv::mean( values, region )[ 0 ];
+            }
+            score *= value_scale;
+          }
+
+          auto dot = std::make_shared< detected_object_type >();
+          dot->set_score( m_class_name(), score );
+
           detected_objects->add(
             std::make_shared< kwiver::vital::detected_object >(
-              bbox,
-              m_fixed_score(),
-              dot ) );
+              bbox, score, dot ) );
         }
       }
     }
@@ -757,6 +835,14 @@ detect_heat_map
       "required." );
   }
 
+  if( d_->m_fixed_score() == -1 && d_->m_score_mode() != "max" &&
+      d_->m_score_mode() != "mean" )
+  {
+    VITAL_THROW(
+      algorithm_configuration_exception, interface_name(), impl_name(),
+      "'score_mode' must be a number, 'max', or 'mean'." );
+  }
+
   if( d_->m_threshold() < 0 && d_->m_threshold() != -1 )
   {
     VITAL_THROW(
@@ -783,6 +869,8 @@ detect_heat_map
     logger(),
     "min_fill_fraction: " << std::to_string( d_->m_min_fill_fraction() ) );
   LOG_DEBUG( logger(), "class_name: " << d_->m_class_name() );
+  LOG_DEBUG( logger(), "opening_radius: " << d_->m_opening_radius() );
+  LOG_DEBUG( logger(), "closing_radius: " << d_->m_closing_radius() );
 
   LOG_DEBUG( logger(), "score_mode: " << d_->m_score_mode() );
   LOG_DEBUG( logger(), "fixed_score: " << d_->m_fixed_score() );

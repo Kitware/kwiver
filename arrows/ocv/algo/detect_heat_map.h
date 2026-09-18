@@ -73,6 +73,21 @@ public:
       -1.0 ),
 
     PARAM_DEFAULT(
+      opening_radius, double,
+      "Radius of the disk used to morphologically open the "
+      "thresholded mask before connected components are found. "
+      "The disk holds the offsets strictly closer than this "
+      "radius to its center. 0 disables the opening.",
+      0.0 ),
+
+    PARAM_DEFAULT(
+      closing_radius, double,
+      "Radius of the disk used to morphologically close the "
+      "thresholded mask, after any opening, before connected "
+      "components are found. 0 disables the closing.",
+      0.0 ),
+
+    PARAM_DEFAULT(
       force_bbox_width, int,
       "Create bounding boxes of this fixed width.",
       -1 ),
@@ -84,10 +99,13 @@ public:
 
     PARAM_DEFAULT(
       score_mode, std::string,
-      "Mode in which a score is attributed to each detected"
-      "object. A numerical value indicates that all detected"
-      "objects will be assigned this fixed score. No other"
-      "modes are defined at this time.",
+      "Mode in which a score is attributed to each detected "
+      "object. A numerical value indicates that all detected "
+      "objects will be assigned this fixed score. For "
+      "connected-component detections, 'max' and 'mean' score "
+      "each object by the maximum or mean heat-map value over "
+      "its region, divided by the pixel type's maximum for "
+      "integer heat maps.",
       "1" ),
 
     PARAM_DEFAULT(
