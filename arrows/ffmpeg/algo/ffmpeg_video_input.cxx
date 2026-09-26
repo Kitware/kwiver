@@ -2311,6 +2311,14 @@ ffmpeg_video_input::priv::open_video_state
       ( video_stream->start_time + video_stream->duration - start_ts ) *
       av_q2d( video_stream->time_base );
   }
+
+  // Matroska commonly has a container duration but no stream duration or
+  // frame count. Use that metadata for the frame-count estimate without
+  // seeking or consuming packets from the active decoder.
+  if( format_context->duration > 0 )
+  {
+    return static_cast< double >( format_context->duration ) / AV_TIME_BASE;
+  }
   return 0.0;
 }
 

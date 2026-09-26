@@ -311,6 +311,39 @@ TEST_F ( ffmpeg_video_input, read_video )
 }
 
 // ----------------------------------------------------------------------------
+TEST_F ( ffmpeg_video_input, frame_count_without_stream_duration )
+{
+  // Lossless, intra-only derivative of ffmpeg_video.mp4, generated with:
+  // ffmpeg -i ffmpeg_video.mp4 -map 0:v:0 -c:v libx264 -crf 0 -g 1 -bf 0
+  //   ffmpeg_video.mkv
+  // The stream has neither nb_frames nor duration; the container has duration.
+  ffmpeg::ffmpeg_video_input input;
+  input.open( data_dir + "/videos/ffmpeg_video.mkv" );
+  EXPECT_EQ( expected_frame_count, input.num_frames() );
+
+  for( size_t i = 0; i < 3; ++i )
+  {
+    ASSERT_TRUE( input.next_frame() );
+  }
+  auto const before = input.frame_timestamp();
+  EXPECT_EQ( expected_frame_count, input.num_frames() );
+  EXPECT_EQ( before.get_frame(), input.frame_timestamp().get_frame() );
+  EXPECT_EQ( before.get_time_usec(), input.frame_timestamp().get_time_usec() );
+
+  ASSERT_TRUE( input.next_frame() );
+  EXPECT_EQ( 4, input.frame_timestamp().get_frame() );
+  EXPECT_EQ( 4, decode_barcode( *input.frame_image() ) );
+
+  size_t frame_count = 4;
+  while( input.next_frame() )
+  {
+    ++frame_count;
+  }
+  EXPECT_EQ( expected_frame_count, frame_count );
+  EXPECT_EQ( expected_frame_count, input.num_frames() );
+}
+
+// ----------------------------------------------------------------------------
 TEST_F ( ffmpeg_video_input, read_video_nth_frame_output )
 {
   // Make config block
