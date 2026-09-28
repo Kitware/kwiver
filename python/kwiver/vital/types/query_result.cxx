@@ -63,6 +63,9 @@ PYBIND11_MODULE( query_result, m )
       "relevancy_score", &kv::query_result::relevancy_score,
       &kv::query_result::set_relevancy_score )
     .def_property(
+      "preference_score", &kv::query_result::preference_score,
+      &kv::query_result::set_preference_score )
+    .def_property(
       "location", &kv::query_result::location,
       &kv::query_result::set_location )
     .def_property(
