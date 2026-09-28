@@ -320,13 +320,14 @@ image_container_to_ocv_matrix(
   if( const ocv::image_container* c =
         dynamic_cast< const ocv::image_container* >( &img ) )
   {
+    result = c->get_Mat();
     if( cm != image_container::BGR_COLOR ||
         result.channels() < 3 || result.channels() > 4 )
     {
       // Want something other than a BGR(A) image
       return c->get_Mat();
     }
-    result = c->get_Mat().clone();
+    result = result.clone();
   }
   else
   {

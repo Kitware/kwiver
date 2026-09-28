@@ -491,3 +491,14 @@ TEST ( image, bad_conversions )
       image_of< uint64_t >( 200, 300 ), ocv::image_container::RGB_COLOR ),
     image_type_mismatch_exception );
 }
+
+// A container stores RGB even when the caller requests an OpenCV BGR matrix.
+TEST( image, container_to_bgr_preserves_original_rgb )
+{
+  cv::Mat rgb( 1, 1, CV_8UC3, cv::Scalar( 11, 35, 135 ) );
+  ocv::image_container image( rgb, ocv::image_container::RGB_COLOR );
+  cv::Mat bgr = ocv::image_container_to_ocv_matrix(
+    image, ocv::image_container::BGR_COLOR );
+  EXPECT_EQ( cv::Vec3b( 135, 35, 11 ), bgr.at< cv::Vec3b >( 0, 0 ) );
+  EXPECT_EQ( cv::Vec3b( 11, 35, 135 ), image.get_Mat().at< cv::Vec3b >( 0, 0 ) );
+}

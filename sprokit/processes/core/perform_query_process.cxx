@@ -403,6 +403,8 @@ perform_query_process
     const sprokit::datum_t dat = sprokit::datum::complete_datum();
 
     push_datum_to_port_using_trait( query_result, dat );
+    push_datum_to_port_using_trait( feedback_request, dat );
+    push_datum_to_port_using_trait( iqr_model, dat );
     return;
   }
 
