@@ -70,7 +70,19 @@ public:
       "  - klv0104 - use klv 0104 format metadata for frame time\n"
       "  - current - use current time as the frame time\n"
       "  - start_at_0 - start metadata time at 0",
-      "start_at_0" ) )
+      "start_at_0" ),
+    PARAM_DEFAULT(
+      crop_left, bool,
+      "Output only the left half of each frame. For stitched stereo video, "
+      "where every frame holds the left camera in its left half and the right "
+      "camera in its right half, this reads the left camera.",
+      false ),
+    PARAM_DEFAULT(
+      crop_right, bool,
+      "Output only the right half of each frame; the right camera of "
+      "stitched stereo video. An odd-width frame drops its middle column so "
+      "both halves are the same size.",
+      false ) )
 
   virtual ~vidl_ffmpeg_video_input();
 

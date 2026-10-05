@@ -90,6 +90,30 @@ public:
   bool
   c_disable_image_load() { return m_parent.get_disable_image_load(); }
 
+  bool c_crop_left() { return m_parent.get_crop_left(); }
+
+  bool c_crop_right() { return m_parent.get_crop_right(); }
+
+  // Keep only the configured half of a loaded image.
+  kv::image_container_sptr
+  crop( kv::image_container_sptr const& whole )
+  {
+    if( !whole || ( !c_crop_left() && !c_crop_right() ) )
+    {
+      return whole;
+    }
+
+    auto const half_width = whole->width() / 2;
+    auto const x_offset = c_crop_right() ? whole->width() - half_width : 0;
+
+    // Copied rather than viewed so consumers get contiguous memory.
+    kv::image half;
+    half.copy_from(
+      whole->get_image().crop( x_offset, 0, half_width, whole->height() ) );
+    return std::make_shared< kv::simple_image_container >(
+      half, whole->get_metadata() );
+  }
+
   // Local state
   std::vector< kv::path_t > m_files;
   std::vector< kv::path_t >::const_iterator m_current_file;
@@ -164,6 +188,13 @@ bool
 video_input_image_list
 ::check_configuration( vital::config_block_sptr config ) const
 {
+  if( config->get_value< bool >( "crop_left", false ) &&
+      config->get_value< bool >( "crop_right", false ) )
+  {
+    LOG_ERROR( logger(), "crop_left and crop_right cannot both be set" );
+    return false;
+  }
+
   // Check the reader configuration.
   return kwiver::vital::check_nested_algo_configuration< image_io >(
     "image_reader", config );
@@ -390,6 +421,8 @@ video_input_image_list
         d->m_image = kv::image_container_sptr();
       }
     }
+
+    d->m_image = d->crop( d->m_image );
   }
   return d->m_image;
 }

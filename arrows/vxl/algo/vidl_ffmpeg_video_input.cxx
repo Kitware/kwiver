@@ -24,6 +24,8 @@
 #include <vidl/vidl_convert.h>
 #include <vidl/vidl_ffmpeg_istream.h>
 
+#include <vil/vil_crop.h>
+
 #include <kwiversys/SystemTools.hxx>
 
 #include <chrono>
@@ -581,6 +583,13 @@ vidl_ffmpeg_video_input
     retcode = false;
   }
 
+  if( config->get_value< bool >( "crop_left", false ) &&
+      config->get_value< bool >( "crop_right", false ) )
+  {
+    LOG_ERROR( logger(), "crop_left and crop_right cannot both be set" );
+    retcode = false;
+  }
+
   // validate start frame
   if( config->has_value( "start_at_frame" ) )
   {
@@ -970,6 +979,17 @@ vidl_ffmpeg_video_input
     VITAL_THROW(
       kwiver::vital::video_stream_exception,
       "could not convert image to vidl format" );
+  }
+
+  if( c_crop_left || c_crop_right )
+  {
+    auto const half_width = img.ni() / 2;
+    auto const x_offset = c_crop_right ? img.ni() - half_width : 0;
+
+    // Copied rather than viewed so consumers get contiguous memory.
+    vil_image_view< vxl_byte > half;
+    half.deep_copy( vil_crop( img, x_offset, half_width, 0, img.nj() ) );
+    img = half;
   }
 
   // make an image container and add the first metadata object, if there is one

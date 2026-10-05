@@ -70,6 +70,18 @@ public:
       "situations or when performing detection conversions which just want "
       "to make use of this process for its output filenames.",
       false ),
+    PARAM_DEFAULT(
+      crop_left, bool,
+      "Output only the left half of each image. For stitched stereo imagery, "
+      "where every image holds the left camera in its left half and the right "
+      "camera in its right half, this reads the left camera.",
+      false ),
+    PARAM_DEFAULT(
+      crop_right, bool,
+      "Output only the right half of each image; the right camera of "
+      "stitched stereo imagery. An odd-width image drops its middle column so "
+      "both halves are the same size.",
+      false ),
     PARAM(
       image_reader, kwiver::vital::algo::image_io_sptr,
       "Algorithm to use for reading the images" )
